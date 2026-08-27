@@ -19,11 +19,19 @@ HTML à mão, e o histórico de revisões perde-se.
   automaticamente em cada sessão.
 - Estrutura de pastas: `app/`, `docs/`, `tests/`.
 
+## Proposta de evolução técnica
+
+`docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` analisa a arquitetura e propõe um
+caminho em três camadas — rede de segurança, tipos sem compilação, fonte em módulos com
+entrega em ficheiro único — mais seis correções estruturais. Fecha com três decisões por
+tomar. Ainda não há nada dela implementado.
+
 ## Próximo passo
 
 1. Colocar a última revisão do HTML em `app/` e registar aqui o número de revisão.
-2. Montar o arnês de teste em `tests/`: validação de sintaxe do `<script>` isolado
-   e um teste funcional em jsdom.
+2. Decidir sobre os três pontos da secção 8 da proposta de evolução.
+3. Montar a camada 0 da proposta: validação de sintaxe do `<script>` isolado, ESLint,
+   testes das funções puras de conformidade e integração contínua.
 
 ## Trabalho em aberto
 

@@ -36,6 +36,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 |---|---|
 | `app/` | A aplicação, um ficheiro HTML por revisão, com o nome pela convenção |
 | `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
+| `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
 | `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
 | `tests/` | Testes funcionais em jsdom, mantidos entre sessões |
 
