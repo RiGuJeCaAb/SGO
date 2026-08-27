@@ -4,46 +4,51 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-O repositório contém a especificação e as regras de trabalho. **O código da aplicação
-ainda não está aqui.** A última revisão do ficheiro HTML existe fora do repositório,
-em anexo de conversa, e tem de ser trazida para `app/` com o nome pela convenção
-`CSREPCDouro_rNNNN_AAAAMMDDHHMM_EstacaoPEA_CLD.html`.
+O repositório tem a especificação, as regras de trabalho, a proposta de evolução técnica e
+a camada 0 de verificação a funcionar. **O código da aplicação ainda não está aqui.**
 
-Enquanto isso não acontecer, cada sessão de trabalho continua a depender de anexar o
-HTML à mão, e o histórico de revisões perde-se.
+As revisões do HTML existem fora do repositório, em anexos de conversa. Enquanto não
+forem colocadas em `app/`, as ferramentas não têm sobre o que correr e cada sessão de
+trabalho continua a depender de anexar o ficheiro à mão.
+
+## Decisões tomadas
+
+Registadas em 2026-08-27, sobre a proposta de evolução técnica.
+
+| Decisão | Resolução |
+|---|---|
+| Camada 2, fonte em módulos com entrega em ficheiro único | **Aceite.** O ficheiro entregue não muda; passa a ser preciso Node para produzir uma entrega |
+| Revisões antigas do HTML | **Ficam todas em `app/`**, desde a primeira. A ordem alfabética dos nomes é a ordem das revisões |
+| Pipeline de seis agentes | **Reformulado.** Quatro dos seis são cálculos determinísticos e ficam dentro da aplicação; os dois restantes seguem a via C, com o serviço acompanhante em aberto. Ver `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` |
 
 ## Feito
 
 - Especificação de continuidade fixada em `docs/`.
 - `CLAUDE.md` com as restrições não negociáveis e o método de trabalho, lido
   automaticamente em cada sessão.
-- Estrutura de pastas: `app/`, `docs/`, `tests/`.
-
-## Proposta de evolução técnica
-
-`docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` analisa a arquitetura e propõe um
-caminho em três camadas — rede de segurança, tipos sem compilação, fonte em módulos com
-entrega em ficheiro único — mais seis correções estruturais. Fecha com três decisões por
-tomar. Ainda não há nada dela implementado.
+- Proposta de evolução técnica e desenho do pipeline de análise, em `docs/`.
+- **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
+  ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
+  executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
 
 ## Próximo passo
 
-1. Colocar a última revisão do HTML em `app/` e registar aqui o número de revisão.
-2. Decidir sobre os três pontos da secção 8 da proposta de evolução.
-3. Montar a camada 0 da proposta: validação de sintaxe do `<script>` isolado, ESLint,
-   testes das funções puras de conformidade e integração contínua.
+1. Colocar todas as revisões do HTML em `app/`, da primeira à mais recente.
+2. Correr `npm run tudo` sobre a revisão mais alta e tratar o que aparecer.
+3. Correções 4.1 (versionar o estado gravado) e 4.2 (inverter o sentido de `lerForm`),
+   com os testes já a proteger.
+4. Camada 1: tipos em JSDoc para o estado.
+5. Correção 4.3 (registo de regras de conformidade) e `docs/FONTES.md`.
+6. Camada 2, com a divisão em módulos a seguir a estrutura da secção 5.1 da especificação.
 
 ## Trabalho em aberto
 
-Da secção 12 da especificação, por ordem de dependência e não de prioridade:
-
-- Pipeline de seis agentes previsto na arquitetura técnica: Meteo, Topografia,
-  Demografia, Comportamento do Fogo, Sintetizador e Crítico.
-- Exportação do PEA em DOCX com tipografia de letras empilhadas, já resolvida noutro
-  protótipo, em vez de fusão vertical de células.
-- Briefing de passagem de comando gerado a partir da estrutura do PCO e do plano de
-  comunicações.
-- Impressão do plano de comunicações em folha autónoma, para afixar no PCO.
+- Camada de análise determinística: consolidar Meteo, Topografia e Demografia; fixar a
+  fonte do modelo de comportamento do fogo antes de escrever esse módulo.
+- Exportação do contexto da ocorrência e importação de proposta, com validação.
+- Exportação do PEA em DOCX, com direção de texto na célula em vez de fusão vertical.
+- Briefing de passagem de comando, determinístico.
+- Impressão do plano de comunicações em folha autónoma.
 
 ## Pontos por confirmar em fonte
 
@@ -54,6 +59,7 @@ Marcados como tal na interface, não devem ser dados como assentes:
 2. Séries de banda alta CT e CM. Só o manobra 4 (CM4) tem confirmação direta, na
    DON n.º 2.
 3. Numeração da NEP n.º 8/NT/2010 para a banda alta de VHF, não verificada linha a linha.
+4. Modelo de comportamento do fogo a adotar. Decisão doutrinária, prévia ao código.
 
 ## Registo de revisões
 

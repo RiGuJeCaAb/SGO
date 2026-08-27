@@ -1,0 +1,18 @@
+{
+  "name": "sgo-estacao-pea",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ferramentas de desenvolvimento da Estação PEA. A aplicação entregue não depende de nada disto.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "verificar": "node ferramentas/verificar.mjs",
+    "testar": "node --test tests/*.test.mjs",
+    "lint": "node ferramentas/lint.mjs",
+    "tudo": "npm run verificar && npm run testar && npm run lint"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "eslint": "^9.9.0"
+  }
+}

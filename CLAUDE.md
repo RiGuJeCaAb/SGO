@@ -38,17 +38,20 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 | `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
 | `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
 | `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
-| `tests/` | Testes funcionais em jsdom, mantidos entre sessões |
+| `docs/CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
+| `ferramentas/` | Extração do script, verificação de sintaxe e análise estática |
+| `tests/` | Testes, mantidos entre sessões. Ver `tests/README.md` |
 
 ## Método de trabalho
 
 - Alterar sempre o ficheiro único; não partir a aplicação em módulos.
-- Antes de entregar: validar a sintaxe do `<script>` isolado e correr um teste funcional
-  em jsdom que exercite o caminho alterado.
+- Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes e análise
+  estática. Acrescentar um teste que exercite o caminho alterado.
 - Ao substituir blocos grandes de código, confirmar por pesquisa que nenhuma função ficou
   órfã ou apagada. Já houve regressão assim, com botões a perder listeners e a falhar em
   silêncio dentro de um `try`.
-- Incrementar a revisão no rodapé e no nome do ficheiro.
+- Incrementar a revisão no rodapé e no nome do ficheiro. Guardar todas as revisões em
+  `app/`; as ferramentas escolhem sozinhas a de numeração mais alta.
 - Estado novo em `O` tem de ser declarado em `novoEstado` e normalizado em `pcoObj()` e
   `estObj()`. Campo de `meta` sem campo no formulário tem de ser preservado em `lerForm()`.
   Migração do pacote de canais faz-se em `carregarCanais`.
