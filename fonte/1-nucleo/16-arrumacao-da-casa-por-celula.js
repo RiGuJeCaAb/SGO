@@ -34,6 +34,21 @@ const ARRUMACAO = [
   { h:"Controlo de tempos e rendições",           cel:"logistica",   r:"art. 33.º; DON 2, 7.e.(5)(r)" }
 ];
 
+/* A ajuda no ecrã, um bloco por separador. Vive dentro do painel da célula desde o
+   princípio, e por isso não precisa de ser movida — mas precisa de ser auditada.
+
+   Até à r0040 os blocos de ajuda estavam nos painéis antigos e a arrumação só movia
+   cartões: ficaram sete presos dentro de contentores com `display:none`, e o botão de
+   ajuda passou a alternar uma classe que já não mostrava nada. Nada rebentava, e não
+   havia como saber. É por isso que a chave é declarada aqui e verificada. */
+const AJUDAS = [
+  { k:"comando",     r:"arts. 14.º e 15.º" },
+  { k:"planeamento", r:"arts. 26.º a 30.º e 46.º" },
+  { k:"operacoes",   r:"arts. 16.º a 25.º" },
+  { k:"logistica",   r:"arts. 31.º a 35.º" },
+  { k:"turno",       r:"DON n.º 2 / DECIR 2026, ponto 7.d.(30)" }
+];
+
 /* Painéis antigos que continuam a ser alvo de `irPara` e dos botões `data-ir`.
    Nenhuma das quarenta e tal referências espalhadas pelo código precisou de mudar:
    traduzem-se aqui, e levam ao cartão que antes encabeçava a secção. */
@@ -89,12 +104,23 @@ function arrumarCasa(){
 /* Um cartão que fique de fora, ou um registo que aponte para cartão inexistente, é
    defeito visível — e não um cartão que ninguém encontra. */
 function auditarArrumacao(){
+  const VIVOS = "#p-comando,#p-planeamento,#p-operacoes,#p-logistica,#p-turno";
   const semCelula = [...document.querySelectorAll(".card")]
-    .filter(c=>!c.closest("#p-comando,#p-planeamento,#p-operacoes,#p-logistica,#p-turno"))
+    .filter(c=>!c.closest(VIVOS))
     .map(tituloCartao);
   const semCartao = ARRUMACAO.filter(a=>!cartaoPorTitulo(a.h)).map(a=>a.h);
+
+  /* A ajuda que fica fora de um painel vivo não se vê, e o botão que a liga passa a
+     mentir. Conta como defeito, pela mesma razão que um cartão perdido. */
+  const ajudaForaDeCelula = [...document.querySelectorAll(".help")]
+    .filter(b=>!b.closest(VIVOS))
+    .map(b=>b.getAttribute("data-ajuda") || "(sem chave)");
+  const ajudaEmFalta = AJUDAS
+    .filter(a=>!document.querySelector('.help[data-ajuda="'+a.k+'"]'))
+    .map(a=>a.k);
   const semNorma = ARRUMACAO.filter(a=>!a.r).map(a=>a.h);
-  return { cartoes:document.querySelectorAll(".card").length, semCelula, semCartao, semNorma };
+  return { cartoes:document.querySelectorAll(".card").length, semCelula, semCartao, semNorma,
+    ajudas:document.querySelectorAll(".help").length, ajudaForaDeCelula, ajudaEmFalta };
 }
 
 window.irPara = pid => {

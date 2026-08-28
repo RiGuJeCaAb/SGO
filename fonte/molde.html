@@ -729,20 +729,91 @@
 <div class="wrap">
 
   <!-- 1 OCORRÊNCIA -->
-  <section class="pane on" id="p-comando"></section>
-  <section class="pane" id="p-planeamento"></section>
-  <section class="pane" id="p-operacoes"></section>
-  <section class="pane" id="p-logistica"></section>
-
-  <section class="pane" id="p-occ">
-    <div class="help"><span class="ht">Secção 1 — Identificação da ocorrência</span>
-      <p class="hd">O bilhete de identidade da ocorrência: tudo o resto depende destes campos.</p>
+  <section class="pane on" id="p-comando">
+    <div class="help" data-ajuda="comando"><span class="ht">Comando — identificação, nomeações e conformidade</span>
+      <p class="hd">O enquadramento da ocorrência: quem comanda, quem está nomeado, e o que a norma exige em cada momento. Tudo o resto depende do que se preenche aqui.</p>
       <ul>
         <li><b>N.º de ocorrência</b> — o número SADO, transmitido pelas comunicações.</li>
         <li><b>Local</b> — no formato "freguesia — concelho"; ao sair do campo, a app procura as coordenadas sozinha (Photon, Open-Meteo, OpenStreetMap).</li>
         <li><b>Coordenadas</b> — se as tiveres da carta ou do Google Maps, cola-as em qualquer formato; a app converte e mostra os três: decimal (APIs), graus-minutos (rádio e meios aéreos), graus-minutos-segundos (documento).</li>
         <li><b>Guardar ocorrência</b> — arquiva por pasta de localização; todo o estado (evolução, meteograma, PEA) fica recuperável.</li>
+        <li><b>Estrutura do PCO</b> — cada função do posto de comando previsto no artigo 14.º do Despacho n.º 4067/2024, com o nome, a entidade, o contacto e o GDH de nomeação de quem a ocupa. É este registo que fecha os avisos de nomeação obrigatória: assim que o COPAR-T for nomeado, a obrigação passa a conformidade e o nome fica no PEA.</li>
+        <li><b>Funções condicionadas</b> — o OPAR, o COPAR-T, o COPAR-A, o OPESP e o COPESP só se tornam exigíveis a partir de determinado dispositivo. A lista assinala quais estão em falta face ao que está registado em Operações.</li>
+      </ul>
+      <p><b>Como ler os avisos de conformidade:</b></p>
+      <ul>
+        <li><b>Origem</b> — cada caixa nasce de uma regra determinística aplicada ao que está registado na app: o relógio da ocorrência, o dispositivo e os registos de evolução, ambos em Operações. Nada aqui é opinião do modelo.</li>
+        <li><b>Estrutura</b> — cada caixa diz o que a app mediu (situação), o que a norma exige (fundamento) e o que compete ao COS fazer (determinação), terminando na referência exata do ponto da DON ou do Despacho.</li>
+        <li><b>Níveis</b> — vermelho é obrigação legal em incumprimento; amarelo é antecipação, algo que está prestes a tornar-se exigível; verde é conformidade confirmada, que fica registada para efeitos de prova.</li>
+        <li><b>Emissão</b> — as obrigações em incumprimento no momento da emissão ficam impressas no PEA, em quadro próprio antes das missões.</li>
       </ul></div>
+  </section>
+  <section class="pane" id="p-planeamento">
+    <div class="help" data-ajuda="planeamento"><span class="ht">Planeamento — terreno, meteorologia e proposta de PEA</span>
+      <p class="hd">O que alimenta a Situação, a Análise das ZI e a Organização do TO do plano, e a elaboração da proposta — arts. 27.º a 30.º e 46.º.</p>
+      <ul>
+        <li><b>Perímetro</b> — exportar o GeoJSON do FEB Monitorização / fogos.pt e carregar aqui; a área em hectares calcula-se do polígono (sem ficheiro, escreve-a à mão).</li>
+        <li><b>Pontos sensíveis</b> — nome + prioridade + Adicionar.</li>
+      </ul>
+      <p><b>Previsão meteorológica</b> — decide a janela de consolidação, as rotações de vento e a validade do PEA.</p>
+      <ul>
+        <li><b>Via rápida (recomendada)</b> — "Obter previsão automática": usa as coordenadas registadas em Comando e traz 36 h do ponto exato; o horizonte de análise escolhe-se ao lado.</li>
+      </ul>
+      <p><b>Via SpotWX (alternativa):</b></p>
+      <ol>
+        <li>Abrir spotwx.com e escolher o modelo (GDPS 15 km ou HRDPS);</li>
+        <li>Introduzir as coordenadas da ocorrência;</li>
+        <li>Abrir a vista "Prometheus Tabular display";</li>
+        <li>Carregar no botão CSV e guardar o ficheiro;</li>
+        <li>Carregá-lo aqui em "carregar ficheiro CSV".</li>
+      </ol>
+      <ul>
+        <li><b>Leitura</b> — sombra verde: janela favorável (HR &#8805; 50 %); sombra vermelha: crítico (HR &lt; 30 %); ROT: rotação de vento com rumos; CONV: assinatura convectiva. Consultar sempre os avisos IPMA em vigor.</li>
+      </ul>
+      <p><b>Proposta de PEA</b> — a elaboração é da célula (art. 46.º); a aprovação e determinação pertencem ao COS (art. 8.º, n.º 2, al. e)).</p>
+      <ul>
+        <li><b>Verificação de conformidade</b> — EM FALTA (vermelho) impede a emissão; RECOMENDADO (ocre) não impede mas melhora; o botão Preencher leva ao campo certo.</li>
+        <li><b>Emissão</b> — junta identificação, dispositivo, evolução desde o PEA anterior e a análise meteorológica; sem ligação ao modelo, sai a versão determinística com os mesmos números.</li>
+        <li><b>PEA em vigor</b> — o plano determinado não é um documento fechado: tem relógio de validade, mede a divergência entre o que foi planeado e o que o terreno mostra, e pede revisão quando essa divergência o justifica.</li>
+        <li><b>Controlo das missões</b> — cada missão e cada proposta do PEA em vigor tem estado. O que se marca aqui entra na fita do tempo e alimenta a situação da proposta seguinte.</li>
+        <li><b>Histórico</b> — cada proposta fica numerada, com o PEA que substitui, pronta a imprimir para assinatura do COS.</li>
+        <li><b>Ao imprimir</b> — desativar os cabeçalhos e rodapés do browser e ativar os gráficos de fundo.</li>
+      </ul></div>
+  </section>
+  <section class="pane" id="p-operacoes">
+    <div class="help" data-ajuda="operacoes"><span class="ht">Operações — dispositivo, evolução e fita do tempo</span>
+      <p class="hd">O que está no teatro de operações e o que lá vai acontecendo — arts. 16.º a 25.º. É daqui que saem os números do PEA e o relógio das rendições.</p>
+      <ul>
+        <li><b>Setores</b> — escolhe quantos são e a estrutura nasce com os nomes doutrinários (Alfa, Bravo...); em cada setor: estado no menu, comandante, e meios por tipologia (tipologia + quantidade + Atribuir). Totais e horas de empenhamento calculam-se sozinhos.</li>
+        <li><b>Estados</b> — a nomenclatura é a do ponto 7.f da DON n.º 2: em curso (ativo), em resolução (dominado), em conclusão (extinto), vigilância ativa e consolidação de rescaldo, e reativação. Cada mudança fica registada sozinha na evolução.</li>
+        <li><b>Tipologias</b> — as 54 tipologias do Anexo 1 da DON n.º 2 / DECIR 2026, agrupadas por entidade, com a composição oficial em cada opção. O campo OP/UNID pré-enche-se do catálogo e pode ser corrigido para o efetivo real da força que chegou ao TO.</li>
+        <li><b>Meios aéreos</b> — registados um a um, com tipologia, indicativo de chamada e hora de entrada no TO. É desta lista que sai a contagem que aciona o COPAR-T e o COPAR-Ar, e o relógio de cada aeronave no quadro de rendições.</li>
+        <li><b>Importar da Gestão PCO</b> — traz o dispositivo exportado pela outra aplicação, com os instantes de empenhamento. Havendo dispositivo registado, o que muda é apresentado setor a setor antes de se aplicar.</li>
+        <li><b>Alternativa</b> — marcar "Colar texto livre" e colar o quadro da app Gestão PCO.</li>
+      </ul>
+      <p><b>Evolução da situação</b> — o diário da ocorrência entre PEA; cada registo entra no próximo PEA como evolução incorporada e na fita do tempo (arts. 2.º al. c) e 27.º).</p>
+      <ul>
+        <li><b>Atalhos</b> — clica num setor para iniciar o texto por ele e nas frases-tipo para as inserir; a frase escolhida classifica o tipo do registo automaticamente.</li>
+        <li><b>Registo automático</b> — mudar o estado de um setor no dispositivo, acima, cria o registo sozinho, marcado como automático.</li>
+        <li><b>GDH</b> — vazio significa agora.</li>
+      </ul></div>
+  </section>
+  <section class="pane" id="p-logistica">
+    <div class="help" data-ajuda="logistica"><span class="ht">Logística e Finanças — comunicações, trânsito e rendições</span>
+      <p class="hd">A sustentação do teatro de operações — arts. 31.º a 35.º.</p>
+      <ul>
+        <li><b>Plano de comunicações</b> — responsabilidade da célula de logística e finanças, para aprovação do COS (artigo 32.º, alínea d). Organiza-se em três níveis: comando, tático e manobra. Cada função e cada setor recebe canal SIRESP e, quando aplicável, canal de banda alta.</li>
+        <li><b>Pacote de canais</b> — os 50 grupos de conversação SIRESP do distrito já existem e estão programados nos terminais: 5 de comando, 15 táticos e 30 de manobra. A aplicação traz o pacote carregado.</li>
+        <li><b>Sequência</b> — o COS escolhe os níveis a colocar a funcionar; abrem os canais do pacote desses níveis para atribuir ao TO; e só depois se distribuem pelos interlocutores que existem no dispositivo. Todos os campos são de lista fechada.</li>
+        <li><b>Níveis sugeridos</b> — enquanto não houver escolha manual, os níveis acompanham o dispositivo: setores ativados pedem tático e manobra, meios aéreos pedem a ligação terra/ar/terra. A partir da primeira escolha do COS a sugestão pára e passa a haver aviso do que estiver em falta.</li>
+        <li><b>Ligação terra/ar/terra</b> — a frequência do ar atribuída ao incêndio é o canal prioritário; o OPAR da sub-região e o manobra da ROB são a alternativa e a emergência (DON n.º 2, ponto 10(5)).</li>
+        <li><b>Ponto de trânsito</b> — estabelece-se quando há pedido de reforço, e é por onde os meios passam a caminho do TO (DON n.º 2, pontos 7.d.(5), (7) e (8)).</li>
+        <li><b>Ampulhetas</b> — o quadro de tempos conta as horas de cada meio no TO desde a hora de atribuição e projeta a hora de rendição, para sustentar o pedido ao CSREPC previsto no ponto 7.e.(5)(r) da DON n.º 2.</li>
+        <li><b>Saída</b> — o plano de comunicações entra no PEA e no briefing de passagem de comando.</li>
+      </ul></div>
+  </section>
+
+  <section class="pane" id="p-occ">
     <div class="card">
       <h2>Identificação da ocorrência <span class="tag">n.º SADO · registo automático neste dispositivo</span></h2>
       <div class="grid g3">
@@ -802,18 +873,6 @@
 
   <!-- 2 FONTES -->
   <section class="pane" id="p-fontes">
-    <div class="help"><span class="ht">Secção 2 — Dados operacionais</span>
-      <p class="hd">Os dados que alimentam a Situação, a Análise das ZI e a Organização do TO do PEA (célula de planeamento — art. 27.º).</p>
-      <ul>
-        <li><b>Perímetro</b> — exportar o GeoJSON do FEB Monitorização / fogos.pt e carregar aqui; a área em hectares calcula-se do polígono (sem ficheiro, escreve-a à mão).</li>
-        <li><b>Setores</b> — escolhe quantos são e a estrutura nasce com os nomes doutrinários (Alfa, Bravo...); em cada setor: estado no menu, comandante, e meios por tipologia (tipologia + quantidade + Atribuir). Totais e horas de empenhamento calculam-se sozinhos.</li>
-        <li><b>Estados</b> — a nomenclatura é a do ponto 7.f da DON n.º 2: em curso (ativo), em resolução (dominado), em conclusão (extinto), vigilância ativa e consolidação de rescaldo, e reativação. Cada mudança fica registada sozinha na evolução.</li>
-        <li><b>Tipologias</b> — as 54 tipologias do Anexo 1 da DON n.º 2 / DECIR 2026, agrupadas por entidade, com a composição oficial em cada opção. O campo OP/UNID pré-enche-se do catálogo e pode ser corrigido para o efetivo real da força que chegou ao TO.</li>
-        <li><b>Meios aéreos</b> — registados um a um, com tipologia, indicativo de chamada e hora de entrada no TO. É desta lista que sai a contagem que aciona o COPAR-T e o COPAR-Ar, e o relógio de cada aeronave no quadro de rendições.</li>
-        <li><b>Avisos</b> — o botão no cabeçalho acende a verde, amarelo ou vermelho e abre a secção onde cada verificação aparece em caixa própria, com situação, fundamento, determinação e referência ao ponto da norma.</li>
-        <li><b>Alternativa</b> — marcar "Colar texto livre" e colar o quadro da app Gestão PCO.</li>
-        <li><b>Pontos sensíveis</b> — nome + prioridade + Adicionar.</li>
-      </ul></div>
     <div class="card">
       <h2>Dados operacionais da ocorrência <span class="tag">célula de planeamento — art. 27.º do Despacho n.º 4067/2024</span></h2>
       <div class="sub"><span class="stit">Área e perímetro</span>
@@ -1024,18 +1083,6 @@
 
   <!-- 3 EVOLUÇÃO -->
   <section class="pane" id="p-pco">
-    <div class="help">
-      <h3>Como preencher esta secção</h3>
-      <ul>
-        <li><b>Estrutura do PCO</b> — cada função do posto de comando previsto no artigo 14.º do Despacho n.º 4067/2024, com o nome, a entidade, o contacto e o GDH de nomeação de quem a ocupa. É este registo que fecha os avisos de nomeação obrigatória: assim que o COPAR-T for nomeado, a obrigação passa a conformidade e o nome fica no PEA.</li>
-        <li><b>Funções condicionadas</b> — o OPAR, o COPAR-T, o COPAR-A, o OPESP e o COPESP só se tornam exigíveis a partir de determinado dispositivo. A lista assinala quais estão em falta face ao que está registado na secção 2.</li>
-        <li><b>Plano de comunicações</b> — responsabilidade da célula de logística e finanças, para aprovação do COS (artigo 32.º, alínea d). Organiza-se em três níveis: comando, tático e manobra. Cada função e cada setor recebe canal SIRESP e, quando aplicável, canal de banda alta.</li>
-        <li><b>Pacote de canais</b> — os 50 grupos de conversação SIRESP do distrito já existem e estão programados nos terminais: 5 de comando, 15 táticos e 30 de manobra. A aplicação traz o pacote carregado.</li>
-        <li><b>Sequência</b> — o COS escolhe os níveis a colocar a funcionar; abrem os canais do pacote desses níveis para atribuir ao TO; e só depois se distribuem pelos interlocutores que existem no dispositivo. Todos os campos são de lista fechada.</li>
-        <li><b>Níveis sugeridos</b> — enquanto não houver escolha manual, os níveis acompanham o dispositivo: setores ativados pedem tático e manobra, meios aéreos pedem a ligação terra/ar/terra. A partir da primeira escolha do COS a sugestão pára e passa a haver aviso do que estiver em falta.</li>
-        <li><b>Ligação terra/ar/terra</b> — a frequência do ar atribuída ao incêndio é o canal prioritário; o OPAR da sub-região e o manobra da ROB são a alternativa e a emergência (DON n.º 2, ponto 10(5)).</li>
-        <li><b>Saída</b> — a estrutura e o plano de comunicações entram no PEA e no briefing de passagem de comando.</li>
-      </ul></div>
 
     <div class="card">
       <h2>Estrutura do posto de comando <span class="tag" id="pco-tag">artigo 14.º do Despacho n.º 4067/2024</span></h2>
@@ -1115,13 +1162,6 @@
   </section>
 
   <section class="pane" id="p-evo">
-    <div class="help"><span class="ht">Secção 4 — Evolução da situação</span>
-      <p class="hd">O diário da ocorrência entre PEA; cada registo entra no próximo PEA como evolução incorporada e na fita do tempo (arts. 2.º al. c) e 27.º).</p>
-      <ul>
-        <li><b>Atalhos</b> — clica num setor para iniciar o texto por ele e nas frases-tipo para as inserir; a frase escolhida classifica o tipo do registo automaticamente.</li>
-        <li><b>Registo automático</b> — mudar o estado de um setor na secção 2 cria o registo sozinho, marcado como automático.</li>
-        <li><b>GDH</b> — vazio significa agora.</li>
-      </ul></div>
     <div class="card">
       <h2>Registo de evolução da situação operacional <span class="tag">alimenta a célula de planeamento e a fita do tempo — arts. 2.º al. c) e 27.º</span></h2>
       <div id="evo-ctx" class="tip-chips" style="margin:0 0 10px 0"></div>
@@ -1198,22 +1238,6 @@
 
   <!-- 4 METEO -->
   <section class="pane" id="p-meteo">
-    <div class="help"><span class="ht">Secção 5 — Previsão meteorológica</span>
-      <p class="hd">A previsão horária que decide a janela de consolidação, as rotações de vento e a validade do PEA.</p>
-      <ul>
-        <li><b>Via rápida (recomendada)</b> — "Obter previsão automática": usa as coordenadas da secção 1 e traz 36 h do ponto exato; o horizonte de análise escolhe-se ao lado.</li>
-      </ul>
-      <p><b>Via SpotWX (alternativa):</b></p>
-      <ol>
-        <li>Abrir spotwx.com e escolher o modelo (GDPS 15 km ou HRDPS);</li>
-        <li>Introduzir as coordenadas da ocorrência;</li>
-        <li>Abrir a vista "Prometheus Tabular display";</li>
-        <li>Carregar no botão CSV e guardar o ficheiro;</li>
-        <li>Carregá-lo aqui em "carregar ficheiro CSV".</li>
-      </ol>
-      <ul>
-        <li><b>Leitura</b> — sombra verde: janela favorável (HR ≥ 50 %); sombra vermelha: crítico (HR &lt; 30 %); ROT: rotação de vento com rumos; CONV: assinatura convectiva. Consultar sempre os avisos IPMA em vigor.</li>
-      </ul></div>
     <div class="card">
       <h2>Previsão meteorológica <span class="tag">apoio à célula de planeamento — CSV SpotWX (Prometheus) ou data;hora;T;HR;WD;WS;precip</span></h2>
       <div class="row" style="margin-bottom:12px">
@@ -1249,16 +1273,6 @@
 
   <!-- 5 PEA -->
   <section class="pane" id="p-pea">
-    <div class="help"><span class="ht">Secção 6 — Proposta de PEA</span>
-      <p class="hd">A elaboração da proposta (art. 46.º); a aprovação e determinação pertencem ao COS (art. 8.º, n.º 2, al. e)).</p>
-      <ul>
-        <li><b>Verificação de conformidade</b> — EM FALTA (vermelho) impede a emissão; RECOMENDADO (ocre) não impede mas melhora; o botão Preencher leva ao campo certo.</li>
-        <li><b>Emissão</b> — junta identificação, dispositivo, evolução desde o PEA anterior e a análise meteorológica; sem ligação ao modelo, sai a versão determinística com os mesmos números.</li>
-        <li><b>PEA em vigor</b> — o plano determinado não é um documento fechado: tem relógio de validade, mede a divergência entre o que foi planeado e o que o terreno mostra, e pede revisão quando essa divergência o justifica.</li>
-        <li><b>Controlo das missões</b> — cada missão e cada proposta do PEA em vigor tem estado. O que se marca aqui entra na fita do tempo e alimenta a situação da proposta seguinte.</li>
-        <li><b>Histórico</b> — cada proposta fica numerada, com o PEA que substitui, pronta a imprimir para assinatura do COS.</li>
-        <li><b>Ao imprimir</b> — desativar os cabeçalhos e rodapés do browser e ativar os gráficos de fundo.</li>
-      </ul></div>
     <div id="pea-vigor"></div>
     <div class="card">
       <h2>Verificação de conformidade dos dados <span class="tag">requisitos mínimos para elaboração do PEA — art. 46.º</span></h2>
@@ -1282,15 +1296,6 @@
 
   <!-- FITA -->
   <section class="pane" id="p-avisos">
-    <div class="help">
-      <h3>Como ler esta secção</h3>
-      <ul>
-        <li><b>Origem</b> — cada caixa nasce de uma regra determinística aplicada ao que está registado na app: o relógio da ocorrência, o dispositivo da secção 2 e os registos da secção 4. Nada aqui é opinião do modelo.</li>
-        <li><b>Estrutura</b> — cada caixa diz o que a app mediu (situação), o que a norma exige (fundamento) e o que compete ao COS fazer (determinação), terminando na referência exata do ponto da DON ou do Despacho.</li>
-        <li><b>Níveis</b> — vermelho é obrigação legal em incumprimento; amarelo é antecipação, algo que está prestes a tornar-se exigível; verde é conformidade confirmada, que fica registada para efeitos de prova.</li>
-        <li><b>Ampulhetas</b> — o quadro de tempos conta as horas de cada meio no TO desde a hora de atribuição e projeta a hora de rendição, para sustentar o pedido ao CSREPC previsto no ponto 7.e.(5)(r) da DON n.º 2.</li>
-        <li><b>Emissão</b> — as obrigações em incumprimento no momento da emissão ficam impressas no PEA, em quadro próprio antes das missões.</li>
-      </ul></div>
 
     <div class="card">
       <h2>Avisos ativos <span class="tag" id="av-tag">verificação contínua — DON n.º 2 / DECIR 2026</span></h2>
@@ -1318,7 +1323,7 @@
   </section>
 
   <section class="pane" id="p-turno">
-    <div class="help"><span class="ht">Passagem de turno — continuidade em espelho</span>
+    <div class="help" data-ajuda="turno"><span class="ht">Passagem de turno — continuidade em espelho</span>
       <p class="hd">A EPCO deve assegurar continuidade de trabalho pelo período necessário, em espelho, garantindo a rotatividade de funções a cada 12 horas — DON n.º 2 / DECIR 2026, ponto 7.d.(30).</p>
       <ul>
         <li><b>Não se entrega a aplicação, entrega-se uma célula.</b> Cada célula declara o seu estado e as suas pendências, e quem entra assume-as por escrito.</li>

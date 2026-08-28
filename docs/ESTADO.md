@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0040**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0041**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 44, das anteriores à convenção de nomes até à r0040 |
+| Entregas em `app/` | 45, das anteriores à convenção de nomes até à r0041 |
 | Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 226, todos a passar |
+| Testes | 231, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,52 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A ajuda no ecrã, recuperada na r0041
+
+Reportado em uso: o botão de ajuda não mostrava nada. O botão não estava partido — o que
+ele mostrava é que estava.
+
+O mecanismo funcionava todo: alternava a classe `ajuda` na raiz, a regra
+`html.ajuda .help{display:block}` estava lá, e os oito blocos existiam com o texto
+completo. O que se partiu foi **onde os blocos estavam**. A `arrumarCasa()` move para os
+separadores novos os nós com classe `card`, e os blocos de ajuda não são cartões: são
+irmãos dos cartões, filhos diretos dos painéis antigos. Ficaram lá, e os painéis antigos
+levam `husk`, que é `display:none !important`. Sete dos oito eram inalcançáveis; o oitavo,
+o da passagem de turno, aparecia — porque esse separador não foi substituído.
+
+Pior de usar do que parece: a ajuda **nasce ligada**. Ao arrancar a classe já era `ajuda` e
+o botão já dizia «Ocultar» — a aplicação afirmava que a ajuda estava visível quando não
+estava, e a primeira carregadela desligava-a. Parecia não fazer nada duas vezes seguidas.
+
+**É a terceira vez que a mesma coisa acontece.** Uma reorganização muda algo de sítio e um
+pedaço que apontava para o sítio antigo fica para trás, em silêncio: cinco campos do
+formulário no ponto de trânsito, a `auditarArrumacao` que ninguém chamava, e agora sete
+blocos de ajuda. Nenhum destes rebenta; todos desaparecem.
+
+### O que mudou
+
+A ajuda passa a ser **um bloco por separador**, porque o separador é a unidade da interface
+desde a arrumação por célula. Os sete blocos antigos, organizados pela numeração de secções
+do fluxo de trabalho — «Secção 1», «Secção 2» —, foram reescritos em quatro, um por célula,
+mais o da passagem de turno que já estava certo. Nenhuma afirmação se perdeu e nenhuma
+citação legal foi tocada; o que mudou foram os títulos e as remissões internas, que
+apontavam para secções que já não existem: «ver na secção 2» é hoje «em Operações».
+
+Cada bloco declara a sua chave em `data-ajuda` e vive dentro do painel da sua célula desde
+o princípio, e por isso não precisa de ser movido. Mas precisa de ser **auditado**: o
+registo `AJUDAS` declara os cinco, e `auditarArrumacao()` passa a devolver
+`ajudaForaDeCelula` e `ajudaEmFalta`. Um bloco que caia fora de um painel vivo, ou um
+separador que fique sem ajuda, acende o mesmo aviso que um cartão perdido. É o que fecha a
+classe de erro, em vez de tapar este caso.
+
+Um teste recusa que a ajuda volte a falar da numeração antiga.
+
+### Verificação
+
+231 testes. Verificado em navegador, separador a separador: os cinco blocos aparecem, com
+altura e conteúdo, e o botão apaga-os. Auditoria visual sem transbordo às quatro larguras e
+nos dois temas.
 
 ## O plano de comunicações no seu ramo, e os módulos na sua zona, na r0040
 
@@ -655,3 +701,4 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |

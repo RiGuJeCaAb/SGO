@@ -146,3 +146,56 @@ test('o botão de emitir o PEA seguiu para Planeamento e continua ligado',
     await new Promise((r) => setTimeout(r, 50));
     assert.ok(msg.textContent.trim(), 'o clique não produziu resposta nenhuma');
   });
+
+/* ---- a ajuda no ecrã ---- */
+
+test('há um bloco de ajuda por separador, e todos são alcançáveis', semAplicacao, () => {
+  // Até à r0040 estavam nos painéis antigos, que a arrumação marca com `husk` —
+  // `display:none !important`. Sete dos oito ficaram lá presos, e o botão de ajuda
+  // passou a alternar uma classe que já não mostrava nada. Nada rebentava.
+  const VIVOS = '#p-comando,#p-planeamento,#p-operacoes,#p-logistica,#p-turno';
+  const blocos = [...doc().querySelectorAll('.help')];
+  assert.equal(blocos.length, 5);
+  assert.deepEqual(blocos.map((b) => b.getAttribute('data-ajuda')),
+    ['comando', 'planeamento', 'operacoes', 'logistica', 'turno']);
+  blocos.forEach((b) => assert.ok(b.closest(VIVOS),
+    'ajuda fora de célula, e portanto invisível: ' + b.getAttribute('data-ajuda')));
+});
+
+test('o botão de ajuda alterna a classe que mostra os blocos', semAplicacao, async () => {
+  const raiz = doc().documentElement;
+  await janela.alternarAjuda(true);
+  assert.ok(raiz.classList.contains('ajuda'));
+  assert.equal(doc().getElementById('b-ajuda').textContent, 'Ocultar');
+
+  await janela.alternarAjuda(false);
+  assert.ok(!raiz.classList.contains('ajuda'));
+  assert.equal(doc().getElementById('b-ajuda').textContent, 'Ajuda');
+  await janela.alternarAjuda(true);
+});
+
+test('uma ajuda que fique fora de célula é acusada pela auditoria', semAplicacao, () => {
+  const b = doc().querySelector('.help[data-ajuda="logistica"]');
+  const pai = b.parentNode;
+  doc().getElementById('p-occ').appendChild(b);          // o painel antigo, escondido
+  const a = daqui(janela.auditarArrumacao());
+  assert.deepEqual(a.ajudaForaDeCelula, ['logistica']);
+  pai.insertBefore(b, pai.firstChild);
+  assert.deepEqual(daqui(janela.auditarArrumacao()).ajudaForaDeCelula, []);
+});
+
+test('um separador sem bloco de ajuda é acusado pela auditoria', semAplicacao, () => {
+  const b = doc().querySelector('.help[data-ajuda="operacoes"]');
+  const pai = b.parentNode, seguinte = b.nextSibling;
+  b.remove();
+  assert.deepEqual(daqui(janela.auditarArrumacao()).ajudaEmFalta, ['operacoes']);
+  pai.insertBefore(b, seguinte);
+  assert.deepEqual(daqui(janela.auditarArrumacao()).ajudaEmFalta, []);
+});
+
+test('a ajuda por célula fala da célula, e não da numeração que já não existe',
+  semAplicacao, () => {
+    const texto = [...doc().querySelectorAll('.help')].map((b) => b.textContent).join(' ');
+    assert.doesNotMatch(texto, /[Ss]ec[çc][ãa]o\s+\d/,
+      'a ajuda ainda remete para a numeração de secções anterior à arrumação por célula');
+  });

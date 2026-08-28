@@ -143,6 +143,8 @@ function renderQuadroTurno(){
       if(c.semCelula.length) partes.push(c.semCelula.length+" cartão(ões) fora de célula — "+c.semCelula.slice(0,6).join(", "));
       if(c.semCartao.length) partes.push("célula declarada para cartão inexistente — "+c.semCartao.slice(0,6).join(", "));
       if(c.semNorma.length) partes.push("cartão(ões) sem norma declarada — "+c.semNorma.slice(0,6).join(", "));
+      if(c.ajudaForaDeCelula.length) partes.push("ajuda fora de célula, e portanto invisível — "+c.ajudaForaDeCelula.join(", "));
+      if(c.ajudaEmFalta.length) partes.push("separador(es) sem bloco de ajuda — "+c.ajudaEmFalta.join(", "));
       av.style.display = partes.length? "block" : "none";
       av.className = "msg err";
       if(partes.length) av.textContent = "Posse por confirmar: " + partes.join(" · ");
