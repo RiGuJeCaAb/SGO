@@ -4,8 +4,9 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0014** está em `app/` e a camada 0 corre sobre ela. Sintaxe correta. A análise
-estática levantou cinco achados, todos verificados no código — ver abaixo.
+A revisão **r0015** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, vinte e nove testes a passar. Os cinco achados da r0014
+foram tratados.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
 
@@ -29,10 +30,10 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
 
-## Achados na r0014
+## Achados na r0014, resolvidos na r0015
 
-Verificados um a um. A r0014 é uma entrega feita e não se altera: as correções entram na
-r0015.
+Verificados um a um. A r0014 é uma entrega feita e não se alterou: as correções entraram
+na r0015.
 
 | Linha | Achado | Natureza |
 |---|---|---|
@@ -40,7 +41,15 @@ r0015.
 | 2023 | `leitura(p,a)` definida e nunca chamada | **Função perdida.** O comentário `/* leitura ponto-a-ponto */`, na linha 2161, encima o código que monta a legenda do meteograma sem a chamar. A interpretação operacional — abertura da janela, rotação, combustível fino disponível — não chega ao utilizador |
 | 2077 | `corRH(rh)` definida e nunca chamada | **Código morto.** A humidade relativa passou a ser desenhada com `var(--madeira)` e faixas por limiar. O `corRH` devolve cores fixas em hexadecimal, que não respeitam os dois temas. Remover, não repor |
 
-Confirmado no código, sobre as correções propostas:
+### Por resolver, encontrado na verificação visual
+
+Em largura reduzida (380 px), os três botões do cabeçalho — Guardar, Ocultar e o de tema —
+transbordam para lá da margem direita e ficam inalcançáveis. **Já acontecia na r0014**, não
+é regressão da r0015. Fica para a r0016: a barra do cabeçalho precisa de quebra de linha.
+
+Nos dois temas, em 1440 px, não há transbordo e não há exceções.
+
+### Confirmado no código, sobre as correções propostas
 
 - **Não existe versão do estado gravado.** O `migrarEstado` da linha 1430 não migra
   esquema nenhum: mapeia designações de estado de setor. A correção 4.1 mantém-se por
@@ -54,8 +63,8 @@ Confirmado no código, sobre as correções propostas:
 
 ## Próximo passo
 
-1. Emitir a r0015 com os cinco achados tratados.
-2. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
+1. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
+2. Corrigir o transbordo do cabeçalho em largura reduzida.
 3. Correções 4.1 (versionar o estado gravado) e 4.2 (inverter o sentido de `lerForm`),
    com os testes já a proteger.
 4. Camada 1: tipos em JSDoc para o estado.
@@ -86,4 +95,5 @@ Marcados como tal na interface, não devem ser dados como assentes:
 
 | Revisão | Data | Alterações |
 |---|---|---|
-| r0014 | 2026-08-27 21:08 | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
+| r0014 | 2026-08-27 22:08 | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
+| r0015 | 2026-08-28 01:17 | Reposta a chamada a `leitura()` na legenda do meteograma; removida `corRH()`, código morto com cores fixas; corrigido escape desnecessário em três expressões regulares |

@@ -23,6 +23,15 @@ listeners e a falhar em silêncio dentro de um `try`. As duas regras apanham-na
 estaticamente, sem executar nada. `tests/fixtures/orfa.html` reproduz exatamente esse
 caso, e `tests/lint.test.mjs` verifica que continua a ser apanhado.
 
+## O arnês da aplicação
+
+`tests/app.mjs` carrega a revisão mais recente de `app/` num DOM simulado e devolve a
+janela, para que os testes chamem diretamente as funções da aplicação. Os testes que dele
+dependem saltam-se sozinhos quando não há revisão em `app/`.
+
+A aplicação arma temporizadores — a conformidade é reavaliada a cada trinta segundos —,
+por isso a janela tem de ser fechada no fim, ou o processo de teste nunca termina.
+
 ## Onde investir
 
 O maior valor está nas funções puras sobre o estado — conformidade, coordenadas, CSV,
