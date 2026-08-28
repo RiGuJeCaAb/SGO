@@ -11,13 +11,15 @@
     "verificar": "node ferramentas/verificar.mjs",
     "testar": "node --test tests/*.test.mjs",
     "lint": "node ferramentas/lint.mjs",
-    "tudo": "npm run verificar && npm run testar && npm run lint",
-    "visual": "node ferramentas/visual.mjs"
+    "tudo": "npm run verificar && npm run testar && npm run lint && npm run tipos",
+    "visual": "node ferramentas/visual.mjs",
+    "tipos": "node ferramentas/tipos.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "eslint": "^9.9.0",
     "jsdom": "^30.0.1",
-    "playwright": "^1.62.1"
+    "playwright": "^1.62.1",
+    "typescript": "^7.0.2"
   }
 }

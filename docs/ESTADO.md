@@ -4,9 +4,9 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0022** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, oitenta e dois testes a passar, e auditoria visual sem
-transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
+A revisão **r0023** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, oitenta e dois testes a passar, tipos sem diagnóstico novo,
+e auditoria visual sem transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 **As seis correções estruturais da proposta de evolução estão feitas.**
 
@@ -35,6 +35,29 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Camada 1 — tipos sem compilação, feita na r0023
+
+`tipos/estacao.d.ts` declara as formas do estado e a superfície global da aplicação; o
+ficheiro entregue leva apenas nove anotações curtas que apontam para esses nomes. Não
+transpila, não produz nada, e o navegador nunca sabe que existe.
+
+O verificador expôs sete defeitos reais, todos corrigidos na r0023:
+
+| Achado | Natureza |
+|---|---|
+| `O.meta.nivelAuto` | **Escrita morta** num campo que nunca foi declarado em `novoEstado`, e que ninguém lê. Antes da r0018 era apagada a cada leitura do formulário. Removida |
+| `pcoDef` devolvia recurso sem `f` | Quem chama lê `.f` logo a seguir; funcionava por acaso. O recurso passa a levar `f` vazio, de propósito |
+| `isNaN(d)` sobre uma data | Comparava por coerção. Passa a `isNaN(d.getTime())` |
+| Cinco ramos de recurso `\|\|{}` | Devolviam objeto sem forma onde o código lia campos. Passam a devolver a forma completa |
+| `pcoObj` com `canais:{}` | O ramo de recurso não tinha a forma dos canais |
+| `FileReader.result` usado como texto | Podia ser `ArrayBuffer`; passa por `String()` |
+| `motivo` e `futuro` nos erros | Propriedades próprias, agora declaradas |
+
+O estreitamento de tipos do DOM ficou fora do alvo: são 25 diagnósticos, registados numa
+linha de base em `tipos/baseline.json`. O que a exceder faz falhar `npm run tipos`.
+Verificado: introduzir `O.meta.numero` em vez de `O.meta.num` é apanhado, com a linha do
+HTML.
 
 ## Correção 4.6 — a ocorrência não se pode perder, feita na r0022
 
@@ -228,3 +251,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0020 | 2026-08-28 13:19 | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `docs/FONTES.md` e auditoria mecânica das citações |
 | r0021 | 2026-08-28 13:26 | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |
 | r0022 | 2026-08-28 13:30 | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
+| r0023 | 2026-08-28 13:44 | Camada 1: tipos em `.d.ts` com anotações na aplicação; sete defeitos reais expostos e corrigidos |

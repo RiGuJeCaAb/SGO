@@ -10,6 +10,7 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run verificar` | Compila o `<script>` da revisão mais recente sem o executar. Apanha erro de sintaxe |
 | `npm run testar` | Corre os testes com o executor incluído no Node |
 | `npm run lint` | Corre o ESLint sobre o código extraído do HTML |
+| `npm run tipos` | Verifica os tipos com o TypeScript, sem compilar nada |
 | `npm run tudo` | Os três, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 
@@ -23,6 +24,17 @@ já não existe. Foi essa a regressão registada na especificação, com botões
 listeners e a falhar em silêncio dentro de um `try`. As duas regras apanham-na
 estaticamente, sem executar nada. `tests/fixtures/orfa.html` reproduz exatamente esse
 caso, e `tests/lint.test.mjs` verifica que continua a ser apanhado.
+
+## A verificação de tipos
+
+As formas do estado estão em `tipos/estacao.d.ts`; a aplicação traz anotações curtas que
+apontam para elas. Nada disto é carregado pelo navegador.
+
+O estreitamento de tipos do DOM está fora do alvo: o valor está em apanhar campo de estado
+mal escrito, campo que se assume existir e não existe, e valor que pode ser nulo e não é
+tratado. Os diagnósticos do DOM ficam numa linha de base em `tipos/baseline.json`, e o que
+a exceder faz falhar a verificação. `npm run tipos -- --registar` volta a registá-la — a
+usar quando a linha desce, nunca para calar um diagnóstico novo.
 
 ## A auditoria visual
 

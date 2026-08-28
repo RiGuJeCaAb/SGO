@@ -40,14 +40,17 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 | `docs/FONTES.md` | Uma entrada por documento doutrinário citado. Regra nova declara aqui a fonte |
 | `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
 | `docs/CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
-| `ferramentas/` | Extração do script, verificação de sintaxe e análise estática |
+| `ferramentas/` | Extração do script, verificação de sintaxe, análise estática, tipos e auditoria visual |
+| `tipos/` | Formas do estado em `.d.ts` e linha de base do verificador. Não vai para o navegador |
 | `tests/` | Testes, mantidos entre sessões. Ver `tests/README.md` |
 
 ## Método de trabalho
 
 - Alterar sempre o ficheiro único; não partir a aplicação em módulos.
-- Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes e análise
-  estática. Acrescentar um teste que exercite o caminho alterado.
+- Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
+  estática e tipos. Acrescentar um teste que exercite o caminho alterado.
+- Campo novo no estado declara-se em `tipos/estacao.d.ts`; o verificador apanha o nome mal
+  escrito.
 - Ao substituir blocos grandes de código, confirmar por pesquisa que nenhuma função ficou
   órfã ou apagada. Já houve regressão assim, com botões a perder listeners e a falhar em
   silêncio dentro de um `try`.
