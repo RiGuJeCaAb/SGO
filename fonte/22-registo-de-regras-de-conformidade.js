@@ -317,7 +317,12 @@ function contextoDON(ts){
   return { instante, ini, c: contarDispositivo(),
     decorrido: minutosDesde(ini, instante),
     dur: m => { const h=Math.floor(m/60), mm=m%60; return h? h+" h "+String(mm).padStart(2,"0")+" min" : mm+" min"; },
-    nCopesp: nomeado("COPESP"), NV: nivObj(), SUG: niveisSugeridos(), P: pcoObj() };
+    nCopesp: nomeado("COPESP"),
+    /* Leitura defensiva: verificar conformidade não pode escrever no estado. O
+       `nivObj()` normaliza, e uma verificação que altera o que verifica já não é de
+       confiança. Os valores lidos são os mesmos. */
+    NV: (pcoObj().canais && pcoObj().canais.niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false},
+    SUG: niveisSugeridos(), P: pcoObj() };
 }
 
 /* Percorre o registo. Uma regra que rebente não leva as outras atrás: passa a aviso

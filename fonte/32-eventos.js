@@ -73,3 +73,10 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
     if(await importarGestaoPCO(t)) $("gp-txt").value = "";
   });
 })();
+
+/* ---- briefing de passagem de comando ---- */
+(()=>{
+  const bG = $("br-gerar"), bD = $("br-baixar");
+  if(bG) bG.addEventListener("click", ()=>{ try{ gerarBriefing(); }catch(e){ aviso("msg-occ","err","Não foi possível elaborar o briefing ("+e+")."); } });
+  if(bD) bD.addEventListener("click", ()=>{ try{ descarregarBriefing(); }catch(e){ aviso("msg-occ","err","Não foi possível descarregar ("+e+")."); } });
+})();

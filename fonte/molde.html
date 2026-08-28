@@ -306,6 +306,12 @@
   .msg{border-radius:10px;padding:11px 14px;font-size:13px;margin-top:12px;display:none}
   .msg.err{display:block;background:rgba(226,69,69,.12);border:1px solid rgba(226,69,69,.4)}
   .msg.ok{display:block;background:rgba(58,170,53,.10);border:1px solid rgba(58,170,53,.35)}
+  .msg.av{display:block;background:rgba(224,184,79,.12);border:1px solid rgba(224,184,79,.45)}
+  .br-cab{border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+  .br-cab b{font-family:var(--disp);font-size:18px;display:block}
+  .br-s{margin-bottom:16px}
+  .br-s ul,.br-s ol{font-size:14px;line-height:1.6}
+  .br-pend{border-left:3px solid var(--fogo);padding-left:12px}
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion:reduce){.spin{animation-duration:1.6s}}
@@ -1016,6 +1022,15 @@
 
     <div class="card">
       <h2>Plano de comunicações <span class="tag">célula de logística e finanças — artigo 32.º, al. d) · artigo 34.º</span></h2>
+      <div class="sub"><span class="stit">Passagem de comando (DON n.º 2, ponto 30)</span>
+        <p class="hint" style="margin:0 0 10px 0">Compõe o briefing a partir do que está registado: situação, dispositivo, estrutura do posto de comando, plano de comunicações, tempos de empenhamento, conformidade, PEA em vigor e evolução desde então. Termina no que fica por decidir. Determinístico, sem modelo — não é opinião sobre a ocorrência, é o que lá está, pela ordem por que se entrega um comando.</p>
+        <div class="row">
+          <button class="btn btn-o" type="button" id="br-gerar">Elaborar briefing</button>
+          <button class="btn btn-b" type="button" id="br-baixar">Descarregar em texto</button>
+        </div>
+        <div id="br-doc" style="display:none;margin-top:14px"></div>
+      </div>
+
       <div class="sub">
         <span class="stit">Níveis a utilizar no teatro de operações</span>
         <div id="cm-niveis"></div>

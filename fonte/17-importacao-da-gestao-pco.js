@@ -523,6 +523,32 @@ async function importarGestaoPCO(texto){
 
 /* ---- especificação v1.1, o esquema que governa ---- */
 
+/**
+ * Instante de um campo que pode vir em duas formas. O GDH doutrinário não leva fuso
+ * horário; quando a origem acrescentar o campo em ISO 8601 com fuso, é esse que manda.
+ * Sem ISO, usa-se o GDH como sempre. Divergência entre os dois é assinalada, porque uma
+ * das duas está errada e não se sabe qual.
+ *
+ * @returns {{ts:number|null, g:string}}
+ */
+function instantePreferido(iso, gdh, onde, avisos){
+  const tsIso = instanteISO(iso);
+  const dGdh = gdh? parseGDH(String(gdh).trim()) : null;
+  const tsGdh = dGdh? dGdh.getTime() : null;
+
+  if(iso && tsIso === null) avisos.push(onde+": instante ISO ilegível (\""+iso+"\"); fica o GDH.");
+  if(gdh && tsGdh === null) avisos.push(onde+": GDH ilegível (\""+gdh+"\").");
+
+  if(tsIso !== null){
+    /* Um minuto de tolerância: o GDH não tem segundos. */
+    if(tsGdh !== null && Math.abs(tsIso - tsGdh) > 60000){
+      avisos.push(onde+": o instante ISO ("+gdhDe(tsIso)+") e o GDH ("+gdhDe(tsGdh)+") não coincidem; fica o ISO.");
+    }
+    return { ts: tsIso, g: gdhDe(tsIso) };
+  }
+  return { ts: tsGdh, g: tsGdh !== null? String(gdh).trim() : "" };
+}
+
 /** Converte a sigla de tipologia da v1.1. */
 function siglaV11(sigla, onde, avisos){
   const s = String(sigla||"").trim().toUpperCase();
@@ -549,11 +575,12 @@ function converterV11GestaoPCO(p, avisos){
   if(fase != null) meta.fase = String(fase);
   if(oc.latitude != null) meta.lat = String(oc.latitude);
   if(oc.longitude != null) meta.lon = String(oc.longitude);
-  if(oc.inicio){
-    meta.inicio = String(oc.inicio);
-    if(!parseGDH(String(oc.inicio))) avisos.push("O GDH de início \""+oc.inicio+"\" não é legível; o relógio dos 90 minutos fica sem base.");
+  if(oc.inicio || oc.inicio_iso){
+    const i = instantePreferido(oc.inicio_iso, oc.inicio, "Início da ocorrência", avisos);
+    if(i.ts !== null) meta.inicio = i.g;
+    else avisos.push("O instante de início não é legível; o relógio dos 90 minutos fica sem base.");
   } else {
-    avisos.push("Sem GDH de início: a Estação não temporiza a transição de ataque inicial para ampliado.");
+    avisos.push("Sem instante de início: a Estação não temporiza a transição de ataque inicial para ampliado.");
   }
   if(oc.nivel_decir){
     const n = String(oc.nivel_decir).trim().toUpperCase();
@@ -575,12 +602,14 @@ function converterV11GestaoPCO(p, avisos){
       if(m.operacionais != null && d && d.ou != null && +m.operacionais !== +d.ou){
         avisos.push(onde+", "+t+": "+m.operacionais+" operacionais por unidade, catálogo diz "+d.ou+". Fica o valor exportado.");
       }
-      const g = String(m.empenhado_desde||"").trim();
-      const dt = g? parseGDH(g) : null;
-      if(g && !dt) avisos.push(onde+", "+t+": GDH de empenhamento \""+g+"\" ilegível; sem relógio de rendição.");
-      else if(!g) avisos.push(onde+", "+t+": sem GDH de empenhamento; fica sem controlo de tempos nem rendição.");
+      const i = (m.empenhado_desde || m.empenhado_desde_iso)
+        ? instantePreferido(m.empenhado_desde_iso, m.empenhado_desde, onde+", "+t, avisos)
+        : { ts:null, g:"" };
+      if(i.ts === null && !m.empenhado_desde && !m.empenhado_desde_iso){
+        avisos.push(onde+", "+t+": sem instante de empenhamento; fica sem controlo de tempos nem rendição.");
+      }
       return { t, q:+m.quantidade||0, mu, ou, mr:(d && d.mr)||0, ar:(d && d.ar)||0,
-        ts: dt? dt.getTime():null, ent:"", estimado:false, livre:false };
+        ts: i.ts, ent:"", estimado:false, livre:false };
     });
     setores.push({ estado: estadoSetorGP(s.estado, onde, avisos),
       cmd:String(s.comandante||""), adj:String(s.adjunto||""), ct:String(s.contacto||""),
@@ -592,9 +621,8 @@ function converterV11GestaoPCO(p, avisos){
     p.meios_aereos.forEach(a=>{
       const t = siglaV11(a.tipologia, "Meios aéreos", avisos);
       indicativoAereoGP(t, a.indicativo, avisos);
-      const g = String(a.entrada_to||"").trim(), dt = g? parseGDH(g) : null;
-      if(g && !dt) avisos.push("Meio aéreo "+(a.indicativo||t)+": GDH de entrada \""+g+"\" ilegível.");
-      aerL.push({ t, ind:String(a.indicativo||""), g: dt? g:"", ts: dt? dt.getTime():null, cma:"" });
+      const i = instantePreferido(a.entrada_to_iso, a.entrada_to, "Meio aéreo "+(a.indicativo||t), avisos);
+      aerL.push({ t, ind:String(a.indicativo||""), g: i.g, ts: i.ts, cma:"" });
     });
   } else if(Number.isFinite(+p.meios_aereos) && +p.meios_aereos > 0){
     const n = Math.round(+p.meios_aereos);

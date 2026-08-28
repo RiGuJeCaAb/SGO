@@ -11,8 +11,8 @@ repartição do PEA pelas células e as etiquetas de impressão do outro.
 | | |
 |---|---|
 | Entregas em `app/` | 35, das anteriores à convenção de nomes até à r0028 |
-| Módulos em `fonte/` | 31, mais o molde |
-| Testes | 135, todos a passar |
+| Módulos em `fonte/` | 33, mais o molde |
+| Testes | 157, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -59,6 +59,32 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Briefing de passagem de comando, feito na r0028
+
+Documento gerado do que já está registado, pela ordem por que se entrega um comando:
+situação, dispositivo, estrutura do posto de comando, plano de comunicações, tempos de
+empenhamento, conformidade, PEA em vigor, evolução desde então, e o que fica por decidir.
+
+Determinístico, sem modelo. **Não altera a ocorrência** e não cria ramo novo: o instante
+vem de fora e o resultado é devolvido, não guardado. É por isso que pode ser chamado por
+quem venha a construir a rotatividade de funções da EPCO — o briefing é o conteúdo da
+passagem, não o mecanismo dela, e esse fica inteiro para quem o fizer.
+
+As pendências não são opinião: saem das obrigações do motor de conformidade, das funções
+exigíveis por nomear, dos setores sem canal de manobra, das rendições vencidas e da
+validade do PEA excedida.
+
+Dois defeitos meus apanhados por testes meus. O briefing chamava `nivObj()`, que
+normaliza e portanto escreve — e o motor de conformidade fazia o mesmo, o que é pior:
+uma verificação que altera o que verifica já não é de confiança. Ambos passam a leitura
+defensiva, e a saída do motor foi confirmada idêntica em 63 comparações. O que resta é a
+reparação de invariantes de forma do `aerLista()`, que **tem** de acontecer, sob pena de
+os meios aéreos de ocorrências antigas desaparecerem do briefing; a afirmação é que foi
+corrigida, não o código.
+
+Quinze testes. Verificado em navegador com dispositivo importado: nove secções, oito
+pendências, descarga em texto com nome pela convenção, sem exceções.
 
 ## Importação da Gestão PCO, feita na r0027
 
@@ -318,7 +344,6 @@ decisão, e está listado a seguir.
   Comportamento do Fogo está feito na r0026, com o que a fonte sustenta.
 - Exportação do contexto da ocorrência e importação de proposta, com validação.
 - Exportação do PEA em DOCX, com direção de texto na célula em vez de fusão vertical.
-- Briefing de passagem de comando, determinístico.
 - Impressão do plano de comunicações em folha autónoma.
 
 ## Pontos por confirmar em fonte
@@ -359,4 +384,4 @@ estão fundidas na linha principal.
 | r0025 | 281404 | — | Fusão das duas linhagens r0023, montada a partir de `fonte/` |
 | r0026 | 281414 | — | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
 | r0027 | 281451 | — | Importação da Gestão PCO contra a especificação, com exemplos de referência e validador |
-| r0028 | 281607 | — | Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; documentação arrumada por natureza |
+| r0028 | 281657 | — | Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; instantes ISO opcionais no caminho da v1.1; briefing de passagem de comando; documentação arrumada por natureza |

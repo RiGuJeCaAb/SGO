@@ -353,3 +353,50 @@ test('o diferencial fica obsoleto se o dispositivo mudar por baixo', semAplicaca
     e.setores.push({ estado: 'Em curso (ativo)', cmd: '', ct: '', adj: '', m: '', o: '', tip: [] });
   }
 });
+
+/* ---- v1.2: instantes ISO opcionais, a par do GDH ---- */
+
+test('sem ISO, o GDH continua a mandar como sempre', semAplicacao, () => {
+  const c = converter(V11);
+  assert.match(c.meta.inicio, /^\d{6}[A-Z]{3}\d{2}$/);
+  assert.ok(c.est.setores[0].tip[0].ts, 'o relógio vem do GDH');
+});
+
+test('quando o ISO vem, é ele que manda', semAplicacao, () => {
+  const p = JSON.parse(V11);
+  p.ocorrencia.inicio_iso = '2026-08-25T16:02:00+01:00';
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.meta.inicio, janela.gdhDe(Date.parse('2026-08-25T16:02:00+01:00')));
+});
+
+test('ISO e GDH em desacordo é assinalado, e fica o ISO', semAplicacao, () => {
+  const p = JSON.parse(V11);
+  p.ocorrencia.inicio = '251402AGO26';
+  p.ocorrencia.inicio_iso = '2026-08-25T18:30:00+01:00';
+  const c = converter(JSON.stringify(p));
+  assert.match(c.avisos.join(' | '), /não coincidem; fica o ISO/);
+  assert.equal(c.meta.inicio, janela.gdhDe(Date.parse('2026-08-25T18:30:00+01:00')));
+});
+
+test('o instante de empenhamento também aceita ISO', semAplicacao, () => {
+  const p = JSON.parse(V11);
+  delete p.setores[0].meios[0].empenhado_desde;
+  p.setores[0].meios[0].empenhado_desde_iso = '2026-08-25T14:30:00+01:00';
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.est.setores[0].tip[0].ts, Date.parse('2026-08-25T14:30:00+01:00'));
+});
+
+test('a entrada do meio aéreo também aceita ISO', semAplicacao, () => {
+  const p = JSON.parse(V11);
+  p.meios_aereos[0].entrada_to_iso = '2026-08-25T15:05:00+01:00';
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.est.aerL[0].ts, Date.parse('2026-08-25T15:05:00+01:00'));
+});
+
+test('um ISO ilegível não deita fora o GDH que estava bom', semAplicacao, () => {
+  const p = JSON.parse(V11);
+  p.ocorrencia.inicio_iso = 'ontem à tarde';
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.meta.inicio, '251402AGO26', 'fica o GDH');
+  assert.match(c.avisos.join(' | '), /instante ISO ilegível/);
+});
