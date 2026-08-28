@@ -4,8 +4,8 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0020** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, sessenta e dois testes a passar, e auditoria visual sem
+A revisão **r0021** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, setenta e dois testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
@@ -29,6 +29,25 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.5 — a rede como caminho de falha, feita na r0021
+
+O `fetchT` já tinha prazo e cancelamento. Faltava-lhe o resto, e havia uma chamada a
+escapar-lhe.
+
+- **Cache de pedidos idênticos**, com validade de 90 segundos. Um pedido igual não se
+  repete enquanto a resposta anterior serve, e dois pedidos iguais em simultâneo partilham
+  a mesma ida à rede. Generaliza o princípio que só existia no `distritoChave`.
+- **Sem ligação responde já**, com o motivo certo, em vez de esperar pelo prazo inteiro.
+  Num PCO isto é a diferença entre saber e ficar à espera.
+- **A falha passou a ter motivo**: sem rede, prazo esgotado, recusa da origem, ou falha.
+  O `motivoRede` dá a frase, e as mensagens da previsão automática, do perfil do terreno e
+  da amostragem do relevo passaram a dizer o que aconteceu em vez de mostrarem o erro cru.
+- **A chamada ao modelo era a única sem prazo máximo.** Passou a tê-lo, com orçamento
+  próprio de 60 segundos, e sem cache.
+
+Uma recusa da origem não fica guardada, e quem chama continua a ver `r.ok` como antes:
+os doze pontos de chamada não mudaram uma linha. Dez testes.
 
 ## Correção 4.3 — registo de regras de conformidade, feita na r0020
 
@@ -179,3 +198,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0018 | 2026-08-28 13:04 | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |
 | r0019 | 2026-08-28 13:15 | Correção 4.4: relógio injetado; as regras de prazo passam a receber o instante e a ter teste |
 | r0020 | 2026-08-28 13:19 | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `docs/FONTES.md` e auditoria mecânica das citações |
+| r0021 | 2026-08-28 13:26 | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |

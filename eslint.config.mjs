@@ -99,6 +99,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         structuredClone: 'readonly',
+        Response: 'readonly',
       },
     },
   },
