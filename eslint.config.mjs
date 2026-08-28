@@ -95,6 +95,9 @@ export default [
         console: 'readonly',
         globalThis: 'readonly',
         URL: 'readonly',
+        // O código dentro de page.evaluate() corre no navegador, não em Node.
+        window: 'readonly',
+        document: 'readonly',
       },
     },
   },

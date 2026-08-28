@@ -55,7 +55,8 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 - Estado novo em `O` tem de ser declarado em `novoEstado` e normalizado em `pcoObj()` e
   `estObj()`. Campo de `meta` sem campo no formulário tem de ser preservado em `lerForm()`.
   Migração do pacote de canais faz-se em `carregarCanais`.
-- Verificar sempre nos dois temas e em largura reduzida.
+- Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
+  por botão, não por `prefers-color-scheme`.
 
 ## Base doutrinária
 

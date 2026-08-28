@@ -11,6 +11,7 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run testar` | Corre os testes com o executor incluído no Node |
 | `npm run lint` | Corre o ESLint sobre o código extraído do HTML |
 | `npm run tudo` | Os três, por esta ordem |
+| `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.
 Sem argumento, escolhem a revisão de numeração mais alta em `app/`.
@@ -22,6 +23,18 @@ já não existe. Foi essa a regressão registada na especificação, com botões
 listeners e a falhar em silêncio dentro de um `try`. As duas regras apanham-na
 estaticamente, sem executar nada. `tests/fixtures/orfa.html` reproduz exatamente esse
 caso, e `tests/lint.test.mjs` verifica que continua a ser apanhado.
+
+## A auditoria visual
+
+`npm run visual` não entra no `npm run tudo`: precisa do Playwright e de um Chromium, e a
+verificação corrente não pode depender de um navegador instalado. Sem eles, sai sem falhar.
+O executável pode ser indicado em `PEA_CHROMIUM`.
+
+Foi esta ferramenta que encontrou o transbordo do cabeçalho corrigido na r0016. Correr
+antes de cada entrega, e sempre que se mexer no CSS.
+
+O tema alterna por botão e pelo `ARMAZEM`, não por `prefers-color-scheme` — testar por
+preferência do sistema não troca de tema nenhum.
 
 ## O arnês da aplicação
 
