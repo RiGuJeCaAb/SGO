@@ -24,8 +24,9 @@ function letrasV(txt){
 }
 window.verPEA = function(n){
   const p=O.peas.find(x=>x.n===n); if(!p) return;
-  const plan = p.json.plan || {situacao:p.json.situacao, analise_zi:p.json.analise||"", previsao:p.json.previsao};
-  const ops  = p.json.ops  || p.json;
+  const _pc = pecas(p);
+  const plan = _pc.pea;                                  /* célula de planeamento — art. 27.º */
+  const ops  = Object.assign({}, _pc.pea, _pc.ordens);   /* + ordens de missão — art. 17.º, al. c) */
   const linhas=p.serie.map(s=>{
     const cls = s.rh>=50? ' style="background:#EAF6EA"' : (s.rh<=20? ' style="background:#FBEAEA"' : "");
     return `<tr${cls}><td>${esc(s.d.slice(0,5))} ${hh(s.h)}</td><td>${s.t}</td><td>${s.rh}</td><td>${card(s.wd)}</td><td>${s.ws}</td><td>${s.pr||0}</td></tr>`;}).join("");

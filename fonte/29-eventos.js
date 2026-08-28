@@ -17,6 +17,7 @@ $("b-evo").onclick=addEvo;
 $("b-analisar").onclick=()=>analisarCSV(true);
 $("m-horas").addEventListener("change", ()=>{ if($("f-csv").value.trim()) analisarCSV(false); });
 $("b-gerar").onclick=emitirPEA;
+try{ pintarModoLLM(); }catch(e){}
 
 /* tema claro/escuro com memória */
 async function aplicarTema(t){

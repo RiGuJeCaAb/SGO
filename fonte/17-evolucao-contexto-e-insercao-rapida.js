@@ -45,9 +45,13 @@ const FUNCOES_PCO = [
   {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", fase:4},
   {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", fase:4},
   {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", fase:5},
-  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º", g:"Operações", fase:4},
-  {f:"Núcleo de Antecipação", r:"art. 28.º", g:"Planeamento", fase:4},
-  {f:"Núcleo de Informações", r:"art. 29.º", g:"Planeamento", fase:4},
+  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", fase:4},
+  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", fase:3, ext:"força de segurança territorialmente competente"},
+  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", fase:4, ext:"INEM, I.P."},
+  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", fase:5, ext:"Instituto da Segurança Social, I.P."},
+  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", fase:4},
+  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", fase:4},
+  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", fase:4},
   {f:"Oficial de ligação de entidade", r:"art. 37.º, n.º 2", g:"Ligação"},
   {f:"Outra função", r:"—", g:"Ligação"}
 ];

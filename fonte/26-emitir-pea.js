@@ -7,20 +7,23 @@ async function emitirPEA(){
   const n = O.peas.length+1;
   const novas = evoDesdeUltimoPEA();
   const anterior = O.peas.length? O.peas[O.peas.length-1] : null;
-  let plan=null, ops=null, modo="IA · claude-sonnet-4-6 (2 células)";
+  let plano=null, ordens=null, modo=LLM.rot+" · planeamento elabora, operações transmite";
   try{
-    plan = await gerarPlan(n,novas,anterior);
-    btn.innerHTML='<span class="spin"></span> Operações…';
-    ops = await gerarOps(n,novas,anterior,plan);
+    plano = await gerarPEA(n,novas,anterior);
+    btn.innerHTML='<span class="spin"></span> Ordens de missão…';
+    ordens = await gerarOrdens(n,novas,anterior,plano);
   }catch(e){
     modo="Determinística";
-    aviso("msg-ia","ok","Modelo indisponível ("+String(e).slice(0,80)+") — emitida a versão determinística completa.");
-    plan = detPlan(novas,anterior); ops = detOps(novas,anterior);
+    aviso("msg-ia", LLM.modo==="manual"?"ok":"err",
+      (LLM.modo==="manual"
+        ? "Sem acesso a modelo neste modo de arranque — PEA elaborado por regras determinísticas."
+        : "Modelo indisponível ("+String(e).slice(0,80)+") — emitida a versão determinística completa."));
+    const d = detCompleto(novas,anterior); plano = d.pea; ordens = d.ordens;
   }
   const mm = metricas();
   const pea = { n, g:gdhAgora(), ts:Date.now(), validoTs:horizonteValidade(mm),
-    base:baseVigor(), ctrl:controloMissoes(ops), ultVerd:"vigor",
-    modo, json:{plan,ops}, met:mm,
+    base:baseVigor(), ctrl:controloMissoes(Object.assign({}, plano, ordens)), ultVerd:"vigor",
+    modo, json:{pea:plano, ordens}, met:mm,
     serie:SERIE.map(p=>({d:p.d,h:p.h,t:p.t,rh:p.rh,wd:p.wd,ws:p.ws,pr:p.pr})),
     dados:JSON.parse(JSON.stringify(O.dados)), evoIdx:O.evolucao.length, meta:{...O.meta},
     don:(()=>{ try{ return verificacoesDON(); }catch(e){ return []; } })(),

@@ -192,7 +192,7 @@ function renderVigor(){
     renderVigor(); pintarDON(); persistir(false);
   }));
 }
-function detPlan(novas, anterior){
+function detSituacao(novas, anterior){
   const m=metricas(), dif=diferencasDesde(anterior);
   return {
     situacao: (novas.length? novas.length+" registos de evolução incorporados desde o PEA n.º "+(anterior?anterior.n:0)+" (quadro de evolução acima). " : (anterior? "Sem registos novos desde o PEA n.º "+anterior.n+". ":"Primeiro PEA da ocorrência. "))
@@ -209,7 +209,7 @@ function detPlan(novas, anterior){
     previsao:`HR mínima ${m.hr_min.v} % às ${m.hr_min.h} (${m.hr_min.d}); recuperação até ${m.hr_max.v} % às ${m.hr_max.h}. T máxima ${m.t_max.v} °C às ${m.t_max.h} (${m.t_max.d}). Rotações: ${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join("; ")||"sem rotações relevantes"}. ${m.convectivo.length? "Assinatura convectiva às "+m.convectivo.map(c=>c.h).join(" e ")+" — risco de rajadas erráticas.":"Sem precipitação prevista."} Nota: ${m.nota}.`
   };
 }
-function detOps(novas, anterior){
+function detDecisao(novas, anterior){
   const m=metricas(), jan=m.janela, r=retratoOperacional(), dif=diferencasDesde(anterior);
   const nomes = a => a.map(x=>x.n).join(", ");
   const fimJ = jan? jan.fim : null;
@@ -264,3 +264,28 @@ function detOps(novas, anterior){
   };
 }
 
+/* Repartição determinística pela fronteira do Despacho n.º 4067/2024: tudo o que é
+   plano vai para planeamento; só as ordens de missão ficam em operações. */
+function detCompleto(novas, anterior){
+  const a = detSituacao(novas, anterior), b = detDecisao(novas, anterior);
+  return {
+    pea: {situacao:a.situacao, analise_zi:a.analise_zi, previsao:a.previsao,
+          objetivo:b.objetivo, propostas:b.propostas, seguranca:b.seguranca, validade:b.validade},
+    ordens: {missoes:b.missoes}
+  };
+}
+/* Leitura normalizada de um PEA, seja qual for o formato em que foi gravado.
+   Antes da versão 2 do estado: json {plan,ops} ou json plano à raiz.
+   A partir da versão 2: json {pea,ordens}. Pura — não toca no estado global,
+   e por isso é utilizável de dentro de MIGRACOES. */
+function pecas(p){
+  const j = (p && p.json) || {};
+  if(j.pea) return {pea:j.pea, ordens:j.ordens || {missoes:[]}};
+  const plan = j.plan || {situacao:j.situacao, analise_zi:j.analise||"", previsao:j.previsao};
+  const ops  = j.ops  || j;
+  return {
+    pea: {situacao:plan.situacao, analise_zi:plan.analise_zi, previsao:plan.previsao,
+          objetivo:ops.objetivo, propostas:ops.propostas||[], seguranca:ops.seguranca||[], validade:ops.validade},
+    ordens: {missoes:ops.missoes||[]}
+  };
+}

@@ -4,10 +4,13 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0024** está em `app/`, e é a primeira produzida pela montagem a partir de
-`fonte/`. A verificação passa por inteiro: sintaxe correta, análise estática sem problemas,
-oitenta e sete testes a passar, tipos sem diagnóstico novo, e auditoria visual sem
-transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
+A revisão **r0025** está em `app/`. É a fusão de duas linhagens que correram em paralelo
+sobre a r0022: as camadas 1 e 2 de um lado, e do outro a repartição do PEA pelas células,
+os núcleos do PCO e o adaptador de modelo. A fusão a três vias não deu um único conflito.
+
+A verificação passa por inteiro: sintaxe correta, análise estática sem problemas, oitenta e
+sete testes a passar, tipos sem diagnóstico novo, e auditoria visual sem transbordo nem
+exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 **As seis correções estruturais da proposta de evolução estão feitas.**
 
@@ -275,3 +278,5 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0022 | 2026-08-28 13:30 | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
 | r0023 | 2026-08-28 13:44 | Camada 1: tipos em `.d.ts` com anotações na aplicação; sete defeitos reais expostos e corrigidos |
 | r0024 | 2026-08-28 13:50 | Camada 2: primeira entrega produzida pela montagem a partir de `fonte/`, com 29 módulos |
+| r0023 | 2026-08-28 15:30 | Linhagem paralela, do Ricardo: repartição do PEA pelas células, núcleos do PCO, estado na versão 2 e adaptador de modelo com três modos |
+| r0025 | 2026-08-28 14:04 | Fusão das duas linhagens, montada a partir de `fonte/` |

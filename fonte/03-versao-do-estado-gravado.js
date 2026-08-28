@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 1;
+const VERSAO_ESTADO = 2;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -30,6 +30,19 @@ const MIGRACOES = [
     [[e.dados,"anexos"],[e.dados.est,"setores"],[e.dados.est,"aerL"],[e.pco,"funcoes"],
      [e.pco.canais,"atrib"],[e,"evolucao"],[e,"peas"],[e,"fita"]]
       .forEach(([dono,ramo])=>{ if(!Array.isArray(dono[ramo])) dono[ramo]=[]; });
+    return e;
+  },
+  /* 1 -> 2 · Repartição do PEA pelas células que a lei lhe atribui. Até aqui o plano
+     era gravado em json {plan,ops}, com o objetivo, as prioridades, a segurança e a
+     validade do lado de operações. O art. 27.º, n.º 1, al. a) do Despacho n.º
+     4067/2024 põe o plano estratégico de ação inteiro na célula de planeamento; a
+     operações cabe transmitir as ordens de missão (art. 17.º, n.º 1, al. c)).
+     Passa a gravar-se json {pea,ordens}. Nenhum conteúdo se perde: muda o dono.
+     pecas() reconhece os dois formatos, pelo que a conversão é idempotente. */
+  e => {
+    (e.peas||[]).forEach(p=>{
+      if(p && p.json && !p.json.pea){ const c = pecas(p); p.json = {pea:c.pea, ordens:c.ordens}; }
+    });
     return e;
   }
 ];
