@@ -10,6 +10,10 @@ transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 **As seis correções estruturais da proposta de evolução estão feitas.**
 
+O histórico de revisões está reunido em `app/`: vinte e sete ficheiros, das versões
+anteriores à convenção de nomes até à r0022. Falta a série `r0007` a `r0013` e a `r0004`,
+que não existem em nenhuma origem conhecida.
+
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
 
 ## Decisões tomadas
