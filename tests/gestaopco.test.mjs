@@ -1,5 +1,8 @@
-// Importação da Gestão PCO — contrato `pco:dispositivo` versão 1.
-// docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md
+// Importação da Gestão PCO.
+//
+// Governa a v1.2, docs/interop/CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md.
+// A v1.1, o contrato `pco:dispositivo` e o esboço anterior são lidos por
+// retrocompatibilidade, e cada um tem aqui os seus testes.
 
 import test, { after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,6 +15,7 @@ after(() => janela?.close());
 
 const ler = (n) => readFile(new URL(`../docs/interop/exemplos/${n}`, import.meta.url), 'utf8');
 const V1 = await ler('pco-dispositivo_v1_exemplo.json');
+const V12 = await ler('EspecificacaoJSON_v1.2_exemplo.json');
 const V0 = await ler('pco-dispositivo_v0_esboco.json');
 const estado = () => avaliar(janela, 'O');
 const converter = (t) => janela.converterGestaoPCO(janela.lerContratoGestaoPCO(t));
@@ -399,4 +403,117 @@ test('um ISO ilegível não deita fora o GDH que estava bom', semAplicacao, () =
   const c = converter(JSON.stringify(p));
   assert.equal(c.meta.inicio, '251402AGO26', 'fica o GDH');
   assert.match(c.avisos.join(' | '), /instante ISO ilegível/);
+});
+
+/* ---- especificação v1.2, o esquema que governa ---- */
+
+test('a v1.2 é reconhecida, e traz o que a v1.1 não trazia', semAplicacao, () => {
+  const c = converter(V12);
+  assert.equal(c.resumo.esquema, 'especificação');
+  assert.equal(c.resumo.versao, '1.2');
+  assert.equal(c.resumo.setores, 2);
+  assert.equal(c.resumo.forcas, 3);
+  assert.equal(c.resumo.aereos, 2);
+  assert.equal(c.resumo.funcoes, 4, 'duas funções e dois núcleos externos');
+  assert.equal(c.pt.des, 'Rotunda da EN226, Leomil');
+});
+
+test('a v1.2 só assinala o núcleo que está por nomear', semAplicacao, () => {
+  const c = converter(V12);
+  assert.equal(c.avisos.length, 1, c.avisos.join(' | '));
+  assert.match(c.avisos[0], /Núcleo de Emergência Médica: solicitado a .* por nomear pela INEM/);
+});
+
+test('regra 3 — o mesmo campo aceita GDH ou ISO 8601 com fuso', semAplicacao, () => {
+  const c = converter(V12);
+  // O exemplo usa as duas formas de propósito, no mesmo array de meios.
+  assert.equal(c.est.setores[0].tip[0].ts, janela.parseGDH('251430AGO26').getTime());
+  assert.equal(c.est.setores[0].tip[1].ts, Date.parse('2026-08-25T15:10:00+01:00'));
+  assert.equal(c.est.aerL[1].ts, Date.parse('2026-08-25T15:40:00+01:00'));
+});
+
+test('regra 3 — um instante que não é nem GDH nem ISO é assinalado, não engolido', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.setores[0].meios[0].empenhado_desde = 'ontem à tarde';
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.est.setores[0].tip[0].ts, null);
+  assert.match(c.avisos.join(' | '), /instante ilegível \("ontem à tarde"\); nem GDH doutrinário nem ISO/);
+});
+
+test('regra 10 — as funções do PCO chegam ao estado, e o núcleo pendente fica sem GDH', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V12).conversao);
+  const fs = janela.pcoObj().funcoes;
+  const op = fs.find((x) => x.f === 'Oficial de Operações');
+  assert.equal(op.nome, 'Cmdt Costa');
+  assert.equal(op.g, '251205AGO26');
+
+  // A segunda função vem em ISO, e é convertida para o GDH que a Estação mostra.
+  const pl = fs.find((x) => x.f === 'Oficial de Planeamento');
+  assert.equal(pl.g, janela.gdhDe(Date.parse('2026-08-25T13:20:00+01:00')));
+
+  const seg = fs.find((x) => x.f === 'Núcleo de Segurança');
+  assert.equal(seg.entidade, 'GNR', 'a entidade concreta, não a designação genérica da lei');
+  assert.equal(seg.g, '251352AGO26', 'o instante que conta é o da nomeação, não o do pedido');
+
+  const med = fs.find((x) => x.f === 'Núcleo de Emergência Médica');
+  assert.equal(med.g, '', 'por nomear');
+});
+
+test('regra 10 — uma designação aproximada não rebenta, mas é assinalada', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.pco.funcoes[0].funcao = 'Of. Operações';
+  const c = converter(JSON.stringify(p));
+  assert.match(c.avisos.join(' | '), /"Of\. Operações" não corresponde a nenhuma designação/);
+  assert.equal(c.funcoes[0].f, 'Of. Operações', 'entra como veio');
+});
+
+test('regra 10 — a importação funde as funções, e não apaga o que foi nomeado à mão', semAplicacao, () => {
+  janela.pcoObj().funcoes.push({ f: 'Adjunto de Segurança', nome: 'À mão', entidade: '', ct: '', siresp: '', ba: '', g: '' });
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V12).conversao);
+  const fs = janela.pcoObj().funcoes;
+  assert.ok(fs.find((x) => x.f === 'Adjunto de Segurança' && x.nome === 'À mão'), 'sobrevive');
+  assert.equal(fs.length, 5);
+});
+
+test('regra 10 — mais de uma hora entre a solicitação e a nomeação é assinalado', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.pco.nucleos_externos[0].nomeado = '251530AGO26';
+  const c = converter(JSON.stringify(p));
+  assert.match(c.avisos.join(' | '), /Núcleo de Segurança: 2\.3 h entre a solicitação e a nomeação/);
+});
+
+test('regra 11 — o ponto de trânsito é opcional, e sem ele nada se perde', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  delete p.ponto_transito;
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.pt.des, '');
+  assert.equal(c.avisos.length, 1, 'continua só o núcleo por nomear');
+});
+
+test('regra 11 — o ponto de trânsito chega ao estado', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V12).conversao);
+  const pt = janela.ptObj();
+  assert.equal(pt.des, 'Rotunda da EN226, Leomil');
+  assert.equal(pt.resp, 'Adj. Pinto');
+});
+
+test('regra 9 — a estimativa assinalada pela origem passa ao estado e ao aviso', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.setores[0].meios[0].empenhado_estimado = true;
+  const c = converter(JSON.stringify(p));
+  assert.equal(c.est.setores[0].tip[0].estimado, true);
+  assert.match(c.avisos.join(' | '), /estimativa assinalada pela origem/);
+});
+
+test('a v1.1 continua a ser lida, e sem o bloco pco não inventa funções', semAplicacao, () => {
+  const c = converter(V11);
+  assert.equal(c.funcoes.length, 0);
+  assert.equal(c.pt.des, '');
+  assert.equal(c.avisos.length, 0, c.avisos.join(' | '));
+});
+
+test('uma versão acima da v1.2 é recusada sem tocar em nada', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.versao = '1.3';
+  assert.throws(() => janela.lerPacoteGestaoPCO(JSON.stringify(p)), /versão 1\.3; esta revisão lê até à 1\.2/);
 });

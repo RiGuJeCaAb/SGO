@@ -1,35 +1,40 @@
-/* ================= importação da Gestão PCO ================= */
-/* Dois documentos descrevem esta ligação, e é preciso saber qual manda.
-   **Governa a especificação v1.1**, de 27 de agosto, em
-   docs/interop/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md: é a que a Gestão
-   PCO deve implementar. O contrato `pco:dispositivo`, em
-   docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md, foi escrito a analisar
-   um esboço anterior e não a v1.1, e o seu autor corrigiu-se; do que lá está sobram
-   três acréscimos genuínos, propostos para uma v1.2 em docs/.
+/* ================= importação da Gestão PCO =================
+   Vários documentos descrevem esta ligação, e é preciso saber qual manda.
 
-   Este módulo é o adaptador do lado da Estação, e lê os três envelopes que existem —
-   v1.1, o contrato, e o esboço antigo — normalizando-os todos numa forma só. Ler mais
-   do que um envelope não é hesitar sobre qual manda: é o que um adaptador faz, porque
-   quem importa não escolhe o que lhe chega às mãos.
+   **Governa a especificação v1.2**, de 28 de agosto, em
+   docs/interop/CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md. Substitui
+   a v1.1 na íntegra — quem estiver a implementar do lado da Gestão PCO implementa essa e
+   só essa. A v1.1 e a v1.0 continuam a ser lidas, por retrocompatibilidade.
 
-   Do contrato:
+   O contrato `pco:dispositivo`, em
+   docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md, foi escrito a
+   analisar um esboço anterior e não a v1.1, e o seu autor corrigiu-se. Dos acréscimos
+   genuínos que de lá vieram, três estão hoje na v1.2: o bloco `pco` com a estrutura do
+   posto de comando, os instantes com fuso, e o ponto de trânsito.
 
-   O contrato não é o estado interno de nenhuma das duas aplicações: este módulo é o
-   adaptador do lado da Estação. Refactorizar `O` não pode partir a leitura, e é por
-   isso que nada aqui escreve diretamente em `O` fora de `aplicarGestaoPCO`.
+   Este módulo é o adaptador do lado da Estação, e lê os quatro envelopes que existem —
+   v1.2, v1.1 e v1.0, o contrato, e o esboço antigo — normalizando-os todos numa forma só.
+   Ler mais do que um envelope não é hesitar sobre qual manda: é o que um adaptador faz,
+   porque quem importa não escolhe o que lhe chega às mãos.
 
-   Três princípios do contrato governam o que se segue. Versão inteira e monotónica,
-   com recusa do que não se conhece, sem tocar em nada. Tipologia antes de contagem:
-   os efetivos derivam-se do Anexo 1, e a contagem livre só serve onde não há
-   tipologia. Instantes, não durações: tudo em ISO 8601 com fuso, e as durações
-   calculam-se aqui. */
+   Três princípios governam o que se segue, e valem nos dois documentos. Versão monotónica,
+   comparada por partes numéricas e nunca por cadeia, com recusa do que não se conhece, sem
+   tocar em nada. Tipologia antes de contagem: os efetivos derivam-se do Anexo 1, e a
+   contagem livre só serve onde não há tipologia. Instantes, não durações: as durações
+   calculam-se aqui.
+
+   O contrato não é o estado interno de nenhuma das duas aplicações. Refactorizar `O` não
+   pode partir a leitura, e é por isso que nada aqui escreve diretamente em `O` fora de
+   `aplicarGestaoPCO`. */
 
 const GP_TIPO = "pco:dispositivo";
 const GP_VERSAO_MAX = 1;
-/* Maior versão da especificação v1.1 que esta revisão lê. */
-const GP_V11_MAIOR = 1, GP_V11_MENOR = 1;
+/* Maior versão da especificação que esta revisão lê. Comparada por partes numéricas,
+   nunca por cadeia: "1.10" é posterior a "1.9" — regra 1 da v1.2. */
+const GP_V11_MAIOR = 1, GP_V11_MENOR = 2;
 
-/* Siglas descontinuadas com conversão determinada — v1.1, regra 6. */
+/* Siglas descontinuadas com conversão determinada — v1.2, regra 7. `eSF` → `ESF` não
+   precisa de entrada: a sigla é normalizada para maiúsculas antes de se procurar aqui. */
 const GP_SIGLAS = { GRIF:"GRIR", GAUF:"EAUF" };
 const GP_SIGLAS_AMBIGUAS = {
   "FEB":"decompor em ETATI, PATE ou GRUATA (UEPS)",
@@ -38,7 +43,7 @@ const GP_SIGLAS_AMBIGUAS = {
   "MR":"indicar a entidade: EMR (CB), EMR (ICNF), EMR (FEPC) ou EMR (AFOCELCA)"
 };
 
-/* Indicativos de chamada fixados na DON n.º 2, secção 5 do contrato. HOTEL e CELCA
+/* Indicativos de chamada fixados na DON n.º 2 — regra 8 da v1.2. HOTEL e CELCA
    partilham as tipologias, e distinguem-se pelo operador. */
 const GP_INDICATIVOS = {
   HOTEL:["HEBL","HEBM"], CELCA:["HEBL","HEBM"], KILO:["HEBP"],
@@ -159,6 +164,114 @@ function indicativoAereoGP(tipo, indicativo, avisos){
 }
 
 /**
+ * Instante de um campo de tempo, na forma que a regra 3 da v1.2 fixa: **o mesmo campo**
+ * aceita o GDH doutrinário ou uma marca ISO 8601 com fuso. As duas formas são
+ * inequivocamente distinguíveis — o GDH é seis dígitos, três letras e dois dígitos —, e
+ * tenta-se uma e depois a outra.
+ *
+ * Aceita ainda o campo irmão `<campo>_iso`, que uma revisão anterior desta Estação leu
+ * antes de a v1.2 resolver a questão dentro do próprio campo. Nenhuma exportação o emite,
+ * mas lê-se: descartar um instante em silêncio é pior do que a linha que isto custa. Se
+ * os dois vierem e discordarem, uma das duas formas está errada e não se sabe qual —
+ * fica a que traz fuso, e diz-se.
+ *
+ * @param {any} o objeto que traz o campo
+ * @param {string} campo nome do campo
+ * @param {string} onde rótulo para os avisos
+ * @param {string[]} avisos
+ * @returns {{ts:number|null, g:string}}
+ */
+function instanteCampo(o, campo, onde, avisos){
+  const bruto = (o && o[campo] != null)? o[campo] : "";
+  const irmao = (o && o[campo+"_iso"] != null)? o[campo+"_iso"] : "";
+  const i = instanteFlexivel(bruto), j = instanteFlexivel(irmao);
+
+  if(String(bruto).trim() && i.ts === null){
+    avisos.push(onde+": instante ilegível (\""+bruto+"\"); nem GDH doutrinário nem ISO 8601 com fuso.");
+  }
+  if(String(irmao).trim() && j.ts === null){
+    avisos.push(onde+": instante ISO ilegível (\""+irmao+"\"); fica o GDH.");
+  }
+
+  if(j.ts !== null){
+    /* Um minuto de tolerância: o GDH não tem segundos. */
+    if(i.ts !== null && Math.abs(i.ts - j.ts) > 60000){
+      avisos.push(onde+": o instante ISO ("+j.g+") e o GDH ("+i.g+") não coincidem; fica o ISO.");
+    }
+    return { ts:j.ts, g:j.g };
+  }
+  return { ts:i.ts, g:i.g };
+}
+
+/**
+ * Bloco `pco` — regra 10 da v1.2, e a mesma forma na secção 5 do contrato. Um leitor só
+ * serve os dois envelopes, e devolve já a lista de funções como a Estação a guarda.
+ *
+ * As designações têm de vir exatas do art. 14.º e dos arts. 18.º a 38.º do Despacho
+ * n.º 4067/2024: é essa cadeia que cruza com as funções exigíveis pela fase do SGO. Um
+ * nome aproximado não rebenta nada — simplesmente não encontra correspondência, e a
+ * aplicação passaria a dizer que a função está por nomear quando está nomeada. Falha
+ * silenciosa é o pior género, e por isso avisa-se.
+ *
+ * @param {any} pco
+ * @param {string[]} avisos
+ */
+function blocoPcoGP(pco, avisos){
+  const funcoes = [];
+  if(!pco || typeof pco !== "object" || Array.isArray(pco)) return funcoes;
+  const conhecidas = FUNCOES_PCO.map(x=>x.f);
+
+  (Array.isArray(pco.funcoes)? pco.funcoes : []).forEach(f=>{
+    const nome = String(f.funcao||"").trim();
+    if(!nome){ avisos.push("Função do PCO sem designação; ignorada."); return; }
+    if(conhecidas.indexOf(nome) < 0){
+      avisos.push("Função \""+nome+"\" não corresponde a nenhuma designação dos arts. 14.º e 18.º a 38.º; "
+        + "entra como veio, mas não cruza com as funções exigíveis.");
+    }
+    funcoes.push({ f:nome, nome:String(f.nome||""), entidade:String(f.entidade||""),
+      ct:String(f.contacto||""), siresp:String(f.siresp||""), ba:String(f.ba||""),
+      g: instanteCampo(f, "nomeado", "Função "+nome, avisos).g });
+  });
+
+  /* Os três núcleos do art. 17.º, n.º 2, als. d), e) e f) são nomeados por entidade
+     externa a pedido do COS. São dois instantes distintos, e a distância entre eles é
+     informação operacional: `nomeado` a null diz que o pedido continua pendente. */
+  (Array.isArray(pco.nucleos_externos)? pco.nucleos_externos : []).forEach(n=>{
+    const nome = String(n.nucleo||"").trim();
+    if(!nome){ avisos.push("Núcleo externo sem designação; ignorado."); return; }
+    if(conhecidas.indexOf(nome) < 0) avisos.push("Núcleo \""+nome+"\" não corresponde a designação conhecida.");
+    const pedido = instanteCampo(n, "solicitado", "Núcleo "+nome, avisos).ts;
+    const nomeado = instanteCampo(n, "nomeado", "Núcleo "+nome, avisos).ts;
+    const quem = String(n.entidade_nomeadora||"").trim();
+    if(pedido && !nomeado){
+      avisos.push(nome+": solicitado a "+gdhDe(pedido)+" e ainda por nomear pela "+(quem||"entidade externa")+".");
+    } else if(pedido && nomeado){
+      const h = (nomeado-pedido)/3600000;
+      if(h >= 1) avisos.push(nome+": "+h.toFixed(1)+" h entre a solicitação e a nomeação.");
+    }
+    funcoes.push({ f:nome, nome:String(n.responsavel||""), entidade:quem,
+      ct:String(n.contacto||""), siresp:"", ba:"", g: nomeado? gdhDe(nomeado):"" });
+  });
+  return funcoes;
+}
+
+/**
+ * Ponto de trânsito — regra 11 da v1.2, e o mesmo objeto no contrato. Opcional nos dois:
+ * a DON n.º 2, pontos 7.d.(5), (7) e (8), manda estabelecê-lo quando há pedido de
+ * reforço, e quem exporta pode não o conhecer.
+ */
+function pontoTransitoGP(ptc, avisos){
+  const p = (ptc && typeof ptc === "object")? ptc : {};
+  const lat = (p.lat != null)? p.lat : p.latitude;
+  const lon = (p.lon != null)? p.lon : p.longitude;
+  const ativo = instanteCampo(p, "ativo_desde", "Ponto de trânsito", avisos);
+  return { des:String(p.designacao||""), resp:String(p.responsavel||""),
+    ct:String(p.contacto||""),
+    cd: (lat != null && lon != null)? (lat+", "+lon) : "",
+    obs: ativo.g? ("Ativo desde "+ativo.g) : "" };
+}
+
+/**
  * Converte o pacote no que a Estação guarda. Não escreve no estado.
  *
  * @param {any} p pacote já validado
@@ -201,34 +314,7 @@ function converterGestaoPCO(p){
   const area = (oc.area_ha != null)? String(oc.area_ha) : "";
 
   /* ---- estrutura do posto de comando ---- */
-  const conhecidas = FUNCOES_PCO.map(x=>x.f);
-  const funcoes = [];
-  (Array.isArray(p.pco && p.pco.funcoes)? p.pco.funcoes : []).forEach(f=>{
-    const nome = String(f.funcao||"").trim();
-    if(!nome){ avisos.push("Função do PCO sem designação; ignorada."); return; }
-    if(conhecidas.indexOf(nome) < 0){
-      avisos.push("Função \""+nome+"\" não corresponde a nenhuma designação dos arts. 14.º e 18.º a 38.º; "
-        + "entra como veio, mas não cruza com as funções exigíveis.");
-    }
-    funcoes.push({ f:nome, nome:String(f.nome||""), entidade:String(f.entidade||""),
-      ct:String(f.contacto||""), siresp:String(f.siresp||""), ba:String(f.ba||""),
-      g: gdhDeISO(f.nomeado) });
-  });
-
-  (Array.isArray(p.pco && p.pco.nucleos_externos)? p.pco.nucleos_externos : []).forEach(n=>{
-    const nome = String(n.nucleo||"").trim();
-    if(!nome){ avisos.push("Núcleo externo sem designação; ignorado."); return; }
-    if(conhecidas.indexOf(nome) < 0) avisos.push("Núcleo \""+nome+"\" não corresponde a designação conhecida.");
-    const pedido = instanteISO(n.solicitado), nomeado = instanteISO(n.nomeado);
-    if(pedido && !nomeado){
-      avisos.push(nome+": solicitado a "+gdhDe(pedido)+" e ainda por nomear pela "+String(n.entidade_nomeadora||"entidade externa")+".");
-    } else if(pedido && nomeado){
-      const h = (nomeado-pedido)/3600000;
-      if(h >= 1) avisos.push(nome+": "+h.toFixed(1)+" h entre a solicitação e a nomeação.");
-    }
-    funcoes.push({ f:nome, nome:String(n.responsavel||""), entidade:String(n.entidade_nomeadora||""),
-      ct:String(n.contacto||""), siresp:"", ba:"", g: nomeado? gdhDe(nomeado):"" });
-  });
+  const funcoes = blocoPcoGP(p.pco, avisos);
 
   /* ---- dispositivo ---- */
   const setores = [];
@@ -258,11 +344,7 @@ function converterGestaoPCO(p){
   };
 
   /* ---- ponto de trânsito ---- */
-  const ptc = dp.ponto_transito || {};
-  const pt = { des:String(ptc.designacao||""), resp:String(ptc.responsavel||""),
-    ct:String(ptc.contacto||""),
-    cd: (ptc.lat != null && ptc.lon != null)? (ptc.lat+", "+ptc.lon) : "",
-    obs: ptc.ativo_desde? ("Ativo desde "+gdhDeISO(ptc.ativo_desde)) : "" };
+  const pt = pontoTransitoGP(dp.ponto_transito, avisos);
 
   if(dp.zcr && dp.zcr.ativa){
     avisos.push("O pacote traz uma zona de concentração e reserva ativa"
@@ -521,35 +603,31 @@ async function importarGestaoPCO(texto){
   return confirmarGestaoPCO();
 }
 
-/* ---- especificação v1.1, o esquema que governa ---- */
+/* ---- especificação v1.2, o esquema que governa ---- */
 
 /**
- * Instante de um campo que pode vir em duas formas. O GDH doutrinário não leva fuso
- * horário; quando a origem acrescentar o campo em ISO 8601 com fuso, é esse que manda.
- * Sem ISO, usa-se o GDH como sempre. Divergência entre os dois é assinalada, porque uma
- * das duas está errada e não se sabe qual.
+ * Instante de um campo de tempo. Regra 3 da v1.2: **o mesmo campo** aceita o GDH
+ * doutrinário ou uma marca ISO 8601 com fuso. As duas formas são inequivocamente
+ * distinguíveis — o GDH é seis dígitos, três letras e dois dígitos —, e tenta-se uma
+ * e depois a outra.
  *
- * @returns {{ts:number|null, g:string}}
+ * @param {*} v
+ * @returns {{ts:number|null, g:string, forma:"gdh"|"iso"|null}}
  */
-function instantePreferido(iso, gdh, onde, avisos){
-  const tsIso = instanteISO(iso);
-  const dGdh = gdh? parseGDH(String(gdh).trim()) : null;
-  const tsGdh = dGdh? dGdh.getTime() : null;
+function instanteFlexivel(v){
+  const t = String(v==null? "" : v).trim();
+  if(!t) return { ts:null, g:"", forma:null };
 
-  if(iso && tsIso === null) avisos.push(onde+": instante ISO ilegível (\""+iso+"\"); fica o GDH.");
-  if(gdh && tsGdh === null) avisos.push(onde+": GDH ilegível (\""+gdh+"\").");
+  const d = parseGDH(t);
+  if(d) return { ts:d.getTime(), g:t, forma:"gdh" };
 
-  if(tsIso !== null){
-    /* Um minuto de tolerância: o GDH não tem segundos. */
-    if(tsGdh !== null && Math.abs(tsIso - tsGdh) > 60000){
-      avisos.push(onde+": o instante ISO ("+gdhDe(tsIso)+") e o GDH ("+gdhDe(tsGdh)+") não coincidem; fica o ISO.");
-    }
-    return { ts: tsIso, g: gdhDe(tsIso) };
-  }
-  return { ts: tsGdh, g: tsGdh !== null? String(gdh).trim() : "" };
+  const iso = instanteISO(t);
+  if(iso !== null) return { ts:iso, g:gdhDe(iso), forma:"iso" };
+
+  return { ts:null, g:"", forma:null };
 }
 
-/** Converte a sigla de tipologia da v1.1. */
+/** Converte a sigla de tipologia — regra 7 da v1.2. */
 function siglaV11(sigla, onde, avisos){
   const s = String(sigla||"").trim().toUpperCase();
   if(GP_SIGLAS[s]){
@@ -562,7 +640,7 @@ function siglaV11(sigla, onde, avisos){
   return s;
 }
 
-/** Mapeia um pacote v1.0 ou v1.1 na mesma forma interna do contrato. */
+/** Mapeia um pacote v1.0, v1.1 ou v1.2 na mesma forma interna do contrato. */
 function converterV11GestaoPCO(p, avisos){
   const oc = p.ocorrencia || {};
   if(String(p.versao) === "1.0") avisos.push("Pacote na versão 1.0; estados e siglas convertidos para a v1.1.");
@@ -576,7 +654,7 @@ function converterV11GestaoPCO(p, avisos){
   if(oc.latitude != null) meta.lat = String(oc.latitude);
   if(oc.longitude != null) meta.lon = String(oc.longitude);
   if(oc.inicio || oc.inicio_iso){
-    const i = instantePreferido(oc.inicio_iso, oc.inicio, "Início da ocorrência", avisos);
+    const i = instanteCampo(oc, "inicio", "Início da ocorrência", avisos);
     if(i.ts !== null) meta.inicio = i.g;
     else avisos.push("O instante de início não é legível; o relógio dos 90 minutos fica sem base.");
   } else {
@@ -602,14 +680,17 @@ function converterV11GestaoPCO(p, avisos){
       if(m.operacionais != null && d && d.ou != null && +m.operacionais !== +d.ou){
         avisos.push(onde+", "+t+": "+m.operacionais+" operacionais por unidade, catálogo diz "+d.ou+". Fica o valor exportado.");
       }
-      const i = (m.empenhado_desde || m.empenhado_desde_iso)
-        ? instantePreferido(m.empenhado_desde_iso, m.empenhado_desde, onde+", "+t, avisos)
-        : { ts:null, g:"" };
+      const i = instanteCampo(m, "empenhado_desde", onde+", "+t, avisos);
       if(i.ts === null && !m.empenhado_desde && !m.empenhado_desde_iso){
         avisos.push(onde+", "+t+": sem instante de empenhamento; fica sem controlo de tempos nem rendição.");
       }
+      /* Regra 9: uma estimativa assinalada vale mais do que um campo vazio — o operador
+         vê a marca e sabe que aquele contador tem margem. */
+      if(i.ts !== null && m.empenhado_estimado){
+        avisos.push(onde+", "+t+": instante de empenhamento é estimativa assinalada pela origem.");
+      }
       return { t, q:+m.quantidade||0, mu, ou, mr:(d && d.mr)||0, ar:(d && d.ar)||0,
-        ts: i.ts, ent:"", estimado:false, livre:false };
+        ts: i.ts, ent:String(m.entidade||""), estimado: !!m.empenhado_estimado, livre:false };
     });
     setores.push({ estado: estadoSetorGP(s.estado, onde, avisos),
       cmd:String(s.comandante||""), adj:String(s.adjunto||""), ct:String(s.contacto||""),
@@ -621,7 +702,10 @@ function converterV11GestaoPCO(p, avisos){
     p.meios_aereos.forEach(a=>{
       const t = siglaV11(a.tipologia, "Meios aéreos", avisos);
       indicativoAereoGP(t, a.indicativo, avisos);
-      const i = instantePreferido(a.entrada_to_iso, a.entrada_to, "Meio aéreo "+(a.indicativo||t), avisos);
+      const i = instanteCampo(a, "entrada_to", "Meio aéreo "+(a.indicativo||t), avisos);
+      if(i.ts === null){
+        avisos.push("Meio aéreo "+(a.indicativo||t||"?")+": sem hora de entrada no TO; não conta tempo no teatro.");
+      }
       aerL.push({ t, ind:String(a.indicativo||""), g: i.g, ts: i.ts, cma:"" });
     });
   } else if(Number.isFinite(+p.meios_aereos) && +p.meios_aereos > 0){
@@ -634,16 +718,23 @@ function converterV11GestaoPCO(p, avisos){
   const sensiveis = (Array.isArray(p.sensiveis)? p.sensiveis : [])
     .map(x=>[x.nome, x.grau, x.nota].filter(Boolean).join(" · ")).filter(Boolean).join("; ");
 
+  /* Bloco `pco` e ponto de trânsito: a v1.2 acrescenta-os, e a v1.1 não os trazia.
+     Ausentes, `blocoPcoGP` devolve lista vazia e `pontoTransitoGP` um cartão vazio, que é
+     exatamente o que a v1.1 produzia — a retrocompatibilidade não custa um ramo. */
+  const funcoes = blocoPcoGP(p.pco, avisos);
+  const pt = pontoTransitoGP(p.ponto_transito, avisos);
+  const emitido = instanteFlexivel(p.gerado);
+
   return {
-    meta, area:"", funcoes:[], sensiveis,
-    pt:{des:"",resp:"",ct:"",cd:"",obs:""},
+    meta, area:"", funcoes, sensiveis, pt,
     est: { n:setores.length, setores, aer: aerL.length? String(aerL.length):"", aerL,
       res:{ m:conta(p.reserva,"veiculos"), o:conta(p.reserva,"operacionais") },
       za:{ m:conta(p.za,"veiculos"), o:conta(p.za,"operacionais") }, livre:false },
     avisos,
     resumo: { esquema:"especificação", versao:String(p.versao), setores:setores.length,
-      forcas:setores.reduce((a,s)=>a+s.tip.length,0), aereos:aerL.length, funcoes:0,
+      forcas:setores.reduce((a,s)=>a+s.tip.length,0), aereos:aerL.length,
+      funcoes:funcoes.length,
       semRelogio:setores.reduce((a,s)=>a+s.tip.filter(f=>!f.ts).length,0),
-      emitido:String(p.gerado||""), app:"", rev:"", operador:"", posto:"" }
+      emitido: emitido.g || String(p.gerado||""), app:"", rev:"", operador:"", posto:"" }
   };
 }

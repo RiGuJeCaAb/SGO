@@ -1,0 +1,56 @@
+{
+  "versao": "1.2",
+  "gerado": "271045AGO26",
+  "ocorrencia": {
+    "numero": "202608251000",
+    "local": "Paraduça - Leomil - Moimenta da Beira",
+    "pco": "Paraduça",
+    "fase_sgo": "IV",
+    "nivel_decir": "DELTA",
+    "inicio": "251402AGO26",
+    "latitude": 40.99010,
+    "longitude": -7.67835
+  },
+  "pco": {
+    "funcoes": [
+      { "funcao": "Oficial de Operações", "nome": "Cmdt Costa",
+        "entidade": "CB Moimenta da Beira", "contacto": "910000010",
+        "nomeado": "251205AGO26", "siresp": "", "ba": "" },
+      { "funcao": "Oficial de Planeamento", "nome": "Adj. Ferreira",
+        "entidade": "CB Lamego", "contacto": "910000011",
+        "nomeado": "2026-08-25T13:20:00+01:00", "siresp": "", "ba": "" }
+    ],
+    "nucleos_externos": [
+      { "nucleo": "Núcleo de Segurança", "entidade_nomeadora": "GNR",
+        "solicitado": "251310AGO26", "nomeado": "251352AGO26",
+        "responsavel": "Sarg. Silva", "contacto": "910000012" },
+      { "nucleo": "Núcleo de Emergência Médica", "entidade_nomeadora": "INEM, I.P.",
+        "solicitado": "251330AGO26", "nomeado": null,
+        "responsavel": "", "contacto": "" }
+    ]
+  },
+  "setores": [
+    { "nome": "Alfa", "estado": "Em curso (ativo)",
+      "comandante": "Cmdt CB Moimenta da Beira", "adjunto": "", "contacto": "910000001",
+      "meios": [
+        { "tipologia": "GCIN", "quantidade": 1, "veiculos": 7, "operacionais": 26, "empenhado_desde": "251430AGO26" },
+        { "tipologia": "VFCI", "quantidade": 2, "veiculos": 1, "operacionais": 5, "empenhado_desde": "2026-08-25T15:10:00+01:00" }
+      ] },
+    { "nome": "Bravo", "estado": "Em resolução (dominado)",
+      "comandante": "Cmdt CB Sernancelhe", "adjunto": "Adjunto de operações", "contacto": "910000002",
+      "meios": [
+        { "tipologia": "VFCI", "quantidade": 1, "veiculos": 1, "operacionais": 5, "empenhado_desde": "251600AGO26" }
+      ] }
+  ],
+  "meios_aereos": [
+    { "tipologia": "HEBP",  "indicativo": "KILO 04", "entrada_to": "251505AGO26" },
+    { "tipologia": "HERAC", "indicativo": "FIRE 01", "entrada_to": "2026-08-25T15:40:00+01:00" }
+  ],
+  "reserva": { "veiculos": 1, "operacionais": 2 },
+  "za":      { "veiculos": 1, "operacionais": 2 },
+  "ponto_transito": {
+    "designacao": "Rotunda da EN226, Leomil",
+    "responsavel": "Adj. Pinto", "contacto": "910000013"
+  },
+  "sensiveis": [ { "nome": "Leomil", "grau": "prioridade", "nota": "sede de freguesia a NE" } ]
+}

@@ -1,5 +1,12 @@
 # Proposta de v1.2 — Gestão PCO → Estação PEA
 
+> **Arquivado.** Esta proposta foi acolhida: o documento em vigor é a v1.2, de 28 de
+> agosto — `CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md`, na mesma
+> pasta —, que substitui a v1.1 na íntegra. Fica pelo registo do raciocínio. Onde diverge
+> do documento em vigor, é este que está desatualizado: em particular, a v1.2 resolveu os
+> instantes com fuso **dentro do próprio campo**, e não em campos irmãos `_iso` como aqui
+> se propunha.
+
 **Proposta, não documento em vigor.** Acrescenta à especificação v1.1 os três pontos do
 contrato `pco:dispositivo` que sobrevivem, mais um quarto que o exame do código expôs.
 Nada aqui substitui a v1.1: acrescenta-se-lhe.

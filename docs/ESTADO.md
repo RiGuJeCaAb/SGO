@@ -4,15 +4,15 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0028**, montada a partir de `fonte/`. Contém as duas linhagens
+A revisão em vigor é a **r0029**, montada a partir de `fonte/`. Contém as duas linhagens
 que correram em paralelo: as camadas de estabilidade e o importador de um lado, a
 repartição do PEA pelas células e as etiquetas de impressão do outro.
 
 | | |
 |---|---|
-| Entregas em `app/` | 35, das anteriores à convenção de nomes até à r0028 |
-| Módulos em `fonte/` | 33, mais o molde |
-| Testes | 157, todos a passar |
+| Entregas em `app/` | 36, das anteriores à convenção de nomes até à r0029 |
+| Módulos em `fonte/` | 32, mais o molde |
+| Testes | 170, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -24,16 +24,16 @@ também.** A documentação está arrumada por natureza — ver `docs/README.md`
 
 ### Qual documento governa a ligação à Gestão PCO
 
-A **especificação v1.1**, de 27 de agosto, em `docs/interop/`. É o que a Gestão PCO deve
-implementar.
+A **especificação v1.2**, de 28 de agosto, em `docs/interop/`. Substitui a v1.1 na
+íntegra: quem estiver a implementar do lado da Gestão PCO implementa essa e só essa.
 
-O contrato `pco:dispositivo` (`d0002`) foi escrito a analisar um esboço anterior e não a
-v1.1, e o seu autor corrigiu-se; fica arquivado. O que dele sobra está proposto para uma
-v1.2, no mesmo lugar.
+A v1.1 fica pelo registo, e o contrato `pco:dispositivo` (`d0002`) também — este foi
+escrito a analisar um esboço anterior e não a v1.1, e o seu autor corrigiu-se. Foi dele,
+porém, que vieram os três acréscimos que a v1.2 acolheu.
 
-O importador lê os três envelopes — v1.1, contrato e esboço antigo — e normaliza-os numa
-forma só. Ler mais do que um envelope não é hesitar sobre qual manda: é o que um adaptador
-faz, porque quem importa não escolhe o que lhe chega às mãos.
+O importador lê os quatro envelopes — v1.2, v1.1 e v1.0, contrato e esboço antigo — e
+normaliza-os numa forma só. Ler mais do que um envelope não é hesitar sobre qual manda: é
+o que um adaptador faz, porque quem importa não escolhe o que lhe chega às mãos.
 
 ## Decisões tomadas
 
@@ -45,7 +45,9 @@ Por ordem em que foram tomadas.
 | Revisões antigas do HTML | **Ficam todas em `app/`**, desde a primeira. A ordem alfabética dos nomes é a ordem das revisões |
 | Pipeline de seis agentes | **Reformulado.** Quatro dos seis são cálculos determinísticos e ficam dentro da aplicação; os dois restantes seguem a via C, com o serviço acompanhante em aberto. Ver `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` |
 | Modelo de comportamento do fogo | **Viegas (2004),** composição vetorial de declive e vento. Dá o desvio da cabeça e a velocidade relativa; não dá velocidade absoluta nem diz se o fogo se propaga, e a aplicação não finge dar. Ver `FONTES.md`, chave `FOGO` |
-| Documento que governa a ligação à Gestão PCO | **A especificação v1.1.** O contrato `d0002` fica arquivado; o que dele sobra está proposto para uma v1.2. O importador lê os três envelopes |
+| Documento que governa a ligação à Gestão PCO | **A especificação v1.1**, na altura. O contrato `d0002` fica arquivado; o que dele sobrava seguiu para proposta |
+| Proposta de v1.2 | **Acolhida.** A v1.2, de 28 de agosto, substitui a v1.1 na íntegra e é o documento em vigor. O importador lê os quatro envelopes |
+| Numeração das revisões | **Uma entrega, um número.** A convenção sempre o disse; foi incumprida na r0028 e passa a ser verificada antes de cada entrega |
 
 ## Feito
 
@@ -59,6 +61,40 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Especificação v1.2 da ligação à Gestão PCO, implementada na r0029
+
+A v1.2 substitui a v1.1 na íntegra. Muda quatro coisas, e o importador acompanha-as todas.
+
+**Instantes no mesmo campo.** A v1.1 só tinha o GDH doutrinário, que não leva fuso
+horário. Em operação nacional, com uma zona horária só, isso não é problema; passa a ser
+numa exportação gerada em UTC e lida em hora local, e na transição da hora de verão, em
+que existe uma hora repetida. A minha proposta punha o ISO em campos irmãos `_iso`; a v1.2
+resolveu-o melhor — **o mesmo campo aceita as duas formas**, porque são inequivocamente
+distinguíveis: o GDH é seis dígitos, três letras e dois dígitos, e nada mais o é. O
+importador tenta uma e depois a outra. Os campos `_iso` continuam a ser lidos, porque uma
+revisão desta Estação os leu e descartar um instante em silêncio é pior do que a linha que
+custa; nenhuma exportação os emite.
+
+**Bloco `pco`.** Estrutura do posto de comando, com as designações exatas do art. 14.º e
+dos arts. 18.º a 38.º do Despacho n.º 4067/2024 — é essa cadeia que cruza com as funções
+exigíveis pela fase do SGO, e um nome aproximado faria a aplicação dizer que a função está
+por nomear quando está nomeada. Falha silenciosa é o pior género, e por isso é assinalada.
+Nos núcleos externos do art. 17.º, n.º 2, als. d), e) e f), **dois instantes distintos**:
+a solicitação pelo COS e a nomeação pela entidade externa. A distância entre eles é
+informação operacional, e `nomeado` a `null` diz que o pedido continua pendente.
+
+**Ponto de trânsito** e **estimativa de empenhamento assinalada** entram no mesmo caminho.
+
+O bloco `pco` e o ponto de trânsito já eram lidos no envelope do contrato, e a leitura era
+outra. Passaram a uma função só, partilhada pelos dois envelopes: o que a v1.1 produzia
+sem eles continua a ser exatamente o que produz — a retrocompatibilidade não custou um
+ramo.
+
+Treze testes novos, e o exemplo `EspecificacaoJSON_v1.2_exemplo.json`, que usa as duas
+formas de tempo de propósito no mesmo array. Verificado ponta a ponta em navegador: quatro
+funções do PCO no estado, ponto de trânsito, e um único ponto assinalado — o núcleo
+solicitado e ainda por nomear, que é informação e não defeito.
 
 ## Briefing de passagem de comando, feito na r0028
 
@@ -102,7 +138,9 @@ Divergências face ao catálogo não bloqueiam: prevalece o valor exportado.
 
 Para que a exportação real possa ser verificada no dia em que existir:
 
-- `docs/interop/exemplos/EspecificacaoJSON_v1.1_exemplo.json` — o exemplo da especificação; entra sem um
+- `docs/interop/exemplos/EspecificacaoJSON_v1.2_exemplo.json` — o exemplo do documento em
+  vigor; traz o bloco `pco`, o ponto de trânsito e as duas formas de tempo.
+- `docs/interop/exemplos/EspecificacaoJSON_v1.1_exemplo.json` — o exemplo da v1.1; entra sem um
   único ponto a confirmar.
 - `docs/interop/exemplos/pco-dispositivo_v0_esboco.json` — exercita todas as conversões; produz nove
   pontos a confirmar.
@@ -333,7 +371,10 @@ decisão, e está listado a seguir.
 1. **Confrontar o importador com uma exportação real da Gestão PCO.** Está feito e testado
    contra os documentos; falta o que a aplicação de origem produz de facto.
    `npm run validar-gp -- <ficheiro>` responde em segundos.
-2. **Decidir a proposta de v1.2** da ligação à Gestão PCO.
+2. **Campos próprios para os dois instantes da nomeação externa.** O importador já lê a
+   solicitação e a nomeação dos núcleos externos, e hoje só a segunda tem onde ficar: a
+   primeira serve para o aviso e é descartada. Quando o estado tiver os dois campos,
+   preenchem-se — e essa é a única coisa que a v1.2 traz e que o estado ainda não guarda.
 3. **Reforma do estado por células**, quando o outro lado a atacar. O importador não sobe a
    escada de migrações: não acrescenta campo nenhum ao estado, escreve só em ramos que já
    existem. O próximo degrau livre é `MIGRACOES[3]`, versão 3 para 4.
@@ -366,6 +407,16 @@ por duas linhagens terem corrido em paralelo sobre a mesma base: distinguem-se p
 carimbo de hora no nome do ficheiro. Ficam ambas, porque ambas foram entregues, e as duas
 estão fundidas na linha principal.
 
+E há **um número atribuído a quatro entregas**, que não tem justificação nenhuma: a r0028.
+Quatro alterações distintas foram entregues em ficheiros sucessivos, e em vez de
+incrementar o número apaguei o ficheiro e remontei o mesmo, mudando-lhe só o carimbo. A
+convenção diz que a revisão incrementa a cada entrega; a numeração devia ir na r0031. O
+que se perdeu foi a correspondência entre um número e uma alteração — os quatro passos
+ficam legíveis nos commits `91a9809`, `571db93`, `4f11ed9` e `1feb710`, e mais em lado
+nenhum. Fica assim, porque a r0028 já foi entregue e reescrever a numeração de entregas
+feitas seria pior. **Daqui para a frente, uma entrega, um número:** montagens
+intermédias de trabalho não saem do computador e não contam.
+
 | Revisão | Carimbo | Linhagem | Alterações |
 |---|---|---|---|
 | r0014 | 272208 | — | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
@@ -384,4 +435,5 @@ estão fundidas na linha principal.
 | r0025 | 281404 | — | Fusão das duas linhagens r0023, montada a partir de `fonte/` |
 | r0026 | 281414 | — | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
 | r0027 | 281451 | — | Importação da Gestão PCO contra a especificação, com exemplos de referência e validador |
-| r0028 | 281657 | — | Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; instantes ISO opcionais no caminho da v1.1; briefing de passagem de comando; documentação arrumada por natureza |
+| r0028 | 281657 | — | **Quatro entregas com o mesmo número, por erro meu de numeração.** Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; instantes ISO opcionais no caminho da v1.1; briefing de passagem de comando; documentação arrumada por natureza |
+| r0029 | 281713 | — | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |

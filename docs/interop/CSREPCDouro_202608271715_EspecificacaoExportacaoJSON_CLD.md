@@ -2,6 +2,11 @@
 **CSREPC Douro · Núcleo de Apoio às Operações · v1.1 · agosto de 2026**
 *Documento de trabalho a entregar ao responsável pela app Gestão PCO (Fase 2 do roadmap da Estação PEA).*
 
+> **Substituída pela v1.2**, de 28 de agosto —
+> `CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md`, na mesma pasta. Quem
+> estiver a implementar do lado da Gestão PCO implementa essa. Este documento fica pelo
+> registo: a Estação continua a ler pacotes na v1.1 e na v1.0, por retrocompatibilidade.
+
 > **Alterações face à v1.0** — alinhamento com o Anexo 1 e o ponto 7.f da Diretiva Operacional Nacional n.º 2 / DECIR 2026: nomenclatura oficial dos estados de setor, siglas de tipologia corrigidas, meios aéreos passam de contagem a lista nominal com indicativo e hora de entrada, e novos campos de GDH de início e nível de empenhamento. A v1.0 continua a ser aceite pela Estação, com conversão automática dos estados e das siglas obsoletas.
 
 ## 1. Objetivo

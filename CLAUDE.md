@@ -64,6 +64,10 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   silêncio dentro de um `try`. O `npm run lint` apanha-a hoje.
 - A revisão no rodapé e no nome do ficheiro é carimbada pela montagem. Guardar todas as
   revisões em `app/`; as ferramentas escolhem sozinhas a de numeração mais alta.
+- **Uma entrega, um número.** Cada ficheiro que sai do computador leva o número seguinte:
+  nunca apagar uma entrega para remontar o mesmo número. Montagens intermédias de trabalho
+  não são entregas e podem reutilizá-lo, desde que só uma fique. Já se perderam quatro
+  entregas debaixo do mesmo `r0028` por isto.
 - Estado novo em `O` tem de ser declarado em `novoEstado`, e toda a mudança de forma leva
   uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um.
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
