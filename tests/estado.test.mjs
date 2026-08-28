@@ -59,7 +59,7 @@ test('a migração preenche o que faltava, sem inventar', semAplicacao, () => {
   assert.equal(m.dados.topo.orient, '');
   assert.equal(m.dados.topo.declive, '');
   assert.equal(m.dados.topo.obs, '');
-  assert.equal(typeof m.pco.canais, 'object');
+  assert.equal(typeof m.logistica.comunicacoes, 'object');
 });
 
 test('ramos que deviam ser listas passam a ser listas', semAplicacao, () => {
@@ -68,7 +68,7 @@ test('ramos que deviam ser listas passam a ser listas', semAplicacao, () => {
   for (const ramo of ['evolucao', 'peas', 'fita']) assert.ok(Array.isArray(m[ramo]), ramo);
   assert.ok(Array.isArray(m.dados.anexos));
   assert.ok(Array.isArray(m.pco.funcoes));
-  assert.ok(Array.isArray(m.pco.canais.atrib));
+  assert.ok(Array.isArray(m.logistica.comunicacoes.atrib));
 });
 
 test('um estado de revisão posterior é recusado, não adivinhado', semAplicacao, () => {

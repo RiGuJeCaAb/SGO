@@ -4,19 +4,22 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0039**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0040**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
+**A repartição por células está completa.** Todos os ramos do estado estão na célula a
+quem a lei atribui a matéria, e o mapa de posse não declara um único movimento pendente.
+
 | | |
 |---|---|
-| Entregas em `app/` | 43, das anteriores à convenção de nomes até à r0039 |
+| Entregas em `app/` | 44, das anteriores à convenção de nomes até à r0040 |
 | Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 218, todos a passar |
+| Testes | 226, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 5 |
+| Versão do estado gravado | 6 |
 | Regras de conformidade | 14, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -50,6 +53,7 @@ Por ordem em que foram tomadas.
 | Numeração das revisões | **Uma entrega, um número.** A convenção sempre o disse; foi incumprida na r0028 e passa a ser verificada antes de cada entrega |
 | Posse do estado por célula | **Aceite como veio da linhagem paralela**, e portada para `tests/posse.test.mjs`. O registo declara o dono de cada ramo com a norma que o sustenta, e um ramo novo sem célula parte a verificação |
 | Vazio na fusão de funções do PCO | **Vazio é ausência, não informação.** Uma importação não apaga com vazio o que o oficial registou à mão; um valor preenchido manda |
+| Como se alcança um ramo que mudou de dono | **Por acessor único, nunca pelo caminho.** `canaisObj()`, `ptObj()`, `reservaObj()`. Foi por se alcançar `dados.pt` pelo caminho que cinco campos do formulário ficaram para trás, em silêncio, quando o ramo mudou de célula |
 
 ## Feito
 
@@ -63,6 +67,56 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O plano de comunicações no seu ramo, e os módulos na sua zona, na r0040
+
+Fecha a repartição por células. Já não há ramo do estado fora da célula a quem a lei
+atribui a matéria, nem módulo fora da zona a que pertence — o mapa de posse deixou de
+declarar movimentos pendentes.
+
+### O plano de comunicações passa para a logística
+
+Era o último ramo por mover, e estava declarado como pendente com a razão por que
+esperava: 52 pontos de leitura por `P.canais` e o instantâneo do PEA a copiar o ramo `pco`
+inteiro.
+
+A base é doutrinária. Compete ao CSREPC e ao CNEPC atribuir os canais rádio de cada TO, e
+ao COS implementar com base neles um plano de comunicações — DON n.º 2, ponto 10, n.os (1)
+a (3). A **sustentação** desse plano é matéria do art. 32.º, n.º 1, al. d), e do art. 34.º,
+que são da célula de logística e finanças. O que fica em `pco` são as nomeações do
+art. 14.º, e mais nada.
+
+`MIGRACOES[5]`, versão 5 para 6, com a mesma regra dos degraus anteriores: o destino só
+vence a origem quando tem conteúdo, e a origem limpa-se para não ficarem duas verdades.
+
+**Um acessor único, `canaisObj()`.** Os pontos de leitura passaram todos por ele, e nenhum
+alcança o ramo pelo caminho. Não é preciosismo: foi por se alcançar um ramo pelo caminho
+que o ponto de trânsito se perdeu na r0035 — o estado mudou de dono e cinco campos do
+formulário ficaram para trás, em silêncio. Um acessor único torna esse erro impossível de
+repetir, porque não há segundo sítio por onde lá chegar.
+
+**O PEA emitido não muda de forma.** É um documento congelado, e a sua forma não se altera
+porque o estado vivo mudou de arrumação: o instantâneo continua a levar `{funcoes, canais}`,
+que é o que os PEA já emitidos trazem e o que a impressão lê. O plano vem agora da
+logística e entra no instantâneo pelo mesmo nome.
+
+O `no-unused-vars` apanhou seis `const P = pcoObj()` que ficaram sem uso, e um `P` no
+destructuring da regra `placom` do motor de conformidade. Removidos.
+
+### Os dois módulos foram para a zona certa
+
+`importacao-da-gestao-pco.js` estava em Planeamento e é o dispositivo — arts. 17.º e 19.º:
+foi para `4-operacoes/04`. `posse-do-estado-por-celula.js` estava em Turno e é transversal:
+foi para `1-nucleo/10`. As duas movimentações foram verificadas como **puramente de ordem**
+antes de qualquer alteração de conteúdo: as mesmas linhas, noutro sítio.
+
+### Verificação
+
+226 testes. Verificado ponta a ponta em navegador com uma ocorrência gravada na versão 5:
+migra para a 6 com os canais e os atribuídos intactos, a origem limpa, zero órfãos e zero
+movimentos pendentes; a regra `placom` do motor de conformidade continua a ler os canais;
+o briefing mostra-os na secção 4; exportar e reimportar a ocorrência preserva-os. Sem
+exceções.
 
 ## A fonte repartida por célula, e a r0038 recolhida, na r0039
 
@@ -529,15 +583,10 @@ decisão, e está listado a seguir.
 1. **Confrontar o importador com uma exportação real da Gestão PCO.** Está feito e testado
    contra os documentos; falta o que a aplicação de origem produz de facto.
    `npm run validar-gp -- <ficheiro>` responde em segundos.
-2. **Mover `pco.canais` para `logistica.comunicacoes`.** É o último ramo por mover, e está
-   declarado como pendente no próprio registo de posse, com a razão: 52 pontos de leitura
-   por `P.canais` e o instantâneo do PEA copia o ramo `pco` inteiro. Fica para
-   `MIGRACOES[5]`, versão 5 para 6.
-3. **Dois módulos na zona errada**, que a repartição por célula deixou à vista:
-   `3-planeamento/07-importacao-da-gestao-pco.js` é de Operações — é o dispositivo, arts.
-   17.º e 19.º — e `6-turno/02-posse-do-estado-por-celula.js` é do núcleo, por ser
-   transversal. Mover cada um muda a ordem do ficheiro entregue, e por isso é revisão
-   própria.
+2. **A repartição por células está fechada** — feito na r0040. Não há ramo do estado nem
+   módulo fora da célula a quem a lei atribui a matéria, e o mapa de posse não declara
+   movimentos pendentes. O que se acrescentar daqui para a frente nasce já com célula, e
+   `auditarPosse` e `auditarArrumacao` recusam o que não tiver.
 
 ## Trabalho em aberto
 
@@ -605,3 +654,4 @@ intermédias de trabalho não saem do computador e não contam.
 | r0037 | 282200 | paralela | JavaScript reagrupado por célula. Só ordem e cabeçalhos; nenhum byte de conteúdo mudou |
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
+| r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |

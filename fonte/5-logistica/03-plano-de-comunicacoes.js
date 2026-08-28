@@ -7,10 +7,9 @@ const NIVEL_ROT = {
 };
 const NIVEL_ORD = ["comando","tatico","manobra","aereo"];
 function nivObj(){
-  const P = pcoObj();
-  if(!P.canais.niveis || typeof P.canais.niveis!=="object")
-    P.canais.niveis = {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
-  return P.canais.niveis;
+  if(!canaisObj().niveis || typeof canaisObj().niveis!=="object")
+    canaisObj().niveis = {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
+  return canaisObj().niveis;
 }
 function nAereos(){ try{ return aerLista().length; }catch(e){ return 0; } }
 function niveisSugeridos(){
@@ -68,10 +67,10 @@ function renderAtrib(){
     ? nAtr+(nAtr===1? " canal atribuído ao teatro de operações.":" canais atribuídos ao teatro de operações.")
     : "Nenhum canal atribuído; enquanto assim for, as listas mostram o pacote completo.")+'</p>' : "");
   el.querySelectorAll("[data-atr]").forEach(b=>b.addEventListener("click", ()=>{
-    const P = pcoObj(), d = b.dataset.atr;
-    const i = P.canais.atrib.findIndex(x=>String(x).toUpperCase()===d.toUpperCase());
-    if(i>=0){ P.canais.atrib.splice(i,1); fita("Canal libertado do TO: "+d); }
-    else { P.canais.atrib.push(d); fita("Canal atribuído ao TO: "+d); }
+    const d = b.dataset.atr;
+    const i = canaisObj().atrib.findIndex(x=>String(x).toUpperCase()===d.toUpperCase());
+    if(i>=0){ canaisObj().atrib.splice(i,1); fita("Canal libertado do TO: "+d); }
+    else { canaisObj().atrib.push(d); fita("Canal atribuído ao TO: "+d); }
     renderComs(); pintarDON(); persistir(false);
   }));
 }
@@ -130,14 +129,14 @@ function renderComs(){
     D.innerHTML = h;
     D.querySelectorAll("select.cs").forEach(el=>{
       let val = "";
-      if(el.dataset.cg) val = P.canais[el.dataset.cg]||"";
+      if(el.dataset.cg) val = canaisObj()[el.dataset.cg]||"";
       else if(el.dataset.cf!==undefined) val = (P.funcoes[+el.dataset.cf]||{})[el.dataset.f]||"";
       else if(el.dataset.cs!==undefined) val = ((e.setores||[])[+el.dataset.cs]||{})[el.dataset.f]||"";
       pintarSel(el, val);
       el.addEventListener("change", ()=>{
         if(el.value==="__novo__") return;
         const v = el.value.trim();
-        if(el.dataset.cg) P.canais[el.dataset.cg] = v;
+        if(el.dataset.cg) canaisObj()[el.dataset.cg] = v;
         else if(el.dataset.cf!==undefined) P.funcoes[+el.dataset.cf][el.dataset.f] = v;
         else if(el.dataset.cs!==undefined) e.setores[+el.dataset.cs][el.dataset.f] = v;
         renderPCO(); renderComs(); pintarDON(); persistir(false);
@@ -151,21 +150,21 @@ function renderComs(){
     <span class="ch">${si? esc(si):'<i>por atribuir</i>'}</span><span class="ch">${ba? esc(ba):"—"}</span></div>`;
   let corpo = "";
   if(N.comando){
-    corpo += lin("Comando","COS","comando da operação; único contacto rádio com o exterior do TO", P.canais.cmd, P.canais.ba);
-    corpo += fnDo("comando").map(o=>lin("Comando", o.x.f, o.x.nome||"", o.x.siresp||P.canais.cmd, o.x.ba||P.canais.ba)).join("");
+    corpo += lin("Comando","COS","comando da operação; único contacto rádio com o exterior do TO", canaisObj().cmd, canaisObj().ba);
+    corpo += fnDo("comando").map(o=>lin("Comando", o.x.f, o.x.nome||"", o.x.siresp||canaisObj().cmd, o.x.ba||canaisObj().ba)).join("");
   }
   if(N.tatico){
-    corpo += (e.setores||[]).map((x,i)=>lin("Tático","Setor "+NOMES_SETOR[i], x.cmd||"", x.tat||P.canais.tat, x.tatba||P.canais.tatba||"")).join("");
-    corpo += fnDo("tatico").map(o=>lin("Tático", o.x.f, o.x.nome||"", o.x.siresp||P.canais.tat, o.x.ba||"")).join("");
+    corpo += (e.setores||[]).map((x,i)=>lin("Tático","Setor "+NOMES_SETOR[i], x.cmd||"", x.tat||canaisObj().tat, x.tatba||canaisObj().tatba||"")).join("");
+    corpo += fnDo("tatico").map(o=>lin("Tático", o.x.f, o.x.nome||"", o.x.siresp||canaisObj().tat, o.x.ba||"")).join("");
   }
   if(N.manobra){
     corpo += (e.setores||[]).filter(x=>x.siresp).map(x=>lin("Manobra","Equipas do setor "+NOMES_SETOR[(e.setores||[]).indexOf(x)], "", x.siresp, x.ba||"")).join("");
   }
   if(N.aereo){
     corpo += `<div class="cm-r"><span class="lv aéreo">Aéreo</span>
-      <span class="qm">Ligação terra/ar/terra<small>frequência do ar${P.canais.aero? ": "+esc(P.canais.aero) : " por atribuir"} — canal prioritário; SIRESP e banda alta em alternativa e emergência</small></span>
-      <span class="ch">${P.canais.opar? esc(P.canais.opar):'<i>por atribuir</i>'}</span><span class="ch">${P.canais.cmar? esc(P.canais.cmar):"—"}</span></div>`;
-    corpo += fnDo("aereo").map(o=>lin("Aéreo", o.x.f, o.x.nome||"", o.x.siresp||P.canais.opar, o.x.ba||P.canais.cmar||"")).join("");
+      <span class="qm">Ligação terra/ar/terra<small>frequência do ar${canaisObj().aero? ": "+esc(canaisObj().aero) : " por atribuir"} — canal prioritário; SIRESP e banda alta em alternativa e emergência</small></span>
+      <span class="ch">${canaisObj().opar? esc(canaisObj().opar):'<i>por atribuir</i>'}</span><span class="ch">${canaisObj().cmar? esc(canaisObj().cmar):"—"}</span></div>`;
+    corpo += fnDo("aereo").map(o=>lin("Aéreo", o.x.f, o.x.nome||"", o.x.siresp||canaisObj().opar, o.x.ba||canaisObj().cmar||"")).join("");
   }
   Q.innerHTML = corpo
     ? `<div class="cm-h"><span>Nível</span><span>Interlocutor</span><span>SIRESP</span><span>Banda alta</span></div>${corpo}

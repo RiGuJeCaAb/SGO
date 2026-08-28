@@ -25,11 +25,11 @@ function horizonteValidade(m){
   return Math.max(ts, agora + 3600000);
 }
 function baseVigor(){
-  const r = retratoOperacional(), P = pcoObj();
+  const r = retratoOperacional();
   return { fase:O.meta.fase||"", nivel:O.meta.nivel||"",
     setores:r.setores.map(x=>({n:x.n, estado:x.estado, m:x.m})),
     m:r.c.m, op:r.c.op, ar:r.c.ar, mr:r.c.mr, reserva:r.reserva,
-    pt:ptObj().des||"", cmd:P.canais.cmd||"", tat:P.canais.tat||"",
+    pt:ptObj().des||"", cmd:canaisObj().cmd||"", tat:canaisObj().tat||"",
     evoIdx:O.evolucao.length };
 }
 function controloMissoes(ops){
@@ -41,7 +41,7 @@ function controloMissoes(ops){
 function peaVigor(){ return O.peas.length? O.peas[O.peas.length-1] : null; }
 function divergencia(p){
   if(!p || !p.base) return null;
-  const b = p.base, r = retratoOperacional(), P = pcoObj(), it = [];
+  const b = p.base, r = retratoOperacional(), it = [];
   const add = (peso,t,sit,ref) => it.push({peso,t,s:sit,r:ref});
   if((O.meta.fase||"") !== b.fase)
     add(40,"Fase do SGO alterada", (b.fase||"—")+" para "+(O.meta.fase||"—"),
@@ -72,7 +72,7 @@ function divergencia(p){
     "DON n.º 2 / DECIR 2026 — rendições");
   const novos = O.evolucao.length - (b.evoIdx||0);
   if(novos >= 3) add(10, novos+" registos de evolução desde a emissão","a situação relatada já não é a que fundamentou o plano","DON n.º 2 / DECIR 2026 — POSIT");
-  if((P.canais.cmd||"") !== b.cmd || (P.canais.tat||"") !== b.tat)
+  if((canaisObj().cmd||"") !== b.cmd || (canaisObj().tat||"") !== b.tat)
     add(10,"Plano de comunicações alterado","canais gerais do TO diferentes dos que constam do PEA","Despacho n.º 4067/2024, art. 32.º, al. d)");
   if((ptObj().des||"") !== b.pt) add(5,"Ponto de trânsito alterado", ptObj().des||"removido","DON n.º 2, ponto 7.d.(5)");
   const score = it.reduce((t,x)=>t+x.peso,0);

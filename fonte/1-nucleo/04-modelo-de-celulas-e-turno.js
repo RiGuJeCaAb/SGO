@@ -37,8 +37,7 @@ MIGRACOES.push(e => {
 /* 4 -> 5 · A célula de logística e finanças passa a ter ramo próprio.
    Move a reserva, a zona de apoio e o ponto de trânsito para `logistica`, limpando a
    origem para que não fiquem duas verdades. Nada se perde: muda o dono, e o dono passa
-   a ser o que a lei indica. O plano de comunicações fica em `pco.canais` até haver
-   revisão que o mova — está declarado como pendente no registo de posse. */
+   a ser o que a lei indica. O plano de comunicações seguiu no degrau seguinte. */
 MIGRACOES.push(e => {
   /* O destino só vence a origem quando tem conteúdo. O degrau 0 já cria `logistica`
      com os valores por omissão — faz Object.assign sobre novoEstado() —, e testar
@@ -53,6 +52,29 @@ MIGRACOES.push(e => {
                       cheio(L.pontoTransito)? L.pontoTransito : ((e.dados&&e.dados.pt)||{}));
   delete est.res; delete est.za;
   if(e.dados) delete e.dados.pt;
+  return e;
+});
+
+/* 5 -> 6 · O plano de comunicações passa para a célula de logística e finanças.
+   Compete ao CSREPC e ao CNEPC atribuir os canais rádio de cada TO, e ao COS
+   implementar com base neles um plano de comunicações — DON n.º 2, ponto 10, n.os (1)
+   a (3). A sustentação é matéria do art. 32.º, n.º 1, al. d), e do art. 34.º, e não
+   das nomeações do art. 14.º, que é o que resta em `pco`.
+
+   Era o último ramo por mover, e estava declarado como pendente no registo de posse.
+   Mesma regra dos degraus anteriores: o destino só vence a origem quando tem conteúdo,
+   e a origem limpa-se para não ficarem duas verdades. */
+MIGRACOES.push(e => {
+  const cheio = o => !!o && Object.keys(o).some(k => {
+    const v = o[k];
+    return Array.isArray(v) ? v.length > 0 : (v !== "" && v != null);
+  });
+  const L = e.logistica = Object.assign({}, e.logistica||{});
+  const origem = (e.pco && e.pco.canais) || {};
+  L.comunicacoes = Object.assign({cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null},
+    cheio(L.comunicacoes)? L.comunicacoes : origem);
+  if(!Array.isArray(L.comunicacoes.atrib)) L.comunicacoes.atrib = [];
+  if(e.pco) delete e.pco.canais;
   return e;
 });
 
@@ -82,10 +104,13 @@ function novoEstado(){
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
     /* Célula de logística e finanças. A reserva e a zona de apoio são áreas da ZCR
-       (art. 32.º, n.º 1, al. b)) e não fazem parte do dispositivo de Operações. */
+       (art. 32.º, n.º 1, al. b)) e não fazem parte do dispositivo de Operações; o plano
+       de comunicações é do art. 32.º, n.º 1, al. d), e do art. 34.º. */
     logistica:{ reserva:{m:"",o:""}, zonaApoio:{m:"",o:""},
-      pontoTransito:{des:"",resp:"",ct:"",cd:"",obs:""} },
-    pco:{funcoes:[], canais:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}},
+      pontoTransito:{des:"",resp:"",ct:"",cd:"",obs:""},
+      comunicacoes:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null} },
+    /* Comando: as nomeações do art. 14.º, e mais nada. */
+    pco:{funcoes:[]},
     evolucao:[], csv:"", peas:[], fita:[], turno:novoTurno(), versao:VERSAO_ESTADO };
 }
 /* O acessor devolve qualquer elemento; a verificação de tipos incide sobre o estado,

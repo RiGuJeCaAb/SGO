@@ -230,10 +230,10 @@ const REGRAS_DON = [
 
       return v; } },
   { id:"placom", ids:["placom"], t:"Plano de comunicações", fontes:["SGO4067","DON1"],
-    avaliar(x){ const v = []; const { NV, P } = x;
+    avaliar(x){ const v = []; const { NV } = x;
       /* 6-C. Plano de comunicações */
       const setsSemCanal = (estObj().setores||[]).map((x,i)=>({x,i})).filter(o=>!o.x.siresp);
-      if(!P.canais.cmd && (estObj().setores||[]).length){
+      if(!canaisObj().cmd && (estObj().setores||[]).length){
         v.push({n:"ob", id:"placom", t:"Plano de comunicações por elaborar",
           s:"Não há canal de comando atribuído, com "+(estObj().setores||[]).length+" setores ativados no TO.",
           f:"Compete à célula de logística e finanças elaborar o plano de comunicações, para aprovação pelo COS, e assegurar a sua permanente atualização. A célula de operações transmite as ordens de missão e o plano de comunicações aos comandantes de setor, de frente e de área. Os canais de comando, táticos e de manobra são decididos pelo COS em articulação com o CSREPC.",
@@ -241,13 +241,13 @@ const REGRAS_DON = [
           r:"Despacho n.º 4067/2024, art. 32.º, al. d), art. 17.º, al. c), e art. 34.º"});
       } else if(NV.manobra && setsSemCanal.length){
         v.push({n:"av", id:"placom", t:setsSemCanal.length+(setsSemCanal.length===1? " setor sem canal de manobra":" setores sem canal de manobra"),
-          s:"Sem canal atribuído: "+setsSemCanal.map(o=>NOMES_SETOR[o.i]).join(", ")+". Canal de comando em vigor: "+P.canais.cmd+".",
+          s:"Sem canal atribuído: "+setsSemCanal.map(o=>NOMES_SETOR[o.i]).join(", ")+". Canal de comando em vigor: "+canaisObj().cmd+".",
           f:"A hierarquização das comunicações no teatro de operações adequa-se aos diversos níveis de comando e chefia colocados a funcionar por decisão do COS. O nível de manobra determina e executa tarefas específicas.",
           a:"Atribuir canal de manobra a cada setor na secção 3 e confirmar a sua difusão aos chefes de equipa.",
           r:"Despacho n.º 4067/2024, art. 4.º, n.º 4 · DON n.º 1 / DIOPS, organização das comunicações"});
-      } else if(P.canais.cmd){
+      } else if(canaisObj().cmd){
         v.push({n:"ok", id:"placom", t:"Plano de comunicações atribuído",
-          s:"Canal de comando "+P.canais.cmd+(P.canais.tat? "; canal tático "+P.canais.tat:"")+(P.canais.ba? "; banda alta de recurso "+P.canais.ba:"")+". Todos os setores ativados têm canal de manobra.",
+          s:"Canal de comando "+canaisObj().cmd+(canaisObj().tat? "; canal tático "+canaisObj().tat:"")+(canaisObj().ba? "; banda alta de recurso "+canaisObj().ba:"")+". Todos os setores ativados têm canal de manobra.",
           f:"O plano de comunicações é elaborado pela célula de logística e finanças e aprovado pelo COS, sendo transmitido aos comandantes de setor pela célula de operações.",
           a:"Manter o plano atualizado a cada alteração de setorização ou de nomeação, e anexá-lo ao PEA.",
           r:"Despacho n.º 4067/2024, art. 32.º, al. d), e art. 17.º, al. c)"});
@@ -266,8 +266,8 @@ const REGRAS_DON = [
       const setsCom = (estObj().setores||[]);
       const man = NV.manobra? setsCom.map((x,i)=>({d:(x.siresp||"").trim(), n:NOMES_SETOR[i]})).filter(o=>o.d) : [];
       const conflito = [];
-      if(P.canais.cmd) man.filter(o=>o.d.toUpperCase()===P.canais.cmd.toUpperCase()).forEach(o=>conflito.push("o canal de comando "+P.canais.cmd+" está atribuído ao nível de manobra do setor "+o.n));
-      if(P.canais.tat) man.filter(o=>o.d.toUpperCase()===P.canais.tat.toUpperCase()).forEach(o=>conflito.push("o canal tático "+P.canais.tat+" está atribuído ao nível de manobra do setor "+o.n));
+      if(canaisObj().cmd) man.filter(o=>o.d.toUpperCase()===canaisObj().cmd.toUpperCase()).forEach(o=>conflito.push("o canal de comando "+canaisObj().cmd+" está atribuído ao nível de manobra do setor "+o.n));
+      if(canaisObj().tat) man.filter(o=>o.d.toUpperCase()===canaisObj().tat.toUpperCase()).forEach(o=>conflito.push("o canal tático "+canaisObj().tat+" está atribuído ao nível de manobra do setor "+o.n));
       if(conflito.length) v.push({n:"av", id:"placom", t:"Canal repetido em níveis diferentes",
         s:conflito.join("; ")+".",
         f:"As comunicações no teatro de operações são hierarquizadas e adequadas aos diversos níveis de comando e chefia colocados a funcionar por decisão do COS. O nível de comando, o nível tático e o nível de manobra têm âmbitos distintos e não devem partilhar o mesmo canal.",
@@ -281,11 +281,11 @@ const REGRAS_DON = [
         f:"O nível de manobra determina e executa tarefas específicas dentro de cada setor. A partilha do mesmo canal por setores distintos satura a rede e confunde a origem das mensagens em situação de emergência.",
         a:"Atribuir um canal de manobra próprio a cada setor sempre que o catálogo o permita; se a partilha for inevitável, registá-la no plano de comunicações e adverti-la no briefing.",
         r:"Despacho n.º 4067/2024, art. 4.º, n.º 4 · DON n.º 2 / DECIR 2026, ponto 10(3)"});
-      const ATR = (P.canais.atrib||[]).map(x=>String(x).toUpperCase());
+      const ATR = (canaisObj().atrib||[]).map(x=>String(x).toUpperCase());
       if(ATR.length){
         const fora = [];
         const chk = (d,onde)=>{ d=(d||"").trim(); if(d && !ATR.includes(d.toUpperCase())) fora.push(d+" — "+onde); };
-        chk(P.canais.cmd,"canal de comando"); chk(P.canais.tat,"canal tático"); chk(P.canais.opar,"alternativa SIRESP");
+        chk(canaisObj().cmd,"canal de comando"); chk(canaisObj().tat,"canal tático"); chk(canaisObj().opar,"alternativa SIRESP");
         if(NV.manobra) setsCom.forEach((x,i)=>chk(x.siresp,"manobra do setor "+NOMES_SETOR[i]));
         if(NV.tatico) setsCom.forEach((x,i)=>chk(x.tat,"tático do setor "+NOMES_SETOR[i]));
         P.funcoes.forEach(x=>chk(x.siresp, x.f));
@@ -296,8 +296,8 @@ const REGRAS_DON = [
           r:"DON n.º 2 / DECIR 2026, pontos 10(1), 10(2) e 10(3)"});
       }
       let nAer = 0; try{ nAer = aerLista().length; }catch(e){}
-      if(nAer && NV.aereo && !P.canais.aero) v.push({n:"av", id:"placom", t:"Ligação terra/ar/terra por definir",
-        s:nAer+(nAer===1? " meio aéreo no TO":" meios aéreos no TO")+" sem frequência do ar registada"+(P.canais.opar? "; "+P.canais.opar+" registado como alternativa SIRESP":"")+".",
+      if(nAer && NV.aereo && !canaisObj().aero) v.push({n:"av", id:"placom", t:"Ligação terra/ar/terra por definir",
+        s:nAer+(nAer===1? " meio aéreo no TO":" meios aéreos no TO")+" sem frequência do ar registada"+(canaisObj().opar? "; "+canaisObj().opar+" registado como alternativa SIRESP":"")+".",
         f:"O canal prioritário de ligação terra/ar/terra é a frequência do ar (banda aeronáutica) atribuída ao incêndio, sendo o canal SIRESP OPAR 01 da sub-região onde decorre a ocorrência um canal alternativo e/ou de emergência, bem como o manobra 4 (CM4) da Rede Operacional dos Bombeiros.",
         a:"Registar na secção 3 a frequência do ar atribuída à ocorrência e confirmar a alternativa SIRESP e de banda alta com o COPAR e com todos os meios aéreos empenhados.",
         r:"DON n.º 2 / DECIR 2026, ponto 10(5)"});
@@ -370,7 +370,7 @@ function contextoDON(ts){
     /* Leitura defensiva: verificar conformidade não pode escrever no estado. O
        `nivObj()` normaliza, e uma verificação que altera o que verifica já não é de
        confiança. Os valores lidos são os mesmos. */
-    NV: (pcoObj().canais && pcoObj().canais.niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false},
+    NV: (canaisObj() && canaisObj().niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false},
     SUG: niveisSugeridos(), P: pcoObj() };
 }
 

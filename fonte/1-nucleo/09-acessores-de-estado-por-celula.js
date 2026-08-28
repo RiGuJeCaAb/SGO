@@ -16,8 +16,19 @@ function logisticaObj(){
   L.reserva = Object.assign({m:"",o:""}, L.reserva||{});
   L.zonaApoio = Object.assign({m:"",o:""}, L.zonaApoio||{});
   L.pontoTransito = Object.assign({des:"",resp:"",ct:"",cd:"",obs:""}, L.pontoTransito||{});
+  L.comunicacoes = Object.assign({cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}, L.comunicacoes||{});
   O.logistica = L;
   return O.logistica;
+}
+/* Plano de comunicações — art. 32.º, n.º 1, al. d), e art. 34.º. Ramo da logística
+   desde a versão 6 do estado. Este é o acessor único: nenhum sítio deve alcançar o
+   ramo pelo caminho, porque foi assim que o ponto de trânsito se perdeu quando mudou
+   de dono e cinco campos do formulário ficaram para trás. */
+function canaisObj(){
+  const C = logisticaObj();
+  C.comunicacoes = Object.assign({cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}, C.comunicacoes||{});
+  if(!Array.isArray(C.comunicacoes.atrib)) C.comunicacoes.atrib = [];
+  return C.comunicacoes;
 }
 function reservaObj(){ return logisticaObj().reserva; }
 function zaObj(){ return logisticaObj().zonaApoio; }

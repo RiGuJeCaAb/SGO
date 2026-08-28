@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 5;
+const VERSAO_ESTADO = 6;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -28,9 +28,10 @@ const MIGRACOES = [
        com indefinido e o degrau 4 para 5 apagava logo a seguir. É esse degrau que os
        move e lhes dá os valores por omissão, e lê a origem defensivamente. */
     e.pco = Object.assign({}, base.pco, guardado.pco||{});
-    e.pco.canais = Object.assign({}, base.pco.canais, e.pco.canais||{});
+    /* O plano de comunicações seguiu o mesmo caminho na versão 6: o degrau 5 para 6
+       é que o move e lhe dá os valores por omissão. */
     [[e.dados,"anexos"],[e.dados.est,"setores"],[e.dados.est,"aerL"],[e.pco,"funcoes"],
-     [e.pco.canais,"atrib"],[e,"evolucao"],[e,"peas"],[e,"fita"]]
+     [e,"evolucao"],[e,"peas"],[e,"fita"]]
       .forEach(([dono,ramo])=>{ if(!Array.isArray(dono[ramo])) dono[ramo]=[]; });
     return e;
   },

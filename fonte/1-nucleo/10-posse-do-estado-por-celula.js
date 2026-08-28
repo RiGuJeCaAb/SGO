@@ -46,9 +46,7 @@ const POSSE = [
       { p:"logistica.reserva",       r:"art. 32.º, n.º 1, al. b); art. 33.º", d:"Reserva tática" },
       { p:"logistica.zonaApoio",     r:"art. 32.º, n.º 1, al. b)", d:"Zona de apoio" },
       { p:"logistica.pontoTransito", r:"DL n.º 90-A/2022, art. 13.º, al. c); art. 32.º, n.º 1, al. b); DON 2, 7.d.(5), (7) e (8)", d:"Ponto de trânsito na zona de concentração e reserva" },
-      { p:"pco.canais",              r:"art. 32.º, n.º 1, al. d); art. 34.º", d:"Plano de comunicações e canais atribuídos",
-        mover:"logistica.comunicacoes",
-        porque:"52 pontos de leitura por P.canais e o instantâneo do PEA copia o ramo pco inteiro; move-se em revisão própria" }
+      { p:"logistica.comunicacoes",  r:"art. 32.º, n.º 1, al. d); art. 34.º", d:"Plano de comunicações e canais atribuídos" }
     ] },
   { k:"infra", n:"Infraestrutura", r:"—",
     nota:"Não é célula nem matéria de comando: é a mecânica do ficheiro gravado.",

@@ -70,7 +70,7 @@ function canalAdd(rede,des,niv,nota,pasta,area){
     pasta:pasta||"local", area:String(area||"").trim()});
   ordenarCanais(); guardarCanais(); return true;
 }
-function atribSet(){ try{ return new Set((pcoObj().canais.atrib||[]).map(x=>String(x).toUpperCase())); }catch(e){ return new Set(); } }
+function atribSet(){ try{ return new Set((canaisObj().atrib||[]).map(x=>String(x).toUpperCase())); }catch(e){ return new Set(); } }
 function optsCanal(rede, niv, val){
   const lista = CANAIS.ent.filter(x=>x.rede===rede && canalAplicavel(x)), V = String(val||"").toUpperCase(), A = atribSet();
   const op = x => '<option value="'+esc(x.des)+'" title="'+esc(x.nota||"")+'"'+(V===String(x.des).toUpperCase()? " selected":"")+'>'+esc(x.des)+'</option>';

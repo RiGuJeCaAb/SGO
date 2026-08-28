@@ -36,9 +36,9 @@ function ocorrenciaCompleta() {
   O.logistica.reserva = { m: '2', o: '8' };
   O.pco.funcoes = [{ f: 'Oficial de Operações', nome: 'Cmdt Ferreira', entidade: 'CB Alijó',
     ct: '910000010', siresp: 'PC TAT 1', ba: '', g: INICIO }];
-  O.pco.canais.niveis = { comando: true, tatico: true, manobra: true, aereo: false, ba: false, tocado: true };
-  O.pco.canais.cmd = 'PC COM 1';
-  O.pco.canais.tat = 'PC TAT 1';
+  O.logistica.comunicacoes.niveis = { comando: true, tatico: true, manobra: true, aereo: false, ba: false, tocado: true };
+  O.logistica.comunicacoes.cmd = 'PC COM 1';
+  O.logistica.comunicacoes.tat = 'PC TAT 1';
   O.evolucao.push({ g: INICIO, tipo: 'posit', t: 'Primeiro POSIT transmitido' });
   return t0;
 }

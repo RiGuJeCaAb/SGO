@@ -82,8 +82,8 @@ function briefingPassagem(ts){
   /* ---- 4. plano de comunicações ---- */
   /* Leitura defensiva, e não `nivObj()`: esse acessor normaliza, e portanto escreve.
      Um briefing não inicializa estado — só relata o que encontra. */
-  const N = (P.canais && P.canais.niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
-  const ch = P.canais || {cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null};
+  const N = (canaisObj() && canaisObj().niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
+  const ch = canaisObj() || {cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null};
   const niveis = [
     N.comando? "Comando: "+(ch.cmd||"por atribuir") : null,
     N.tatico? "Tático: "+(ch.tat||"por atribuir") : null,

@@ -1,4 +1,4 @@
-// A célula de logística e finanças com ramo próprio — estado na versão 5.
+// A célula de logística e finanças com ramo próprio — estado nas versões 5 e 6.
 //
 // Veio da linhagem paralela no p0006, com a sua bateria (t0006). Está aqui porque um
 // teste que não corre em `npm run tudo` não protege nada.
@@ -33,18 +33,24 @@ test('o dispositivo só contém matéria de Operações', semAplicacao, () => {
   assert.deepEqual(est.sort(), ['aer', 'aerL', 'livre', 'n', 'setores']);
 });
 
-test('a logística tem ramo próprio com as três matérias', semAplicacao, () => {
+test('a logística tem ramo próprio com as quatro matérias', semAplicacao, () => {
   const L = daqui(janela.novoEstado().logistica);
-  assert.deepEqual(Object.keys(L).sort(), ['pontoTransito', 'reserva', 'zonaApoio']);
+  assert.deepEqual(Object.keys(L).sort(),
+    ['comunicacoes', 'pontoTransito', 'reserva', 'zonaApoio']);
   assert.deepEqual(L.reserva, { m: '', o: '' });
   assert.equal(L.pontoTransito.des, '');
   assert.equal(janela.novoEstado().dados.pt, undefined, 'a origem foi limpa');
+  assert.equal(janela.novoEstado().pco.canais, undefined, 'a origem foi limpa');
+});
+
+test('o comando fica só com as nomeações do art. 14.º', semAplicacao, () => {
+  assert.deepEqual(Object.keys(daqui(janela.novoEstado().pco)), ['funcoes']);
 });
 
 /* ---- a escada de migrações ---- */
 
-test('a versão subiu para 5 e há um degrau por versão', semAplicacao, () => {
-  assert.equal(VERSAO, 5);
+test('a versão subiu para 6 e há um degrau por versão', semAplicacao, () => {
+  assert.equal(VERSAO, 6);
   assert.equal(avaliar(janela, 'MIGRACOES').length, VERSAO);
 });
 
@@ -128,14 +134,52 @@ test('os caminhos novos têm dono e os antigos já não existem', semAplicacao, 
   assert.deepEqual(a.duplicados, []);
 });
 
-test('o plano de comunicações está declarado como movimento pendente', semAplicacao, () => {
-  // Declarar o que falta é melhor do que fingir que está feito: `pco.canais` tem 52
-  // pontos de leitura e o instantâneo do PEA copia o ramo `pco` inteiro.
+test('já não há movimentos pendentes declarados no mapa de posse', semAplicacao, () => {
+  // `pco.canais` era o último, e estava declarado com a razão por que esperava. Moveu-se
+  // na versão 6: compete ao COS implementar o plano de comunicações com base nos canais
+  // que o CSREPC atribui — DON n.º 2, ponto 10 —, e a sustentação é matéria do art. 32.º,
+  // n.º 1, al. d), não das nomeações do art. 14.º.
   const a = daqui(janela.auditarPosse(janela.novoEstado()));
-  const p = (a.porMover || []).find((x) => x.de === 'pco.canais');
-  assert.ok(p, 'o movimento pendente não está declarado');
-  assert.equal(p.celula, 'logistica');
-  assert.ok(p.porque && p.porque.length > 20, 'sem razão declarada');
+  assert.deepEqual(a.porMover || [], [], 'ficaram ramos por mover');
+});
+
+/* ---- o degrau 5 para 6: o plano de comunicações ---- */
+
+test('a migração 5 para 6 move o plano de comunicações e limpa a origem', semAplicacao, () => {
+  const m = janela.migrarGravado({
+    versao: 5, meta: {}, pco: { funcoes: [], canais: { cmd: 'PC COM 1', tat: 'PC TAT 3', atrib: ['PC MAN 4'] } },
+  });
+  assert.equal(m.versao, VERSAO);
+  assert.equal(m.logistica.comunicacoes.cmd, 'PC COM 1');
+  assert.equal(m.logistica.comunicacoes.tat, 'PC TAT 3');
+  assert.deepEqual(daqui(m.logistica.comunicacoes.atrib), ['PC MAN 4']);
+  assert.equal(m.pco.canais, undefined, 'não podem ficar duas verdades');
+});
+
+test('a migração 5 para 6 não deixa vazio vencer o que estava atribuído', semAplicacao, () => {
+  const m = janela.migrarGravado({
+    versao: 5,
+    logistica: { comunicacoes: { cmd: '', tat: '', atrib: [] } },
+    pco: { funcoes: [], canais: { cmd: 'PC COM 2', atrib: ['PC MAN 7'] } },
+  });
+  assert.equal(m.logistica.comunicacoes.cmd, 'PC COM 2', 'o vazio venceu a origem');
+  assert.deepEqual(daqui(m.logistica.comunicacoes.atrib), ['PC MAN 7']);
+});
+
+test('uma ocorrência da versão zero atravessa a escada até às comunicações',
+  semAplicacao, () => {
+    const m = janela.migrarGravado({ meta: {}, pco: { canais: { cmd: 'PC COM 5' } } });
+    assert.equal(m.versao, VERSAO);
+    assert.equal(m.logistica.comunicacoes.cmd, 'PC COM 5');
+    assert.ok(Array.isArray(m.logistica.comunicacoes.atrib));
+  });
+
+test('canaisObj é o acessor único, e normaliza um ramo em falta', semAplicacao, () => {
+  janela.eval('delete O.logistica');
+  assert.doesNotThrow(() => janela.canaisObj());
+  assert.deepEqual(daqui(janela.canaisObj().atrib), []);
+  janela.canaisObj().cmd = 'PC COM 1';
+  assert.equal(estado().logistica.comunicacoes.cmd, 'PC COM 1');
 });
 
 test('o instantâneo da logística leva as três matérias, e Operações não leva a reserva',

@@ -117,12 +117,19 @@ interface Dispositivo {
 /** Um contador de meios e operacionais. */
 interface Contagem { m: string; o: string; }
 
-/** Matéria da célula de logística e finanças — art. 32.º, n.º 1, al. b), e art. 33.º. */
+/** Matéria da célula de logística e finanças — arts. 31.º a 35.º. */
 interface Logistica {
   reserva: Contagem;
   zonaApoio: Contagem;
   /** DL n.º 90-A/2022, art. 13.º, al. c); DON n.º 2, pontos 7.d.(5), (7) e (8). */
   pontoTransito: { des: string; resp: string; ct: string; cd: string; obs: string };
+  /**
+   * Plano de comunicações — art. 32.º, n.º 1, al. d), e art. 34.º. Ramo da logística
+   * desde a versão 6 do estado; até lá vivia em `pco`, com as nomeações. Lê-se sempre
+   * por `canaisObj()`: foi por se alcançar um ramo pelo caminho que o ponto de trânsito
+   * se perdeu quando mudou de dono.
+   */
+  comunicacoes: Canais;
 }
 
 interface DadosOcorrencia {
@@ -140,7 +147,8 @@ interface Estado {
   meta: MetaOcorrencia;
   avisos: any;
   dados: DadosOcorrencia;
-  pco: { funcoes: FuncaoPCO[]; canais: Canais };
+  /** Comando: as nomeações do art. 14.º, e mais nada, desde a versão 6. */
+  pco: { funcoes: FuncaoPCO[] };
   evolucao: any[];
   csv: string;
   peas: any[];

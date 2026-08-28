@@ -66,7 +66,7 @@ test('a repartição põe cada matéria na célula a quem a lei a atribui', semA
     ['csv', 'planeamento', /29\.º/],             // núcleo de antecipação
     ['fita', 'operacoes', /17\.º/],              // registo temporal
     ['dados.est.aerL', 'operacoes', /19\.º/],    // meios aéreos
-    ['pco.canais', 'logistica', /32\.º/],        // plano de comunicações
+    ['logistica.comunicacoes', 'logistica', /32\.º/],  // plano de comunicações
     ['pco.funcoes', 'comando', /14\.º/],         // nomeações
   ];
   casos.forEach(([caminho, celula, norma]) => {
@@ -103,14 +103,14 @@ test('o prefixo mais longo vence, e um sub-ramo não herda do irmão', semAplica
 test('o instantâneo traz só o que a célula possui', semAplicacao, () => {
   const O = estado();
   O.csv = 'linha'; O.fita.push({ g: '281200AGO26', e: 'x' });
-  O.pco.canais.cmd = 'PC COM 1';
+  O.logistica.comunicacoes.cmd = 'PC COM 1';
   O.logistica.reserva = { m: '3', o: '12' };
 
   const chaves = (k) => Object.keys(janela.instantaneoCelula(k));
   const pl = chaves('planeamento'), op = chaves('operacoes'), lg = chaves('logistica');
   assert.ok(pl.includes('csv') && !pl.includes('fita'), pl.join(', '));
   assert.ok(op.includes('fita') && !op.includes('logistica.reserva'), op.join(', '));
-  assert.ok(lg.includes('pco.canais') && lg.includes('logistica.reserva'), lg.join(', '));
+  assert.ok(lg.includes('logistica.comunicacoes') && lg.includes('logistica.reserva'), lg.join(', '));
 });
 
 test('o pacote da célula declara a base legal e a matéria de cada ramo', semAplicacao, () => {

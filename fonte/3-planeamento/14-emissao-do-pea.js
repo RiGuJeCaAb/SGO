@@ -27,7 +27,12 @@ async function emitirPEA(){
     serie:SERIE.map(p=>({d:p.d,h:p.h,t:p.t,rh:p.rh,wd:p.wd,ws:p.ws,pr:p.pr})),
     dados:JSON.parse(JSON.stringify(O.dados)), evoIdx:O.evolucao.length, meta:{...O.meta},
     don:(()=>{ try{ return verificacoesDON(); }catch(e){ return []; } })(),
-    pco:(()=>{ try{ return JSON.parse(JSON.stringify(pcoObj())); }catch(e){ return {funcoes:[],canais:{}}; } })(),
+    /* O PEA emitido é um documento congelado, e a sua forma não muda porque o estado
+       vivo mudou de arrumação: continua a levar `{funcoes, canais}`, que é o que os PEA
+       já emitidos trazem e o que a impressão lê. O plano de comunicações vem agora da
+       logística, mas entra no instantâneo pelo mesmo nome. */
+    pco:(()=>{ try{ return JSON.parse(JSON.stringify({ funcoes:pcoObj().funcoes, canais:canaisObj() })); }
+               catch(e){ return {funcoes:[],canais:{}}; } })(),
     nivelDECIR:(O.meta.nivel || nivelDECIR(parseGDH(O.meta.inicio) || new Date())) };
   O.peas.push(pea);
   fita("PEA n.º "+n+" emitido ("+modo+"); válido até "+gdhDe(pea.validoTs)+", "+pea.ctrl.length+" missões em controlo");

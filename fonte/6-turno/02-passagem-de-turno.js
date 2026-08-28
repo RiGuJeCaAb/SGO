@@ -66,8 +66,7 @@ function pendenciasCelula(k){
       if(AL.length) push("Meios aéreos no TO", AL.map(a=>a.ind||a.t).join(", "));
     }
     if(k==="logistica"){
-      const P = pcoObj();
-      const at = (P.canais && P.canais.atrib)? P.canais.atrib.length : 0;
+      const at = (canaisObj() && canaisObj().atrib)? canaisObj().atrib.length : 0;
       push("Plano de comunicações", at? at+" canais atribuídos" : "por elaborar (art. 32.º, n.º 1, al. d))");
       const pt = ptObj();
       push("Ponto de trânsito", pt.des? (pt.des + (pt.resp? " — "+pt.resp:"")) : "por estabelecer (DON 2, 7.d.(5), (7) e (8))");

@@ -164,14 +164,18 @@ exportação e importação em JSON para o CSREPC distribuir um pacote comum.
 motor primário e OpenStreetMap em recurso. Não é editável. Guardado em `O.meta.distrito`,
 com `distritoChave` a evitar chamadas repetidas para as mesmas coordenadas.
 
-**Níveis (`O.pco.canais.niveis`).** O COS escolhe em caixas de seleção quais coloca a
+**Níveis (`canaisObj().niveis`).** O COS escolhe em caixas de seleção quais coloca a
 funcionar: comando, tático, manobra, aéreo, mais um interruptor para a banda alta em paralelo.
 Enquanto `tocado` for falso, os níveis seguem o dispositivo — setores ativados pedem tático e
 manobra, meios aéreos pedem a ligação terra/ar/terra. À primeira escolha manual a sugestão
 pára e passa a haver aviso do que estiver em falta.
 
-**Atribuição (`O.pco.canais.atrib`).** Grelha de teclas com os canais do pacote dos níveis
+**Atribuição (`canaisObj().atrib`).** Grelha de teclas com os canais do pacote dos níveis
 ativos; clicar atribui ou liberta. As listas de escolha mostram primeiro os atribuídos.
+
+> O plano de comunicações passou de `O.pco.canais` para `O.logistica.comunicacoes` na
+> versão 6 do estado gravado — é matéria do art. 32.º, n.º 1, al. d), e do art. 34.º, e
+> não das nomeações do art. 14.º. Lê-se sempre por `canaisObj()`, e nunca pelo caminho.
 
 **Distribuição.** Um painel por nível ativo, com os interlocutores que existem no dispositivo:
 geral do TO, funções do PCO, setores. Todos os campos são `<select>` da classe `.cs`, com

@@ -26,10 +26,14 @@ const FUNCOES_PCO = [
   {f:"Outra função", r:"—", g:"Ligação"}
 ];
 const ORDEM_FASE = {"":0,"I":1,"II":2,"III":3,"IV":4,"V":5,"VI":6};
-/** @returns {{funcoes:FuncaoPCO[], canais:Canais}} */
-function pcoObj(){ if(!O.pco) O.pco = {funcoes:[], canais:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}}; if(!Array.isArray(O.pco.funcoes)) O.pco.funcoes=[];
-  O.pco.canais = Object.assign({cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}, O.pco.canais||{});
-  if(!Array.isArray(O.pco.canais.atrib)) O.pco.canais.atrib=[]; return O.pco; }
+/** @returns {{funcoes:FuncaoPCO[]}} */
+/* Comando: as nomeações do art. 14.º. O plano de comunicações saiu daqui na versão 6
+   do estado — é do art. 32.º, n.º 1, al. d) — e lê-se por `canaisObj()`. */
+function pcoObj(){
+  if(!O.pco) O.pco = {funcoes:[]};
+  if(!Array.isArray(O.pco.funcoes)) O.pco.funcoes = [];
+  return O.pco;
+}
 /* O recurso leva `f` vazio de propósito: quem chama distingue por ele a função
    conhecida da improvisada. */
 function pcoDef(f){ return FUNCOES_PCO.find(x=>x.f===f) || {f:"", r:"—", g:"—"}; }
