@@ -77,8 +77,28 @@ Para que a exportação real possa ser verificada no dia em que existir:
 - `docs/exemplos/LEIAME.md` — para quem desenvolve a Gestão PCO, com o que mais importa
   acertar, por ordem de valor operacional.
 
-Quinze testes. Verificado ponta a ponta em navegador, nas duas vias e nas duas versões do
-esquema.
+### O diferencial, e porque é que contagens não chegam
+
+A regra 6 do contrato manda apresentar o diferencial antes de aplicar. Contar setores e
+forças não cumpre a regra: um pacote com o mesmo número de setores pode perder um
+comandante ou os instantes de empenhamento, e o oficial veria «Setores 2 → 2» e aplicaria
+às cegas.
+
+O diferencial desce por isso ao setor — estado, comandante, número de forças e quantas
+têm relógio — e assinala a vermelho as linhas em que se **perde** informação registada,
+com nota própria por baixo da tabela. Um setor que desaparece tem linha própria. As
+funções do PCO nunca aparecem como perda, porque se fundem pela designação.
+
+Um guarda impede outra forma de sobreposição cega: se o dispositivo mudar entre o cálculo
+do diferencial e a confirmação, a importação é recusada e pede-se que se repita.
+
+### Verificação
+
+Trinta e cinco testes. Verificado ponta a ponta em navegador, nos três envelopes e nas
+duas vias — ficheiro e colagem —, incluindo os botões de confirmação, que são criados
+dinamicamente e nunca tinham corrido fora do jsdom. Cancelar não altera nada; aplicar
+altera. Um pacote degradado produz três linhas de diferencial, todas assinaladas como
+perda.
 
 ## Camada 2 — fonte em módulos, entrega em ficheiro único, feita na r0024
 

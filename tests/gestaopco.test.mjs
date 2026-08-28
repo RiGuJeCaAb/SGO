@@ -288,3 +288,68 @@ test('reimportar a mesma função atualiza-a em vez de a duplicar', semAplicacao
   janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
   assert.equal(estado().pco.funcoes.length, antes, 'sem duplicados');
 });
+
+/* ---- regra 6: o diferencial tem de mostrar o que as contagens escondem ---- */
+
+test('o diferencial desce ao setor, não fica pelas contagens', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+
+  // Mesmo número de setores, mas o segundo perde o comandante e o relógio.
+  const p = JSON.parse(V1);
+  p.dispositivo.setores[1].comandante = '';
+  delete p.dispositivo.setores[1].forcas[0].empenhado;
+
+  const d = janela.prepararGestaoPCO(JSON.stringify(p)).diferencial;
+  assert.equal(d.find((l) => l.rot === 'Setores'), undefined, 'as contagens não mudam');
+
+  const cmd = d.find((l) => /comandante/.test(l.rot));
+  assert.ok(cmd, 'a perda do comandante aparece');
+  assert.equal(cmd.perda, true);
+
+  const rel = d.find((l) => /com relógio/.test(l.rot));
+  assert.ok(rel, 'a perda do relógio aparece');
+  assert.equal(rel.perda, true);
+});
+
+test('um setor que desaparece é assinalado como perda', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+  const p = JSON.parse(V1);
+  p.dispositivo.setores.pop();
+
+  const d = janela.prepararGestaoPCO(JSON.stringify(p)).diferencial;
+  const some = d.find((l) => l.depois === 'deixa de existir');
+  assert.ok(some, 'o setor que desaparece tem linha própria');
+  assert.equal(some.perda, true);
+});
+
+test('um setor novo não é perda', semAplicacao, () => {
+  const p = JSON.parse(V1);
+  p.dispositivo.setores.pop();
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(JSON.stringify(p)).conversao);
+
+  const d = janela.prepararGestaoPCO(V1).diferencial;
+  const novo = d.find((l) => l.depois === 'novo');
+  assert.ok(novo);
+  assert.equal(novo.perda, false);
+});
+
+test('as funções nunca aparecem como perda, porque se fundem', semAplicacao, () => {
+  janela.pcoObj().funcoes.push({ f: 'Coordenador do PCO', nome: 'COS Almeida',
+    entidade: '', ct: '', siresp: '', ba: '', g: '' });
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+
+  const d = janela.prepararGestaoPCO(V1).diferencial;
+  const f = d.find((l) => l.rot === 'Funções do PCO');
+  assert.equal(f, undefined, 'reimportar o mesmo não muda a contagem');
+});
+
+test('o diferencial fica obsoleto se o dispositivo mudar por baixo', semAplicacao, () => {
+  const antes = janela.assinaturaDispositivo();
+  estObjMuda();
+  assert.notEqual(janela.assinaturaDispositivo(), antes);
+
+  function estObjMuda() {
+    const e = janela.estObj();
+    e.setores.push({ estado: 'Em curso (ativo)', cmd: '', ct: '', adj: '', m: '', o: '', tip: [] });
+  }
+});

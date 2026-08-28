@@ -314,25 +314,61 @@ function converterEsbocoGestaoPCO(p, avisos){
 }
 
 /**
- * Regra 6 do contrato: uma importação que substitua dispositivo já registado
- * apresenta o diferencial antes de aplicar. Devolve as linhas do diferencial, ou
- * lista vazia quando não há nada registado que se perca.
+ * Regra 6: uma importação que substitua dispositivo já registado apresenta o
+ * diferencial antes de aplicar. Contagens não chegam — um pacote com o mesmo número
+ * de setores pode perder um comandante ou os instantes de empenhamento, e é isso que
+ * o oficial precisa de ver antes de decidir. As linhas de perda vêm assinaladas.
+ *
+ * @returns {{rot:string, antes:string|number, depois:string|number, perda:boolean}[]}
  */
 function diferencialGestaoPCO(c){
   const e = estObj(), linhas = [];
-  const par = (rot, antes, depois) => { if(String(antes) !== String(depois)) linhas.push({ rot, antes, depois }); };
+  const add = (rot, antes, depois, perda) => {
+    if(String(antes) !== String(depois)) linhas.push({ rot, antes, depois, perda: !!perda });
+  };
+  const forcas = ss => ss.reduce((a,s)=>a+((s.tip||[]).length), 0);
+  const comRelogio = ss => ss.reduce((a,s)=>a+((s.tip||[]).filter(f=>f.ts).length), 0);
 
-  par("Setores", e.setores.length, c.est.setores.length);
-  par("Forças com tipologia", e.setores.reduce((a,s)=>a+((s.tip||[]).length),0),
-      c.est.setores.reduce((a,s)=>a+s.tip.length,0));
-  par("Meios aéreos", (e.aerL||[]).length, c.est.aerL.length);
-  par("Reserva (veículos/operacionais)", (e.res.m||0)+"/"+(e.res.o||0), (c.est.res.m||0)+"/"+(c.est.res.o||0));
-  par("Zona de apoio (veículos/operacionais)", (e.za.m||0)+"/"+(e.za.o||0), (c.est.za.m||0)+"/"+(c.est.za.o||0));
-  par("Funções do PCO", pcoObj().funcoes.length, c.funcoes.length);
-  if(O.meta.num || c.meta.num) par("Ocorrência", O.meta.num||"—", c.meta.num||"—");
+  if(O.meta.num || c.meta.num) add("Ocorrência", O.meta.num||"—", c.meta.num||"—", !!O.meta.num && !c.meta.num);
+
+  add("Setores", e.setores.length, c.est.setores.length, c.est.setores.length < e.setores.length);
+  add("Forças", forcas(e.setores), forcas(c.est.setores), forcas(c.est.setores) < forcas(e.setores));
+  add("Forças com instante de empenhamento", comRelogio(e.setores), comRelogio(c.est.setores),
+      comRelogio(c.est.setores) < comRelogio(e.setores));
+  add("Meios aéreos", (e.aerL||[]).length, c.est.aerL.length, c.est.aerL.length < (e.aerL||[]).length);
+  add("Reserva (veículos/operacionais)", (e.res.m||0)+"/"+(e.res.o||0), (c.est.res.m||0)+"/"+(c.est.res.o||0));
+  add("Zona de apoio (veículos/operacionais)", (e.za.m||0)+"/"+(e.za.o||0), (c.est.za.m||0)+"/"+(c.est.za.o||0));
+
+  /* As funções fundem-se pela designação, por isso nunca se perdem: a linha diz
+     quantas ficam, não quantas o pacote traz. */
+  if(c.funcoes.length){
+    const atuais = pcoObj().funcoes.map(x=>x.f);
+    const novas = c.funcoes.filter(x=>atuais.indexOf(x.f) < 0).length;
+    add("Funções do PCO", atuais.length, atuais.length + novas);
+  }
+
+  /* Setor a setor: é aqui que aparece o que as contagens escondem. */
+  const n = Math.max(e.setores.length, c.est.setores.length);
+  for(let i=0;i<n;i++){
+    const a = e.setores[i], d = c.est.setores[i], rot = "Setor "+(NOMES_SETOR[i] || (i+1));
+    if(a && !d){ linhas.push({ rot, antes:"registado", depois:"deixa de existir", perda:true }); continue; }
+    if(!a && d){ linhas.push({ rot, antes:"—", depois:"novo", perda:false }); continue; }
+    add(rot+" · estado", a.estado||"—", d.estado||"—");
+    add(rot+" · comandante", a.cmd||"—", d.cmd||"—", !!a.cmd && !d.cmd);
+    add(rot+" · forças", (a.tip||[]).length, d.tip.length, d.tip.length < (a.tip||[]).length);
+    const ra = (a.tip||[]).filter(f=>f.ts).length, rd = d.tip.filter(f=>f.ts).length;
+    add(rot+" · com relógio", ra, rd, rd < ra);
+  }
 
   const registado = e.setores.length || (e.aerL||[]).length || pcoObj().funcoes.length;
   return registado ? linhas : [];
+}
+
+/** Assinatura do dispositivo, para detetar que o estado mudou por baixo. */
+function assinaturaDispositivo(){
+  const e = estObj();
+  return [e.setores.length, e.setores.reduce((a,s)=>a+((s.tip||[]).length),0),
+    (e.aerL||[]).length, pcoObj().funcoes.length, O.meta.num].join("|");
 }
 
 /**
@@ -382,6 +418,10 @@ function prepararGestaoPCO(texto){
 /* ---- ligação à interface ---- */
 /* Conversão à espera de confirmação. Regra 6: não se sobrepõe em silêncio. */
 let GP_PENDENTE = null;
+/* Assinatura do dispositivo no momento em que o diferencial foi calculado. Se o
+   estado mudar entretanto, o diferencial mostrado deixa de descrever o que vai
+   acontecer, e aplicá-lo seria sobrepor às cegas — que é o que a regra 6 proíbe. */
+let GP_ASSINATURA = null;
 
 function gpDizer(cls, texto){
   const m = $("gp-msg"); if(!m) return;
@@ -405,9 +445,11 @@ function pintarPreparacaoGestaoPCO(prep){
     partes.push('<div class="av-box" style="margin-top:10px"><span class="avt">Já há dispositivo registado — o que muda</span>'
       + '<div class="tabela" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px">'
       + '<tr><th style="text-align:left;padding:4px 8px">Campo</th><th style="text-align:left;padding:4px 8px">Agora</th><th style="text-align:left;padding:4px 8px">Depois</th></tr>'
-      + prep.diferencial.map(l=>'<tr><td style="padding:4px 8px">'+esc(l.rot)+'</td><td style="padding:4px 8px">'+esc(l.antes)
+      + prep.diferencial.map(l=>'<tr'+(l.perda? ' style="color:var(--fogo)"':'')+'><td style="padding:4px 8px">'
+        + esc(l.rot)+(l.perda? ' <b>·</b>':'')+'</td><td style="padding:4px 8px">'+esc(l.antes)
         + '</td><td style="padding:4px 8px"><b>'+esc(l.depois)+'</b></td></tr>').join("")
       + '</table></div>'
+      + (prep.diferencial.some(l=>l.perda)? '<p class="hint" style="margin:8px 0 0 0;color:var(--fogo)">As linhas assinaladas perdem informação que está registada. Confirma antes de aplicar.</p>' : '')
       + '<div class="row" style="margin-top:10px"><button class="btn btn-o" type="button" id="gp-aplicar">Aplicar a importação</button>'
       + '<button class="btn btn-g" type="button" id="gp-cancelar">Cancelar</button></div></div>');
   }
@@ -430,7 +472,12 @@ function pintarPreparacaoGestaoPCO(prep){
 /** Aplica a conversão que estava à espera de confirmação. */
 async function confirmarGestaoPCO(){
   if(!GP_PENDENTE){ gpDizer("err","Já não há importação à espera."); return false; }
-  const c = GP_PENDENTE; GP_PENDENTE = null;
+  if(GP_ASSINATURA !== null && GP_ASSINATURA !== assinaturaDispositivo()){
+    GP_PENDENTE = null; GP_ASSINATURA = null; pintarPreparacaoGestaoPCO(null);
+    gpDizer("err","O dispositivo mudou desde que o diferencial foi calculado. Importa outra vez.");
+    return false;
+  }
+  const c = GP_PENDENTE; GP_PENDENTE = null; GP_ASSINATURA = null;
   const r = aplicarGestaoPCO(c);
   escreverForm(); pintarTudo();
   pintarPreparacaoGestaoPCO({ diferencial:[], avisos:c.avisos });
@@ -462,6 +509,7 @@ async function importarGestaoPCO(texto){
 
   if(prep.diferencial.length){
     GP_PENDENTE = prep.conversao;
+    GP_ASSINATURA = assinaturaDispositivo();
     pintarPreparacaoGestaoPCO(prep);
     gpDizer("av","Pacote lido: "+resumoGestaoPCO(prep.conversao.resumo)
       + ". Já há dispositivo registado — confirma o que muda antes de aplicar.");
@@ -469,6 +517,7 @@ async function importarGestaoPCO(texto){
   }
 
   GP_PENDENTE = prep.conversao;
+  GP_ASSINATURA = assinaturaDispositivo();
   return confirmarGestaoPCO();
 }
 
