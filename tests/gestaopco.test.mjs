@@ -267,3 +267,24 @@ test('os três envelopes desembocam na mesma forma interna', semAplicacao, () =>
 test('um envelope que não se reconhece é recusado', semAplicacao, () => {
   assert.throws(() => janela.lerPacoteGestaoPCO('{"qualquer":"coisa"}'), /não se reconhece o envelope/);
 });
+
+test('as funções importadas fundem-se, e não apagam as nomeadas à mão', semAplicacao, () => {
+  const P = janela.pcoObj();
+  P.funcoes.push({ f: 'Coordenador do PCO', nome: 'COS Almeida', entidade: 'CB Alijó',
+    ct: '910000099', siresp: 'PC COM 1', ba: '', g: '281100AGO26' });
+
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+
+  const f = estado().pco.funcoes;
+  assert.equal(f.length, 5, 'quatro importadas mais a que já lá estava');
+  const cos = f.find((x) => x.f === 'Coordenador do PCO');
+  assert.equal(cos.nome, 'COS Almeida', 'a nomeada à mão sobreviveu intacta');
+  assert.ok(f.find((x) => x.f === 'Oficial de Operações'), 'as importadas entraram');
+});
+
+test('reimportar a mesma função atualiza-a em vez de a duplicar', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+  const antes = estado().pco.funcoes.length;
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V1).conversao);
+  assert.equal(estado().pco.funcoes.length, antes, 'sem duplicados');
+});

@@ -347,7 +347,17 @@ function aplicarGestaoPCO(c){
   e.n = c.est.n; e.setores = c.est.setores; e.aer = c.est.aer; e.aerL = c.est.aerL;
   e.res = c.est.res; e.za = c.est.za; e.livre = false;
 
-  if(c.funcoes.length) pcoObj().funcoes = c.funcoes;
+  /* Funde por designação, e não substitui por atacado: quem importa o dispositivo
+     não pode apagar funções que o oficial nomeou à mão no PCO. A designação é a
+     chave, o que é mais uma razão para vir exata. */
+  if(c.funcoes.length){
+    const P = pcoObj();
+    c.funcoes.forEach(nova=>{
+      const i = P.funcoes.findIndex(x=>x.f === nova.f);
+      if(i < 0) P.funcoes.push(nova);
+      else P.funcoes[i] = Object.assign({}, P.funcoes[i], nova);
+    });
+  }
   if(c.pt.des || c.pt.resp || c.pt.ct) O.dados.pt = Object.assign(ptObj(), c.pt);
   if(c.sensiveis) O.dados.sensiveis = c.sensiveis;
 
