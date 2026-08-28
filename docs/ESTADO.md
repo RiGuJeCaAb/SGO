@@ -4,12 +4,10 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-O repositório tem a especificação, as regras de trabalho, a proposta de evolução técnica e
-a camada 0 de verificação a funcionar. **O código da aplicação ainda não está aqui.**
+A revisão **r0014** está em `app/` e a camada 0 corre sobre ela. Sintaxe correta. A análise
+estática levantou cinco achados, todos verificados no código — ver abaixo.
 
-As revisões do HTML existem fora do repositório, em anexos de conversa. Enquanto não
-forem colocadas em `app/`, as ferramentas não têm sobre o que correr e cada sessão de
-trabalho continua a depender de anexar o ficheiro à mão.
+Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
 
 ## Decisões tomadas
 
@@ -31,10 +29,33 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
 
+## Achados na r0014
+
+Verificados um a um. A r0014 é uma entrega feita e não se altera: as correções entram na
+r0015.
+
+| Linha | Achado | Natureza |
+|---|---|---|
+| 1713, 1737, 1748 | `\/` desnecessário dentro de classe de caracteres, em três expressões regulares iguais | Cosmético, sem efeito |
+| 2023 | `leitura(p,a)` definida e nunca chamada | **Função perdida.** O comentário `/* leitura ponto-a-ponto */`, na linha 2161, encima o código que monta a legenda do meteograma sem a chamar. A interpretação operacional — abertura da janela, rotação, combustível fino disponível — não chega ao utilizador |
+| 2077 | `corRH(rh)` definida e nunca chamada | **Código morto.** A humidade relativa passou a ser desenhada com `var(--madeira)` e faixas por limiar. O `corRH` devolve cores fixas em hexadecimal, que não respeitam os dois temas. Remover, não repor |
+
+Confirmado no código, sobre as correções propostas:
+
+- **Não existe versão do estado gravado.** O `migrarEstado` da linha 1430 não migra
+  esquema nenhum: mapeia designações de estado de setor. A correção 4.1 mantém-se por
+  fazer, na íntegra.
+- **O `lerForm` confirma o problema descrito.** A linha 1302 reconstrói `O.meta` e
+  preserva `distrito`, `concelho` e `distritoChave` à mão. Qualquer campo derivado
+  acrescentado sem tocar nessa linha é apagado a cada leitura do formulário.
+- **Os `catch(e){}` vazios do `escreverForm` são o mecanismo do silêncio.**
+  `renderFormats`, `pintarRelevo` e `renderSetores` são chamados dentro de `try` com
+  captura vazia. Foi isto que tornou a regressão de funções órfãs invisível em uso.
+
 ## Próximo passo
 
-1. Colocar todas as revisões do HTML em `app/`, da primeira à mais recente.
-2. Correr `npm run tudo` sobre a revisão mais alta e tratar o que aparecer.
+1. Emitir a r0015 com os cinco achados tratados.
+2. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
 3. Correções 4.1 (versionar o estado gravado) e 4.2 (inverter o sentido de `lerForm`),
    com os testes já a proteger.
 4. Camada 1: tipos em JSDoc para o estado.
@@ -65,4 +86,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 
 | Revisão | Data | Alterações |
 |---|---|---|
-| — | — | Sem revisão do HTML registada no repositório |
+| r0014 | 2026-08-27 21:08 | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |

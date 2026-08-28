@@ -11,6 +11,33 @@ import { revisaoMaisRecente } from './verificar.mjs';
 
 const DESTINO = '.tmp/app.js';
 
+// A aplicação declara parte das suas funções como `window.nome = ...`, para que
+// fiquem alcançáveis a partir dos atributos onclick do HTML que ela própria gera.
+// O ESLint não reconhece essa forma como declaração, e sem isto acusaria de
+// indefinida cada chamada a essas funções. Recolhemo-las antes de analisar.
+const GLOBAL_NO_WINDOW = /\b(?:window|globalThis)\s*\.\s*([A-Za-z_$][\w$]*)\s*=(?!=)/g;
+const DECLARACAO = /\b(?:function\s*\*?|class|const|let|var)\s+([A-Za-z_$][\w$]*)/g;
+
+/**
+ * Nomes que o código publica no objeto global.
+ *
+ * @param {string} codigo
+ * @returns {Record<string,'writable'>}
+ */
+export function globaisPublicadas(codigo) {
+  // Um nome que também é declarado no código — `function obterAvisos(){}` seguido de
+  // `window.obterAvisos = obterAvisos` — não é acrescentado, para não colidir com a
+  // sua própria declaração.
+  const declarados = new Set();
+  for (const achado of codigo.matchAll(DECLARACAO)) declarados.add(achado[1]);
+
+  const nomes = {};
+  for (const achado of codigo.matchAll(GLOBAL_NO_WINDOW)) {
+    if (!declarados.has(achado[1])) nomes[achado[1]] = 'writable';
+  }
+  return nomes;
+}
+
 /**
  * Corre o ESLint sobre o código de uma aplicação já extraído.
  *
@@ -18,7 +45,10 @@ const DESTINO = '.tmp/app.js';
  * @returns {Promise<{regra:string|null, linha:number, mensagem:string, gravidade:number}[]>}
  */
 export async function analisar(codigo) {
-  const eslint = new ESLint({ overrideConfigFile: 'eslint.config.mjs' });
+  const eslint = new ESLint({
+    overrideConfigFile: 'eslint.config.mjs',
+    overrideConfig: { languageOptions: { globals: globaisPublicadas(codigo) } },
+  });
   const [resultado] = await eslint.lintText(codigo, { filePath: DESTINO });
   return (resultado?.messages ?? []).map((m) => ({
     regra: m.ruleId,
