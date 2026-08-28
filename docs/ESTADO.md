@@ -4,9 +4,11 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0021** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, setenta e dois testes a passar, e auditoria visual sem
+A revisão **r0022** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, oitenta e dois testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
+
+**As seis correções estruturais da proposta de evolução estão feitas.**
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
 
@@ -29,6 +31,28 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.6 — a ocorrência não se pode perder, feita na r0022
+
+Exportação e importação da ocorrência em JSON, independentes do `ARMAZEM`. Funcionam em
+`file://` e dão ao oficial uma cópia que ele controla e pode levar para outro posto.
+
+- O pacote leva tipo, versão do estado e GDH da exportação. O nome segue a convenção.
+- A importação é **dados, nunca código**: valida a forma, migra pelo mesmo caminho do
+  estado gravado, recusa com motivo o que não reconhece, e recusa um ficheiro de revisão
+  posterior em vez de o adivinhar.
+- Substituir uma ocorrência diferente da que está em memória pede confirmação. Uma
+  importação recusada não mexe no que estava.
+- Quando o `ARMAZEM` cai em memória de sessão, o aviso deixa de ser uma mensagem que
+  passa: a nota sob os botões passa a dizer que a exportação é a única forma de não
+  perder a ocorrência.
+
+Isto fecha, na prática, o risco deixado em aberto pela 4.1: mesmo que um estado de
+revisão posterior seja recusado e depois sobreposto, existe cópia fora do dispositivo.
+Não o elimina — a proteção é a cópia, não o impedimento da sobreposição.
+
+Dez testes, e o ciclo completo verificado em navegador: exportar, limpar, importar de
+volta, com o campo derivado intacto.
 
 ## Correção 4.5 — a rede como caminho de falha, feita na r0021
 
@@ -199,3 +223,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0019 | 2026-08-28 13:15 | Correção 4.4: relógio injetado; as regras de prazo passam a receber o instante e a ter teste |
 | r0020 | 2026-08-28 13:19 | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `docs/FONTES.md` e auditoria mecânica das citações |
 | r0021 | 2026-08-28 13:26 | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |
+| r0022 | 2026-08-28 13:30 | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
