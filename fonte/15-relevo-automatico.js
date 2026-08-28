@@ -113,8 +113,16 @@ function pintarRelevo(){
   [0,400,800,1200].forEach((d,j)=>pp.push('<text x="'+X(j)+'" y="'+(py0+ph+18)+'" text-anchor="middle" font-size="9.5" fill="var(--tx3)">'+d+' m</text>'));
   pp.push('</svg>');
 
+  /* Composição de declive e vento, na hora de vento mais forte da série carregada.
+     Sem série não há vento, e a leitura cala-se. */
+  const horaVento = (SERIE||[]).reduce((a,b)=>(b && a && b.ws>a.ws)? b : a, (SERIE||[])[0] || null);
+  const fogo = horaVento ? leituraComportamentoFogo({
+    orient: O.dados.topo.orient, rumoVento: horaVento.wd, eps: O.dados.topo.eps
+  }) : "";
+
   el.innerHTML = chips
     + '<div class="rel-read"><b>Leitura operacional:</b> '+esc(leitura)+'</div>'
+    + (fogo? '<div class="rel-read"><b>Declive e vento ('+esc(hh(horaVento.h))+', vento mais forte da série):</b> '+esc(fogo)+'</div>' : '')
     + '<div class="rel-grids">'
     + '<div class="rel-g"><span class="gt">Rosa de gradientes — vermelho: terreno desce (encosta exposta); verde: sobe</span>'+rr.join("")+'</div>'
     + '<div class="rel-g"><span class="gt">Perfis de cota nos 8 rumos (0–1200 m) — exposição dominante destacada</span>'+pp.join("")+'</div>'

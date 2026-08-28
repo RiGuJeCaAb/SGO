@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 2;
+const VERSAO_ESTADO = 3;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -44,6 +44,14 @@ const MIGRACOES = [
       if(p && p.json && !p.json.pea){ const c = pecas(p); p.json = {pea:c.pea, ordens:c.ordens}; }
     });
     return e;
+  },
+  /* 2 -> 3 · Razão declive/vento da composição de Viegas (2004), acrescentada à
+     análise topográfica. Campo novo, sem valor por omissão que se possa presumir:
+     fica vazio, e enquanto o estiver a aplicação não calcula o desvio da cabeça. */
+  e => {
+    e.dados = e.dados || {};
+    e.dados.topo = Object.assign({orient:"", declive:"", obs:"", eps:""}, e.dados.topo||{});
+    return e;
   }
 ];
 
@@ -73,7 +81,7 @@ function novoEstado(){
     avisos:null,
     dados:{area:"", perimNome:"", setores:"", sensiveis:"", anexos:[],
       pt:{des:"", resp:"", ct:"", cd:"", obs:""}, perfil:null,
-      topo:{orient:"", declive:"", obs:""},
+      topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], res:{m:"",o:""}, za:{m:"",o:""}, livre:false}},
     pco:{funcoes:[], canais:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}},
     evolucao:[], csv:"", peas:[], fita:[], versao:VERSAO_ESTADO };

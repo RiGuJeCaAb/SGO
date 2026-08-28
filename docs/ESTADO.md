@@ -4,7 +4,13 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0025** está em `app/`. É a fusão de duas linhagens que correram em paralelo
+A revisão **r0026** está em `app/`, com o módulo de comportamento do fogo. A anterior,
+r0025, foi a fusão de duas linhagens.
+
+A verificação passa por inteiro: cem testes, análise estática limpa, tipos sem diagnóstico
+novo, e auditoria visual sem transbordo nem exceções.
+
+A revisão r0025 está em `app/`. É a fusão de duas linhagens que correram em paralelo
 sobre a r0022: as camadas 1 e 2 de um lado, e do outro a repartição do PEA pelas células,
 os núcleos do PCO e o adaptador de modelo. A fusão a três vias não deu um único conflito.
 
@@ -242,8 +248,7 @@ na r0015.
 ## Trabalho em aberto
 
 - Camada de análise determinística: consolidar Meteo, Topografia e Demografia. O módulo de
-  Comportamento do Fogo está retido à espera do documento da fonte — ver `docs/FONTES.md`,
-  secção `FOGO`, para o que esse documento tem de fixar.
+  Comportamento do Fogo está feito na r0026, com o que a fonte sustenta.
 - Exportação do contexto da ocorrência e importação de proposta, com validação.
 - Exportação do PEA em DOCX, com direção de texto na célula em vez de fusão vertical.
 - Briefing de passagem de comando, determinístico.
@@ -258,10 +263,9 @@ Marcados como tal na interface, não devem ser dados como assentes:
 2. Séries de banda alta CT e CM. Só o manobra 4 (CM4) tem confirmação direta, na
    DON n.º 2.
 3. Numeração da NEP n.º 8/NT/2010 para a banda alta de VHF, não verificada linha a linha.
-4. Modelo de comportamento do fogo. O sistema foi escolhido em 2026-08-28 — propagação
-   de superfície, com entrada manual dos dados. A implementação está **retida à espera do
-   documento da fonte**: o que esse documento tem de fixar está em `docs/FONTES.md`,
-   secção `FOGO`. Sem ele não se escreve uma linha do módulo.
+4. Fatores de declive e de vento para os combustíveis nacionais, que permitiriam calcular
+   a razão ε em vez de a pedir ao oficial. O artigo de Viegas remete-os para outras fontes.
+   Ver `docs/FONTES.md`, secção `FOGO`.
 
 ## Registo de revisões
 
@@ -280,3 +284,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0024 | 2026-08-28 13:50 | Camada 2: primeira entrega produzida pela montagem a partir de `fonte/`, com 29 módulos |
 | r0023 | 2026-08-28 15:30 | Linhagem paralela, do Ricardo: repartição do PEA pelas células, núcleos do PCO, estado na versão 2 e adaptador de modelo com três modos |
 | r0025 | 2026-08-28 14:04 | Fusão das duas linhagens, montada a partir de `fonte/` |
+| r0026 | 2026-08-28 14:14 | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |

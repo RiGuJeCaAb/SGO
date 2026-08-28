@@ -55,39 +55,49 @@ da especificação.
 | `NEP8` | NEP n.º 8/NT/2010 | Numeração, para a banda alta de VHF. Não verificada linha a linha |
 | `NEPSIRESP` | NEP n.º 1/DIC/2026, NEP n.º 2/CNEPC/2022, NOP n.º 1701/2018 | Grupos SIRESP. A designação PC COM 1 a 5 foi deduzida por coerência; as séries CT e CM assentam em equivalência declarada, e só o CM4 tem confirmação direta |
 
-## `FOGO` — modelo de comportamento do fogo
+## `FOGO` — comportamento do fogo: declive e vento
 
-**Decidido em 2026-08-28:** modelo completo de propagação de superfície, com os dados de
-entrada a serem introduzidos pelo oficial. **A implementação está retida à espera do
-documento da fonte**, sem o qual não se escreve uma linha: um coeficiente ou um limiar
-inventado num documento de comando é pior do que não haver módulo nenhum.
+**Viegas, D. X. (2004), "Slope and wind effects on fire propagation",
+*International Journal of Wildland Fire* 13, 143-156.** Centro de Estudos sobre Incêndios
+Florestais, ADAI, Universidade de Coimbra. O documento está em
+`docs/Slope_&_Wind_Effects_on_Fire_Propagation_(Viegas_Domingos_2004).pdf`.
 
-### O que o documento tem de fixar
+Implementado na r0026, em `fonte/16-comportamento-do-fogo.js`.
 
-A designação «Rothermel / FBP» junta dois sistemas distintos, que dão resultados
-diferentes e pedem dados de entrada diferentes. O documento tem de resolver, no mínimo:
+### O que está implementado, e de onde vem
 
-| Ponto | Porquê é preciso |
-|---|---|
-| **Qual o sistema** — modelo de propagação de superfície de Rothermel, ou o Sistema FBP canadiano | São formulações distintas, com catálogos de combustível próprios. Não se misturam |
-| **Catálogo de modelos de combustível** e a sua adaptação ao território nacional | É a entrada de maior peso no resultado. Sem catálogo fixado não há como o oficial escolher |
-| **Conversão do vento para a altura de referência do modelo** | A série meteorológica dá vento a 10 m; o modelo pede vento a meia-chama. O fator de conversão é doutrinário, não é escolha do programador |
-| **Estimativa da humidade dos combustíveis mortos** | Ou a aplicação pede os valores ao oficial, ou os deriva da série meteorológica por um método com fonte. As duas vias são aceitáveis; a escolha não é minha |
-| **Classes de interpretação operacional** — comprimento de chama ou intensidade de linha, e o que cada classe significa para a capacidade de supressão | É isto que transforma um número em decisão de comando. Sem as classes, o módulo produz um valor sem consequência |
+O artigo trata a velocidade de propagação como vetor e soma o efeito do declive com o do
+vento. Com β o ângulo entre o vetor induzido pelo vento e a linha de maior declive a
+subir, e ε a razão entre os dois módulos:
 
-### Custo operacional, para a decisão ser informada
+| Equação | O que dá | Onde está |
+|---|---|---|
+| (2) `ε = Rs / Rw` | Razão declive/vento. **Entrada, não é calculada** | campo `t-eps` |
+| (4) `tan δ = sen β / (ε + cos β)` | Desvio da cabeça face à linha de maior declive | `deflexaoFogo` |
+| (5) `ξ² = (ε + cos β)² + sen² β` | Velocidade da frente, em unidades da que o vento sozinho daria | `razaoFogo` |
 
-O modelo completo pede **quatro a seis campos novos por setor**, preenchidos à mão num
-PCO. Vale a pena confirmar, com quem vai usar a aplicação, que esse preenchimento é
-comportável durante uma ocorrência. Se não for, a alternativa é reduzir a entrada a um
-modelo de combustível por setor e derivar o resto da série meteorológica — o que exige
-que o documento fixe também o método de derivação.
+O β é deduzido dos dados que a aplicação já tem — exposição dominante da análise de
+relevo e rumo do vento da série meteorológica — e é exato. O artigo dá ainda, de forma
+fechada, que **para ε = 1 o desvio é metade do ângulo**; é isso que a aplicação mostra
+quando ε não está informado, em vez de inventar um valor.
 
-### Enquanto a fonte não chega
+### O que o modelo não dá, e a aplicação não finge dar
 
-O módulo não é escrito. Os indicadores que já têm fonte — janela de consolidação, horas
-críticas de humidade relativa, alinhamento relevo×vento, assinatura convectiva —
-continuam a servir, e estão declarados no registo de regras.
+1. **Velocidade absoluta de propagação.** Exige R0, a velocidade básica do combustível.
+   O artigo é explícito: *"this input must come from another source"*.
+2. **Se o fogo se propaga ou se extingue.** O artigo diz que o modelo não o indica.
+3. **Valores de ε para os combustíveis do território.** Os valores que aparecem no artigo
+   (0,57, 3 e 4,1) foram ajustados aos ensaios da mesa de combustão de Coimbra, com um
+   leito de combustível próprio, teor de humidade entre 10 e 15 % e R0 médio de 0,20 cm/s.
+   **Não são transponíveis para o terreno** e não estão inscritos na aplicação.
+
+### O que fica por resolver
+
+Para que a aplicação passe a calcular ε em vez de o pedir, é preciso uma fonte que fixe os
+fatores de declive e de vento para os combustíveis nacionais. O artigo remete-os para
+outras origens, e o seu apêndice compara duas formulações — a de Rothermel e a de Lopes
+(1994) — sem eleger nenhuma para uso operacional. Enquanto essa fonte não existir, ε é um
+dado que o oficial introduz, e a aplicação diz de onde vem cada número que mostra.
 
 ## Como acrescentar
 

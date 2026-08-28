@@ -90,7 +90,8 @@ interface DadosOcorrencia {
   anexos: string[];
   pt: { des: string; resp: string; ct: string; cd: string; obs: string };
   perfil: any;
-  topo: { orient: string; declive: string; obs: string };
+  /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */
+  topo: { orient: string; declive: string; obs: string; eps: string };
   est: Dispositivo;
   [outro: string]: any;
 }

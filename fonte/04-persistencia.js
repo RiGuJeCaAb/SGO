@@ -58,7 +58,7 @@ function escreverForm(){
   const d=O.dados; $("d-area").value=d.area||""; $("d-sensiveis").value=d.sensiveis||"";
   const PTe=ptObj(); $("pt-des").value=PTe.des; $("pt-resp").value=PTe.resp;
   $("pt-ct").value=PTe.ct; $("pt-cd").value=PTe.cd; $("pt-obs").value=PTe.obs;
-  d.topo = d.topo||{orient:"",declive:"",obs:""}; $("t-orient").value=d.topo.orient||""; $("t-declive").value=d.topo.declive||""; $("t-obs").value=d.topo.obs||""; try{ pintarRelevo(); }catch(e){} if(d.est&&d.est.livre&&d.setores)$("d-setores").value=d.setores; try{ renderSetores(); }catch(e){}
+  d.topo = d.topo||{orient:"",declive:"",obs:"",eps:""}; $("t-orient").value=d.topo.orient||""; $("t-declive").value=d.topo.declive||""; $("t-obs").value=d.topo.obs||""; if($("t-eps")) $("t-eps").value=d.topo.eps||""; try{ pintarRelevo(); }catch(e){} if(d.est&&d.est.livre&&d.setores)$("d-setores").value=d.setores; try{ renderSetores(); }catch(e){}
   $("d-perim-info").textContent = d.perimNome? "Carregado: "+d.perimNome+(d.area? " · área estimada "+d.area+" ha":"") : "Nenhum ficheiro carregado. A área é estimada automaticamente a partir do polígono.";
   $("d-anexos-info").textContent = d.anexos.length? "Anexos: "+d.anexos.join(", ") : "Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia).";
 }
