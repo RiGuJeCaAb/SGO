@@ -4,9 +4,10 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0023** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, oitenta e dois testes a passar, tipos sem diagnóstico novo,
-e auditoria visual sem transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
+A revisão **r0024** está em `app/`, e é a primeira produzida pela montagem a partir de
+`fonte/`. A verificação passa por inteiro: sintaxe correta, análise estática sem problemas,
+oitenta e sete testes a passar, tipos sem diagnóstico novo, e auditoria visual sem
+transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 **As seis correções estruturais da proposta de evolução estão feitas.**
 
@@ -35,6 +36,23 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Camada 2 — fonte em módulos, entrega em ficheiro único, feita na r0024
+
+A fonte passou a viver em `fonte/`: `molde.html` mais **29 módulos**, um por subsistema,
+pela mesma divisão que os comentários de secção já faziam dentro do ficheiro. A ordem dos
+nomes é a ordem de montagem. `npm run montar` junta-os, carimba a revisão e escreve a
+entrega em `app/`.
+
+**O que chega ao posto de comando não muda:** um ficheiro HTML autónomo, duplo clique, sem
+servidor e sem rede. Provado: montar a fonte com o número e o nome da r0023 reproduz a
+r0023 **byte a byte**. A r0024 difere dela apenas no carimbo.
+
+O que muda é tudo o resto. Cada subsistema é legível de uma assentada, as alterações passam
+a ter diff revisível, e a substituição de blocos grandes deixa de ser a operação normal.
+
+`tests/montagem.test.mjs` recusa que a entrega divirja da fonte: editar o HTML de `app/` à
+mão faz falhar a verificação. Confirmado.
 
 ## Camada 1 — tipos sem compilação, feita na r0023
 
@@ -252,3 +270,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0021 | 2026-08-28 13:26 | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |
 | r0022 | 2026-08-28 13:30 | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
 | r0023 | 2026-08-28 13:44 | Camada 1: tipos em `.d.ts` com anotações na aplicação; sete defeitos reais expostos e corrigidos |
+| r0024 | 2026-08-28 13:50 | Camada 2: primeira entrega produzida pela montagem a partir de `fonte/`, com 29 módulos |

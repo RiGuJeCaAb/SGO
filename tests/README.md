@@ -11,7 +11,8 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run testar` | Corre os testes com o executor incluído no Node |
 | `npm run lint` | Corre o ESLint sobre o código extraído do HTML |
 | `npm run tipos` | Verifica os tipos com o TypeScript, sem compilar nada |
-| `npm run tudo` | Os três, por esta ordem |
+| `npm run montar` | Junta os módulos de `fonte/` e produz a entrega seguinte em `app/` |
+| `npm run tudo` | Sintaxe, testes, análise estática e tipos, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.

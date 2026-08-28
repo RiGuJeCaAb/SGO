@@ -63,7 +63,9 @@ const navegador = {
 };
 
 export default [
-  { ignores: ['node_modules/**', 'app/**'] },
+  // `app/` e `fonte/` analisam-se pelo ficheiro montado, em `.tmp/app.js`: as funções
+  // publicadas em window atravessam módulos, e analisá-los à peça daria falso positivo.
+  { ignores: ['node_modules/**', 'app/**', 'fonte/**'] },
 
   // A aplicação, extraída do HTML. Script clássico, não módulo.
   {

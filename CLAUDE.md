@@ -16,8 +16,10 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 
 ## Restrições não negociáveis
 
-1. Um único ficheiro HTML. Sem build, sem bundler, sem dependências npm, sem módulos
-   externos. CSS, JS e tipos de letra por CDN dentro do ficheiro. Funciona em `file://`.
+1. **A entrega** é um único ficheiro HTML autónomo. Sem dependências, sem módulos
+   externos: CSS, JS e tipos de letra por CDN dentro do ficheiro. Abre em `file://`, sem
+   servidor e sem instalação. **A fonte** vive em `fonte/`, um módulo por subsistema, e
+   `npm run montar` produz a entrega. O Node é preciso para produzir, não para usar.
 2. Português europeu em interface, comentários, mensagens e documentos gerados. Registo
    técnico-operacional, nunca português do Brasil.
 3. Sem ícones e sem emojis, em lado nenhum. A hierarquia visual faz-se por tipografia,
@@ -34,7 +36,8 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 
 | Caminho | Conteúdo |
 |---|---|
-| `app/` | A aplicação, um ficheiro HTML por revisão, com o nome pela convenção |
+| `fonte/` | A fonte: `molde.html` e um módulo por subsistema. **É aqui que se altera** |
+| `app/` | As entregas, um ficheiro HTML por revisão. **Geradas: não editar à mão** |
 | `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
 | `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
 | `docs/FONTES.md` | Uma entrada por documento doutrinário citado. Regra nova declara aqui a fonte |
@@ -46,16 +49,19 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 
 ## Método de trabalho
 
-- Alterar sempre o ficheiro único; não partir a aplicação em módulos.
+- Alterar em `fonte/`, nunca em `app/`. A entrega produz-se com `npm run montar`, que
+  numera a revisão sozinho. Um teste recusa que a entrega divirja da fonte.
+- Módulo novo entra em `fonte/` com prefixo numérico: a ordem dos nomes é a ordem de
+  montagem, e o código corre por essa ordem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
   estática e tipos. Acrescentar um teste que exercite o caminho alterado.
 - Campo novo no estado declara-se em `tipos/estacao.d.ts`; o verificador apanha o nome mal
   escrito.
 - Ao substituir blocos grandes de código, confirmar por pesquisa que nenhuma função ficou
   órfã ou apagada. Já houve regressão assim, com botões a perder listeners e a falhar em
-  silêncio dentro de um `try`.
-- Incrementar a revisão no rodapé e no nome do ficheiro. Guardar todas as revisões em
-  `app/`; as ferramentas escolhem sozinhas a de numeração mais alta.
+  silêncio dentro de um `try`. O `npm run lint` apanha-a hoje.
+- A revisão no rodapé e no nome do ficheiro é carimbada pela montagem. Guardar todas as
+  revisões em `app/`; as ferramentas escolhem sozinhas a de numeração mais alta.
 - Estado novo em `O` tem de ser declarado em `novoEstado`, e toda a mudança de forma leva
   uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um.
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
