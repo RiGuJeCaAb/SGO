@@ -54,7 +54,40 @@ da especificação.
 |---|---|---|
 | `NEP8` | NEP n.º 8/NT/2010 | Numeração, para a banda alta de VHF. Não verificada linha a linha |
 | `NEPSIRESP` | NEP n.º 1/DIC/2026, NEP n.º 2/CNEPC/2022, NOP n.º 1701/2018 | Grupos SIRESP. A designação PC COM 1 a 5 foi deduzida por coerência; as séries CT e CM assentam em equivalência declarada, e só o CM4 tem confirmação direta |
-| — | Modelo de comportamento do fogo | Por escolher. Decisão doutrinária, prévia ao código do módulo respetivo |
+
+## `FOGO` — modelo de comportamento do fogo
+
+**Decidido em 2026-08-28:** modelo completo de propagação de superfície, com os dados de
+entrada a serem introduzidos pelo oficial. **A implementação está retida à espera do
+documento da fonte**, sem o qual não se escreve uma linha: um coeficiente ou um limiar
+inventado num documento de comando é pior do que não haver módulo nenhum.
+
+### O que o documento tem de fixar
+
+A designação «Rothermel / FBP» junta dois sistemas distintos, que dão resultados
+diferentes e pedem dados de entrada diferentes. O documento tem de resolver, no mínimo:
+
+| Ponto | Porquê é preciso |
+|---|---|
+| **Qual o sistema** — modelo de propagação de superfície de Rothermel, ou o Sistema FBP canadiano | São formulações distintas, com catálogos de combustível próprios. Não se misturam |
+| **Catálogo de modelos de combustível** e a sua adaptação ao território nacional | É a entrada de maior peso no resultado. Sem catálogo fixado não há como o oficial escolher |
+| **Conversão do vento para a altura de referência do modelo** | A série meteorológica dá vento a 10 m; o modelo pede vento a meia-chama. O fator de conversão é doutrinário, não é escolha do programador |
+| **Estimativa da humidade dos combustíveis mortos** | Ou a aplicação pede os valores ao oficial, ou os deriva da série meteorológica por um método com fonte. As duas vias são aceitáveis; a escolha não é minha |
+| **Classes de interpretação operacional** — comprimento de chama ou intensidade de linha, e o que cada classe significa para a capacidade de supressão | É isto que transforma um número em decisão de comando. Sem as classes, o módulo produz um valor sem consequência |
+
+### Custo operacional, para a decisão ser informada
+
+O modelo completo pede **quatro a seis campos novos por setor**, preenchidos à mão num
+PCO. Vale a pena confirmar, com quem vai usar a aplicação, que esse preenchimento é
+comportável durante uma ocorrência. Se não for, a alternativa é reduzir a entrada a um
+modelo de combustível por setor e derivar o resto da série meteorológica — o que exige
+que o documento fixe também o método de derivação.
+
+### Enquanto a fonte não chega
+
+O módulo não é escrito. Os indicadores que já têm fonte — janela de consolidação, horas
+críticas de humidade relativa, alinhamento relevo×vento, assinatura convectiva —
+continuam a servir, e estão declarados no registo de regras.
 
 ## Como acrescentar
 

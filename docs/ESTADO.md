@@ -238,8 +238,9 @@ na r0015.
 
 ## Trabalho em aberto
 
-- Camada de análise determinística: consolidar Meteo, Topografia e Demografia; fixar a
-  fonte do modelo de comportamento do fogo antes de escrever esse módulo.
+- Camada de análise determinística: consolidar Meteo, Topografia e Demografia. O módulo de
+  Comportamento do Fogo está retido à espera do documento da fonte — ver `docs/FONTES.md`,
+  secção `FOGO`, para o que esse documento tem de fixar.
 - Exportação do contexto da ocorrência e importação de proposta, com validação.
 - Exportação do PEA em DOCX, com direção de texto na célula em vez de fusão vertical.
 - Briefing de passagem de comando, determinístico.
@@ -254,7 +255,10 @@ Marcados como tal na interface, não devem ser dados como assentes:
 2. Séries de banda alta CT e CM. Só o manobra 4 (CM4) tem confirmação direta, na
    DON n.º 2.
 3. Numeração da NEP n.º 8/NT/2010 para a banda alta de VHF, não verificada linha a linha.
-4. Modelo de comportamento do fogo a adotar. Decisão doutrinária, prévia ao código.
+4. Modelo de comportamento do fogo. O sistema foi escolhido em 2026-08-28 — propagação
+   de superfície, com entrada manual dos dados. A implementação está **retida à espera do
+   documento da fonte**: o que esse documento tem de fixar está em `docs/FONTES.md`,
+   secção `FOGO`. Sem ele não se escreve uma linha do módulo.
 
 ## Registo de revisões
 
