@@ -4,11 +4,10 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0026** está em `app/`, com o módulo de comportamento do fogo. A anterior,
-r0025, foi a fusão de duas linhagens.
+A revisão **r0027** está em `app/`, com a importação da Gestão PCO.
 
-A verificação passa por inteiro: cem testes, análise estática limpa, tipos sem diagnóstico
-novo, e auditoria visual sem transbordo nem exceções.
+A verificação passa por inteiro: cento e quinze testes, análise estática limpa, tipos sem
+diagnóstico novo, e auditoria visual sem transbordo nem exceções.
 
 A revisão r0025 está em `app/`. É a fusão de duas linhagens que correram em paralelo
 sobre a r0022: as camadas 1 e 2 de um lado, e do outro a repartição do PEA pelas células,
@@ -45,6 +44,34 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Importação da Gestão PCO, feita na r0027
+
+Implementada contra a especificação v1.1, **antes de existir uma exportação real**. Lê
+ficheiro ou conteúdo colado, e escreve apenas o que a secção 5 da especificação mapeia:
+identificação, dispositivo e pontos sensíveis. A evolução, os PEA, o meteograma e a fita
+do tempo não são tocados — uma verdade por domínio.
+
+Tudo o que a especificação manda converter está implementado e testado: estados de setor
+da v1.0, siglas descontinuadas com conversão determinada, `fase` como sinónimo de
+`fase_sgo`, meios aéreos em contagem convertidos em entradas anónimas, campos
+desconhecidos ignorados. O que exige decisão humana — `FEB`, `UEPS` e `MR` isolada — fica
+como veio e é assinalado, porque a Estação não pode escolher a entidade por quem exportou.
+Divergências face ao catálogo não bloqueiam: prevalece o valor exportado.
+
+Para que a exportação real possa ser verificada no dia em que existir:
+
+- `docs/exemplos/GestaoPCO_v1.1_exemplo.json` — o exemplo da especificação; entra sem um
+  único ponto a confirmar.
+- `docs/exemplos/GestaoPCO_v1.0_exemplo.json` — exercita todas as conversões; produz nove
+  pontos a confirmar.
+- `npm run validar-gp -- <ficheiro>` — corre o mesmo leitor e conversor da Estação sobre
+  um ficheiro e diz o que ela fará com ele, sem escrever nada.
+- `docs/exemplos/LEIAME.md` — para quem desenvolve a Gestão PCO, com o que mais importa
+  acertar, por ordem de valor operacional.
+
+Quinze testes. Verificado ponta a ponta em navegador, nas duas vias e nas duas versões do
+esquema.
 
 ## Camada 2 — fonte em módulos, entrega em ficheiro único, feita na r0024
 
@@ -285,3 +312,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0023 | 2026-08-28 15:30 | Linhagem paralela, do Ricardo: repartição do PEA pelas células, núcleos do PCO, estado na versão 2 e adaptador de modelo com três modos |
 | r0025 | 2026-08-28 14:04 | Fusão das duas linhagens, montada a partir de `fonte/` |
 | r0026 | 2026-08-28 14:14 | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
+| r0027 | 2026-08-28 14:51 | Importação da Gestão PCO, esquema v1.1, com exemplos de referência e validador |

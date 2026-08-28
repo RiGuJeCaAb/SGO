@@ -41,6 +41,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 | `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
 | `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
 | `docs/FONTES.md` | Uma entrada por documento doutrinário citado. Regra nova declara aqui a fonte |
+| `docs/exemplos/` | Exportações de referência da Gestão PCO e como as validar |
 | `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
 | `docs/CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
 | `ferramentas/` | Extração do script, verificação de sintaxe, análise estática, tipos e auditoria visual |

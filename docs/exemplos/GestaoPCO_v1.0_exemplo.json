@@ -1,0 +1,28 @@
+{
+  "versao": "1.0",
+  "gerado": "271010AGO26",
+  "ocorrencia": {
+    "numero": "202608251000",
+    "local": "Paraduça - Leomil - Moimenta da Beira",
+    "pco": "Paraduça",
+    "fase": "IV",
+    "latitude": 40.99010,
+    "longitude": -7.67835
+  },
+  "setores": [
+    {
+      "nome": "Alfa",
+      "estado": "Frente ativa",
+      "comandante": "Cmdt CB Moimenta da Beira",
+      "meios": [
+        { "tipologia": "GRIF", "quantidade": 1, "veiculos": 3, "operacionais": 12 },
+        { "tipologia": "MR",   "quantidade": 2, "veiculos": 1, "operacionais": 1 }
+      ]
+    },
+    { "nome": "Bravo", "estado": "Rescaldo", "comandante": "Cmdt CB Sernancelhe", "meios": [] }
+  ],
+  "meios_aereos": 3,
+  "reserva": { "veiculos": 1, "operacionais": 2 },
+  "sensiveis": [{ "nome": "Leomil", "grau": "prioridade" }],
+  "campo_que_a_estacao_nao_conhece": "deve ser ignorado, regra 9"
+}

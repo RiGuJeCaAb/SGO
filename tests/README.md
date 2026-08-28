@@ -12,6 +12,7 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run lint` | Corre o ESLint sobre o código extraído do HTML |
 | `npm run tipos` | Verifica os tipos com o TypeScript, sem compilar nada |
 | `npm run montar` | Junta os módulos de `fonte/` e produz a entrega seguinte em `app/` |
+| `npm run validar-gp -- <ficheiro>` | Corre o leitor da Gestão PCO sobre uma exportação e diz o que a Estação fará com ela |
 | `npm run tudo` | Sintaxe, testes, análise estática e tipos, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 

@@ -763,6 +763,21 @@
         </div>
       </div>
 
+      <div class="sub"><span class="stit">Importação da Gestão PCO (esquema v1.1)</span>
+        <p class="hint" style="margin:0 0 10px 0">Traz o dispositivo exportado pela app Gestão PCO — setores, meios com hora de empenhamento, meios aéreos nominais, reserva, zona de apoio e pontos sensíveis — sem transcrição manual. Uma direção só: a Estação lê, não escreve de volta. A evolução, os PEA e a fita do tempo não são tocados.</p>
+        <div class="row">
+          <button class="btn btn-b" type="button" id="gp-b">Importar de ficheiro</button>
+          <input type="file" id="gp-f" accept=".json,application/json" hidden>
+          <label class="chkbx"><input type="checkbox" id="gp-colar"> Colar o conteúdo</label>
+        </div>
+        <div id="gp-colar-x" style="display:none">
+          <textarea id="gp-txt" rows="5" style="margin-top:8px" placeholder="colar aqui o JSON exportado pela Gestão PCO"></textarea>
+          <div class="row" style="margin-top:8px"><button class="btn btn-o" type="button" id="gp-ler">Ler o conteúdo colado</button></div>
+        </div>
+        <div class="msg" id="gp-msg" style="display:none"></div>
+        <div id="gp-avisos"></div>
+      </div>
+
       <div class="sub"><span class="stit">Setorização do TO e quadro de meios (arts. 5.º e 32.º — tipologias do Anexo 1 da DON n.º 2 / DECIR 2026)</span>
         <div class="row" style="margin-bottom:12px">
           <span class="xtr"><span class="hint" style="margin:0">N.º de setores</span>

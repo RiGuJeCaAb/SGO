@@ -14,7 +14,8 @@
     "tudo": "npm run verificar && npm run testar && npm run lint && npm run tipos",
     "visual": "node ferramentas/visual.mjs",
     "tipos": "node ferramentas/tipos.mjs",
-    "montar": "node ferramentas/montar.mjs"
+    "montar": "node ferramentas/montar.mjs",
+    "validar-gp": "node ferramentas/validar-gestaopco.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

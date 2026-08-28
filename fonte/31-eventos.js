@@ -53,3 +53,23 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
     });
   }
   pintarTudo(); })();
+
+/* ---- importação da Gestão PCO ---- */
+(()=>{
+  const bF = $("gp-b"), inF = $("gp-f"), cx = $("gp-colar"), caixa = $("gp-colar-x"), bLer = $("gp-ler");
+  if(bF && inF){
+    bF.addEventListener("click", ()=>inF.click());
+    inF.addEventListener("change", async ()=>{
+      const f = inF.files && inF.files[0]; if(!f) return;
+      try{ await importarGestaoPCO(await f.text()); }
+      catch(e){ aviso("gp-msg","err","Não foi possível ler o ficheiro ("+e+")."); }
+      inF.value = "";
+    });
+  }
+  if(cx && caixa) cx.addEventListener("change", ()=>{ caixa.style.display = cx.checked? "":"none"; });
+  if(bLer) bLer.addEventListener("click", async ()=>{
+    const t = ($("gp-txt").value||"").trim();
+    if(!t){ aviso("gp-msg","err","Cola primeiro o conteúdo exportado pela Gestão PCO."); return; }
+    if(await importarGestaoPCO(t)) $("gp-txt").value = "";
+  });
+})();
