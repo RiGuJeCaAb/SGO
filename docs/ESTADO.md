@@ -1,47 +1,51 @@
 # Estado do projeto
 
-Atualizado em 2026-08-27.
+Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão **r0028** está em `app/`. Funde o r0024 do Ricardo — etiquetas de célula na
-impressão do PEA — com a importação da Gestão PCO.
+A revisão em vigor é a **r0028**, montada a partir de `fonte/`. Contém as duas linhagens
+que correram em paralelo: as camadas de estabilidade e o importador de um lado, a
+repartição do PEA pelas células e as etiquetas de impressão do outro.
 
-**Qual documento governa a ligação à Gestão PCO:** a especificação v1.1, de 27 de agosto.
+| | |
+|---|---|
+| Entregas em `app/` | 35, das anteriores à convenção de nomes até à r0028 |
+| Módulos em `fonte/` | 31, mais o molde |
+| Testes | 135, todos a passar |
+| Análise estática | sem problemas |
+| Tipos | 25 diagnósticos, nenhum novo face à linha de base |
+| Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
+| Versão do estado gravado | 3 |
+| Regras de conformidade | 12, com as fontes declaradas |
+
+**As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
+também.** A documentação está arrumada por natureza — ver `docs/README.md`.
+
+### Qual documento governa a ligação à Gestão PCO
+
+A **especificação v1.1**, de 27 de agosto, em `docs/interop/`. É o que a Gestão PCO deve
+implementar.
+
 O contrato `pco:dispositivo` (`d0002`) foi escrito a analisar um esboço anterior e não a
-v1.1, e o seu autor corrigiu-se; fica arquivado, e o que dele sobra está proposto para uma
-v1.2 em `docs/interop/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`.
-O importador lê os três envelopes — v1.1, contrato e esboço — e normaliza-os numa forma só.
+v1.1, e o seu autor corrigiu-se; fica arquivado. O que dele sobra está proposto para uma
+v1.2, no mesmo lugar.
 
-A verificação passa por inteiro: cento e quinze testes, análise estática limpa, tipos sem
-diagnóstico novo, e auditoria visual sem transbordo nem exceções.
-
-A revisão r0025 está em `app/`. É a fusão de duas linhagens que correram em paralelo
-sobre a r0022: as camadas 1 e 2 de um lado, e do outro a repartição do PEA pelas células,
-os núcleos do PCO e o adaptador de modelo. A fusão a três vias não deu um único conflito.
-
-A verificação passa por inteiro: sintaxe correta, análise estática sem problemas, oitenta e
-sete testes a passar, tipos sem diagnóstico novo, e auditoria visual sem transbordo nem
-exceções a 380, 480, 768 e 1440 px nos dois temas.
-
-**As seis correções estruturais da proposta de evolução estão feitas**, e as camadas 1 e 2
-também. A documentação está arrumada por natureza — ver `docs/README.md`.
-
-O histórico de revisões está reunido em `app/`: vinte e sete ficheiros, das versões
-anteriores à convenção de nomes até à r0022. Falta a série `r0007` a `r0013` e a `r0004`,
-que não existem em nenhuma origem conhecida.
-
-Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
+O importador lê os três envelopes — v1.1, contrato e esboço antigo — e normaliza-os numa
+forma só. Ler mais do que um envelope não é hesitar sobre qual manda: é o que um adaptador
+faz, porque quem importa não escolhe o que lhe chega às mãos.
 
 ## Decisões tomadas
 
-Registadas em 2026-08-27, sobre a proposta de evolução técnica.
+Por ordem em que foram tomadas.
 
 | Decisão | Resolução |
 |---|---|
 | Camada 2, fonte em módulos com entrega em ficheiro único | **Aceite.** O ficheiro entregue não muda; passa a ser preciso Node para produzir uma entrega |
 | Revisões antigas do HTML | **Ficam todas em `app/`**, desde a primeira. A ordem alfabética dos nomes é a ordem das revisões |
 | Pipeline de seis agentes | **Reformulado.** Quatro dos seis são cálculos determinísticos e ficam dentro da aplicação; os dois restantes seguem a via C, com o serviço acompanhante em aberto. Ver `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` |
+| Modelo de comportamento do fogo | **Viegas (2004),** composição vetorial de declive e vento. Dá o desvio da cabeça e a velocidade relativa; não dá velocidade absoluta nem diz se o fogo se propaga, e a aplicação não finge dar. Ver `FONTES.md`, chave `FOGO` |
+| Documento que governa a ligação à Gestão PCO | **A especificação v1.1.** O contrato `d0002` fica arquivado; o que dele sobra está proposto para uma v1.2. O importador lê os três envelopes |
 
 ## Feito
 
@@ -50,8 +54,11 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
   automaticamente em cada sessão.
 - Proposta de evolução técnica e desenho do pipeline de análise, em `docs/`.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
-  ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
-  executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+  ESLint sobre o código extraído com erros mapeados à linha do HTML, testes com o executor
+  incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+- **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
+  separadores, a quatro larguras e nos dois temas.
+- **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
 
 ## Importação da Gestão PCO, feita na r0027
 
@@ -294,11 +301,16 @@ na r0015.
 
 ## Próximo passo
 
-1. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
-2. Camada 1: tipos em JSDoc para o estado.
-3. Correção 4.6: exportação e importação da ocorrência em JSON, que também fecha o risco
-   deixado em aberto pela 4.1.
-5. Camada 2, com a divisão em módulos a seguir a estrutura da secção 5.1 da especificação.
+Nada do que aqui esteve ficou por fazer. O que se segue depende de terceiros ou de
+decisão, e está listado a seguir.
+
+1. **Confrontar o importador com uma exportação real da Gestão PCO.** Está feito e testado
+   contra os documentos; falta o que a aplicação de origem produz de facto.
+   `npm run validar-gp -- <ficheiro>` responde em segundos.
+2. **Decidir a proposta de v1.2** da ligação à Gestão PCO.
+3. **Reforma do estado por células**, quando o outro lado a atacar. O importador não sobe a
+   escada de migrações: não acrescenta campo nenhum ao estado, escreve só em ramos que já
+   existem. O próximo degrau livre é `MIGRACOES[3]`, versão 3 para 4.
 
 ## Trabalho em aberto
 
@@ -324,22 +336,27 @@ Marcados como tal na interface, não devem ser dados como assentes:
 
 ## Registo de revisões
 
-| Revisão | Data | Alterações |
-|---|---|---|
-| r0014 | 2026-08-27 22:08 | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
-| r0015 | 2026-08-28 01:17 | Reposta a chamada a `leitura()` na legenda do meteograma; removida `corRH()`, código morto com cores fixas; corrigido escape desnecessário em três expressões regulares |
-| r0016 | 2026-08-28 12:14 | Largura reduzida: quebra de linha nas ações do cabeçalho; media query do plano de comunicações a vencer `.cm-f.nb`; cartões de integrações a encolher e a quebrar designações longas; seletor de CSV a quebrar |
-| r0017 | 2026-08-28 12:58 | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
-| r0018 | 2026-08-28 13:04 | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |
-| r0019 | 2026-08-28 13:15 | Correção 4.4: relógio injetado; as regras de prazo passam a receber o instante e a ter teste |
-| r0020 | 2026-08-28 13:19 | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `docs/FONTES.md` e auditoria mecânica das citações |
-| r0021 | 2026-08-28 13:26 | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |
-| r0022 | 2026-08-28 13:30 | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
-| r0023 | 2026-08-28 13:44 | Camada 1: tipos em `.d.ts` com anotações na aplicação; sete defeitos reais expostos e corrigidos |
-| r0024 | 2026-08-28 13:50 | Camada 2: primeira entrega produzida pela montagem a partir de `fonte/`, com 29 módulos |
-| r0023 | 2026-08-28 15:30 | Linhagem paralela, do Ricardo: repartição do PEA pelas células, núcleos do PCO, estado na versão 2 e adaptador de modelo com três modos |
-| r0025 | 2026-08-28 14:04 | Fusão das duas linhagens, montada a partir de `fonte/` |
-| r0026 | 2026-08-28 14:14 | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
-| r0027 | 2026-08-28 14:51 | Importação da Gestão PCO, esquema v1.1, com exemplos de referência e validador |
-| r0024 | 2026-08-28 16:00 | Linhagem paralela, do Ricardo: etiquetas de célula na impressão do PEA |
-| r0028 | 2026-08-28 15:05 | Fusão do r0024; importador a ler os três envelopes, com a v1.1 a governar |
+Por número de revisão, que é a ordem de entrega. **Há dois números atribuídos duas vezes**,
+por duas linhagens terem corrido em paralelo sobre a mesma base: distinguem-se pelo
+carimbo de hora no nome do ficheiro. Ficam ambas, porque ambas foram entregues, e as duas
+estão fundidas na linha principal.
+
+| Revisão | Carimbo | Linhagem | Alterações |
+|---|---|---|---|
+| r0014 | 272208 | — | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
+| r0015 | 280117 | — | Reposta a chamada a `leitura()` na legenda do meteograma; removida `corRH()`, código morto; corrigido escape desnecessário em três expressões regulares |
+| r0016 | 281214 | — | Largura reduzida: quebra de linha no cabeçalho; media query do plano de comunicações a vencer `.cm-f.nb`; cartões de integrações a encolher; seletor de CSV a quebrar |
+| r0017 | 281258 | — | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
+| r0018 | 281304 | — | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |
+| r0019 | 281315 | — | Correção 4.4: relógio injetado; as regras de prazo recebem o instante e passam a ter teste |
+| r0020 | 281319 | — | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `FONTES.md` e auditoria mecânica das citações |
+| r0021 | 281326 | — | Correção 4.5: cache de pedidos idênticos, resposta imediata sem ligação, motivo de falha legível, prazo na chamada ao modelo |
+| r0022 | 281330 | — | Correção 4.6: exportação e importação da ocorrência em JSON, independentes do armazenamento |
+| r0023 | 281344 | esta | Camada 1: tipos em `.d.ts` com anotações na aplicação; sete defeitos reais expostos e corrigidos |
+| r0023 | 281530 | paralela | Repartição do PEA pelas células, núcleos do PCO, estado na versão 2 e adaptador de modelo com três modos |
+| r0024 | 281350 | esta | Camada 2: primeira entrega produzida pela montagem a partir de `fonte/` |
+| r0024 | 281600 | paralela | Etiquetas de célula na impressão do PEA: segurança e prioridades passam a Planeamento |
+| r0025 | 281404 | — | Fusão das duas linhagens r0023, montada a partir de `fonte/` |
+| r0026 | 281414 | — | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
+| r0027 | 281451 | — | Importação da Gestão PCO contra a especificação, com exemplos de referência e validador |
+| r0028 | 281607 | — | Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; documentação arrumada por natureza |
