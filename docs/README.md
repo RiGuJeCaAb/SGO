@@ -37,6 +37,12 @@ validar uma exportação.
 | `CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md` | Arquivado. Escrito a analisar um esboço anterior; o seu autor corrigiu-se. Dele vieram os três acréscimos da v1.2 |
 | `exemplos/` | Um ficheiro por envelope que o importador lê, e o validador que os confere |
 
+## `qa/` — provas de verificação
+
+Capturas de ecrã que acompanham uma revisão e mostram o que ela mudou. Ver `qa/LEIAME.md`.
+Não substituem `npm run visual`: servem para o que a auditoria automática não vê, que é se
+o que está no ecrã é o que se queria.
+
 ## `fontes/` — documentos doutrinários externos
 
 Os documentos de terceiros que a aplicação cita. Não são do projeto e não se alteram; a
@@ -49,4 +55,5 @@ se usa.
   ainda lá não estiver.
 - Uma decisão sobre a ligação à Gestão PCO → `interop/`.
 - Uma proposta técnica ou um desenho → raiz de `docs/`, com nome pela convenção.
+- Uma captura que prove o que uma revisão mudou → `qa/`, e uma linha em `qa/LEIAME.md`.
 - O que mudou nesta sessão → `ESTADO.md`, sempre.
