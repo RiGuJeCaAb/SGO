@@ -4,8 +4,8 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0018** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, quarenta e sete testes a passar, e auditoria visual sem
+A revisão **r0019** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, cinquenta e sete testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
@@ -29,6 +29,18 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.4 — relógio injetado, feita na r0019
+
+`agora()` é o ponto único de leitura da hora. `verificacoesDON(ts)` e `rendicoes(ts)`
+aceitam o instante em argumento e só recorrem a esse ponto quando não o recebem.
+
+Passaram a ter teste, com hora escolhida: a fronteira exata dos 90 minutos entre ataque
+inicial e ampliado, a notificação das duas horas, a recomendação de PMEPC às vinte e
+quatro, o silêncio das regras sem GDH de início, e a contagem das rendições. Dez testes.
+
+Ficam por injetar os prazos de validade do PEA (`renderVigor`), que leem o relógio pelo
+seu lado. Não são regras de conformidade e não entraram nesta correção.
 
 ## Correção 4.2 — o formulário escreve no estado, feita na r0018
 
@@ -145,3 +157,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0016 | 2026-08-28 12:14 | Largura reduzida: quebra de linha nas ações do cabeçalho; media query do plano de comunicações a vencer `.cm-f.nb`; cartões de integrações a encolher e a quebrar designações longas; seletor de CSV a quebrar |
 | r0017 | 2026-08-28 12:58 | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
 | r0018 | 2026-08-28 13:04 | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |
+| r0019 | 2026-08-28 13:15 | Correção 4.4: relógio injetado; as regras de prazo passam a receber o instante e a ter teste |
