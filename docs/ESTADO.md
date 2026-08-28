@@ -4,20 +4,21 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0029**, montada a partir de `fonte/`. Contém as duas linhagens
-que correram em paralelo: as camadas de estabilidade e o importador de um lado, a
-repartição do PEA pelas células e as etiquetas de impressão do outro.
+A revisão em vigor é a **r0034**, montada a partir de `fonte/`. É a terceira fusão das
+duas linhagens que correm em paralelo: de um lado as camadas de estabilidade, o importador
+da Gestão PCO e o briefing de passagem; do outro a repartição do PEA pelas células, a
+passagem de turno e a posse do estado por célula.
 
 | | |
 |---|---|
-| Entregas em `app/` | 36, das anteriores à convenção de nomes até à r0029 |
-| Módulos em `fonte/` | 32, mais o molde |
-| Testes | 170, todos a passar |
+| Entregas em `app/` | 38, das anteriores à convenção de nomes até à r0034 |
+| Módulos em `fonte/` | 34, mais o molde |
+| Testes | 191, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 3 |
-| Regras de conformidade | 12, com as fontes declaradas |
+| Versão do estado gravado | 4 |
+| Regras de conformidade | 14, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
 também.** A documentação está arrumada por natureza — ver `docs/README.md`.
@@ -48,6 +49,8 @@ Por ordem em que foram tomadas.
 | Documento que governa a ligação à Gestão PCO | **A especificação v1.1**, na altura. O contrato `d0002` fica arquivado; o que dele sobrava seguiu para proposta |
 | Proposta de v1.2 | **Acolhida.** A v1.2, de 28 de agosto, substitui a v1.1 na íntegra e é o documento em vigor. O importador lê os quatro envelopes |
 | Numeração das revisões | **Uma entrega, um número.** A convenção sempre o disse; foi incumprida na r0028 e passa a ser verificada antes de cada entrega |
+| Posse do estado por célula | **Aceite como veio da linhagem paralela**, e portada para `tests/posse.test.mjs`. O registo declara o dono de cada ramo com a norma que o sustenta, e um ramo novo sem célula parte a verificação |
+| Vazio na fusão de funções do PCO | **Vazio é ausência, não informação.** Uma importação não apaga com vazio o que o oficial registou à mão; um valor preenchido manda |
 
 ## Feito
 
@@ -61,6 +64,65 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Fusão da terceira linhagem paralela, feita na r0034
+
+A linhagem paralela entregou três patches sobre a r0028 de 15h23 — `p0003` a passagem de
+turno com o estado na versão 4, `p0004` os dois instantes da nomeação externa no
+importador, `p0005` a posse do estado por célula. Entretanto esta linhagem tinha feito o
+briefing de passagem, os instantes ISO e a v1.2. Fundiram-se aqui.
+
+**A base comum é a r0028 de 15h23**, e determinou-se por comparação, não por suposição: é
+a que produz o menor diferencial contra o que a outra linhagem entregou. A fusão a três
+deu **três conflitos, todos triviais** — o rodapé, que a montagem carimba de qualquer
+modo; o leitor do bloco `pco`, tratado a seguir; e o briefing e o motor de turno inseridos
+no mesmo ponto, que não são conflito nenhum e ficam ambos.
+
+O ficheiro fundido foi repartido de volta por `fonte/`, e a repartição foi **provada sem
+perdas**: remontar os 34 módulos reproduz o ficheiro fundido byte a byte. Depois disso, o
+registo de posse e o motor de turno saíram para módulos próprios — `30-posse-do-estado-
+por-celula.js` e `31-passagem-de-turno.js` —, e essa mudança foi verificada como
+**puramente de ordem**: as mesmas linhas, noutro sítio.
+
+### O conflito que valia a pena, e o defeito que ele escondia
+
+O `p0004` acrescentava `solicitado` ao `funcoes.push` dos núcleos externos. Essa linha
+tinha deixado de existir: a r0029 juntou os dois leitores do bloco `pco` — o do contrato e
+o da especificação — numa função só, `blocoPcoGP`, porque a v1.2 trouxe o bloco `pco` para
+o envelope da especificação e dois leitores da mesma coisa era o defeito a evitar. O
+acréscimo entrou lá, uma vez, a servir os dois envelopes.
+
+Só que o conversor passou a devolver **sempre** a forma completa, com vazio no que o
+pacote não traz. E a fusão de funções fazia `Object.assign({}, atual, nova)`, que sobrepõe
+com esse vazio. Resultado: uma importação apagava o instante de solicitação — e o
+contacto, e o canal — que o oficial tivesse registado à mão. Exatamente a perda que a
+fusão por designação existe para impedir, entrada pela porta do lado.
+
+Está corrigido em `fundirFuncaoPCO`: **vazio não é informação, é ausência**, e não
+sobrepõe. Um valor preenchido manda, porque aí o pacote sabe. Não há forma de o pacote
+pedir que se limpe um campo, e é deliberado — ausência e vazio chegam iguais ao fio, e
+entre não mexer e apagar, não mexer é o que se recupera.
+
+Foi um teste meu que o expôs, e a afirmação do outro lado — «o `Object.assign` preserva o
+`solicitado`» — era verdadeira antes do `p0004` e deixou de o ser com ele.
+
+### O outro defeito, apanhado pela camada 1
+
+O `p0003` inseriu o bloco da passagem de turno **entre a anotação JSDoc e a função que ela
+anota**. O `/** @param {any} guardado @returns {Estado} */` do `migrarGravado` passou a
+encimar o `CELULAS_PCO()`, que não tem parâmetro nenhum e devolve outra coisa. Dois
+diagnósticos novos, e a anotação voltou para cima da função a que pertence. É a camada 1 a
+fazer o que se lhe pede: um comentário fora de sítio não parte nada em uso, e por isso
+sobreviveria indefinidamente.
+
+### Verificação
+
+191 testes desta linhagem, e os 34 do `t0005` da outra, todos a passar sobre a r0034. Os
+do `t0005` foram portados para `tests/posse.test.mjs`, porque um teste que não corre em
+`npm run tudo` não protege nada. Verificado ponta a ponta em navegador: importação da v1.2
+com os dois instantes gravados em campos distintos, auditoria de posse limpa sobre estado
+povoado (72 folhas, zero órfãos), quadro de turno com as quatro células, briefing com as
+oito secções. Sem exceções.
 
 ## Especificação v1.2 da ligação à Gestão PCO, implementada na r0029
 
@@ -371,13 +433,12 @@ decisão, e está listado a seguir.
 1. **Confrontar o importador com uma exportação real da Gestão PCO.** Está feito e testado
    contra os documentos; falta o que a aplicação de origem produz de facto.
    `npm run validar-gp -- <ficheiro>` responde em segundos.
-2. **Campos próprios para os dois instantes da nomeação externa.** O importador já lê a
-   solicitação e a nomeação dos núcleos externos, e hoje só a segunda tem onde ficar: a
-   primeira serve para o aviso e é descartada. Quando o estado tiver os dois campos,
-   preenchem-se — e essa é a única coisa que a v1.2 traz e que o estado ainda não guarda.
-3. **Reforma do estado por células**, quando o outro lado a atacar. O importador não sobe a
-   escada de migrações: não acrescenta campo nenhum ao estado, escreve só em ramos que já
-   existem. O próximo degrau livre é `MIGRACOES[3]`, versão 3 para 4.
+2. **Mudança de forma do estado para a repartição por células.** O mapa já existe, e é
+   verificável: `POSSE` declara o dono de cada ramo e `auditarPosse` recusa um ramo sem
+   célula. Mover os campos passa a ser transcrição, não desenho. Fica para `MIGRACOES[4]`,
+   versão 4 para 5, e o achado a resolver está registado no próprio mapa — `dados.est`
+   conflacia os setores e os meios aéreos, que são de Operações, com a reserva e a zona de
+   apoio, que são áreas da ZCR e portanto de Logística.
 
 ## Trabalho em aberto
 
@@ -436,4 +497,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0026 | 281414 | — | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
 | r0027 | 281451 | — | Importação da Gestão PCO contra a especificação, com exemplos de referência e validador |
 | r0028 | 281657 | — | **Quatro entregas com o mesmo número, por erro meu de numeração.** Fusão do r0024 paralelo; importador a ler os três envelopes com a v1.1 a governar; diferencial ao nível do setor com as perdas assinaladas; funções do PCO fundidas em vez de substituídas; instantes ISO opcionais no caminho da v1.1; briefing de passagem de comando; documentação arrumada por natureza |
-| r0029 | 281713 | — | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |
+| r0029 | 281713 | esta | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |
+| r0030 a r0033 | — | paralela | Produzidas do outro lado sobre a r0028 de 15h23, e não montadas aqui. `p0003` passagem de turno e estado na versão 4; `p0004` os dois instantes da nomeação externa; `p0005` posse do estado por célula |
+| r0032 | 281900 | paralela | A entrega que chegou em ficheiro, e a base da fusão. O rodapé lá dentro diz `r0031`: numeração do outro lado, registada como veio |
+| r0034 | 281800 | — | Fusão da terceira linhagem paralela. Passagem de turno, posse do estado por célula, os dois instantes da nomeação externa no importador; correção da fusão de funções, que apagava com vazio o que estava registado |

@@ -69,8 +69,30 @@ interface Setor {
 
 interface FuncaoPCO {
   f: string; nome: string; entidade: string; ct: string;
-  siresp: string; ba: string; g: string;
+  siresp: string; ba: string;
+  /**
+   * GDH da **nomeação**. Vazio enquanto o pedido estiver pendente: sem nome não há
+   * nomeação. Antes da versão 4 do estado era preenchido com a hora corrente sempre
+   * que faltava, o que fazia passar por nomeada uma função que o não estava.
+   */
+  g: string;
+  /**
+   * GDH do **pedido** do COS à entidade nomeadora — arts. 23.º, n.º 2, 24.º, n.º 2 e
+   * 25.º, n.º 2. Vazio nas funções que não são de nomeação externa. O estado pendente
+   * é derivado, não gravado: `!!solicitado && !g`.
+   */
+  solicitado: string;
   [outro: string]: any;
+}
+
+/** Uma célula do posto de comando, na entrega de turno. */
+interface CelulaTurno { n: string; ct: string; nota: string; }
+
+/** Passagem de turno: o turno em curso e o histórico de entregas. */
+interface Turno {
+  equipa: string; inicio: string;
+  celulas: { [chave: string]: CelulaTurno };
+  entregas: any[];
 }
 
 interface Canais {
@@ -106,6 +128,7 @@ interface Estado {
   csv: string;
   peas: any[];
   fita: { g: string; e: string }[];
+  turno: Turno;
   versao: number;
   [outro: string]: any;
 }

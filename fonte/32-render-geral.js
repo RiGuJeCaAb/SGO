@@ -1,5 +1,6 @@
 /* ================= render geral ================= */
 function pintarTudo(){
+  try{ renderTurno(); }catch(e){}
   pintarArquivo(); try{ renderCheck(); }catch(e){}
   try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
   try{ pintarEvoCtx(); }catch(e){}

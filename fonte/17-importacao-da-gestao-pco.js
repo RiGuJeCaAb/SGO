@@ -230,7 +230,7 @@ function blocoPcoGP(pco, avisos){
     }
     funcoes.push({ f:nome, nome:String(f.nome||""), entidade:String(f.entidade||""),
       ct:String(f.contacto||""), siresp:String(f.siresp||""), ba:String(f.ba||""),
-      g: instanteCampo(f, "nomeado", "Função "+nome, avisos).g });
+      solicitado:"", g: instanteCampo(f, "nomeado", "Função "+nome, avisos).g });
   });
 
   /* Os três núcleos do art. 17.º, n.º 2, als. d), e) e f) são nomeados por entidade
@@ -249,8 +249,13 @@ function blocoPcoGP(pco, avisos){
       const h = (nomeado-pedido)/3600000;
       if(h >= 1) avisos.push(nome+": "+h.toFixed(1)+" h entre a solicitação e a nomeação.");
     }
+    /* Os dois instantes dos arts. 23.º, n.º 2, 24.º, n.º 2 e 25.º, n.º 2 gravam-se
+       ambos: `solicitado` é o pedido do COS, `g` a nomeação pela entidade. Já eram
+       lidos acima para compor os avisos; sem os gravar, um núcleo que nasça da
+       importação entra sem o pedido e a pendência não o vê. */
     funcoes.push({ f:nome, nome:String(n.responsavel||""), entidade:quem,
-      ct:String(n.contacto||""), siresp:"", ba:"", g: nomeado? gdhDe(nomeado):"" });
+      ct:String(n.contacto||""), siresp:"", ba:"",
+      solicitado: pedido? gdhDe(pedido):"", g: nomeado? gdhDe(nomeado):"" });
   });
   return funcoes;
 }
@@ -454,6 +459,28 @@ function assinaturaDispositivo(){
 }
 
 /**
+ * Funde uma função do PCO com a que já está registada.
+ *
+ * O conversor devolve sempre a forma completa, e o que o pacote não traz vem vazio.
+ * Vazio não é informação: é ausência. Sobrepor com ele um contacto, um canal ou um
+ * instante de solicitação que o oficial registou à mão seria exatamente a perda que a
+ * fusão por designação existe para impedir — o pacote passaria a apagar por omissão
+ * aquilo que não sabe. Um valor que venha preenchido manda, porque aí o pacote sabe.
+ *
+ * Não há forma de o pacote pedir que se limpe um campo, e é deliberado: absence e
+ * vazio chegam iguais ao fio, e entre não mexer e apagar, não mexer é o que se recupera.
+ */
+function fundirFuncaoPCO(atual, nova){
+  const out = Object.assign({}, atual);
+  Object.keys(nova).forEach(k=>{
+    const v = nova[k];
+    if(v === "" || v == null) return;
+    out[k] = v;
+  });
+  return out;
+}
+
+/**
  * Escreve no estado. Regra 5: a fita do tempo regista a origem, o operador, o
  * instante de emissão e o de importação, e quantas forças vieram sem relógio.
  */
@@ -473,7 +500,7 @@ function aplicarGestaoPCO(c){
     c.funcoes.forEach(nova=>{
       const i = P.funcoes.findIndex(x=>x.f === nova.f);
       if(i < 0) P.funcoes.push(nova);
-      else P.funcoes[i] = Object.assign({}, P.funcoes[i], nova);
+      else P.funcoes[i] = fundirFuncaoPCO(P.funcoes[i], nova);
     });
   }
   if(c.pt.des || c.pt.resp || c.pt.ct) O.dados.pt = Object.assign(ptObj(), c.pt);

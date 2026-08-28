@@ -517,3 +517,58 @@ test('uma versão acima da v1.2 é recusada sem tocar em nada', semAplicacao, ()
   p.versao = '1.3';
   assert.throws(() => janela.lerPacoteGestaoPCO(JSON.stringify(p)), /versão 1\.3; esta revisão lê até à 1\.2/);
 });
+
+/* ---- os dois instantes da nomeação externa chegam ao estado ---- */
+
+test('regra 10 — o pedido e a nomeação gravam-se ambos, em campos distintos', semAplicacao, () => {
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V12).conversao);
+  const fs = janela.pcoObj().funcoes;
+
+  const seg = fs.find((x) => x.f === 'Núcleo de Segurança');
+  assert.equal(seg.solicitado, '251310AGO26', 'o pedido do COS');
+  assert.equal(seg.g, '251352AGO26', 'a nomeação pela entidade');
+
+  // Sem os dois campos, um núcleo que nasça da importação entra sem o pedido e a
+  // pendência de passagem de turno não o vê.
+  const med = fs.find((x) => x.f === 'Núcleo de Emergência Médica');
+  assert.equal(med.solicitado, '251330AGO26');
+  assert.equal(med.g, '', 'por nomear');
+  assert.ok(!!med.solicitado && !med.g, 'o estado pendente é derivado, não gravado');
+});
+
+test('uma função que não é de nomeação externa nasce com solicitado vazio', semAplicacao, () => {
+  const c = converter(V12);
+  const op = c.funcoes.find((x) => x.f === 'Oficial de Operações');
+  assert.equal(op.solicitado, '');
+});
+
+test('o instante do pedido também aceita ISO 8601, como todos os outros', semAplicacao, () => {
+  const p = JSON.parse(V12);
+  p.pco.nucleos_externos[0].solicitado = '2026-08-25T14:10:00+01:00';
+  const c = converter(JSON.stringify(p));
+  const seg = c.funcoes.find((x) => x.f === 'Núcleo de Segurança');
+  assert.equal(seg.solicitado, janela.gdhDe(Date.parse('2026-08-25T14:10:00+01:00')));
+});
+
+test('a fusão preserva o solicitado de uma função já registada', semAplicacao, () => {
+  // O pacote traz o núcleo sem pedido; o que estava registado não pode desaparecer.
+  janela.pcoObj().funcoes.push({ f: 'Núcleo de Segurança', nome: '', entidade: '', ct: '',
+    siresp: '', ba: '', solicitado: '250900AGO26', g: '' });
+  const p = JSON.parse(V12);
+  delete p.pco.nucleos_externos[0].solicitado;
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(JSON.stringify(p)).conversao);
+  const seg = janela.pcoObj().funcoes.find((x) => x.f === 'Núcleo de Segurança');
+  assert.equal(seg.solicitado, '250900AGO26', 'o pedido registado à mão sobreviveu');
+  assert.equal(seg.g, '251352AGO26', 'e a nomeação do pacote entrou');
+});
+
+test('a fusão deixa-se sobrepor por um valor que o pacote traz preenchido', semAplicacao, () => {
+  janela.pcoObj().funcoes.push({ f: 'Núcleo de Segurança', nome: 'Nome antigo', entidade: '',
+    ct: '910000099', siresp: 'PC COM 3', ba: '', solicitado: '250900AGO26', g: '' });
+  janela.aplicarGestaoPCO(janela.prepararGestaoPCO(V12).conversao);
+  const seg = janela.pcoObj().funcoes.find((x) => x.f === 'Núcleo de Segurança');
+  assert.equal(seg.nome, 'Sarg. Silva', 'o pacote traz o responsável e manda');
+  assert.equal(seg.solicitado, '251310AGO26', 'o pacote traz o pedido e manda');
+  assert.equal(seg.siresp, 'PC COM 3', 'o canal, que o pacote não traz, sobrevive');
+  assert.equal(seg.ct, '910000012', 'o contacto do pacote entra');
+});

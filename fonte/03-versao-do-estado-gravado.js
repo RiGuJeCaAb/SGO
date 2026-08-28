@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 3;
+const VERSAO_ESTADO = 4;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -55,6 +55,39 @@ const MIGRACOES = [
   }
 ];
 
+/* ================= passagem de turno ================= */
+/* As quatro linhas do posto de comando: o comando e as três células do art. 12.º,
+   n.º 2 do SIOPS. Declaração de função — sobe, e por isso novoEstado() pode usá-la. */
+function CELULAS_PCO(){
+  return [
+    {k:"comando",     n:"Comando",              r:"arts. 14.º e 15.º"},
+    {k:"operacoes",   n:"Operações",            r:"arts. 16.º a 25.º"},
+    {k:"planeamento", n:"Planeamento",          r:"arts. 26.º a 30.º"},
+    {k:"logistica",   n:"Logística e Finanças", r:"arts. 31.º a 35.º"}
+  ];
+}
+function novoTurno(){
+  const c = {};
+  CELULAS_PCO().forEach(x=>{ c[x.k] = {n:"", ct:"", nota:""}; });
+  return { equipa:"", inicio:"", celulas:c, entregas:[] };
+}
+
+/* 3 -> 4 · Passagem de turno e nomeação externa em dois instantes.
+   Acrescentada por push para não depender do conteúdo do literal de MIGRACOES:
+   o índice sai correto seja qual for o número de migrações já existentes.
+   Puramente aditiva — não reinterpreta nem apaga nada do que estava gravado.
+   `g` mantém o significado de GDH da nomeação; `solicitado` nasce vazio, porque
+   uma ocorrência gravada antes desta versão não traz marca que permita saber
+   quando o COS solicitou, e adivinhar seria pior do que deixar em branco. */
+MIGRACOES.push(e => {
+  if(!e.turno || typeof e.turno!=="object") e.turno = novoTurno();
+  if(!Array.isArray(e.turno.entregas)) e.turno.entregas = [];
+  e.turno.celulas = Object.assign(novoTurno().celulas, e.turno.celulas||{});
+  e.pco = e.pco || {funcoes:[]};
+  (e.pco.funcoes||[]).forEach(f=>{ if(typeof f.solicitado!=="string") f.solicitado = ""; });
+  return e;
+});
+
 /* Devolve o estado migrado até à versão desta revisão. Recusa — sem tocar em nada —
    o que tenha sido gravado por uma revisão posterior, porque não o sabe ler. */
 /** @param {any} guardado @returns {Estado} */
@@ -84,7 +117,7 @@ function novoEstado(){
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], res:{m:"",o:""}, za:{m:"",o:""}, livre:false}},
     pco:{funcoes:[], canais:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null}},
-    evolucao:[], csv:"", peas:[], fita:[], versao:VERSAO_ESTADO };
+    evolucao:[], csv:"", peas:[], fita:[], turno:novoTurno(), versao:VERSAO_ESTADO };
 }
 /* O acessor devolve qualquer elemento; a verificação de tipos incide sobre o estado,
    não sobre o DOM. Ver tipos/estacao.d.ts. */

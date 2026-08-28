@@ -223,17 +223,28 @@ function comporSetores(){
   $("s-tot").textContent = e.n? "Totais calculados: "+tm+" meios · "+to+" operacionais"+(aerLista().length? " · "+aerLista().length+" meios aéreos":"")+". Efetivos por unidade conforme o Anexo 1 da DON n.º 2 / DECIR 2026; o campo OP/UNID pode ser corrigido para o efetivo real da força." : "";
 }
 $("s-n").addEventListener("change", ()=>{ estObj().n = +$("s-n").value; renderSetores(); persistir(false); });
+(function(){ const sf=$("pc-f"); if(sf) sf.addEventListener("change", ()=>{ try{ pintarCampoSolicitacao(); }catch(e){} }); })();
 $("pc-add").addEventListener("click", ()=>{
   const f = $("pc-f").value, nome = $("pc-n").value.trim();
   const P = pcoObj();
   const idx = P.funcoes.findIndex(x=>x.f===f && f!=="Oficial de ligação de entidade" && f!=="Outra função");
   const ant = idx>=0? P.funcoes[idx] : null;
   const reg = { f, nome, entidade:$("pc-e").value.trim(), ct:$("pc-c").value.trim(),
-    siresp:(ant&&ant.siresp)||"", ba:(ant&&ant.ba)||"", g:$("pc-g").value.trim()||gdhAgora() };
+    siresp:(ant&&ant.siresp)||"", ba:(ant&&ant.ba)||"",
+    /* Dois instantes distintos nos núcleos de nomeação externa (arts. 23.º n.º 2,
+       24.º n.º 2 e 25.º n.º 2): o COS solicita, a entidade nomeia. `g` fica vazio
+       enquanto o pedido estiver pendente — sem nome não há nomeação. */
+    solicitado: ($("pc-sol")? $("pc-sol").value.trim() : "") || (ant&&ant.solicitado) || "",
+    g: $("pc-g").value.trim() || (nome? gdhAgora() : "") };
   if(idx>=0) P.funcoes[idx] = reg; else P.funcoes.push(reg);
-  ["pc-n","pc-e","pc-c","pc-g"].forEach(id=>$(id).value="");
-  fita("Nomeação: "+f+(nome? " — "+nome:"")+" ("+reg.g+")");
-  O.evolucao.push({g:reg.g, tipo:"posit", txt:"Nomeação de "+f+(nome? ": "+nome:"")+(reg.ct? " ("+reg.ct+")":"")+"."});
+  ["pc-n","pc-e","pc-c","pc-g","pc-sol"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
+  fita(reg.g
+    ? "Nomeação: "+f+(nome? " — "+nome:"")+" ("+reg.g+")"
+    : "Solicitação de nomeação: "+f+" a "+(reg.entidade||pcoDef(f).ext||"entidade competente")+" ("+(reg.solicitado||gdhAgora())+") — por nomear");
+  O.evolucao.push({g: reg.g || reg.solicitado || gdhAgora(), tipo:"posit",
+    txt: reg.g
+      ? "Nomeação de "+f+(nome? ": "+nome:"")+(reg.ct? " ("+reg.ct+")":"")+"."
+      : "Solicitação de nomeação de "+f+" a "+(pcoDef(f).ext||"entidade competente")+", por nomear."});
   renderPCO(); renderComs(); pintarDON(); persistir(false);
 });
 $("aer-add").addEventListener("click", ()=>{

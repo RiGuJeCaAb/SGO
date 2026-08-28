@@ -113,11 +113,21 @@ function pcoOptions(){
       '<option value="'+esc(x.f)+'" title="'+esc(x.r)+'" style="color:'+PRIO_ROT[p].c+'">'+esc(x.f)+'</option>').join("")+'</optgroup>';
   }).join("") || '<option value="">— todas as funções já nomeadas —</option>';
 }
+/* O campo da solicitação só faz sentido nos núcleos que uma entidade externa nomeia
+   a pedido do COS — arts. 23.º, n.º 2, 24.º, n.º 2 e 25.º, n.º 2. */
+function pintarCampoSolicitacao(){
+  const sel = $("pc-f"), box = $("pc-sol-box"); if(!sel || !box) return;
+  const d = pcoDef(sel.value);
+  box.style.display = d.ext ? "" : "none";
+  const lab = box.querySelector("label");
+  if(lab && d.ext) lab.textContent = "GDH da solicitação a " + d.ext;
+}
 function renderPCO(){
   const sel = $("pc-f"); if(!sel) return;
   const escolhida = sel.value;
   sel.innerHTML = pcoOptions();
   if(escolhida && [...sel.options].some(o=>o.value===escolhida)) sel.value = escolhida;
+  try{ pintarCampoSolicitacao(); }catch(e){}
   const P = pcoObj(), exig = funcoesExigiveis();
   const emFalta = exig.filter(x=>!x.preenchida);
   const tag = $("pco-tag");

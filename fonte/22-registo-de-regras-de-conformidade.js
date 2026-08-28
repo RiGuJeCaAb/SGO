@@ -5,6 +5,55 @@
    acrescento dentro de uma função, e cada regra exercita-se sozinha. */
 /** @type {RegraDON[]} */
 const REGRAS_DON = [
+  /* Rotatividade de funções da EPCO — DON n.º 2 / DECIR 2026, pontos 7.d.(29) e 7.d.(30) */
+  { id:"turno", ids:["turno"], t:"Rotatividade de funções da EPCO", fontes:["DON2"],
+    avaliar(x){ const v = []; const { decorrido, dur, instante } = x;
+      const T = turnoObj(), d = parseGDH(T.inicio);
+      const ht = d ? (instante - d.getTime())/3600000 : null;
+      if(ht === null){
+        if(decorrido !== null && decorrido > 180)
+          v.push({n:"av", id:"turno", t:"Turno do PCO por declarar",
+            s:"A ocorrência decorre há "+dur(decorrido)+" e não há GDH de início de turno registado.",
+            f:"De forma a garantir uma efetiva capacidade de comando e controlo, a EPCO deve assegurar continuidade de trabalho pelo período necessário, em espelho, garantindo a rotatividade de funções a cada 12 horas.",
+            a:"Declarar a equipa e o GDH de início do turno no separador de passagem de turno, para que o relógio das 12 horas possa correr.",
+            r:"DON n.º 2 / DECIR 2026, pontos 7.d.(29) e 7.d.(30)"});
+      } else if(ht >= LIMITE_TURNO_H){
+        v.push({n:"ob", id:"turno", t:"Rotatividade de funções vencida",
+          s:"O turno "+(T.equipa||"corrente")+" começou às "+T.inicio+" e dura há "+fmtH(ht)+", acima do limite de "+LIMITE_TURNO_H+" horas.",
+          f:"De forma a garantir uma efetiva capacidade de comando e controlo, a EPCO deve assegurar continuidade de trabalho pelo período necessário, em espelho, garantindo a rotatividade de funções a cada 12 horas.",
+          a:"Registar a passagem de turno com o estado e as pendências declarados por cada célula, e comunicar ao CSREPC a equipa que assume.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.d.(30)"});
+      } else if(ht >= LIMITE_TURNO_H - 2){
+        v.push({n:"av", id:"turno", t:"Rotatividade de funções a vencer em "+fmtH(LIMITE_TURNO_H-ht),
+          s:"O turno "+(T.equipa||"corrente")+" dura há "+fmtH(ht)+".",
+          f:"A rotatividade de funções da EPCO faz-se a cada 12 horas, em espelho.",
+          a:"Preparar a passagem: rever o estado e as pendências de cada célula e articular a equipa que entra.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.d.(30)"});
+      } else {
+        v.push({n:"ok", id:"turno", t:"Rotatividade dentro do período",
+          s:"Turno "+(T.equipa||"corrente")+" há "+fmtH(ht)+"; rotatividade prevista às "+gdhMais(d, LIMITE_TURNO_H*60)+"."
+            + ((T.entregas||[]).length? " Passagens registadas nesta ocorrência: "+T.entregas.length+"." : ""),
+          f:"A EPCO assegura continuidade em espelho, com rotatividade de funções a cada 12 horas.",
+          a:"Manter o estado das células atualizado, para que a passagem seja composta sem trabalho adicional.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.d.(30)"});
+      }
+      return v; } },
+
+  /* Núcleos nomeados por entidade externa a pedido do COS — arts. 23.º, 24.º e 25.º */
+  { id:"nomext", ids:["nomext"], t:"Nomeação externa de núcleos da célula de operações", fontes:["SGO4067"],
+    avaliar(x){ const v = []; const { dur, P, instante } = x;
+      const pend = (P.funcoes||[]).filter(f=>f.solicitado && !f.g);
+      if(!pend.length) return v;
+      v.push({n:"av", id:"nomext", t:"Nomeação externa pendente em "+pend.length+" "+(pend.length===1?"núcleo":"núcleos"),
+        s:pend.map(f=>{
+          const ds = parseGDH(f.solicitado), ms = minutosDesde(ds, instante);
+          return f.f+" — solicitado a "+(f.entidade||pcoDef(f.f).ext||"entidade competente")+" em "+f.solicitado+(ms!==null? " (há "+dur(ms)+")":"");
+        }).join("; ")+".",
+        f:"Os responsáveis pelos núcleos de segurança, de emergência médica e de coordenação do apoio psicológico e social de emergência são nomeados, respetivamente, pela força de segurança territorialmente competente, pelo INEM, I. P., e pelo Instituto da Segurança Social, I. P., por solicitação do COS, e reportam ao oficial de operações.",
+        a:"Reiterar a solicitação junto da entidade nomeadora e registar a nomeação assim que comunicada. Enquanto o núcleo não estiver ativado, as suas competências são exercidas pela célula de operações.",
+        r:"Despacho n.º 4067/2024, arts. 17.º, n.º 1, al. h), 23.º, n.º 2, 24.º, n.º 2 e 25.º, n.º 2"});
+      return v; } },
+
   { id:"ata", ids:["ata"], t:"Prazo de ataque inicial e ampliado", fontes:["DON2"],
     avaliar(x){ const v = []; const { ini, decorrido, dur } = x;
       /* 1. Regra dos 90 minutos: transição de ATI para ATA */

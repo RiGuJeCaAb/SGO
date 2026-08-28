@@ -17,6 +17,12 @@ $("b-evo").onclick=addEvo;
 $("b-analisar").onclick=()=>analisarCSV(true);
 $("m-horas").addEventListener("change", ()=>{ if($("f-csv").value.trim()) analisarCSV(false); });
 $("b-gerar").onclick=emitirPEA;
+(function(){
+  const eq=$("tn-eq"), ini=$("tn-ini"), fx=$("tn-fechar");
+  if(eq) eq.addEventListener("change", ()=>{ turnoObj().equipa = eq.value.trim(); persistir(false); });
+  if(ini) ini.addEventListener("change", ()=>{ turnoObj().inicio = ini.value.trim(); renderTurno(); pintarDON(); persistir(false); });
+  if(fx) fx.addEventListener("click", fecharTurno);
+})();
 try{ pintarModoLLM(); }catch(e){}
 
 /* tema claro/escuro com memória */
@@ -80,3 +86,4 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   if(bG) bG.addEventListener("click", ()=>{ try{ gerarBriefing(); }catch(e){ aviso("msg-occ","err","Não foi possível elaborar o briefing ("+e+")."); } });
   if(bD) bD.addEventListener("click", ()=>{ try{ descarregarBriefing(); }catch(e){ aviso("msg-occ","err","Não foi possível descarregar ("+e+")."); } });
 })();
+

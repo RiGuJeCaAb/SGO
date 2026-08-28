@@ -84,3 +84,44 @@ test('lixo não passa por estado', semAplicacao, () => {
   assert.throws(() => janela.migrarGravado(null));
   assert.throws(() => janela.migrarGravado('texto'));
 });
+
+/* ---- migração 3 para 4: passagem de turno e nomeação externa em dois instantes ---- */
+
+test('a migração 3 para 4 dá turno a quem não o tinha, sem sobrepor o que já lá está',
+  semAplicacao, () => {
+    const migrado = janela.migrarGravado({
+      versao: 3, meta: { num: '2026/900' }, pco: { funcoes: [] },
+    });
+    assert.equal(migrado.versao, VERSAO);
+    assert.equal(typeof migrado.turno, 'object');
+    assert.ok(Array.isArray(migrado.turno.entregas));
+    ['comando', 'operacoes', 'planeamento', 'logistica']
+      .forEach((k) => assert.ok(migrado.turno.celulas[k], 'falta a célula ' + k));
+
+    const comNota = janela.migrarGravado({
+      versao: 3, pco: { funcoes: [] },
+      turno: { equipa: 'turno A', inicio: '281200AGO26', celulas: { comando: { n: 'Cmdt X', ct: '', nota: 'a' } }, entregas: [] },
+    });
+    assert.equal(comNota.turno.equipa, 'turno A');
+    assert.equal(comNota.turno.celulas.comando.n, 'Cmdt X');
+    assert.ok(comNota.turno.celulas.logistica, 'as células em falta preenchem-se');
+  });
+
+test('a migração 3 para 4 dá solicitado às funções gravadas, e nasce vazio', semAplicacao, () => {
+  // Uma ocorrência gravada antes da versão 4 não traz marca que permita saber quando
+  // o COS solicitou a nomeação. Adivinhar seria pior do que deixar em branco.
+  const migrado = janela.migrarGravado({
+    versao: 3,
+    pco: { funcoes: [{ f: 'Núcleo de Segurança', nome: 'Sarg. Silva', g: '251352AGO26' }] },
+  });
+  assert.equal(migrado.pco.funcoes[0].solicitado, '');
+  assert.equal(migrado.pco.funcoes[0].g, '251352AGO26', 'a nomeação não se perde');
+});
+
+test('o estado novo nasce com turno e a função nasce com solicitado', semAplicacao, () => {
+  const e = janela.novoEstado();
+  assert.equal(typeof e.turno, 'object');
+  assert.equal(e.turno.equipa, '');
+  assert.deepEqual(Object.keys(JSON.parse(JSON.stringify(e.turno))).sort(),
+    ['celulas', 'entregas', 'equipa', 'inicio']);
+});

@@ -644,6 +644,18 @@
     .t-of tr{break-inside:avoid;page-break-inside:avoid}
     @page{size:A4;margin:11mm}
   }
+  /* passagem de turno */
+  .tn-l{display:grid;grid-template-columns:190px 1fr;gap:6px 16px;font-size:13.5px;line-height:1.5;margin:2px 0 12px}
+  .tn-l dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tx2);padding-top:3px}
+  .tn-l dd{color:var(--tx);margin:0}
+  .tn-l dd.falta{color:var(--fogo)}
+  .tn-l dd ul{margin:0;padding-left:18px} .tn-l dd li{margin:1px 0}
+  .tn-posse{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  .tn-pt{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tx2);margin-right:2px}
+  .tn-ramo{font-family:var(--mono);font-size:11px;color:var(--tx);background:var(--surf2);border:1px solid var(--line);border-radius:5px;padding:2px 7px;cursor:help}
+  .tn-posse .btn{margin-left:auto}
+  @media(max-width:820px){ .tn-posse .btn{margin-left:0;width:100%} }
+  @media(max-width:820px){ .tn-l{grid-template-columns:1fr;gap:2px 0} .tn-l dt{padding-top:8px} }
 </style>
 </head>
 <body>
@@ -667,6 +679,7 @@
     <button data-p="p-evo">4 · Evolução / POSIT</button>
     <button data-p="p-meteo">5 · Meteograma</button>
     <button data-p="p-pea">6 · PEA</button>
+    <button data-p="p-turno" title="Continuidade em espelho e rotatividade de funções — DON n.º 2, ponto 7.d.(30)">Passagem de turno</button>
     <button data-p="p-fita">Fita do tempo</button>
   </nav>
 </header>
@@ -980,6 +993,7 @@
           <div><label for="pc-e">Entidade</label><input id="pc-e" placeholder="corpo de bombeiros, ANEPC, GNR, ICNF"></div>
           <div><label for="pc-c">Contacto</label><input id="pc-c" placeholder="telemóvel" inputmode="tel"></div>
           <div><label for="pc-g">GDH da nomeação</label><input id="pc-g" placeholder="vazio = agora"></div>
+          <div id="pc-sol-box" style="display:none"><label for="pc-sol">GDH da solicitação à entidade</label><input id="pc-sol" placeholder="quando o COS pediu"></div>
         </div>
         <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pc-add">Registar nomeação</button></div>
         <p class="hint"><span style="color:var(--fogo);font-weight:600">Essencial</span> · <span style="color:var(--terra);font-weight:600">recomendada</span> · <span style="color:var(--madeira);font-weight:600">de menor importância</span> — a ordem da lista acompanha a fase do SGO e o dispositivo registado, e as funções já nomeadas deixam de aparecer.</p>
@@ -1249,6 +1263,48 @@
     </div>
   </section>
 
+  <section class="pane" id="p-turno">
+    <div class="help"><span class="ht">Passagem de turno — continuidade em espelho</span>
+      <p class="hd">A EPCO deve assegurar continuidade de trabalho pelo período necessário, em espelho, garantindo a rotatividade de funções a cada 12 horas — DON n.º 2 / DECIR 2026, ponto 7.d.(30).</p>
+      <ul>
+        <li><b>Não se entrega a aplicação, entrega-se uma célula.</b> Cada célula declara o seu estado e as suas pendências, e quem entra assume-as por escrito.</li>
+        <li><b>As pendências compõem-se sozinhas</b> a partir do que a aplicação já sabe — funções por nomear, PEA em vigor e sua validade, missões por cumprir, rendições vencidas, canais por atribuir. Quem sai corrige e acrescenta o que a aplicação não pode saber.</li>
+        <li><b>A passagem fica na fita do tempo</b> e no processo da ocorrência. É prova documental de que a continuidade de comando não se quebrou.</li>
+      </ul></div>
+
+    <div class="card">
+      <h2>Turno corrente <span class="tag" id="turno-tag">DON n.º 2, pontos 7.d.(29) e 7.d.(30)</span></h2>
+      <div class="grid g3">
+        <div><label for="tn-eq">Designação da equipa</label><input id="tn-eq" placeholder="ex.: EPCO Douro — turno A"></div>
+        <div><label for="tn-ini">GDH de início do turno</label><input id="tn-ini" placeholder="vazio = agora"></div>
+        <div><label>Decorrido</label><div class="occ-tag" id="tn-dec" style="min-height:40px;display:flex;align-items:center">—</div></div>
+      </div>
+      <div id="tn-celulas" style="margin-top:14px"></div>
+      <p class="hint">O limite de 12 horas é o da rotatividade de funções da EPCO. Ultrapassado, nasce um aviso na secção respetiva.</p>
+    </div>
+
+    <div class="card">
+      <h2>Estado e pendências por célula <span class="tag">composição automática — corrigir e acrescentar</span></h2>
+      <div class="msg" id="tn-orfaos" style="display:none"></div>
+      <div id="tn-quadro"></div>
+    </div>
+
+    <div class="card">
+      <h2>Fechar a passagem <span class="tag">a equipa que entra assume as pendências declaradas</span></h2>
+      <div class="grid g3">
+        <div><label for="tn-eq2">Equipa que entra</label><input id="tn-eq2" placeholder="ex.: EPCO Douro — turno B"></div>
+        <div><label for="tn-g">GDH da passagem</label><input id="tn-g" placeholder="vazio = agora"></div>
+        <div><label>&nbsp;</label><button class="btn btn-o" type="button" id="tn-fechar" style="width:100%">Registar passagem de turno</button></div>
+      </div>
+      <div class="msg" id="msg-turno"></div>
+    </div>
+
+    <div class="card">
+      <h2>Passagens registadas <span class="tag" id="tn-hist-tag">0 registadas</span></h2>
+      <div id="tn-hist"></div>
+    </div>
+  </section>
+
   <section class="pane" id="p-fita">
     <div class="card">
       <h2>Fita do tempo <span class="tag">registo temporal explícito e completo — art. 2.º, al. c); atualização permanente — art. 17.º, n.º 1, al. g)</span></h2>
@@ -1263,7 +1319,6 @@
 </div>
 
 <script>
-@MODULOS@
-</script>
+@MODULOS@</script>
 </body>
 </html>
