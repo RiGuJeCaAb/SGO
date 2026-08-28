@@ -26,19 +26,18 @@ if (!janela) {
 
 let saida = 0;
 try {
-  const pacote = janela.lerPacoteGestaoPCO(await readFile(alvo, 'utf8'));
+  const pacote = janela.lerContratoGestaoPCO(await readFile(alvo, 'utf8'));
   const c = janela.converterGestaoPCO(pacote);
+  const r = c.resumo;
 
   console.log(`${alvo}`);
-  console.log(`  esquema v${c.resumo.versao}${c.resumo.gerado ? `, instantâneo de ${c.resumo.gerado}` : ''}`);
+  console.log(`  ${r.esquema} v${r.versao}${r.emitido ? `, emitido ${r.emitido}` : ''}`);
+  if (r.app) console.log(`  origem ${r.app}${r.rev ? ` ${r.rev}` : ''}${r.operador ? ` · ${r.operador}` : ''}${r.posto ? ` · ${r.posto}` : ''}`);
   console.log(`  ocorrência ${c.meta.num ?? '—'} · ${c.meta.local ?? '—'}`);
-  console.log(`  ${c.resumo.setores} setores · ${c.resumo.meios} tipologias · ${c.resumo.aereos} meios aéreos`);
-  console.log(`  reserva ${c.est.res.m || 0}/${c.est.res.o || 0} · ZA ${c.est.za.m || 0}/${c.est.za.o || 0}`);
-
-  const comRelogio = c.est.setores.flatMap((s) => s.tip).filter((m) => m.ts).length;
-  const total = c.resumo.meios;
-  console.log(`  ${comRelogio} de ${total} tipologias com hora de empenhamento` +
-    (comRelogio < total ? ' — sem ela não há projeção de rendições' : ''));
+  console.log(`  ${r.setores} setores · ${r.forcas} forças · ${r.aereos} meios aéreos · ${r.funcoes} funções do PCO`);
+  console.log(`  reserva ${c.est.res.m || 0}/${c.est.res.o || 0} · zona de apoio ${c.est.za.m || 0}/${c.est.za.o || 0}`);
+  console.log(`  ${r.forcas - r.semRelogio} de ${r.forcas} forças com instante de empenhamento` +
+    (r.semRelogio ? ' — sem ele não há controlo de tempos nem rendição' : ''));
 
   if (c.avisos.length) {
     console.log(`\n  ${c.avisos.length} ponto(s) a confirmar:`);

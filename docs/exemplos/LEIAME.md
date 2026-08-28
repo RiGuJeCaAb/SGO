@@ -3,13 +3,19 @@
 Ficheiros de referência para quem desenvolve a **Gestão PCO**, e para verificar uma
 exportação real antes de a levar ao terreno.
 
-| Ficheiro | Para que serve |
-|---|---|
-| `GestaoPCO_v1.1_exemplo.json` | O exemplo da especificação, no esquema em vigor. A Estação lê-o sem um único ponto a confirmar |
-| `GestaoPCO_v1.0_exemplo.json` | Esquema anterior, com estados e siglas descontinuados, meios aéreos em contagem e um campo desconhecido. Serve para exercitar todas as conversões |
+**Governa a especificação v1.1**,
+`docs/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md`. É a que a Gestão PCO
+deve implementar.
 
-A especificação é
-`docs/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md`.
+| Ficheiro | Esquema | Para que serve |
+|---|---|---|
+| `EspecificacaoJSON_v1.1_exemplo.json` | v1.1, **em vigor** | O exemplo da especificação. A Estação lê-o sem um único ponto a confirmar |
+| `pco-dispositivo_v1_exemplo.json` | contrato `pco:dispositivo` | Envelope do documento `d0002`, arquivado. Traz o bloco do posto de comando, que a v1.1 ainda não tem |
+| `pco-dispositivo_v0_esboco.json` | esboço anterior | Setores em texto livre e meios aéreos em contagem. Serve para não perder dados antigos; não serve para operar |
+
+O importador lê os três e normaliza-os numa forma só. Há ainda uma proposta de v1.2 em
+`docs/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`, que junta
+à v1.1 o que sobra do contrato.
 
 ## Verificar uma exportação
 

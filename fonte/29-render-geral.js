@@ -85,12 +85,12 @@ window.verPEA = function(n){
             ${p.serie.map(sr=>`<tr><td>${esc(sr.d.slice(0,5))} ${hh(sr.h)}</td><td>${sr.t}</td><td>${sr.rh}</td><td>${card(sr.wd)}</td><td>${sr.ws}</td><td>${sr.pr||0}</td></tr>`).join("")}</table>
           </details>
         </div>
-        <div class="pd pd-ops"><span class="pt">Célula de Operações · <b>Organização do TO</b></span>${setoresDash}</div>
-        <div class="pd pd-ops"><span class="pt">Célula de Operações · <b>Segurança das forças</b></span>
-          <div class="pd-body"><div class="pd-in">${(ops.seguranca||[]).map(x=>`<p>${esc(x)}</p>`).join("")}</div></div>
+        ${setoresDash? `<div class="pd pd-ops"><span class="pt">Célula de Operações · <b>Organização do TO</b></span>${setoresDash}</div>`:""}
+        <div class="pd pd-plan"><span class="pt">Célula de Planeamento · <b>Segurança das forças</b></span>
+          <div class="pd-body"><div class="pd-in">${(plan.seguranca||[]).map(x=>`<p>${esc(x)}</p>`).join("")}</div></div>
         </div>
-        <div class="pd pd-ops"><span class="pt">Célula de Operações · <b>Proposta de planeamento</b></span>
-          ${(ops.propostas||[]).map(x=>`<div class="pd-p"><span class="pid">${esc(x.id)}</span>${esc(x.texto)}<span class="fund">Fundamento: ${esc(x.fundamento||"")}</span></div>`).join("")}
+        <div class="pd pd-plan"><span class="pt">Célula de Planeamento · <b>Prioridades táticas</b></span>
+          ${(plan.propostas||[]).map(x=>`<div class="pd-p"><span class="pid">${esc(x.id)}</span>${esc(x.texto)}<span class="fund">Fundamento: ${esc(x.fundamento||"")}</span></div>`).join("")}
         </div>
         ${(p.don&&p.don.filter(x=>x.n!=="ok").length)? `<div class="pd pd-ops"><span class="pt">Verificações de conformidade · <b>DON n.º 2 / DECIR 2026</b></span>
           <div class="pd-body">${p.don.filter(x=>x.n!=="ok").map(x=>`<div class="pd-don ${x.n}">
@@ -163,6 +163,13 @@ window.verPEA = function(n){
             <p>${esc(plan.previsao||"")}</p>
             <table class="t-of"><tr><th>GDH</th><th>T °C</th><th>HR %</th><th>Vento</th><th>km/h</th><th>mm</th></tr>${linhas}</table>
           </div></div>
+          <div class="cel-row"><div class="cel-lab">Objetivo</div><div class="cel-con"><div class="obj2"><span class="al">Objetivo:</span> ${esc(plan.objetivo||"")}</div></div></div>
+          <div class="cel-row"><div class="cel-lab">Prioridades táticas</div><div class="cel-con">
+            ${(plan.propostas||[]).map(x=>`<p><span class="pid2">${esc(x.id)}</span> — ${esc(x.texto)} <span class="fund2">Fundamento: ${esc(x.fundamento||"")}</span></p>`).join("")}
+          </div></div>
+          <div class="cel-row"><div class="cel-lab">Segurança das forças</div><div class="cel-con">
+            ${(plan.seguranca||[]).map(x=>`<p>• ${esc(x)}</p>`).join("")}
+          </div></div>
         </div>
       </div>
 
@@ -170,20 +177,14 @@ window.verPEA = function(n){
         <div class="cel-v az">${letrasV("CÉLULA DE OPERAÇÕES")}</div>
         <div class="cel-body">
           <div class="cel-row"><div class="cel-lab">Organização do TO</div><div class="cel-con">${setoresHTML}</div></div>
-          <div class="cel-row"><div class="cel-lab">Proposta de planeamento</div><div class="cel-con">
-            ${(ops.propostas||[]).map(x=>`<p><span class="pid2">${esc(x.id)}</span> — ${esc(x.texto)} <span class="fund2">Fundamento: ${esc(x.fundamento||"")}</span></p>`).join("")}
-          </div></div>
-          <div class="cel-row"><div class="cel-lab">Objetivo</div><div class="cel-con"><div class="obj2"><span class="al">Objetivo:</span> ${esc(ops.objetivo||"")}</div></div></div>
-          <div class="cel-row"><div class="cel-lab">Segurança das forças</div><div class="cel-con">
-            ${(ops.seguranca||[]).map(x=>`<p>• ${esc(x)}</p>`).join("")}
+          <div class="cel-row"><div class="cel-lab">Ordens de missão</div><div class="cel-con">
+            <table class="t-of"><tr><th style="width:14%"></th><th>Missão</th><th style="width:22%">Atribuída a</th><th style="width:14%">Até (GDH)</th></tr>${missoesHTML}</table>
           </div></div>
         </div>
       </div>
 
       ${(p.don&&p.don.filter(x=>x.n==="ob").length)? `<table class="t-of"><tr><th class="lr" style="width:26%">Verificações da DON n.º 2 / DECIR 2026</th><th class="lr">Determinação</th></tr>
         ${p.don.filter(x=>x.n==="ob").map(x=>`<tr><td><b>${esc(x.t)}</b><br><span style="font-size:9px">${esc(x.r)}</span></td><td>${esc(x.s||"")}<br><b>Determinação:</b> ${esc(x.a||"")}</td></tr>`).join("")}</table>`:""}
-
-      <table class="t-of"><tr><th style="width:14%"></th><th>Missão</th><th style="width:22%">Atribuída a</th><th style="width:14%">Até (GDH)</th></tr>${missoesHTML}</table>
 
       <div class="cel">
         <div class="cel-v lr">${letrasV("LOGÍSTICA E FINANÇAS")}</div>

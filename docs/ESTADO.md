@@ -4,7 +4,14 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0027** está em `app/`, com a importação da Gestão PCO.
+A revisão **r0028** está em `app/`. Funde o r0024 do Ricardo — etiquetas de célula na
+impressão do PEA — com a importação da Gestão PCO.
+
+**Qual documento governa a ligação à Gestão PCO:** a especificação v1.1, de 27 de agosto.
+O contrato `pco:dispositivo` (`d0002`) foi escrito a analisar um esboço anterior e não a
+v1.1, e o seu autor corrigiu-se; fica arquivado, e o que dele sobra está proposto para uma
+v1.2 em `docs/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`.
+O importador lê os três envelopes — v1.1, contrato e esboço — e normaliza-os numa forma só.
 
 A verificação passa por inteiro: cento e quinze testes, análise estática limpa, tipos sem
 diagnóstico novo, e auditoria visual sem transbordo nem exceções.
@@ -313,3 +320,5 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0025 | 2026-08-28 14:04 | Fusão das duas linhagens, montada a partir de `fonte/` |
 | r0026 | 2026-08-28 14:14 | Comportamento do fogo: composição vetorial de declive e vento segundo Viegas (2004); estado na versão 3 |
 | r0027 | 2026-08-28 14:51 | Importação da Gestão PCO, esquema v1.1, com exemplos de referência e validador |
+| r0024 | 2026-08-28 16:00 | Linhagem paralela, do Ricardo: etiquetas de célula na impressão do PEA |
+| r0028 | 2026-08-28 15:05 | Fusão do r0024; importador a ler os três envelopes, com a v1.1 a governar |
