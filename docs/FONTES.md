@@ -60,7 +60,7 @@ da especificação.
 **Viegas, D. X. (2004), "Slope and wind effects on fire propagation",
 *International Journal of Wildland Fire* 13, 143-156.** Centro de Estudos sobre Incêndios
 Florestais, ADAI, Universidade de Coimbra. O documento está em
-`docs/Slope_&_Wind_Effects_on_Fire_Propagation_(Viegas_Domingos_2004).pdf`.
+`docs/fontes/Slope_&_Wind_Effects_on_Fire_Propagation_(Viegas_Domingos_2004).pdf`.
 
 Implementado na r0026, em `fonte/16-comportamento-do-fogo.js`.
 

@@ -1,9 +1,9 @@
 /* ================= importação da Gestão PCO ================= */
 /* Dois documentos descrevem esta ligação, e é preciso saber qual manda.
    **Governa a especificação v1.1**, de 27 de agosto, em
-   docs/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md: é a que a Gestão
+   docs/interop/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md: é a que a Gestão
    PCO deve implementar. O contrato `pco:dispositivo`, em
-   docs/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md, foi escrito a analisar
+   docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md, foi escrito a analisar
    um esboço anterior e não a v1.1, e o seu autor corrigiu-se; do que lá está sobram
    três acréscimos genuínos, propostos para uma v1.2 em docs/.
 

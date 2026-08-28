@@ -4,7 +4,7 @@ Ficheiros de referência para quem desenvolve a **Gestão PCO**, e para verifica
 exportação real antes de a levar ao terreno.
 
 **Governa a especificação v1.1**,
-`docs/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md`. É a que a Gestão PCO
+`docs/interop/CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md`. É a que a Gestão PCO
 deve implementar.
 
 | Ficheiro | Esquema | Para que serve |
@@ -14,7 +14,7 @@ deve implementar.
 | `pco-dispositivo_v0_esboco.json` | esboço anterior | Setores em texto livre e meios aéreos em contagem. Serve para não perder dados antigos; não serve para operar |
 
 O importador lê os três e normaliza-os numa forma só. Há ainda uma proposta de v1.2 em
-`docs/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`, que junta
+`docs/interop/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`, que junta
 à v1.1 o que sobra do contrato.
 
 ## Verificar uma exportação
@@ -30,7 +30,7 @@ precisa de decisão humana. Sai com erro se o pacote for recusado.
 Exemplo, sobre o ficheiro da v1.0:
 
 ```
-docs/exemplos/GestaoPCO_v1.0_exemplo.json
+docs/interop/exemplos/pco-dispositivo_v0_esboco.json
   esquema v1.0, instantâneo de 271010AGO26
   ocorrência 202608251000 · Paraduça - Leomil - Moimenta da Beira
   2 setores · 2 tipologias · 3 meios aéreos

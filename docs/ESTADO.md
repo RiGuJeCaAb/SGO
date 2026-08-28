@@ -10,7 +10,7 @@ impressão do PEA — com a importação da Gestão PCO.
 **Qual documento governa a ligação à Gestão PCO:** a especificação v1.1, de 27 de agosto.
 O contrato `pco:dispositivo` (`d0002`) foi escrito a analisar um esboço anterior e não a
 v1.1, e o seu autor corrigiu-se; fica arquivado, e o que dele sobra está proposto para uma
-v1.2 em `docs/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`.
+v1.2 em `docs/interop/CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md`.
 O importador lê os três envelopes — v1.1, contrato e esboço — e normaliza-os numa forma só.
 
 A verificação passa por inteiro: cento e quinze testes, análise estática limpa, tipos sem
@@ -24,7 +24,8 @@ A verificação passa por inteiro: sintaxe correta, análise estática sem probl
 sete testes a passar, tipos sem diagnóstico novo, e auditoria visual sem transbordo nem
 exceções a 380, 480, 768 e 1440 px nos dois temas.
 
-**As seis correções estruturais da proposta de evolução estão feitas.**
+**As seis correções estruturais da proposta de evolução estão feitas**, e as camadas 1 e 2
+também. A documentação está arrumada por natureza — ver `docs/README.md`.
 
 O histórico de revisões está reunido em `app/`: vinte e sete ficheiros, das versões
 anteriores à convenção de nomes até à r0022. Falta a série `r0007` a `r0013` e a `r0004`,
@@ -68,13 +69,13 @@ Divergências face ao catálogo não bloqueiam: prevalece o valor exportado.
 
 Para que a exportação real possa ser verificada no dia em que existir:
 
-- `docs/exemplos/GestaoPCO_v1.1_exemplo.json` — o exemplo da especificação; entra sem um
+- `docs/interop/exemplos/EspecificacaoJSON_v1.1_exemplo.json` — o exemplo da especificação; entra sem um
   único ponto a confirmar.
-- `docs/exemplos/GestaoPCO_v1.0_exemplo.json` — exercita todas as conversões; produz nove
+- `docs/interop/exemplos/pco-dispositivo_v0_esboco.json` — exercita todas as conversões; produz nove
   pontos a confirmar.
 - `npm run validar-gp -- <ficheiro>` — corre o mesmo leitor e conversor da Estação sobre
   um ficheiro e diz o que ela fará com ele, sem escrever nada.
-- `docs/exemplos/LEIAME.md` — para quem desenvolve a Gestão PCO, com o que mais importa
+- `docs/interop/exemplos/LEIAME.md` — para quem desenvolve a Gestão PCO, com o que mais importa
   acertar, por ordem de valor operacional.
 
 ### O diferencial, e porque é que contagens não chegam

@@ -38,15 +38,16 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 |---|---|
 | `fonte/` | A fonte: `molde.html` e um módulo por subsistema. **É aqui que se altera** |
 | `app/` | As entregas, um ficheiro HTML por revisão. **Geradas: não editar à mão** |
-| `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
-| `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
-| `docs/FONTES.md` | Uma entrada por documento doutrinário citado. Regra nova declara aqui a fonte |
-| `docs/exemplos/` | Exportações de referência da Gestão PCO e como as validar |
-| `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
-| `docs/CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
-| `ferramentas/` | Extração do script, verificação de sintaxe, análise estática, tipos e auditoria visual |
+| `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, auditoria visual e validação de exportações |
+| `ferramentas/historico/` | Guiões que produziram revisões antigas. Arquivados: não usar nem atualizar |
 | `tipos/` | Formas do estado em `.d.ts` e linha de base do verificador. Não vai para o navegador |
 | `tests/` | Testes, mantidos entre sessões. Ver `tests/README.md` |
+| `docs/` | Documentos do projeto e estado vivo. Ver `docs/README.md` |
+| `docs/interop/` | A ligação à Gestão PCO: esquemas, contrato e exemplos de referência |
+| `docs/fontes/` | Documentos doutrinários externos, citados em `docs/FONTES.md` |
+
+Os dois que se leem primeiro, em qualquer sessão: `docs/ESTADO.md`, para saber onde se está,
+e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificação completa.
 
 ## Método de trabalho
 

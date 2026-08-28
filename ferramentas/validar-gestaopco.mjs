@@ -7,7 +7,7 @@
 // Serve para verificar uma exportação real assim que ela existir, e para quem
 // desenvolve a Gestão PCO poder acertar o formato sem instalar a Estação.
 //
-//   npm run validar-gp -- docs/exemplos/GestaoPCO_v1.1_exemplo.json
+//   npm run validar-gp -- docs/interop/exemplos/EspecificacaoJSON_v1.1_exemplo.json
 
 import { readFile } from 'node:fs/promises';
 import { abrirAplicacao } from '../tests/app.mjs';

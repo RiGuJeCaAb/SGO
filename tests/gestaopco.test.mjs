@@ -1,5 +1,5 @@
 // Importação da Gestão PCO — contrato `pco:dispositivo` versão 1.
-// docs/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md
+// docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md
 
 import test, { after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +10,7 @@ const janela = await abrirAplicacao();
 const semAplicacao = { skip: janela ? false : 'sem revisão em app/' };
 after(() => janela?.close());
 
-const ler = (n) => readFile(new URL(`../docs/exemplos/${n}`, import.meta.url), 'utf8');
+const ler = (n) => readFile(new URL(`../docs/interop/exemplos/${n}`, import.meta.url), 'utf8');
 const V1 = await ler('pco-dispositivo_v1_exemplo.json');
 const V0 = await ler('pco-dispositivo_v0_esboco.json');
 const estado = () => avaliar(janela, 'O');
