@@ -54,8 +54,8 @@ test('a migração preenche o que faltava, sem inventar', semAplicacao, () => {
   assert.equal(m.meta.nivel, '');
   // Comparação campo a campo: os objetos vêm do realm do jsdom e não passam
   // numa igualdade profunda estrita, que também compara protótipos.
-  assert.equal(m.dados.est.res.m, '');
-  assert.equal(m.dados.est.res.o, '');
+  assert.equal(m.logistica.reserva.m, '');
+  assert.equal(m.logistica.reserva.o, '');
   assert.equal(m.dados.topo.orient, '');
   assert.equal(m.dados.topo.declive, '');
   assert.equal(m.dados.topo.obs, '');

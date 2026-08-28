@@ -102,15 +102,32 @@ interface Canais {
   niveis: { comando: boolean; tatico: boolean; manobra: boolean; aereo: boolean; ba: boolean; tocado: boolean } | null;
 }
 
+/**
+ * O dispositivo no teatro de operações — matéria de Operações, arts. 17.º e 19.º.
+ *
+ * Até à versão 5 do estado guardava aqui dentro a reserva e a zona de apoio, que são
+ * áreas da zona de concentração e reserva e portanto de Logística. Enquanto
+ * partilhavam objeto com os setores, uma escrita em bloco atravessava a fronteira sem
+ * se ver. Estão agora em `Logistica`.
+ */
 interface Dispositivo {
-  n: number; setores: Setor[]; aer: string; aerL: any[];
-  res: { m: string; o: string }; za: { m: string; o: string }; livre: boolean;
+  n: number; setores: Setor[]; aer: string; aerL: any[]; livre: boolean;
+}
+
+/** Um contador de meios e operacionais. */
+interface Contagem { m: string; o: string; }
+
+/** Matéria da célula de logística e finanças — art. 32.º, n.º 1, al. b), e art. 33.º. */
+interface Logistica {
+  reserva: Contagem;
+  zonaApoio: Contagem;
+  /** DL n.º 90-A/2022, art. 13.º, al. c); DON n.º 2, pontos 7.d.(5), (7) e (8). */
+  pontoTransito: { des: string; resp: string; ct: string; cd: string; obs: string };
 }
 
 interface DadosOcorrencia {
   area: string; perimNome: string; setores: string; sensiveis: string;
   anexos: string[];
-  pt: { des: string; resp: string; ct: string; cd: string; obs: string };
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */
   topo: { orient: string; declive: string; obs: string; eps: string };
@@ -128,6 +145,7 @@ interface Estado {
   csv: string;
   peas: any[];
   fita: { g: string; e: string }[];
+  logistica: Logistica;
   turno: Turno;
   versao: number;
   [outro: string]: any;

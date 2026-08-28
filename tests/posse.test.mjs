@@ -76,13 +76,26 @@ test('a repartição põe cada matéria na célula a quem a lei a atribui', semA
   });
 });
 
-test('dados.est reparte-se por duas células, e o prefixo mais longo vence', semAplicacao, () => {
-  // O achado do mapa: os setores são de Operações (art. 17.º) e a reserva e a zona
-  // de apoio são áreas da ZCR, logo de Logística (art. 32.º, n.º 1, al. b)).
+test('a conflação de dados.est está resolvida no próprio estado', semAplicacao, () => {
+  // O achado que o mapa expôs, e que a versão 5 do estado corrigiu: `dados.est`
+  // reclamava ser o dispositivo e guardava lá dentro a reserva e a zona de apoio,
+  // que são áreas da ZCR e portanto matéria de Logística — art. 32.º, n.º 1, al. b).
+  // Enquanto partilhavam objeto com os setores, uma escrita em bloco atravessava a
+  // fronteira sem se ver.
   assert.equal(janela.donoDoRamo('dados.est.setores').celula, 'operacoes');
-  assert.equal(janela.donoDoRamo('dados.est.res').celula, 'logistica');
-  assert.equal(janela.donoDoRamo('dados.est.za').celula, 'logistica');
-  assert.equal(janela.donoDoRamo('dados.est.res.m').celula, 'logistica', 'o sub-ramo não herda do irmão');
+  assert.equal(janela.donoDoRamo('logistica.reserva').celula, 'logistica');
+  assert.equal(janela.donoDoRamo('logistica.zonaApoio').celula, 'logistica');
+  assert.equal(janela.donoDoRamo('logistica.pontoTransito').celula, 'logistica');
+
+  const est = Object.keys(JSON.parse(JSON.stringify(janela.novoEstado().dados.est)));
+  assert.ok(!est.includes('res') && !est.includes('za'),
+    'a reserva e a zona de apoio ainda estão dentro do dispositivo: ' + est.join(', '));
+});
+
+test('o prefixo mais longo vence, e um sub-ramo não herda do irmão', semAplicacao, () => {
+  assert.equal(janela.donoDoRamo('logistica.reserva.m').celula, 'logistica');
+  assert.equal(janela.donoDoRamo('dados.est.setores').celula, 'operacoes');
+  assert.equal(janela.donoDoRamo('dados.area').celula, 'planeamento');
 });
 
 /* ---- exportação por célula ---- */
@@ -91,13 +104,13 @@ test('o instantâneo traz só o que a célula possui', semAplicacao, () => {
   const O = estado();
   O.csv = 'linha'; O.fita.push({ g: '281200AGO26', e: 'x' });
   O.pco.canais.cmd = 'PC COM 1';
-  O.dados.est.res = { m: '3', o: '12' };
+  O.logistica.reserva = { m: '3', o: '12' };
 
   const chaves = (k) => Object.keys(janela.instantaneoCelula(k));
   const pl = chaves('planeamento'), op = chaves('operacoes'), lg = chaves('logistica');
   assert.ok(pl.includes('csv') && !pl.includes('fita'), pl.join(', '));
-  assert.ok(op.includes('fita') && !op.includes('dados.est.res'), op.join(', '));
-  assert.ok(lg.includes('pco.canais') && lg.includes('dados.est.res'), lg.join(', '));
+  assert.ok(op.includes('fita') && !op.includes('logistica.reserva'), op.join(', '));
+  assert.ok(lg.includes('pco.canais') && lg.includes('logistica.reserva'), lg.join(', '));
 });
 
 test('o pacote da célula declara a base legal e a matéria de cada ramo', semAplicacao, () => {

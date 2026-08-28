@@ -17,11 +17,35 @@ const FONTE = 'fonte';
 const MOLDE = 'fonte/molde.html';
 const MARCA = '@MODULOS@';
 
-/** Lê os módulos por ordem alfabética, que é a ordem de montagem. */
+/**
+ * Lê os módulos por ordem alfabética, que é a ordem de montagem.
+ *
+ * A fonte está repartida por célula do posto de comando: uma pasta por zona, com
+ * prefixo numérico, e dentro de cada uma um módulo por subsistema, também numerado.
+ * A ordem é a das pastas e depois a dos ficheiros, e é essa a ordem por que o código
+ * corre — o núcleo primeiro, o arranque no fim.
+ *
+ * Um `.js` solto na raiz de `fonte/` é recusado: ficaria sem zona e sem lugar
+ * determinado na montagem, e a ordem deixaria de se ler na árvore.
+ */
 export async function lerModulos(pasta = FONTE) {
-  const nomes = (await readdir(pasta)).filter((n) => n.endsWith('.js')).sort();
-  const partes = [];
-  for (const nome of nomes) partes.push(await readFile(join(pasta, nome), 'utf8'));
+  const entradas = await readdir(pasta, { withFileTypes: true });
+
+  const soltos = entradas.filter((e) => e.isFile() && e.name.endsWith('.js')).map((e) => e.name);
+  if (soltos.length) {
+    throw new Error(`módulo sem zona na raiz de ${pasta}: ${soltos.join(', ')}`
+      + ' — cada módulo vive na pasta da célula a que pertence');
+  }
+
+  const zonas = entradas.filter((e) => e.isDirectory()).map((e) => e.name).sort();
+  const nomes = [], partes = [];
+  for (const zona of zonas) {
+    const ficheiros = (await readdir(join(pasta, zona))).filter((n) => n.endsWith('.js')).sort();
+    for (const nome of ficheiros) {
+      nomes.push(`${zona}/${nome}`);
+      partes.push(await readFile(join(pasta, zona, nome), 'utf8'));
+    }
+  }
   return { nomes, texto: partes.join('') };
 }
 

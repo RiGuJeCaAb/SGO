@@ -4,20 +4,19 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0034**, montada a partir de `fonte/`. É a terceira fusão das
-duas linhagens que correm em paralelo: de um lado as camadas de estabilidade, o importador
-da Gestão PCO e o briefing de passagem; do outro a repartição do PEA pelas células, a
-passagem de turno e a posse do estado por célula.
+A revisão em vigor é a **r0039**, montada a partir de `fonte/`. **As duas linhagens
+convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
+história só.
 
 | | |
 |---|---|
-| Entregas em `app/` | 38, das anteriores à convenção de nomes até à r0034 |
-| Módulos em `fonte/` | 34, mais o molde |
-| Testes | 191, todos a passar |
+| Entregas em `app/` | 43, das anteriores à convenção de nomes até à r0039 |
+| Módulos em `fonte/` | 49, em sete zonas, mais o molde |
+| Testes | 218, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 4 |
+| Versão do estado gravado | 5 |
 | Regras de conformidade | 14, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -64,6 +63,103 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A fonte repartida por célula, e a r0038 recolhida, na r0039
+
+A linhagem paralela entregou quatro revisões sobre a r0034 — `p0006` a logística com ramo
+próprio e o estado na versão 5, `p0007` a interface organizada por célula, `p0008` o
+JavaScript reagrupado por célula, `p0009` a cor por célula nos separadores. **Não houve
+fusão a fazer:** a r0035 foi construída sobre a r0034 desta linhagem, e provou-se —
+aplicar `p0006` a `p0009` sobre a r0034 reproduz a r0038 tal como foi entregue, só a
+diferir no carimbo. A entrega não traz nada que os patches não digam.
+
+O que houve foi uma **recolha**: repartir a r0038 de volta por `fonte/`.
+
+### A fonte passa a ter uma pasta por célula
+
+O `p0008` reagrupou as secções do `<script>` por célula sem mover uma única função, e os
+cabeçalhos de secção são as fronteiras dos módulos. `fonte/` passou de 34 módulos planos a
+**49 módulos em sete zonas** — `1-nucleo/`, `2-comando/`, `3-planeamento/`, `4-operacoes/`,
+`5-logistica/`, `6-turno/`, `7-arranque/`. A ordem das pastas e depois a dos ficheiros é a
+ordem de montagem, e é a ordem por que o código corre: o núcleo primeiro, porque é o que o
+arranque precisa de ter avaliado; o arranque no fim, porque corre sobre tudo o resto.
+
+`lerModulos` percorre agora as pastas, e **recusa um `.js` solto na raiz** — ficaria sem
+célula e sem lugar determinado na montagem, e a ordem deixaria de se ler na árvore. A
+repartição foi provada sem perdas: remontar os 49 módulos reproduz a r0038 byte a byte.
+
+### Dois módulos ficaram na zona errada, e vê-se
+
+O `p0008` deixou treze cabeçalhos sem zona. Onze são restos curtos, que ficam com a secção
+que os precede. Dois são subsistemas inteiros, e a repartição corta-os à parte de propósito
+— para que a má colocação apareça na árvore em vez de ficar escondida dentro de outro
+módulo:
+
+| Módulo | Onde está | Onde pertence |
+|---|---|---|
+| `3-planeamento/07-importacao-da-gestao-pco.js` | Planeamento | **Operações** — é o dispositivo, arts. 17.º e 19.º |
+| `6-turno/02-posse-do-estado-por-celula.js` | Turno | **Núcleo** — é transversal, como o registo de arrumação |
+
+Mover cada um é uma revisão própria, porque muda a ordem do ficheiro entregue.
+
+### O defeito que a auditoria apanhou assim que passou a acender
+
+E apanhou-o na primeira vez que correu a sério, o que é o melhor argumento possível para
+a ter ligado.
+
+O `p0006` moveu o ponto de trânsito de `dados.pt` para `logistica.pontoTransito`, e moveu
+o acessor `ptObj()` com ele. **Não moveu os cinco campos do formulário**, que continuaram
+a declarar `data-campo="dados.pt.*"` — um ramo que a versão 5 do estado apagou.
+
+O resultado: o que o oficial escrevia no ponto de trânsito ia para um ramo morto.
+`ptObj()` devolvia vazio, e o ponto de trânsito **não chegava ao PEA, nem ao briefing de
+passagem, nem às pendências da célula de logística, nem à exportação por célula**. O
+formulário era coerente consigo próprio — escrevia e relia no mesmo sítio errado —, e por
+isso nada parecia partido. Falha silenciosa, outra vez, e num campo que a DON n.º 2 manda
+estabelecer quando há pedido de reforço.
+
+Os cinco campos passam a apontar para o ramo da logística. Verificado: escrever à mão
+chega ao `ptObj()`, às pendências e à volta ao formulário, e a auditoria de posse fica sem
+órfãos.
+
+Uma nota sobre o `t0006`, que traz o mesmo teste que eu escrevi e **falha agora**: punha o
+valor direto no estado e exportava. Passava na r0038 *por causa* do defeito — o formulário
+escrevia noutro ramo e portanto não apagava o que o teste tinha posto. Ligados os dois, o
+`pacoteOcorrencia()` lê o formulário vazio e apaga, como faz a todos os outros campos. O
+teste desta linhagem escreve pelo formulário, que é por onde o oficial escreve.
+
+O `t0005` falha seis, e também não é regressão: é uma bateria da era da versão 4, que
+aponta para `dados.est.res` e companhia, e cujo próprio arranque cria hoje um ramo órfão.
+Está substituída por `tests/posse.test.mjs`.
+
+### Dois defeitos na r0038, apanhados pelas camadas
+
+**`auditarArrumacao()` nunca era chamada.** O `p0007` declarava, no comentário da própria
+função, que um cartão sem célula é «defeito visível» — e nada o tornava visível. A
+auditoria de posse está ligada ao quadro de turno e acende um aviso; esta ficou a existir
+só para o teste. Passa a acender o mesmo aviso, com as mesmas três condições: cartão fora
+de célula, célula declarada para cartão inexistente, cartão sem norma. Apanhado pelo
+`no-unused-vars`.
+
+**Um `const e = estObj()` morto** em `pendenciasCelula`, resto do movimento do `p0006`: a
+reserva passou a vir de `reservaObj()` e a ligação antiga ficou lá. Também do
+`no-unused-vars`.
+
+E a verificação de tipos apanhou um terceiro, que não é erro de ninguém mas deixara de
+fazer sentido: a migração 0 para 1 normalizava `dados.est.res`, `dados.est.za` e
+`dados.pt` contra o estado por omissão. Desde a versão 5 esses ramos já lá não estão —
+preenchia com indefinido e o degrau 4 para 5 apagava logo a seguir. Removidos, com o
+porquê no lugar deles.
+
+### Verificação
+
+221 testes, todos a passar. As baterias da outra linhagem foram portadas para
+`tests/logistica.test.mjs` e `tests/arrumacao.test.mjs`, pela mesma razão de sempre: um
+teste que não corre em `npm run tudo` não protege nada. Análise estática limpa, zero
+diagnósticos novos de tipos, auditoria visual sem transbordo. Verificado ponta a ponta em
+navegador: importação da v1.2, cinco separadores por célula, posse sem órfãos, arrumação
+com 28 cartões e nenhum fora de célula, aviso de posse apagado, briefing com as oito
+secções, sem exceções.
 
 ## Fusão da terceira linhagem paralela, feita na r0034
 
@@ -433,12 +529,15 @@ decisão, e está listado a seguir.
 1. **Confrontar o importador com uma exportação real da Gestão PCO.** Está feito e testado
    contra os documentos; falta o que a aplicação de origem produz de facto.
    `npm run validar-gp -- <ficheiro>` responde em segundos.
-2. **Mudança de forma do estado para a repartição por células.** O mapa já existe, e é
-   verificável: `POSSE` declara o dono de cada ramo e `auditarPosse` recusa um ramo sem
-   célula. Mover os campos passa a ser transcrição, não desenho. Fica para `MIGRACOES[4]`,
-   versão 4 para 5, e o achado a resolver está registado no próprio mapa — `dados.est`
-   conflacia os setores e os meios aéreos, que são de Operações, com a reserva e a zona de
-   apoio, que são áreas da ZCR e portanto de Logística.
+2. **Mover `pco.canais` para `logistica.comunicacoes`.** É o último ramo por mover, e está
+   declarado como pendente no próprio registo de posse, com a razão: 52 pontos de leitura
+   por `P.canais` e o instantâneo do PEA copia o ramo `pco` inteiro. Fica para
+   `MIGRACOES[5]`, versão 5 para 6.
+3. **Dois módulos na zona errada**, que a repartição por célula deixou à vista:
+   `3-planeamento/07-importacao-da-gestao-pco.js` é de Operações — é o dispositivo, arts.
+   17.º e 19.º — e `6-turno/02-posse-do-estado-por-celula.js` é do núcleo, por ser
+   transversal. Mover cada um muda a ordem do ficheiro entregue, e por isso é revisão
+   própria.
 
 ## Trabalho em aberto
 
@@ -500,4 +599,9 @@ intermédias de trabalho não saem do computador e não contam.
 | r0029 | 281713 | esta | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |
 | r0030 a r0033 | — | paralela | Produzidas do outro lado sobre a r0028 de 15h23, e não montadas aqui. `p0003` passagem de turno e estado na versão 4; `p0004` os dois instantes da nomeação externa; `p0005` posse do estado por célula |
 | r0032 | 281900 | paralela | A entrega que chegou em ficheiro, e a base da fusão. O rodapé lá dentro diz `r0031`: numeração do outro lado, registada como veio |
-| r0034 | 281800 | — | Fusão da terceira linhagem paralela. Passagem de turno, posse do estado por célula, os dois instantes da nomeação externa no importador; correção da fusão de funções, que apagava com vazio o que estava registado |
+| r0034 | 281800 | esta | Fusão da terceira linhagem paralela. Passagem de turno, posse do estado por célula, os dois instantes da nomeação externa no importador; correção da fusão de funções, que apagava com vazio o que estava registado |
+| r0035 | 282010 | paralela | `O.logistica` com reserva, zona de apoio e ponto de trânsito; estado na versão 5. Resolve a conflação de `dados.est` |
+| r0036 | 282100 | paralela | Interface organizada por célula: um separador por célula do PCO, registo `ARRUMACAO` e auditoria |
+| r0037 | 282200 | paralela | JavaScript reagrupado por célula. Só ordem e cabeçalhos; nenhum byte de conteúdo mudou |
+| r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
+| r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |

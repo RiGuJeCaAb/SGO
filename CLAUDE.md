@@ -18,7 +18,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 
 1. **A entrega** é um único ficheiro HTML autónomo. Sem dependências, sem módulos
    externos: CSS, JS e tipos de letra por CDN dentro do ficheiro. Abre em `file://`, sem
-   servidor e sem instalação. **A fonte** vive em `fonte/`, um módulo por subsistema, e
+   servidor e sem instalação. **A fonte** vive em `fonte/`, repartida por célula do PCO, e
    `npm run montar` produz a entrega. O Node é preciso para produzir, não para usar.
 2. Português europeu em interface, comentários, mensagens e documentos gerados. Registo
    técnico-operacional, nunca português do Brasil.
@@ -36,7 +36,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 
 | Caminho | Conteúdo |
 |---|---|
-| `fonte/` | A fonte: `molde.html` e um módulo por subsistema. **É aqui que se altera** |
+| `fonte/` | A fonte: `molde.html` e uma pasta por célula do PCO, com um módulo por subsistema. **É aqui que se altera** |
 | `app/` | As entregas, um ficheiro HTML por revisão. **Geradas: não editar à mão** |
 | `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, auditoria visual e validação de exportações |
 | `ferramentas/historico/` | Guiões que produziram revisões antigas. Arquivados: não usar nem atualizar |
@@ -54,8 +54,12 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
 
 - Alterar em `fonte/`, nunca em `app/`. A entrega produz-se com `npm run montar`, que
   numera a revisão sozinho. Um teste recusa que a entrega divirja da fonte.
-- Módulo novo entra em `fonte/` com prefixo numérico: a ordem dos nomes é a ordem de
-  montagem, e o código corre por essa ordem.
+- A fonte está repartida por célula do posto de comando: `1-nucleo/`, `2-comando/`,
+  `3-planeamento/`, `4-operacoes/`, `5-logistica/`, `6-turno/`, `7-arranque/`. Módulo novo
+  entra na pasta da célula a quem a lei atribui a matéria, com prefixo numérico dentro
+  dela. A ordem das pastas e depois a dos ficheiros é a ordem de montagem, e o código
+  corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
+  `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
   estática e tipos. Acrescentar um teste que exercite o caminho alterado.
 - Campo novo no estado declara-se em `tipos/estacao.d.ts`; o verificador apanha o nome mal

@@ -33,7 +33,7 @@ function ocorrenciaCompleta() {
     { estado: 'Em resolução (dominado)', cmd: '', ct: '', adj: '', m: '', o: '', tip: [] },
   ];
   O.dados.est.aerL = [{ t: 'HEBL', ind: 'HOTEL 15', g: INICIO, ts: t0 }];
-  O.dados.est.res = { m: '2', o: '8' };
+  O.logistica.reserva = { m: '2', o: '8' };
   O.pco.funcoes = [{ f: 'Oficial de Operações', nome: 'Cmdt Ferreira', entidade: 'CB Alijó',
     ct: '910000010', siresp: 'PC TAT 1', ba: '', g: INICIO }];
   O.pco.canais.niveis = { comando: true, tatico: true, manobra: true, aereo: false, ba: false, tocado: true };
@@ -182,7 +182,7 @@ test('a concordância de número está certa, singular e plural', semAplicacao, 
   O.dados.est.n = 1;
   O.dados.est.setores = [{ estado: 'Em curso (ativo)', cmd: 'X', ct: '', adj: '', m: '', o: '',
     tip: [{ t: 'VFCI', q: 1, mu: 1, ou: 1, mr: 0, ar: 0, ts: janela.parseGDH(INICIO).getTime() }] }];
-  O.dados.est.res = { m: '1', o: '1' };
+  O.logistica.reserva = { m: '1', o: '1' };
 
   const d = janela.briefingPassagem(janela.parseGDH(INICIO).getTime()).seccoes[1].linhas.join(' | ');
   assert.match(d, /1 veículo,/);

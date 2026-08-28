@@ -32,7 +32,39 @@
   .wrap{max-width:1460px;margin:0 auto;padding:0 20px 90px}
 
   header{background:var(--surf);position:sticky;top:0;z-index:10;box-shadow:0 1px 0 var(--line), 0 2px 10px rgba(0,0,0,.05)}
-  .hstrip{height:4px;background:linear-gradient(90deg,var(--agua) 0 20%,var(--madeira) 20% 40%,var(--fogo) 40% 60%,var(--terra) 60% 80%,var(--metal,#9AA3AD) 80% 100%);opacity:.85}
+  /* Cor por célula. Herdada do formato oficial do PEA, onde já era esta:
+     planeamento verde, operações azul, logística laranja. Comando toma a cor do
+     símbolo; a passagem de turno fica no cinzento neutro, porque não é célula. */
+  :root{ --cel-comando:var(--fogo); --cel-planeamento:var(--madeira);
+         --cel-operacoes:var(--agua); --cel-logistica:var(--laranja);
+         --cel-turno:var(--metal); }
+
+  /* A faixa do cabeçalho passa a ser a legenda das células, pela ordem dos separadores. */
+  .hstrip{height:4px;opacity:.9;background:linear-gradient(90deg,
+    var(--cel-comando) 0 20%, var(--cel-planeamento) 20% 40%, var(--cel-operacoes) 40% 60%,
+    var(--cel-logistica) 60% 80%, var(--cel-turno) 80% 100%)}
+
+  /* Barra no topo do separador: discreta em repouso, plena quando ativo. Sem
+     preenchimentos de cor — o cartão continua a ser lido pela tipografia. */
+  nav button[data-cel]::before{content:"";position:absolute;left:11px;right:11px;top:0;
+    height:3px;border-radius:0 0 3px 3px;background:var(--c);opacity:.4;transition:opacity .12s,height .12s}
+  nav button[data-cel]:hover::before{opacity:.75}
+  nav button[data-cel].on::before{opacity:1;height:4px}
+  nav button[data-cel].on{color:var(--tx)}
+  nav button[data-cel].on .rot{color:var(--c)}
+  nav button[data-cel="comando"]{--c:var(--cel-comando)}
+  nav button[data-cel="planeamento"]{--c:var(--cel-planeamento)}
+  nav button[data-cel="operacoes"]{--c:var(--cel-operacoes)}
+  nav button[data-cel="logistica"]{--c:var(--cel-logistica)}
+  nav button[data-cel="turno"]{--c:var(--cel-turno)}
+
+  /* No quadro de passagem de turno as quatro aparecem lado a lado: a mesma leitura. */
+  .sub[data-cel]{border-left:3px solid var(--c)}
+  .sub[data-cel] .stit{color:var(--c)}
+  .sub[data-cel="comando"]{--c:var(--cel-comando)}
+  .sub[data-cel="planeamento"]{--c:var(--cel-planeamento)}
+  .sub[data-cel="operacoes"]{--c:var(--cel-operacoes)}
+  .sub[data-cel="logistica"]{--c:var(--cel-logistica)}
   .hbar{max-width:1460px;margin:0 auto;padding:14px 20px 10px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
   .hacts{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
   .hacts .btn{white-space:nowrap;flex:none}
@@ -247,13 +279,22 @@
   .amp-s.a{color:var(--terra);background:rgba(224,184,79,.18)}
   .amp-s.r{color:var(--fogo);background:rgba(224,104,92,.18)}
   .amp-leg{font-size:12.5px;color:var(--tx2);margin-top:10px;line-height:1.5}
+  @media(max-width:900px){
+    .amp-h{display:none}
+    .amp-r{grid-template-columns:1fr;gap:4px;padding:12px 4px}
+    .amp-r>*{min-width:0}
+    .amp-e::before,.amp-s::before{font-family:var(--mono);font-size:9.5px;letter-spacing:.7px;
+      text-transform:uppercase;color:var(--tx2);display:block;margin-bottom:2px}
+    .amp-e:nth-of-type(1)::before{content:"Entrada"}
+    .amp-s{text-align:left;justify-self:start}
+  }
 
   nav{max-width:1460px;margin:0 auto;padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;border-bottom:2px solid var(--line)}
   nav button{position:relative;flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.2px;background:var(--surf2);border:1px solid var(--line);border-bottom:none;border-radius:11px 11px 0 0;color:var(--tx2);padding:0 15px;cursor:pointer;white-space:nowrap;margin-bottom:-2px;transition:background .12s,color .12s}
   @media(max-width:1320px){nav button{font-size:14px;padding:0 12px;gap:6px}}
   nav button:hover{background:var(--surf);color:var(--tx)}
   nav button.on{background:var(--surf);color:var(--tx);border-color:var(--line);border-bottom:2px solid var(--surf)}
-  nav button.on::before{content:"";position:absolute;top:0;left:-1px;right:-1px;height:4px;background:var(--laranja);border-radius:11px 11px 0 0}
+  nav button.on:not([data-cel])::before{content:"";position:absolute;top:0;left:-1px;right:-1px;height:4px;background:var(--laranja);border-radius:11px 11px 0 0}
   nav button:focus-visible{outline:2px solid var(--azul)}
 
   .help{display:none;border:1px solid var(--line);border-left:4px solid var(--agua);background:var(--surf);border-radius:10px;padding:16px 22px;margin-bottom:18px;font-size:14px;color:var(--tx2);line-height:1.65}
@@ -654,6 +695,9 @@
   .tn-pt{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tx2);margin-right:2px}
   .tn-ramo{font-family:var(--mono);font-size:11px;color:var(--tx);background:var(--surf2);border:1px solid var(--line);border-radius:5px;padding:2px 7px;cursor:help}
   .tn-posse .btn{margin-left:auto}
+  /* painéis antigos, esvaziados pela arrumação: ficam no documento para que os
+     identificadores continuem a existir, e fora da vista porque nada contêm. */
+  .pane.husk{display:none !important}
   @media(max-width:820px){ .tn-posse .btn{margin-left:0;width:100%} }
   @media(max-width:820px){ .tn-l{grid-template-columns:1fr;gap:2px 0} .tn-l dt{padding-top:8px} }
 </style>
@@ -673,14 +717,11 @@
     </div>
   </div>
   <nav>
-    <button data-p="p-occ" class="on">1 · Ocorrência</button>
-    <button data-p="p-fontes">2 · Fontes de dados</button>
-    <button data-p="p-pco" title="Estrutura do posto de comando e plano de comunicações">3 · PCO / PLACOM</button>
-    <button data-p="p-evo">4 · Evolução / POSIT</button>
-    <button data-p="p-meteo">5 · Meteograma</button>
-    <button data-p="p-pea">6 · PEA</button>
-    <button data-p="p-turno" title="Continuidade em espelho e rotatividade de funções — DON n.º 2, ponto 7.d.(30)">Passagem de turno</button>
-    <button data-p="p-fita">Fita do tempo</button>
+    <button data-p="p-comando" data-cel="comando" class="on" title="COS, coordenador do PCO e adjuntos — arts. 14.º e 15.º"><span class="rot">Comando</span></button>
+    <button data-p="p-planeamento" data-cel="planeamento" title="Elabora o plano estratégico de ação — arts. 26.º a 30.º"><span class="rot">Planeamento</span></button>
+    <button data-p="p-operacoes" data-cel="operacoes" title="Executa o plano e transmite as ordens de missão — arts. 16.º a 25.º"><span class="rot">Operações</span></button>
+    <button data-p="p-logistica" data-cel="logistica" title="Sustentação logística do teatro de operações — arts. 31.º a 35.º"><span class="rot">Logística e Finanças</span></button>
+    <button data-p="p-turno" data-cel="turno" title="Continuidade em espelho e rotatividade de funções — DON n.º 2, ponto 7.d.(30)"><span class="rot">Passagem de turno</span></button>
   </nav>
 </header>
 <div class="guia"><div class="guia-in" id="guia"><b>PRÓXIMO PASSO</b><span id="guia-txt">a carregar...</span><button class="btn btn-b" id="guia-ir" style="display:none">Ir</button></div></div>
@@ -688,7 +729,12 @@
 <div class="wrap">
 
   <!-- 1 OCORRÊNCIA -->
-  <section class="pane on" id="p-occ">
+  <section class="pane on" id="p-comando"></section>
+  <section class="pane" id="p-planeamento"></section>
+  <section class="pane" id="p-operacoes"></section>
+  <section class="pane" id="p-logistica"></section>
+
+  <section class="pane" id="p-occ">
     <div class="help"><span class="ht">Secção 1 — Identificação da ocorrência</span>
       <p class="hd">O bilhete de identidade da ocorrência: tudo o resto depende destes campos.</p>
       <ul>
@@ -782,7 +828,7 @@
         </div>
       </div>
 
-      <div class="sub"><span class="stit">Importação da Gestão PCO (esquema v1.2)</span>
+      <div class="sub" data-move-ops="1"><span class="stit">Importação da Gestão PCO (esquema v1.2)</span>
         <p class="hint" style="margin:0 0 10px 0">Traz o dispositivo exportado pela app Gestão PCO — setores, forças com instante de empenhamento, meios aéreos nominais, reserva, zona de apoio e, quando o pacote os trouxer, a estrutura do posto de comando e o ponto de trânsito. Uma direção só: a Estação lê, não escreve de volta; a evolução, os PEA, o meteograma e a fita do tempo não são tocados. Havendo dispositivo já registado, o que muda é apresentado setor a setor antes de se aplicar, com as perdas assinaladas a vermelho. As horas aceitam-se em GDH doutrinário — 251430AGO26 — ou em ISO 8601 com fuso — 2026-08-25T15:10:00+01:00 —, no mesmo campo; a v1.1, a v1.0 e o contrato pco:dispositivo continuam a ser lidos.</p>
         <div class="row">
           <button class="btn btn-b" type="button" id="gp-b">Importar de ficheiro</button>
@@ -797,6 +843,10 @@
         <div id="gp-avisos"></div>
       </div>
 
+    </div>
+
+    <div class="card">
+      <h2>Dispositivo e setorização <span class="tag">célula de operações — art. 17.º, n.º 1, als. a) e d)</span></h2>
       <div class="sub"><span class="stit">Setorização do TO e quadro de meios (arts. 5.º e 32.º — tipologias do Anexo 1 da DON n.º 2 / DECIR 2026)</span>
         <div class="row" style="margin-bottom:12px">
           <span class="xtr"><span class="hint" style="margin:0">N.º de setores</span>
@@ -822,6 +872,10 @@
         <textarea id="d-setores" rows="4" style="display:none;margin-top:8px" placeholder="colar da app Gestão PCO"></textarea>
       </div>
 
+    </div>
+
+    <div class="card">
+      <h2>Leitura do terreno <span class="tag">núcleo de informações — art. 28.º</span></h2>
       <div class="sub"><span class="stit">Análise topográfica expedita (leitura da carta — o agente DEM é a Fase 3)</span>
         <div class="grid g3">
           <div><label for="t-orient">Orientação dominante das encostas da frente</label>
@@ -911,11 +965,11 @@
       <h2>Ponto de trânsito <span class="tag">controlo das entradas e saídas do TO — DON n.º 2 / DECIR 2026, pontos 7.d.(5), 7.d.(7) e 7.d.(8)</span></h2>
 
         <div class="grid g3">
-          <div><label for="pt-des">Designação e local</label><input id="pt-des" data-campo="dados.pt.des" placeholder="ex.: largo da igreja de ..."></div>
-          <div><label for="pt-resp">Responsável</label><input id="pt-resp" data-campo="dados.pt.resp" placeholder="posto, nome e apelido"></div>
-          <div><label for="pt-ct">Contacto</label><input id="pt-ct" data-campo="dados.pt.ct" placeholder="telemóvel" inputmode="tel"></div>
-          <div><label for="pt-cd">Coordenadas</label><input id="pt-cd" data-campo="dados.pt.cd" placeholder="preenchidas pela sugestão ou coladas"></div>
-          <div style="grid-column:span 2"><label for="pt-obs">Acesso, capacidade e observações</label><input id="pt-obs" data-campo="dados.pt.obs" placeholder="via de acesso, espaço de estacionamento, condicionantes"></div>
+          <div><label for="pt-des">Designação e local</label><input id="pt-des" data-campo="logistica.pontoTransito.des" placeholder="ex.: largo da igreja de ..."></div>
+          <div><label for="pt-resp">Responsável</label><input id="pt-resp" data-campo="logistica.pontoTransito.resp" placeholder="posto, nome e apelido"></div>
+          <div><label for="pt-ct">Contacto</label><input id="pt-ct" data-campo="logistica.pontoTransito.ct" placeholder="telemóvel" inputmode="tel"></div>
+          <div><label for="pt-cd">Coordenadas</label><input id="pt-cd" data-campo="logistica.pontoTransito.cd" placeholder="preenchidas pela sugestão ou coladas"></div>
+          <div style="grid-column:span 2"><label for="pt-obs">Acesso, capacidade e observações</label><input id="pt-obs" data-campo="logistica.pontoTransito.obs" placeholder="via de acesso, espaço de estacionamento, condicionantes"></div>
         </div>
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" id="b-pt" type="button">Sugerir a partir da carta (OSM, 1,5 a 8 km)</button>
@@ -1036,7 +1090,7 @@
 
     <div class="card">
       <h2>Plano de comunicações <span class="tag">célula de logística e finanças — artigo 32.º, al. d) · artigo 34.º</span></h2>
-      <div class="sub"><span class="stit">Passagem de comando (DON n.º 2, ponto 30)</span>
+      <div class="sub" data-move-turno="1"><span class="stit">Passagem de comando (DON n.º 2, ponto 30)</span>
         <p class="hint" style="margin:0 0 10px 0">Compõe o briefing a partir do que está registado: situação, dispositivo, estrutura do posto de comando, plano de comunicações, tempos de empenhamento, conformidade, PEA em vigor e evolução desde então. Termina no que fica por decidir. Determinístico, sem modelo — não é opinião sobre a ocorrência, é o que lá está, pela ordem por que se entrega um comando.</p>
         <div class="row">
           <button class="btn btn-o" type="button" id="br-gerar">Elaborar briefing</button>
@@ -1319,6 +1373,8 @@
 </div>
 
 <script>
+
+/* ██████ NÚCLEO ██████ */
 @MODULOS@</script>
 </body>
 </html>

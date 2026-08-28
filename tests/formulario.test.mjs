@@ -45,7 +45,7 @@ test('escrever no campo escreve no estado, sem gravar', semAplicacao, () => {
 test('os caminhos aninhados chegam ao ramo certo', semAplicacao, () => {
   escrever('pt-resp', 'Adjunto de operações');
   escrever('t-obs', 'Linha de água a norte');
-  assert.equal(estado().dados.pt.resp, 'Adjunto de operações');
+  assert.equal(estado().logistica.pontoTransito.resp, 'Adjunto de operações');
   assert.equal(estado().dados.topo.obs, 'Linha de água a norte');
 });
 
