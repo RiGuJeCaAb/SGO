@@ -98,6 +98,7 @@ export default [
         // O código dentro de page.evaluate() corre no navegador, não em Node.
         window: 'readonly',
         document: 'readonly',
+        structuredClone: 'readonly',
       },
     },
   },

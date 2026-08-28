@@ -4,8 +4,8 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0016** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, vinte e nove testes a passar, e auditoria visual sem
+A revisão **r0017** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, trinta e oito testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
@@ -29,6 +29,29 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.1 — versão do estado gravado, feita na r0017
+
+`VERSAO_ESTADO` e uma cadeia `MIGRACOES` em que o índice i migra da versão i para a i+1.
+O `carregar` passa por `migrarGravado`, que:
+
+- trata como versão zero tudo o que não traga marca, e migra;
+- preenche contra os valores por omissão os ramos que o carregamento antigo deixava por
+  normalizar — `meta`, `pco` e os ramos de `dados` —, sem sobrepor valor gravado;
+- garante que os ramos que deviam ser listas o são;
+- **recusa, sem tocar em nada, um estado gravado por revisão posterior**, e diz de que
+  versão veio.
+
+O que a migração 0 para 1 deliberadamente não faz: reinterpretar a semântica dos canais.
+Uma ocorrência gravada antes de `siresp`/`ba` passarem a nível de manobra não traz marca
+que permita distingui-la das posteriores. Adivinhar seria pior do que não mexer. O valor
+desta correção está no que protege daqui para a frente: toda a mudança de forma passa a ter
+migração numerada e testada.
+
+Fica um risco por fechar: quando o carregamento é recusado por vir de revisão posterior, o
+estado em memória não é tocado, mas nada impede que uma gravação seguinte com o mesmo
+número de ocorrência sobreponha o registo mais recente. Trata-se com a correção 4.6,
+exportação e importação da ocorrência.
 
 ## Achados de largura reduzida, resolvidos na r0016
 
@@ -101,3 +124,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0014 | 2026-08-27 22:08 | Primeira revisão colocada no repositório. Estado como recebida, sem alterações |
 | r0015 | 2026-08-28 01:17 | Reposta a chamada a `leitura()` na legenda do meteograma; removida `corRH()`, código morto com cores fixas; corrigido escape desnecessário em três expressões regulares |
 | r0016 | 2026-08-28 12:14 | Largura reduzida: quebra de linha nas ações do cabeçalho; media query do plano de comunicações a vencer `.cm-f.nb`; cartões de integrações a encolher e a quebrar designações longas; seletor de CSV a quebrar |
+| r0017 | 2026-08-28 12:58 | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
