@@ -4,8 +4,8 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0019** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, cinquenta e sete testes a passar, e auditoria visual sem
+A revisão **r0020** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, sessenta e dois testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
@@ -29,6 +29,27 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.3 — registo de regras de conformidade, feita na r0020
+
+`verificacoesDON` era uma função de 277 linhas que crescia por acrescento. Passou a
+`REGRAS_DON`, doze regras autónomas, cada uma com identificadores que emite, título,
+fontes doutrinárias que invoca e função do contexto. `contextoDON` calcula uma vez o que
+todas partilham.
+
+Três ganhos:
+
+1. **Uma regra que rebente deixou de levar as outras atrás.** Antes, uma exceção esvaziava
+   o painel inteiro dentro do `try` do `pintarDON`. Agora vira aviso próprio, porque uma
+   verificação que falha não pode passar por conformidade verificada.
+2. **Cada regra exercita-se sozinha**, com um contexto construído à medida.
+3. **As fontes passaram a ser auditáveis por comparação.** `docs/FONTES.md` tem uma entrada
+   por documento, e `tests/fontes.test.mjs` recusa que uma regra invoque documento não
+   listado, ou que cite um documento sem o declarar.
+
+A reorganização não podia mudar uma palavra do que a aplicação diz ao COS. Foi verificada
+por comparação direta com a r0019: sete estados montados à mão, nove instantes cada,
+**63 comparações, zero diferenças** no JSON completo dos itens emitidos.
 
 ## Correção 4.4 — relógio injetado, feita na r0019
 
@@ -123,8 +144,7 @@ na r0015.
 
 1. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
 2. Camada 1: tipos em JSDoc para o estado.
-3. Correção 4.3 (registo de regras de conformidade) e `docs/FONTES.md`.
-4. Correção 4.6: exportação e importação da ocorrência em JSON, que também fecha o risco
+3. Correção 4.6: exportação e importação da ocorrência em JSON, que também fecha o risco
    deixado em aberto pela 4.1.
 5. Camada 2, com a divisão em módulos a seguir a estrutura da secção 5.1 da especificação.
 
@@ -158,3 +178,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0017 | 2026-08-28 12:58 | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
 | r0018 | 2026-08-28 13:04 | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |
 | r0019 | 2026-08-28 13:15 | Correção 4.4: relógio injetado; as regras de prazo passam a receber o instante e a ter teste |
+| r0020 | 2026-08-28 13:19 | Correção 4.3: motor de conformidade em registo de doze regras autónomas; `docs/FONTES.md` e auditoria mecânica das citações |

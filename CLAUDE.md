@@ -37,6 +37,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 | `app/` | A aplicação, um ficheiro HTML por revisão, com o nome pela convenção |
 | `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | Especificação completa: arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
 | `docs/CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais, decisões em aberto |
+| `docs/FONTES.md` | Uma entrada por documento doutrinário citado. Regra nova declara aqui a fonte |
 | `docs/ESTADO.md` | O que está feito, em curso e por fazer. Atualizar no fim de cada sessão |
 | `docs/CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
 | `ferramentas/` | Extração do script, verificação de sintaxe e análise estática |
@@ -57,6 +58,8 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
   mão. Campo derivado, sem campo no formulário, não precisa de nada — nada passa por ele.
 - Migração do pacote de canais faz-se em `carregarCanais`.
+- Verificação de conformidade nova é uma regra em `REGRAS_DON`, com as fontes declaradas
+  e registadas em `docs/FONTES.md`. Regras de prazo recebem o instante, não leem o relógio.
 - Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
   por botão, não por `prefers-color-scheme`.
 
