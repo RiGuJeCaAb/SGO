@@ -4,8 +4,8 @@ Atualizado em 2026-08-27.
 
 ## Situação atual
 
-A revisão **r0017** está em `app/` e a verificação passa por inteiro: sintaxe correta,
-análise estática sem problemas, trinta e oito testes a passar, e auditoria visual sem
+A revisão **r0018** está em `app/` e a verificação passa por inteiro: sintaxe correta,
+análise estática sem problemas, quarenta e sete testes a passar, e auditoria visual sem
 transbordo nem exceções a 380, 480, 768 e 1440 px nos dois temas.
 
 Faltam as revisões anteriores à r0014, que ainda estão fora do repositório.
@@ -29,6 +29,25 @@ Registadas em 2026-08-27, sobre a proposta de evolução técnica.
 - **Camada 0.** Extração do `<script>` do HTML, verificação de sintaxe sem execução,
   ESLint sobre o código extraído com erros mapeados à linha do HTML, dezanove testes com o
   executor incluído no Node, e integração contínua no GitHub. Ver `tests/README.md`.
+
+## Correção 4.2 — o formulário escreve no estado, feita na r0018
+
+Cada campo declara em `data-campo` o caminho do seu lugar no estado, e escreve só nesse
+lugar. `lerForm` deixou de refazer `O.meta` de raiz: percorre os campos e escreve cada um.
+Um ouvinte delegado mantém o estado a acompanhar o formulário à medida que é preenchido,
+e não apenas ao gravar.
+
+O que isto remove: **os campos derivados deixaram de precisar de preservação à mão.**
+`distrito`, `concelho` e `distritoChave` sobrevivem porque nada passa por eles. Acrescentar
+um campo derivado deixou de exigir cuidado dentro do `lerForm` — que era o aviso repetido
+duas vezes na especificação, e a assinatura de um defeito de desenho.
+
+Os outros dois sítios que reconstruíam `O.dados.topo` passaram a sincronizar pelo mesmo
+caminho. Fica uma exceção declarada e visível: os setores em texto livre só contam com o
+modo livre ligado.
+
+Nove testes novos. Corridos contra a r0017, cinco falham — entre eles o que verifica que um
+campo derivado novo sobrevive sem ninguém se lembrar dele.
 
 ## Correção 4.1 — versão do estado gravado, feita na r0017
 
@@ -91,11 +110,11 @@ na r0015.
 ## Próximo passo
 
 1. Colocar em `app/` as revisões anteriores à r0014, para completar o histórico.
-3. Correções 4.1 (versionar o estado gravado) e 4.2 (inverter o sentido de `lerForm`),
-   com os testes já a proteger.
-4. Camada 1: tipos em JSDoc para o estado.
-5. Correção 4.3 (registo de regras de conformidade) e `docs/FONTES.md`.
-6. Camada 2, com a divisão em módulos a seguir a estrutura da secção 5.1 da especificação.
+2. Camada 1: tipos em JSDoc para o estado.
+3. Correção 4.3 (registo de regras de conformidade) e `docs/FONTES.md`.
+4. Correção 4.6: exportação e importação da ocorrência em JSON, que também fecha o risco
+   deixado em aberto pela 4.1.
+5. Camada 2, com a divisão em módulos a seguir a estrutura da secção 5.1 da especificação.
 
 ## Trabalho em aberto
 
@@ -125,3 +144,4 @@ Marcados como tal na interface, não devem ser dados como assentes:
 | r0015 | 2026-08-28 01:17 | Reposta a chamada a `leitura()` na legenda do meteograma; removida `corRH()`, código morto com cores fixas; corrigido escape desnecessário em três expressões regulares |
 | r0016 | 2026-08-28 12:14 | Largura reduzida: quebra de linha nas ações do cabeçalho; media query do plano de comunicações a vencer `.cm-f.nb`; cartões de integrações a encolher e a quebrar designações longas; seletor de CSV a quebrar |
 | r0017 | 2026-08-28 12:58 | Correção 4.1: versão do estado gravado, cadeia de migrações, recusa de estado de revisão posterior |
+| r0018 | 2026-08-28 13:04 | Correção 4.2: cada campo escreve no seu lugar do estado por `data-campo`; `lerForm` deixa de reconstruir `O.meta` |

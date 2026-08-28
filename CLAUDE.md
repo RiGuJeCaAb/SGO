@@ -52,9 +52,11 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
   silêncio dentro de um `try`.
 - Incrementar a revisão no rodapé e no nome do ficheiro. Guardar todas as revisões em
   `app/`; as ferramentas escolhem sozinhas a de numeração mais alta.
-- Estado novo em `O` tem de ser declarado em `novoEstado` e normalizado em `pcoObj()` e
-  `estObj()`. Campo de `meta` sem campo no formulário tem de ser preservado em `lerForm()`.
-  Migração do pacote de canais faz-se em `carregarCanais`.
+- Estado novo em `O` tem de ser declarado em `novoEstado`, e toda a mudança de forma leva
+  uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um.
+- Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
+  mão. Campo derivado, sem campo no formulário, não precisa de nada — nada passa por ele.
+- Migração do pacote de canais faz-se em `carregarCanais`.
 - Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
   por botão, não por `prefers-color-scheme`.
 
