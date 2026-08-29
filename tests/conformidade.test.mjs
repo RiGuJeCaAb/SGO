@@ -260,3 +260,50 @@ test('a proposta só aparece com setor escolhido, e não muda nada sozinha', sem
   assert.equal(janela.estObj().setores[0].estado, DOMINADO);
   assert.match(caixa.textContent, /com registo automático na evolução e na fita/);
 });
+
+/* ---- a pasta sub-regional segue o TO, não o posto ---- */
+
+test('o pacote declara a sua pasta sub-regional pelo nome programado', semAplicacao, () => {
+  // Nos terminais chama-se «Douro Op», não «Douro». O nome do canal não se abrevia.
+  assert.equal(avaliar(janela, 'SUBREGIAO_PACOTE'), 'Douro Op');
+  const opar = [...avaliar(janela, 'CANAIS').ent].find((x) => x.des === 'OPAR 01');
+  assert.equal(opar.area, 'Douro Op');
+  assert.equal(opar.pasta, 'subregiao');
+});
+
+test('sem sub-região indicada, o canal sub-regional não se dá por bom', semAplicacao, () => {
+  // Um TO pode ser em qualquer ponto do país. Enquanto ninguém disser onde, a pasta
+  // sub-regional fica por confirmar em vez de se oferecer como se servisse.
+  const O = avaliar(janela, 'O');
+  O.meta.subregiao = '';
+  const opar = [...avaliar(janela, 'CANAIS').ent].find((x) => x.des === 'OPAR 01');
+  assert.equal(janela.canalAplicavel(opar), false);
+});
+
+test('com o TO noutra sub-região, o canal sub-regional fica fora de âmbito', semAplicacao, () => {
+  const O = avaliar(janela, 'O');
+  const opar = [...avaliar(janela, 'CANAIS').ent].find((x) => x.des === 'OPAR 01');
+  O.meta.subregiao = 'Douro Op';
+  assert.equal(janela.canalAplicavel(opar), true);
+  O.meta.subregiao = 'Terras de Trás-os-Montes';
+  assert.equal(janela.canalAplicavel(opar), false,
+    'ofereceu o grupo sub-regional do Douro a um TO de outra sub-região');
+});
+
+test('a sub-região não se deduz do concelho', semAplicacao, () => {
+  // Deduzi-la exigiria a composição das sub-regiões, que não está confirmada em fonte
+  // neste projeto. Adivinhá-la seria a aplicação afirmar uma pasta de rádio que ninguém
+  // verificou — o que a restrição 4 do projeto proíbe.
+  const O = avaliar(janela, 'O');
+  O.meta.subregiao = '';
+  O.meta.concelho = 'Moimenta da Beira';
+  O.meta.distrito = 'Viseu';
+  janela.escreverForm();
+  assert.equal(janela.subregiaoTO(), '', 'a aplicação inventou a sub-região a partir do concelho');
+});
+
+test('a sub-região do TO tem campo próprio e atravessa a migração', semAplicacao, () => {
+  assert.ok(janela.document.querySelector('[data-campo="meta.subregiao"]'));
+  const m = janela.migrarGravado({ versao: 7, meta: { num: '2026/900' }, pco: { funcoes: [] } });
+  assert.equal(m.meta.subregiao, '');
+});

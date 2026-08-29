@@ -6,13 +6,32 @@ const PASTAS = {
   municipio:{t:"MUNICÍPIO", d:"âmbito municipal — só existe no concelho indicado"},
   local:{t:"LOCAL", d:"canal próprio de entidade ou de ocorrência"}
 };
-const SUBREGIAO_ESTACAO = "Douro";
+/* A pasta sub-regional do pacote que esta Estação traz carregado. É a do CSREPC Douro,
+   e chama-se «Douro Op» — que é como está programada nos terminais, e não «Douro».
+
+   **O pacote é do posto, não da ocorrência.** Um teatro de operações pode ser em
+   qualquer ponto do país, e a pasta sub-regional de outra sub-região tem outros grupos,
+   que esta Estação não conhece. Quando o TO fica fora desta sub-região, os canais
+   sub-regionais deixam de ser aplicáveis e a aplicação di-lo, em vez de os oferecer como
+   se servissem. Ver `docs/ESTADO.md`, pontos por confirmar em fonte. */
+const SUBREGIAO_PACOTE = "Douro Op";
 function semAcento(t){ return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
 /* um canal é aplicável se não tiver área própria ou se a área bater com o TO */
+/** Sub-região declarada para o teatro de operações. Vazia enquanto não for indicada. */
+function subregiaoTO(){ return String(O.meta.subregiao||"").trim(); }
+
+/**
+ * Um canal é aplicável se não tiver área própria, ou se a área bater com o TO.
+ *
+ * Para a pasta sub-regional o termo de comparação é a sub-região **do teatro de
+ * operações**, e não a do posto: é lá que se vai operar. Enquanto ela não for indicada,
+ * o canal sub-regional fica por confirmar em vez de se dar por bom.
+ */
 function canalAplicavel(x){
   if(!x || !x.area) return true;
   const a = semAcento(x.area);
-  return [O.meta.distrito, O.meta.concelho, SUBREGIAO_ESTACAO].some(v=>v && semAcento(v)===a);
+  if((x.pasta||"") === "subregiao") return semAcento(subregiaoTO()) === a;
+  return [O.meta.distrito, O.meta.concelho].some(v=>v && semAcento(v)===a);
 }
 const NIVEIS = {comando:"Comando", tatico:"Tático", manobra:"Manobra", aereo:"Aéreo"};
 /* Pacote distrital: 50 grupos de conversação SIRESP de âmbito distrital — 5 de comando,
@@ -23,7 +42,7 @@ function pacoteBase(){
   for(let i=1;i<=5;i++)  e.push({rede:"siresp", des:"PC COM "+i, niv:"comando", nota:"grupo distrital de comando", pasta:"distrito", area:"", pk:true});
   for(let i=1;i<=15;i++) e.push({rede:"siresp", des:"PC TAT "+i, niv:"tatico",  nota:"equivalente ao tático "+i+" da ROB em simplex", pasta:"distrito", area:"", pk:true});
   for(let i=1;i<=30;i++) e.push({rede:"siresp", des:"PC MAN "+i, niv:"manobra", nota:"equivalente ao manobra "+i+" da ROB em simplex", pasta:"distrito", area:"", pk:true});
-  e.push({rede:"siresp", des:"OPAR 01", niv:"aereo", nota:"grupo da sub-região; alternativa e emergência terra/ar/terra", pasta:"subregiao", area:SUBREGIAO_ESTACAO, pk:true});
+  e.push({rede:"siresp", des:"OPAR 01", niv:"aereo", nota:"grupo da sub-região; alternativa e emergência terra/ar/terra", pasta:"subregiao", area:SUBREGIAO_PACOTE, pk:true});
   for(let i=1;i<=5;i++)  e.push({rede:"ba", des:"CC"+i, niv:"comando", nota:"canal de comando da ROB, banda alta de VHF", pasta:"nacional", area:"", pk:true});
   for(let i=1;i<=15;i++) e.push({rede:"ba", des:"CT"+i, niv:"tatico",  nota:"canal tático da ROB, banda alta de VHF", pasta:"nacional", area:"", pk:true});
   for(let i=1;i<=30;i++) e.push({rede:"ba", des:"CM"+i, niv:"manobra", nota:(i===4? "manobra 4 da ROB; alternativa terra/ar/terra":"canal de manobra da ROB, banda alta de VHF"), pasta:"nacional", area:"", pk:true});
@@ -159,6 +178,11 @@ function renderCatalogo(){
   let h = '<div class="pk-r"><span class="k">Distrito</span><span class="v">'+(O.meta.distrito
       ? esc(O.meta.distrito)+(O.meta.concelho? ", concelho de "+esc(O.meta.concelho):"")+' <span class="pend">— determinado pelas coordenadas do teatro de operações</span>'
       : '<span class="pend">por determinar — depende das coordenadas do TO, na secção 1</span>')+'</span></div>';
+  h += '<div class="pk-r"><span class="k">Sub-região do TO</span><span class="v">'+(subregiaoTO()
+      ? esc(subregiaoTO())+(semAcento(subregiaoTO())===semAcento(SUBREGIAO_PACOTE)
+          ? ' <span class="pend">— a do pacote carregado neste posto</span>'
+          : ' <span class="fora">— o pacote carregado é o de '+esc(SUBREGIAO_PACOTE)+'; os canais sub-regionais desta pasta não servem este TO</span>')
+      : '<span class="pend">por indicar, na secção 1 — a pasta sub-regional depende dela</span>')+'</span></div>';
   Object.keys(PASTAS).forEach(k=>{
     const arr = CANAIS.ent.filter(x=>(x.pasta||"local")===k);
     if(!arr.length) return;

@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0045**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0046**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 49, das anteriores à convenção de nomes até à r0045 |
+| Entregas em `app/` | 50, das anteriores à convenção de nomes até à r0046 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 269, todos a passar |
+| Testes | 274, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 7 |
+| Versão do estado gravado | 8 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,30 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A pasta sub-regional segue o TO, na r0046
+
+Duas coisas, e a segunda é a que importa.
+
+**O nome estava errado.** A pasta chama-se **«Douro Op»** nos terminais, e a aplicação
+dizia «Douro». Corrigido — o nome de um canal não se abrevia.
+
+**E estava fixa no código.** `SUBREGIAO_ESTACAO = "Douro"` era uma constante, e o teatro
+de operações pode ser em qualquer ponto do país. A pasta sub-regional de outra sub-região
+tem outros grupos, que esta Estação não conhece: oferecer o OPAR 01 do Douro a um TO de
+Trás-os-Montes é oferecer um canal errado.
+
+Agora: o pacote declara a sua pasta (`SUBREGIAO_PACOTE`, a do posto), a ocorrência declara
+a **sua** (`O.meta.subregiao`, campo novo na secção de identificação), e a aplicabilidade
+dos canais sub-regionais compara as duas. Quando não batem, o cartão do pacote di-lo em
+vez de os oferecer. Enquanto a sub-região do TO não for indicada, fica **por confirmar**.
+
+**A sub-região não se deduz do concelho, e é deliberado.** Deduzi-la exigiria a composição
+das sub-regiões, que este projeto não tem confirmada em fonte. A restrição n.º 4 é
+explícita: sem confirmação em fonte, a aplicação pergunta. Há um teste que fixa que ela
+não adivinha.
+
+Versão 8 do estado, com migração. Nasce vazia.
 
 ## Catálogo de elementos do TO, na r0045
 
@@ -818,6 +842,13 @@ Marcados como tal na interface, não devem ser dados como assentes:
 4. Fatores de declive e de vento para os combustíveis nacionais, que permitiriam calcular
    a razão ε em vez de a pedir ao oficial. O artigo de Viegas remete-os para outras fontes.
    Ver `docs/FONTES.md`, secção `FOGO`.
+5. **Composição das pastas sub-regionais do SIRESP**, e que concelhos pertencem a cada
+   sub-região. A Estação traz o pacote do Douro Op, que é o do posto, e não sabe o de mais
+   nenhuma sub-região. Enquanto não houver fonte — a programação dos terminais, ou a NEP
+   que a fixa —, a aplicação pergunta a sub-região do TO em vez de a deduzir, e diz quando
+   o pacote carregado não serve o teatro. Não se inscrevem aqui listas de sub-regiões
+   obtidas por outra via: uma pasta de rádio afirmada sem fonte é pior do que um campo
+   por preencher.
 
 ## Registo de revisões
 
@@ -865,6 +896,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0046 | 291215 | — | Pasta sub-regional corrigida para «Douro Op» e deixa de estar fixa no código: a ocorrência declara a sua, e os canais sub-regionais só se aplicam quando batem. Estado na versão 8 |
 | r0045 | 291143 | — | Catálogo de elementos do TO, fora da ocorrência e sem canal: guardar, procurar, recolher desta ocorrência e levar ao formulário do PCO |
 | r0044 | 291139 | — | Encerramento do registo da ocorrência: carimbo, fecho à escrita e reabertura, com as reservas no registo de evolução. Estado na versão 7 |
 | r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |

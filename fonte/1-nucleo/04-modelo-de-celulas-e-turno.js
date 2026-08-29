@@ -90,6 +90,17 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 7 -> 8 · Sub-região do teatro de operações.
+   O pacote de canais traz a pasta sub-regional do posto, e o TO pode ser noutra
+   sub-região, com outros grupos. Nasce vazia de propósito: **não se deduz do concelho**,
+   porque a composição das sub-regiões não está confirmada em fonte neste projeto, e
+   adivinhá-la punha a aplicação a afirmar uma pasta de rádio que ninguém verificou. */
+MIGRACOES.push(e => {
+  e.meta = e.meta || {};
+  if(typeof e.meta.subregiao !== "string") e.meta.subregiao = "";
+  return e;
+});
+
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
@@ -109,7 +120,7 @@ let SERIE = [], ANALISE = null;
 
 /** @returns {Estado} */
 function novoEstado(){
-  return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",pasta:"",inicio:"",nivel:"",distrito:"",concelho:"",distritoChave:""},
+  return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
     dados:{area:"", perimNome:"", setores:"", sensiveis:"", anexos:[],
       perfil:null,

@@ -53,6 +53,13 @@ declare function addSensTodos(): void;
 interface MetaOcorrencia {
   num: string; local: string; pco: string; fase: string;
   lat: string; lon: string; pasta: string; inicio: string; nivel: string;
+  /**
+   * Pasta sub-regional do SIRESP onde decorre o TO. Determina que grupos sub-regionais
+   * são aplicáveis. Não se deduz do concelho: a composição das sub-regiões não está
+   * confirmada em fonte neste projeto, e adivinhá-la seria afirmar uma pasta de rádio
+   * que ninguém verificou.
+   */
+  subregiao: string;
   /** Derivados por geocodificação inversa. Não têm campo no formulário. */
   distrito: string; concelho: string; distritoChave: string;
 }
