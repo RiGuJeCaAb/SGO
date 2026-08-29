@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0041**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0042**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 45, das anteriores à convenção de nomes até à r0041 |
+| Entregas em `app/` | 46, das anteriores à convenção de nomes até à r0042 |
 | Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 231, todos a passar |
+| Testes | 233, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,34 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Legibilidade dos campos e peso dos avisos, na r0042
+
+Três coisas vistas em uso.
+
+**Um rótulo comprido desalinhava o campo.** O do GDH da solicitação leva o nome da
+entidade nomeadora, e com a designação da lei por inteiro — «força de segurança
+territorialmente competente» — quebrava em duas linhas e empurrava o campo para baixo do
+dos vizinhos. Cada função externa passa a declarar uma forma curta, `extC`, para o rótulo;
+a designação da lei fica no `title` e continua inteira no aviso e no PEA — abrevia-se o
+rótulo, não a norma. E a causa estrutural também: uma célula da grelha passa a coluna com
+o campo encostado ao fundo, e os campos de uma linha ficam alinhados tenha o rótulo as
+linhas que tiver.
+
+**As caixas de aviso não distinguiam nível.** Todas tinham a mesma superfície e a mesma
+moldura; só mudava uma barra de 3 px. Uma obrigação legal em incumprimento lia-se igual a
+uma conformidade verificada. Passa a haver três pesos, e sem ícones — barra, fundo e
+relevo, por esta ordem de força: a obrigação leva barra de 7 px, fundo tingido, sombra,
+título na cor do nível e etiqueta em bloco cheio; a antecipação leva 5 px e um tingimento
+mais leve; a conformidade fica em repouso, porque é registo e não chamada. Cada declaração
+com `color-mix` leva antes a sua equivalente em cor sólida, para o caso de o navegador do
+posto não a conhecer.
+
+**O cartão das integrações estava desatualizado.** Dava como «próximo passo da Fase 1»
+substituir o colar de CSV por chamada automática ao Open-Meteo — que está feito desde a
+r0014, com os avisos do IPMA a acompanhar. O cartão passa a dizer o que é: duas fontes, a
+automática e o colar manual para quando não há rede. O próximo passo real é reter a última
+previsão obtida, para que uma perda de rede não deixe o meteograma vazio.
 
 ## A ajuda no ecrã, recuperada na r0041
 
@@ -701,4 +729,5 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |
 | r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |

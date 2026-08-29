@@ -16,9 +16,9 @@ const FUNCOES_PCO = [
   {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", fase:4},
   {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", fase:5},
   {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", fase:4},
-  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", fase:3, ext:"força de segurança territorialmente competente"},
-  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", fase:4, ext:"INEM, I.P."},
-  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", fase:5, ext:"Instituto da Segurança Social, I.P."},
+  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", fase:3, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
+  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", fase:4, ext:"INEM, I.P.", extC:"INEM"},
+  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", fase:5, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
   {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", fase:4},
   {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", fase:4},
   {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", fase:4},
@@ -94,7 +94,14 @@ function pintarCampoSolicitacao(){
   const d = pcoDef(sel.value);
   box.style.display = d.ext ? "" : "none";
   const lab = box.querySelector("label");
-  if(lab && d.ext) lab.textContent = "GDH da solicitação a " + d.ext;
+  /* O rótulo leva a forma curta e o título a designação da lei por inteiro. A longa
+     — «força de segurança territorialmente competente» — quebrava em duas linhas e
+     desalinhava o campo dos vizinhos na grelha. A designação não se abrevia no que
+     conta: fica no `title`, no aviso e no PEA. */
+  if(lab && d.ext){
+    lab.textContent = "GDH da solicitação a " + (d.extC || d.ext);
+    lab.title = "Solicitação do COS a " + d.ext + " — " + d.r;
+  }
 }
 function renderPCO(){
   const sel = $("pc-f"); if(!sel) return;

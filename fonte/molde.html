@@ -95,14 +95,29 @@
   /* caixas de aviso — largura total, três colunas de leitura */
   /* caixas de verificação da DON — prefixo avd- para não colidir com as etiquetas IPMA (.av-c) */
   .avd-g{display:flex;flex-direction:column;gap:20px;margin-top:4px}
-  .avd-b{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:10px;background:var(--surf);padding:22px 28px 20px}
-  .avd-b.ob{border-left-color:var(--fogo)}
-  .avd-b.av{border-left-color:var(--terra)}
-  .avd-b.ok{border-left-color:var(--madeira)}
-  .avd-n{display:block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:7px}
-  .avd-b.ob .avd-n{color:var(--fogo)}
-  .avd-b.av .avd-n{color:var(--terra)}
+  /* O nível lê-se antes de se ler uma palavra: barra, fundo e relevo, por esta ordem
+     de força. Sem ícones — a hierarquia faz-se por tipografia, cor e relevo. Uma
+     obrigação legal em incumprimento não pode ter o mesmo peso visual que uma
+     conformidade verificada, que foi o que estas caixas tinham. */
+  .avd-b{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:10px;background:var(--surf);padding:22px 28px 20px;
+         position:relative;transition:box-shadow .15s ease}
+  .avd-b.ob{border-left-width:7px;border-left-color:var(--fogo);background:var(--surf2);box-shadow:0 2px 14px rgba(0,0,0,.10)}
+  .avd-b.ob{border-color:color-mix(in srgb, var(--fogo) 34%, var(--line));
+            background:color-mix(in srgb, var(--fogo) 7%, var(--surf));
+            box-shadow:0 2px 14px color-mix(in srgb, var(--fogo) 18%, transparent)}
+  .avd-b.av{border-left-width:5px;border-left-color:var(--terra);background:var(--surf2)}
+  .avd-b.av{border-color:color-mix(in srgb, var(--terra) 26%, var(--line));
+            background:color-mix(in srgb, var(--terra) 5%, var(--surf))}
+  .avd-b.ok{border-left-color:var(--madeira);opacity:.86}
+  .avd-b.ok:hover{opacity:1}
+  /* A etiqueta do nível passa a bloco cheio nas que exigem ação, e fica em texto na
+     conformidade verificada, que é registo e não chamada. */
+  .avd-n{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:11px}
+  .avd-b.ob .avd-n,.avd-b.av .avd-n{padding:4px 10px;border-radius:5px;color:var(--bg)}
+  .avd-b.ob .avd-n{background:var(--fogo)}
+  .avd-b.av .avd-n{background:var(--terra)}
   .avd-b.ok .avd-n{color:var(--madeira)}
+  .avd-b.ob .avd-t{color:var(--fogo)}
   .avd-t{font-family:var(--disp);font-weight:700;font-size:19px;line-height:1.25;letter-spacing:.1px;margin-bottom:20px}
   .avd-s{margin-bottom:18px}
   .avd-s:last-of-type{margin-bottom:0}
@@ -330,6 +345,11 @@
   .card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--tx3);border:1px solid var(--line);padding:2px 7px;border-radius:5px;letter-spacing:.5px}
 
   .grid{display:grid;gap:12px}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+  /* Um rótulo que quebre em duas linhas empurrava o seu campo para baixo do dos
+     vizinhos. A célula passa a coluna com o campo encostado ao fundo: os campos de
+     uma linha ficam alinhados, tenha o rótulo as linhas que tiver. */
+  .grid>div{display:flex;flex-direction:column;justify-content:flex-end}
+  .grid>div>label{margin-top:auto}
   @media(max-width:760px){.g3,.g2,.g4{grid-template-columns:1fr}}
   label{display:block;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--tx2);margin-bottom:7px}
   input,textarea,select{width:100%;background:var(--surf2);border:1px solid var(--line);border-radius:8px;color:var(--tx);padding:12px 14px;font-family:var(--body);font-size:15px}
@@ -1044,10 +1064,11 @@
 
       <div class="src"><div class="st ok"></div><div style="flex:1">
         <b>Meteograma</b><span class="chip op">OPERACIONAL</span>
-        <div class="kv"><b>Fonte hoje:</b> CSV colado do SpotWX (vista Prometheus, colunas <code>HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP</code>) ou colunas manuais <code>data;hora;T;HR;WD;WS;precip</code>.</div>
+        <div class="kv"><b>Fonte hoje, manual:</b> CSV colado do SpotWX (vista Prometheus, colunas <code>HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP</code>) ou colunas manuais <code>data;hora;T;HR;WD;WS;precip</code>.</div>
         <div class="kv"><b>Cálculo (código, sem IA):</b> janela de consolidação (horas contíguas HR ≥ 50 %), rotações de vento ≥ 50° com rumo de/para, HR mín/máx e T mín/máx com GDH, horas críticas HR ≤ 20 %, assinatura convectiva (precipitação &gt; 0 com rotação).</div>
         <div class="kv"><b>Entra no PEA em:</b> Previsão, tabela horária, GDH-limite do Objetivo, fundamentos de P1/P3/P5 e gatilhos de validade.</div>
-        <div class="kv"><b>Próximo passo (Fase 1):</b> substituir o colar de CSV por chamada automática — <code>api.open-meteo.com/v1/forecast?latitude&amp;longitude&amp;hourly=temperature_2m,relative_humidity_2m,wind_direction_10m,wind_speed_10m,precipitation</code> (sem chave) + previsão e avisos do <code>api.ipma.pt</code>, usando as coordenadas do separador 1.</div>
+        <div class="kv"><b>Fonte hoje, alternativa:</b> chamada automática ao <code>api.open-meteo.com/v1/forecast</code> pelas coordenadas registadas em Comando, e avisos do <code>api.ipma.pt</code> pelo distrito do TO. O colar de CSV mantém-se para quando não há rede.</div>
+        <div class="kv"><b>Próximo passo:</b> reter a última previsão obtida, para que uma perda de rede não deixe o meteograma vazio.</div>
       </div></div>
 
       <div class="src"><div class="st ok"></div><div style="flex:1">

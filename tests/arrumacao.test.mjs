@@ -199,3 +199,34 @@ test('a ajuda por célula fala da célula, e não da numeração que já não ex
     assert.doesNotMatch(texto, /[Ss]ec[çc][ãa]o\s+\d/,
       'a ajuda ainda remete para a numeração de secções anterior à arrumação por célula');
   });
+
+/* ---- legibilidade dos campos e dos avisos ---- */
+
+test('um rótulo comprido não desalinha o campo dos vizinhos', semAplicacao, () => {
+  // O rótulo do GDH da solicitação leva o nome da entidade nomeadora. Com a designação
+  // da lei por inteiro — «força de segurança territorialmente competente» — quebrava em
+  // duas linhas e empurrava o campo para baixo do dos vizinhos na mesma linha da grelha.
+  const sel = doc().getElementById('pc-f');
+  sel.value = 'Núcleo de Segurança';
+  sel.dispatchEvent(new janela.Event('change', { bubbles: true }));
+
+  const lab = doc().querySelector('label[for="pc-sol"]');
+  assert.match(lab.textContent, /GDH da solicitação a força de segurança$/, lab.textContent);
+  assert.match(lab.title, /territorialmente competente/,
+    'a designação da lei tem de sobreviver algures — abrevia-se o rótulo, não a norma');
+});
+
+test('cada nível de aviso tem peso visual próprio', semAplicacao, () => {
+  // Uma obrigação legal em incumprimento não pode ler-se igual a uma conformidade
+  // verificada. A distinção faz-se por barra, fundo e relevo — sem ícones.
+  // O CSS chega serializado pelo motor; compara-se sem depender de espaços.
+  const css = [...janela.document.styleSheets[0].cssRules]
+    .map((r) => r.cssText).join(' ').replace(/\s+/g, '');
+  assert.match(css, /\.avd-b\.ob\{[^}]*border-left-width:7px/, 'a obrigação não tem barra própria');
+  assert.match(css, /\.avd-b\.av\{[^}]*border-left-width:5px/, 'a antecipação não tem barra própria');
+  assert.match(css, /\.avd-b\.ob[^{]*\{[^}]*box-shadow:[^};]+;/, 'a obrigação não tem relevo');
+  // a etiqueta do nível é bloco cheio nas que exigem ação, e texto na que é só registo
+  assert.match(css, /\.avd-b\.ob\.avd-n\{background:var\(--fogo\)/);
+  assert.match(css, /\.avd-b\.av\.avd-n\{background:var\(--terra\)/);
+  assert.match(css, /\.avd-b\.ok\.avd-n\{color:var\(--madeira\)/);
+});
