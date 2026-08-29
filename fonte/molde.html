@@ -711,6 +711,16 @@
   .atc.on{transform:translateY(2px);box-shadow:var(--afund), 0 0 11px -3px var(--c)}
   .atc:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
 
+  /* teclas do léxico: a mesma mecânica das teclas de canal. São teclas de momento —
+     não engatam, cravam-se e voltam —, e por isso não têm estado aceso. */
+  .fr{background:var(--surf);box-shadow:var(--rel);
+    transition:box-shadow .09s,transform .09s,filter .12s,color .14s,border-color .14s}
+  .fr:hover{filter:brightness(1.1)}
+  .fr:active{transform:translateY(2px);box-shadow:var(--afund)}
+  .fr:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+  .fr-t{transition:box-shadow .12s,transform .12s,background .14s,color .14s}
+  .fr-t.on{box-shadow:var(--afund)}
+
   /* caixas de nível: mesma mecânica à escala do painel */
   .nvb{box-shadow:var(--rel);transition:box-shadow .12s,transform .12s,background .16s,border-color .16s}
   .nvb:active{transform:translateY(2px);box-shadow:var(--afund)}
@@ -727,8 +737,8 @@
   .cat-r .x:active{transform:translateY(1px)}
 
   @media(prefers-reduced-motion:reduce){
-    .btn,.atc,.nvb,nav button,.sinal,input,select,textarea{transition:none}
-    .btn:active,.atc:active,.nvb:active,.sinal:active,.atc.on,.nvb.on,nav button:hover{transform:none}
+    .btn,.atc,.fr,.fr-t,.nvb,nav button,.sinal,input,select,textarea{transition:none}
+    .btn:active,.atc:active,.fr:active,.nvb:active,.sinal:active,.atc.on,.nvb.on,nav button:hover{transform:none}
   }
 
   @media print{
@@ -1290,6 +1300,11 @@
           <button class="fr" type="button" data-tp="melhoria" data-fr="flanco esquerdo consolidado">flanco esq. consolidado</button>
           <button class="fr" type="button" data-tp="melhoria" data-fr="flanco direito consolidado">flanco dto. consolidado</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="reacendimento em ponto quente">reacendimento</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="contrafogo executado sob ordem do COS">contrafogo</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="queima de alargamento a partir da linha de apoio">queima de alargamento</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="faixa de contenção aberta com maquinaria">faixa com maquinaria</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="cabeça do incêndio em progressão livre">cabeça em progressão livre</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="duas frentes distintas em progressão">duas frentes</button>
         </div>
         <div class="fr-g"><span class="fr-l">Propagação</span>
           <span class="hint" style="margin:0">propagação para</span>
@@ -1301,6 +1316,18 @@
           <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para SO">SO</button>
           <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para O">O</button>
           <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NO">NO</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="progressão rápida por encosta acima">encosta acima</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="progressão lenta por encosta abaixo">encosta abaixo</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="progressão condicionada pelo relevo">condicionada pelo relevo</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="progressão dominada pelo vento">dominada pelo vento</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="propagação por focos secundários">focos secundários</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="inversão noturna a travar a progressão">inversão noturna</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="progressão contida em linha de água">contida em linha de água</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="progressão contida em faixa de gestão de combustível">contida em faixa de gestão</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="progressão para área já ardida">para área ardida</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="progressão para povoamento florestal denso">para povoamento denso</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="velocidade de propagação a aumentar">a acelerar</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="velocidade de propagação a diminuir">a abrandar</button>
         </div>
         <div class="fr-g"><span class="fr-l">Perímetro</span>
           <button class="fr mini" type="button" data-tp="posit" data-fr="10 % do perímetro em consolidação">10 %</button>
@@ -1310,6 +1337,19 @@
           <button class="fr mini" type="button" data-tp="melhoria" data-fr="90 % do perímetro em consolidação">90 %</button>
           <button class="fr" type="button" data-tp="melhoria" data-fr="perímetro fechado">perímetro fechado</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="perímetro reaberto">perímetro reaberto</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="100 % do perímetro em consolidação">100 %</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="perímetro por fechar no flanco esquerdo">por fechar a esq.</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="perímetro por fechar no flanco direito">por fechar a dto.</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="reconhecimento do perímetro concluído">reconhecimento concluído</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="extensão do perímetro reavaliada">extensão reavaliada</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="área ardida estimada atualizada">área ardida atualizada</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="ponto quente localizado junto ao perímetro">ponto quente localizado</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="ponto quente extinto">ponto quente extinto</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="arrefecimento do perímetro em curso">arrefecimento em curso</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="orla do perímetro sem chama visível">sem chama na orla</button>
+          <button class="fr" type="button" data-tp="posit" data-est="Vigilância ativa e consolidação de rescaldo" data-fr="perímetro entregue à vigilância ativa">entregue à vigilância</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="faixa de segurança aberta ao longo do perímetro">faixa de segurança</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="perímetro estabilizado">perímetro estabilizado</button>
         </div>
         <div class="fr-g"><span class="fr-l">Meios</span>
           <button class="fr" type="button" data-tp="meios" data-fr="necessita reforço de meios">necessita reforço</button>
@@ -1327,6 +1367,11 @@
           <button class="fr" type="button" data-tp="meios" data-fr="reabastecimento de combustível">reabastecimento de combustível</button>
           <button class="fr" type="button" data-tp="meios" data-fr="equipa em período de descanso">equipa em descanso</button>
           <button class="fr" type="button" data-tp="meios" data-fr="meio recolhido a quartel">recolhido a quartel</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meio aéreo em reabastecimento">aéreo em reabastecimento</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meios aéreos recolhidos ao ocaso">aéreos ao ocaso</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="equipa de máquinas em abertura de acesso">máquinas em acesso</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="meio bloqueado por acesso intransitável">acesso intransitável</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="substituição de equipa no mesmo veículo">substituição de equipa</button>
         </div>
         <div class="fr-g"><span class="fr-l">Segurança</span>
           <button class="fr" type="button" data-tp="agravamento" data-fr="rotação de vento observada no TO">rotação observada</button>
@@ -1341,6 +1386,14 @@
           <button class="fr" type="button" data-tp="agravamento" data-fr="linha elétrica sobre a área de trabalho">linha elétrica</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="risco de queda de árvores na via de acesso">queda de árvores</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="comportamento extremo do fogo observado">comportamento extremo</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="briefing de segurança dado às equipas">briefing de segurança</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="ponto de encontro de emergência definido">ponto de encontro</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="contagem de operacionais efetuada">contagem de operacionais</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="evacuação de setor determinada por segurança">evacuação de setor</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="exaustão pelo calor em operacional">exaustão pelo calor</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="trabalhos noturnos com visibilidade reduzida">trabalhos noturnos</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="aeronave a operar sobre a área de trabalho">aeronave sobre a área</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="falha de cobertura nas comunicações">falha de cobertura</button>
         </div>
         <div class="fr-g"><span class="fr-l">População</span>
           <button class="fr" type="button" data-tp="decisao" data-fr="evacuação preventiva determinada pelo COS (art. 8.º, n.º 2, al. m))">evacuação preventiva</button>
@@ -1352,6 +1405,17 @@
           <button class="fr" type="button" data-tp="melhoria" data-fr="aglomerado dado por seguro">aglomerado seguro</button>
           <button class="fr" type="button" data-tp="decisao" data-fr="reabertura de via determinada">reabertura de via</button>
           <button class="fr" type="button" data-tp="posit" data-fr="apoio a população deslocada">apoio a deslocados</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="aviso à população efetuado">aviso à população</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="porta a porta em curso no aglomerado">porta a porta</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="evacuação concluída">evacuação concluída</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="regresso da população autorizado">regresso autorizado</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="zona de concentração de população definida">zona de concentração</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="apoio psicossocial acionado">apoio psicossocial</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="populares a intervir no combate">populares no combate</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="acesso condicionado a viaturas particulares">acesso condicionado</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="animais a necessitar de evacuação">evacuação de animais</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="equipamento sensível ameaçado na proximidade">equipamento sensível</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="abastecimento de água à população afetado">água à população</button>
         </div>
         <div class="fr-g"><span class="fr-l">Comando</span>
           <button class="fr" type="button" data-tp="posit" data-fr="POSIT transmitido ao CSREPC">POSIT transmitido</button>
@@ -1361,6 +1425,19 @@
           <button class="fr" type="button" data-tp="posit" data-fr="briefing aos comandantes de setor">briefing a setores</button>
           <button class="fr" type="button" data-tp="posit" data-fr="reunião de coordenação no PCO">reunião de coordenação</button>
           <button class="fr" type="button" data-tp="posit" data-fr="visita de entidade ao teatro de operações">visita ao TO</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="PEA aprovado pelo COS">PEA aprovado</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="PEA difundido às células e aos setores">PEA difundido</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="célula de planeamento ativada">planeamento ativada</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="célula de operações ativada">operações ativada</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="célula de logística e finanças ativada">logística ativada</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="setorização revista">setorização revista</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="novo setor criado">novo setor</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="setor extinto e meios redistribuídos">setor extinto</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="ponto de situação pedido aos setores">PONSIT aos setores</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="ligação estabelecida com a autoridade municipal">ligação ao município</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="oficial de ligação recebido no PCO">oficial de ligação recebido</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="passagem de turno no posto de comando">passagem de turno</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="posto de comando transferido para novo local">PCO transferido</button>
         </div>
         <div class="fr-g"><span class="fr-l">Danos</span>
           <button class="fr" type="button" data-tp="agravamento" data-fr="habitação afetada pelo incêndio">habitação afetada</button>
@@ -1368,10 +1445,25 @@
           <button class="fr" type="button" data-tp="agravamento" data-fr="infraestrutura elétrica afetada">infraestrutura elétrica</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="área agrícola ou pecuária afetada">área agrícola</button>
           <button class="fr" type="button" data-tp="posit" data-fr="sem danos em edificado a registar">sem danos a registar</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="habitação destruída pelo incêndio">habitação destruída</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="habitação salva por intervenção direta">habitação salva</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="veículo particular ardido">veículo particular</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="armazém ou unidade industrial afetada">unidade industrial</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="estufas ou culturas protegidas afetadas">culturas protegidas</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="colmeias afetadas">colmeias</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="instalações pecuárias afetadas">instalações pecuárias</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="animais mortos ou feridos">animais atingidos</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="rede de telecomunicações afetada">telecomunicações</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="via de comunicação cortada">via cortada</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="captação de água afetada">captação de água</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="património classificado ameaçado">património classificado</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="povoamento florestal afetado">povoamento florestal</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="levantamento de danos em curso">levantamento de danos</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="sem vítimas a registar">sem vítimas</button>
         </div>
       </div>
         <p class="hint" id="fr-vazio" style="display:none">Nenhuma frase corresponde ao que está a ser procurado.</p>
-        <p class="hint">A frase entra na descrição e escolhe sozinha o tipo do registo. A aresta esquerda diz qual: vermelha, agravamento; verde, melhoria; azul, decisão do COS; laranja, alteração de meios; sem aresta, ponto de situação. Quatro delas nomeiam um estado de setor e propõem a mudança no dispositivo.</p>
+        <p class="hint">A frase entra na descrição e escolhe sozinha o tipo do registo. A aresta esquerda diz qual: vermelha, agravamento; verde, melhoria; azul, decisão do COS; laranja, alteração de meios; sem aresta, ponto de situação. Algumas nomeiam um estado de setor e propõem a mudança no dispositivo.</p>
       </div>
       <div class="sub"><span class="stit">3 · Registo</span>
       <div class="grid g2">

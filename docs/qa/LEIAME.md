@@ -15,6 +15,8 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0011_..._MedidorGomos_CLD.png` | r0049 | O medidor em gomos nas unidades de setor: um gomo por hora, acesos os que faltam |
 | `CSREPCDouro_qa0011_..._MedidorAereos_CLD.png` | r0049 | O mesmo medidor nos meios aéreos, com o teto de 6 h |
 | `CSREPCDouro_qa0011_..._LexicoArrumado_CLD.png` | r0049 | O registo de evolução em três blocos, com o léxico por grupo e procura |
+| `CSREPCDouro_qa0012_..._LexicoVinte_CLD.png` | r0050 | O léxico com vinte frases em cada grupo |
+| `CSREPCDouro_qa0012_..._TeclasLexico_CLD.png` | r0050 | As teclas do léxico com o relevo das teclas de canal, tema claro |
 
 Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exceções às
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o

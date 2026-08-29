@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0049**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0050**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 53, das anteriores à convenção de nomes até à r0049 |
+| Entregas em `app/` | 54, das anteriores à convenção de nomes até à r0050 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 294, todos a passar |
+| Testes | 296, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,34 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Vinte frases por grupo, em teclas com relevo, na r0050
+
+«E que tal 20 vocábulos por cada grupo?» O léxico passou de 78 para **160 frases, vinte em
+cada um dos oito grupos**. Entraram as que faltavam para escrever uma ocorrência sem sair
+para o teclado: o fogo tático (contrafogo, queima de alargamento), o comportamento da
+progressão (encosta acima e abaixo, focos secundários, inversão noturna, contenção em
+linha de água ou em faixa de gestão de combustível), o trabalho do perímetro (pontos
+quentes, arrefecimento, entrega à vigilância), a segurança de quem lá está (briefing,
+ponto de encontro, contagem de operacionais, exaustão pelo calor), a população (aviso,
+porta a porta, regresso autorizado, populares a intervir no combate), o comando (aprovação
+e difusão do PEA, ativação de células, setorização revista, passagem de turno, PCO
+transferido) e os danos, que eram cinco e são vinte.
+
+Nenhuma frase inventa designação de canal, artigo ou nomenclatura de célula: as que citam
+norma são as que já lá estavam. Um teste recusa frases repetidas, frases cujo tipo não
+seja um dos cinco, e agora **grupos abaixo de vinte**.
+
+As frases passaram a ser **teclas com o mesmo relevo das teclas de canal** — salientes
+enquanto não se carregam, cravadas ao serem premidas. É a tridimensionalidade que já
+estava no plano de comunicações, e não é enfeite: uma tecla que se vê saliente diz que se
+carrega. Um teste compara o CSS das duas, para que não divirjam.
+
+### Verificação
+
+296 testes, dois novos: o chão de vinte frases por grupo, e o relevo das teclas comparado
+com o das teclas de canal. Verificado em navegador nos dois temas e a 480 px; provas em
+`docs/qa/` (`qa0012`).
 
 ## O medidor em gomos e o léxico arrumado, na r0049
 

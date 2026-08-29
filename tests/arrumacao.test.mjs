@@ -249,6 +249,25 @@ test('o léxico cobre os oito grupos, e cada frase declara o tipo', semAplicacao
   });
 });
 
+test('cada grupo do léxico traz pelo menos vinte frases', semAplicacao, () => {
+  // Vinte por grupo foi o pedido do Ricardo: um léxico que chegue para escrever a
+  // ocorrência sem sair para o teclado. O chão é aqui; o teto não existe.
+  const magros = [...doc().querySelectorAll('#evo-frases .fr-g')]
+    .map((g) => [g.querySelector('.fr-l').textContent.trim(), g.querySelectorAll('[data-fr]').length])
+    .filter(([, n]) => n < 20);
+  assert.deepEqual(magros, [], 'grupos abaixo de vinte frases: ' + JSON.stringify(magros));
+});
+
+test('as teclas do léxico têm o relevo das teclas de canal', semAplicacao, () => {
+  // A tridimensionalidade não é enfeite: uma tecla que se vê saliente diz que se carrega,
+  // e crava-se ao ser carregada. É a mesma mecânica das teclas de canal — e o mesmo CSS.
+  const css = [...janela.document.styleSheets[0].cssRules]
+    .map((r) => r.cssText).join(' ').replace(/\s+/g, '');
+  assert.match(css, /\.fr\{[^}]*box-shadow:var\(--rel\)/, 'a tecla do léxico não tem relevo');
+  assert.match(css, /\.fr:active\{[^}]*box-shadow:var\(--afund\)/, 'a tecla não afunda ao ser premida');
+  assert.match(css, /\.atc\{[^}]*box-shadow:var\(--rel\)/, 'a tecla de canal perdeu o relevo');
+});
+
 test('nenhuma frase se repete', semAplicacao, () => {
   const fr = [...doc().querySelectorAll('#evo-frases [data-fr]')].map((b) => b.getAttribute('data-fr'));
   const rep = fr.filter((x, i) => fr.indexOf(x) !== i);

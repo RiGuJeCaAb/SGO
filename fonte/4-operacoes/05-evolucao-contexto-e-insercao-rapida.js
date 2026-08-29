@@ -33,7 +33,7 @@ function pintarEvoCtx(){
 let EVO_SETOR = null;
 
 /**
- * Quatro das frases-tipo nomeiam, no seu próprio texto, um dos cinco estados de setor do
+ * Algumas das frases-tipo nomeiam, no seu próprio texto, um dos cinco estados de setor do
  * ponto 7.f da DON n.º 2. Dizer «frente dominada» na evolução e deixar o setor «em
  * curso» no dispositivo é ter duas verdades — e a análise da repartição lê o dispositivo,
  * não a prosa. A frase passa por isso a propor a mudança.

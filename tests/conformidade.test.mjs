@@ -228,10 +228,10 @@ test('a reativação conta como agravamento na evolução', semAplicacao, () => 
   assert.equal(O.evolucao[0].tipo, 'agravamento');
 });
 
-test('quatro frases-tipo nomeiam um estado, e declaram-no', semAplicacao, () => {
+test('as frases-tipo que nomeiam um estado declaram um dos cinco', semAplicacao, () => {
   const frases = [...janela.document.querySelectorAll('#evo-frases [data-est]')]
     .map((b) => [b.getAttribute('data-fr'), b.getAttribute('data-est')]);
-  assert.equal(frases.length, 4);
+  assert.ok(frases.length >= 4, 'só ' + frases.length + ' frases nomeiam estado');
   const estados = avaliar(janela, 'ESTADOS_SETOR');
   frases.forEach(([fr, est]) => assert.ok([...estados].includes(est),
     `a frase «${fr}» declara um estado que não é dos cinco: ${est}`));
