@@ -110,7 +110,9 @@ function reparticao(setores) {
   e.n = setores.length;
   e.setores = setores.map((s, i) => ({
     estado: s.estado, cmd: s.cmd || '', ct: '', adj: '', m: '', o: '',
-    tip: s.veiculos ? [{ t: 'VFCI', q: s.veiculos, mu: 1, ou: 5, mr: 0, ar: 0, ts: janela.agora() }] : [],
+    // Uma entrada por unidade: é essa a forma do estado desde a versão 10.
+    tip: Array.from({ length: s.veiculos || 0 }, () =>
+      ({ t: 'VFCI', mu: 1, ou: 5, mr: 0, ar: 0, ts: janela.agora(), ent: '' })),
   }));
   O.meta.inicio = janela.gdhDe(janela.agora() - 30 * 60000);
   return JSON.parse(JSON.stringify(janela.verificacoesDON())).filter((x) => x.id === 'reparticao');
@@ -416,4 +418,86 @@ test('um PEA emitido antes do limiar não fecha o ataque ampliado', semAplicacao
   O.peas.push({ n: 1, g: '', ts: janela.agora() - 140 * 60000, ctrl: [], base: {} });
   assert.equal(don().find((x) => x.id === 'ata').n, 'ob',
     'um plano anterior ao limiar não é o PEA que o limiar exige');
+});
+
+/* ---- cada meio é uma unidade, com o seu relógio ---- */
+
+test('a migração reparte os blocos em unidades, sem perder nada', semAplicacao, () => {
+  // Três viaturas do mesmo tipo podem vir de corpos diferentes e ter entrado no TO a
+  // horas diferentes. Enquanto partilhavam `q:3` e um instante, o relógio da rendição
+  // era o mesmo para as três — e a rendição pede-se por veículo.
+  const ts = janela.agora() - 3 * 3600000;
+  const m = janela.migrarGravado({
+    versao: 9, meta: { num: '2026/900' }, pco: { funcoes: [] },
+    dados: { est: { n: 1, setores: [{ estado: ATIVO, cmd: '', tip: [
+      { t: 'VFCI', q: 3, mu: 1, ou: 5, mr: 0, ar: 0, ts },
+      { t: 'ECIN', q: 1, mu: 1, ou: 5, mr: 0, ar: 0, ts }] }] } },
+  });
+  const tip = JSON.parse(JSON.stringify(m.dados.est.setores[0].tip));
+  assert.equal(tip.length, 4, 'três VFCI e um ECIN');
+  assert.equal(tip.filter((x) => x.t === 'VFCI').length, 3);
+  tip.forEach((x) => {
+    assert.equal(x.q, undefined, 'a quantidade não sobrevive');
+    assert.equal(x.ts, ts, 'o instante do bloco fica em cada unidade');
+    assert.equal(typeof x.ent, 'string');
+  });
+});
+
+test('as contas dão o mesmo depois de repartir', semAplicacao, () => {
+  const e = janela.estObj();
+  e.n = 1;
+  e.setores = [{ estado: ATIVO, cmd: '', ct: '', adj: '', m: '', o: '', tip: [
+    { t: 'VFCI', mu: 1, ou: 5, mr: 0, ar: 0, ts: janela.agora(), ent: 'CB Lamego' },
+    { t: 'VFCI', mu: 1, ou: 5, mr: 0, ar: 0, ts: janela.agora(), ent: 'CB Tarouca' },
+    { t: 'ECIN', mu: 1, ou: 5, mr: 0, ar: 0, ts: janela.agora(), ent: '' }] }];
+  const t = JSON.parse(JSON.stringify(janela.totSetor(e.setores[0])));
+  assert.deepEqual(t, { m: 3, o: 15 });
+  assert.equal(janela.contarDispositivo().m, 3);
+});
+
+test('agrupa-se para mostrar, nunca para guardar', semAplicacao, () => {
+  const tip = [
+    { t: 'VFCI', mu: 1, ou: 5 }, { t: 'VFCI', mu: 1, ou: 5 }, { t: 'ECIN', mu: 1, ou: 5 }];
+  assert.equal(janela.resumoTip(tip), '2× VFCI, 1× ECIN');
+  const g = JSON.parse(JSON.stringify(janela.agruparTip(tip)));
+  assert.deepEqual(g.find((x) => x.t === 'VFCI'), { t: 'VFCI', n: 2, m: 2, o: 10 });
+});
+
+test('duas unidades iguais podem ter origens e relógios diferentes', semAplicacao, () => {
+  const agora = janela.agora();
+  const e = janela.estObj();
+  e.n = 1;
+  e.setores = [{ estado: ATIVO, cmd: '', ct: '', adj: '', m: '', o: '', tip: [
+    { t: 'VFCI', mu: 1, ou: 5, mr: 0, ar: 0, ts: agora - 13 * 3600000, ent: 'CB Lamego' },
+    { t: 'VFCI', mu: 1, ou: 5, mr: 0, ar: 0, ts: agora - 1 * 3600000, ent: 'CB Tarouca' }] }];
+
+  const R = JSON.parse(JSON.stringify(janela.rendicoes(agora)));
+  assert.equal(R.length, 2, 'uma linha por unidade');
+  const velha = R.find((x) => x.nome.includes('Lamego'));
+  const nova = R.find((x) => x.nome.includes('Tarouca'));
+  assert.equal(velha.nivel, 'r', '13 h ultrapassa o limite de 12 h');
+  assert.equal(nova.nivel, 'v', '1 h está dentro');
+  assert.equal(velha.op, 5, 'os operacionais são os da unidade, não os do bloco');
+});
+
+test('o medidor diz o estado na cor e o quanto no número', semAplicacao, () => {
+  // A leitura não pode depender de distinguir cores: o número está em tinta de texto,
+  // e a cor da marca é o estado. E sem instante não há medidor nenhum.
+  const agora = janela.agora();
+  const cheio = janela.medidorTempo({ t: 'VFCI', ts: agora - 13 * 3600000 });
+  assert.match(cheio, /class="med r"/);
+  assert.match(cheio, /width:100%/, 'passado o limite, a pista enche');
+  assert.match(cheio, /13\.0 h/);
+  assert.match(cheio, /rendição prevista para \d{6}[A-Z]{3}\d{2}/);
+
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 1 * 3600000 }), /class="med v"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 9 * 3600000 }), /class="med a"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: 0 }), /sem relógio/);
+});
+
+test('o medidor usa o limiar aéreo para meios aéreos', semAplicacao, () => {
+  const agora = janela.agora();
+  // 7 h passa o teto de 6 h dos aéreos, e não passa o de 12 h dos terrestres.
+  assert.match(janela.medidorTempo({ t: 'HEBL', ar: 1, ts: agora - 7 * 3600000 }), /class="med r"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 7 * 3600000 }), /class="med v"/);
 });

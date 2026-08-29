@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0047**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0048**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 51, das anteriores à convenção de nomes até à r0047 |
+| Entregas em `app/` | 52, das anteriores à convenção de nomes até à r0048 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 283, todos a passar |
+| Testes | 292, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 9 |
+| Versão do estado gravado | 10 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,63 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Cada meio é uma unidade, com o seu relógio, na r0048
+
+Três viaturas do mesmo tipo num setor podem vir de corpos diferentes e ter entrado no
+teatro a horas diferentes. Enquanto partilhavam um bloco com `q:3` e **um único
+instante**, o relógio da rendição era o mesmo para as três — e a rendição pede-se por
+veículo, ao CSREPC, indicando a hora de saída e a de chegada ao destino (DON n.º 2,
+ponto 7.e.(5)(r)). Não havia como pedir a rendição de uma delas.
+
+Desde a versão 10 do estado, **uma entrada é uma unidade.** A quantidade desapareceu do
+estado: é comodidade de escrita no formulário — «atribuir 3× VFCI» cria três entradas
+independentes, cada uma com a sua origem e o seu instante, que daí para a frente divergem.
+O campo de origem é novo, ao lado da quantidade.
+
+A migração reparte os blocos existentes sem perder nada. O que se perde é a falsa
+igualdade entre unidades que só estavam juntas por comodidade de escrita.
+
+**Agrupa-se para mostrar, nunca para guardar.** O texto do PEA e o briefing continuam a
+dizer «2× ECIN», por `agruparTip()`; o estado, o quadro de rendições e os chips do setor
+são por unidade. O quadro de rendições passou a ter uma linha por veículo, com a origem no
+nome.
+
+### O medidor de tempo
+
+Cada unidade leva um medidor do tempo no TO contra o limiar da sua rendição. Carreguei a
+orientação de visualização antes de o desenhar, e ela responde à forma: **uma razão única
+contra um limite é um medidor de pista, não um donut** — e o Ricardo tinha sugerido
+círculo ou ampulheta. Fica a pista, que lê melhor no espaço de um chip e não pede ícone
+nenhum.
+
+Duas regras que segui e que valem a pena reter:
+
+- **A cor é o estado; o número diz quanto, em tinta de texto.** O código anterior pintava
+  o número com a cor do nível — a leitura passava a depender de distinguir cores. Agora a
+  marca leva a cor e o número fica em tinta.
+- **A cor validou-se, não se estimou.** O âmbar do tema claro dava 2,80:1 contra a
+  superfície do cartão, abaixo do mínimo de 3:1 para uma marca não textual. O medidor usa
+  um passo mais escuro da mesma cor, `#957020`, que dá 3,96:1 — medido com o validador.
+
+O limiar é o mesmo do quadro de rendições, aéreo ou terrestre conforme a tipologia, e o
+título traz a hora-limite por extenso.
+
+### E o léxico do registo de evolução
+
+De 41 para 78 frases, em oito grupos — dois novos, **Comando** e **Danos**. Entraram as
+que um PCO escreve de facto e que não estavam lá: ataque direto e indireto, linha de
+contenção estabelecida e ultrapassada, reacendimento, pedido de rendição ao CSREPC,
+reabastecimento, equipa em descanso, zona de segurança, rota de fuga, operacional ferido,
+aglomerado ameaçado e dado por seguro, POSIT transmitido, mudança de COS, e os danos em
+edificado e área agrícola. Um teste recusa frases repetidas e frases cujo tipo não seja um
+dos cinco.
+
+### Verificação
+
+292 testes, nove novos sobre o modelo por unidade e três sobre o léxico. Verificado em
+navegador: três VFCI no mesmo setor, de três corpos diferentes, com 13 h, 9 h e 1 h — três
+medidores, vermelho, âmbar e verde, e três linhas no quadro de rendições.
 
 ## Avisos que se podem fechar, na r0047
 
@@ -939,6 +996,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0048 | 291238 | — | Cada meio é uma unidade, com origem e relógio próprios, e medidor de tempo por unidade; estado na versão 10. Léxico da evolução de 41 para 78 frases, em oito grupos |
 | r0047 | 291220 | — | Avisos que se podem fechar: o ataque ampliado fecha com o PEA emitido depois do limiar; a notificação das duas horas e a proposta de PMEPC declaram-se cumpridas com GDH e autor. Estado na versão 9 |
 | r0046 | 291215 | — | Pasta sub-regional corrigida para «Douro Op» e deixa de estar fixa no código: a ocorrência declara a sua, e os canais sub-regionais só se aplicam quando batem. Estado na versão 8 |
 | r0045 | 291143 | — | Catálogo de elementos do TO, fora da ocorrência e sem canal: guardar, procurar, recolher desta ocorrência e levar ao formulário do PCO |

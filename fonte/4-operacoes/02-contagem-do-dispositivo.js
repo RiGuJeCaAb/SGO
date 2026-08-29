@@ -4,12 +4,13 @@ function contarDispositivo(){
   let ar = 0, mr = 0, m = 0, op = 0, arCombSet = 0;
   (e.setores||[]).forEach(x=>{
     (x.tip||[]).forEach(it=>{
-      const d = catDef(it.t), q = +it.q||0;
-      ar += q * (+it.ar || d.ar || 0);
-      if(d.comb) arCombSet += q;
-      mr += q * (+it.mr || d.mr || 0);
-      m  += q * (+it.mu || 1);
-      op += q * (+it.ou || 0);
+      /* Uma entrada, uma unidade — desde a versão 10 do estado. */
+      const d = catDef(it.t);
+      ar += (+it.ar || d.ar || 0);
+      if(d.comb) arCombSet++;
+      mr += (+it.mr || d.mr || 0);
+      m  += (+it.mu || 1);
+      op += (+it.ou || 0);
     });
     if(!(x.tip||[]).length){ m += +x.m||0; op += +x.o||0; }
   });

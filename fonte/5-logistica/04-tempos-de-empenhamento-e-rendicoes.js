@@ -14,7 +14,10 @@ function rendicoes(ts){
       const teto = aereo? L.aer : L.lim, avi = aereo? Math.max(1,L.aer-2) : L.av;
       const h = (instante-it.ts)/3600000;
       out.push({
-        nome: it.q+"× "+it.t, local:"Setor "+NOMES_SETOR[i], op: it.q*(+it.ou||0),
+        /* Uma linha por unidade: a rendição pede-se ao CSREPC por veículo, com a hora
+           de saída e a de chegada ao destino — DON n.º 2, ponto 7.e.(5)(r). Um bloco de
+           três com um relógio só não permitia pedir a rendição de uma delas. */
+        nome: it.t+(it.ent? " · "+it.ent : ""), local:"Setor "+NOMES_SETOR[i], op: (+it.ou||0),
         h, txt: fmtH(h), aereo, teto, avi, ts: it.ts,
         nivel: h>=teto? "r" : (h>=avi? "a":"v"),
         limite: new Date(it.ts + teto*3600000)

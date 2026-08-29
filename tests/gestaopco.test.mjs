@@ -44,7 +44,7 @@ test('o exemplo do contrato lê-se com o que a origem manda registar', semAplica
   const r = converter(V1).resumo;
   assert.equal(r.versao, 1);
   assert.equal(r.setores, 2);
-  assert.equal(r.forcas, 3);
+  assert.equal(r.forcas, 4, 'quatro unidades, de três blocos do pacote');
   assert.equal(r.aereos, 2);
   assert.equal(r.funcoes, 4, 'duas funções e dois núcleos externos');
   assert.equal(r.app, 'Gestão PCO');
@@ -72,11 +72,15 @@ test('instantes ISO 8601 com fuso são lidos como instantes', semAplicacao, () =
 });
 
 test('tipologia antes de contagem: os efetivos vêm do catálogo', semAplicacao, () => {
-  const f = converter(V1).est.setores[0].tip[0];
-  assert.equal(f.t, 'ECIN');
-  assert.equal(f.q, 2);
-  assert.equal(f.mu, janela.catDef('ECIN').mu, 'veículos do Anexo 1');
-  assert.ok(f.ts, 'com instante de empenhamento');
+  // O pacote fala em quantidades; o estado guarda unidades desde a versão 10.
+  const tip = converter(V1).est.setores[0].tip;
+  const ecin = tip.filter((x) => x.t === 'ECIN');
+  assert.equal(ecin.length, 2, 'as duas unidades do bloco «2× ECIN»');
+  ecin.forEach((f) => {
+    assert.equal(f.q, undefined, 'a quantidade não sobrevive ao estado');
+    assert.equal(f.mu, janela.catDef('ECIN').mu, 'veículos do Anexo 1');
+    assert.ok(f.ts, 'com instante de empenhamento');
+  });
 });
 
 test('sem tipologia usa-se a contagem livre, e só aí', semAplicacao, () => {
@@ -210,8 +214,8 @@ test('regra 5 — a fita regista origem, operador, emissão e o que faltou', sem
   assert.match(linha, /posto PCO Vila Real/);
   assert.match(linha, /emitido \d{6}[A-Z]{3}\d{2}/);
   assert.match(linha, /importado \d{6}[A-Z]{3}\d{2}/);
-  assert.match(linha, /2 setores, 3 forças/);
-  assert.match(linha, /1 força\(s\) sem instante de empenhamento/);
+  assert.match(linha, /2 setores, 4 unidades/);
+  assert.match(linha, /2 unidade\(s\) sem instante de empenhamento/);
 });
 
 /* ---- especificação v1.1, o esquema que governa ---- */
@@ -223,7 +227,7 @@ test('a v1.1 é reconhecida pelo seu próprio envelope', semAplicacao, () => {
   assert.equal(r.esquema, 'especificação');
   assert.equal(r.versao, '1.1');
   assert.equal(r.setores, 2);
-  assert.equal(r.forcas, 3);
+  assert.equal(r.forcas, 4, 'quatro unidades, de três blocos do pacote');
   assert.equal(r.aereos, 2);
 });
 
@@ -412,7 +416,7 @@ test('a v1.2 é reconhecida, e traz o que a v1.1 não trazia', semAplicacao, () 
   assert.equal(c.resumo.esquema, 'especificação');
   assert.equal(c.resumo.versao, '1.2');
   assert.equal(c.resumo.setores, 2);
-  assert.equal(c.resumo.forcas, 3);
+  assert.equal(c.resumo.forcas, 4, 'quatro unidades, de três blocos do pacote');
   assert.equal(c.resumo.aereos, 2);
   assert.equal(c.resumo.funcoes, 4, 'duas funções e dois núcleos externos');
   assert.equal(c.pt.des, 'Rotunda da EN226, Leomil');

@@ -230,3 +230,36 @@ test('cada nível de aviso tem peso visual próprio', semAplicacao, () => {
   assert.match(css, /\.avd-b\.av\.avd-n\{background:var\(--terra\)/);
   assert.match(css, /\.avd-b\.ok\.avd-n\{color:var\(--madeira\)/);
 });
+
+/* ---- léxico do registo de evolução ---- */
+
+test('o léxico cobre os oito grupos, e cada frase declara o tipo', semAplicacao, () => {
+  const grupos = [...doc().querySelectorAll('#evo-frases .fr-g')]
+    .map((g) => g.querySelector('.fr-l').textContent.trim());
+  assert.deepEqual(grupos,
+    ['Combate', 'Propagação', 'Perímetro', 'Meios', 'Segurança', 'População', 'Comando', 'Danos']);
+
+  const frases = [...doc().querySelectorAll('#evo-frases [data-fr]')];
+  assert.ok(frases.length >= 70, 'só ' + frases.length + ' frases');
+  const tipos = [...doc().querySelectorAll('#e-tipo option')].map((o) => o.value);
+  frases.forEach((b) => {
+    assert.ok(b.getAttribute('data-fr').trim(), 'frase vazia: ' + b.textContent);
+    assert.ok(tipos.includes(b.getAttribute('data-tp')),
+      `«${b.textContent}» classifica-se como «${b.getAttribute('data-tp')}», que não é um dos tipos`);
+  });
+});
+
+test('nenhuma frase se repete', semAplicacao, () => {
+  const fr = [...doc().querySelectorAll('#evo-frases [data-fr]')].map((b) => b.getAttribute('data-fr'));
+  const rep = fr.filter((x, i) => fr.indexOf(x) !== i);
+  assert.deepEqual(rep, []);
+});
+
+test('uma frase do léxico entra na descrição e classifica o registo', semAplicacao, () => {
+  const ta = doc().getElementById('e-txt');
+  ta.value = '';
+  doc().querySelector('[data-fr="POSIT transmitido ao CSREPC"]')
+    .dispatchEvent(new janela.Event('click', { bubbles: true }));
+  assert.match(ta.value, /POSIT transmitido ao CSREPC/);
+  assert.equal(doc().getElementById('e-tipo').value, 'posit');
+});

@@ -25,10 +25,56 @@ function mudarEstadoSetor(i, novo){
   comporSetores(); persistir(false);
   return true;
 }
+/* Desde a versão 10 do estado, cada entrada de `tip` é **uma unidade**: não há
+   quantidade a multiplicar. Duas viaturas iguais são duas entradas, porque podem vir de
+   corpos diferentes e ter entrado no TO a horas diferentes. */
 function totSetor(x){
   const tip = x.tip||[];
-  return { m: tip.reduce((a,i)=>a+(+i.q||0)*(+i.mu||1),0), o: tip.reduce((a,i)=>a+(+i.q||0)*(+i.ou||0),0) };
+  return { m: tip.reduce((a,i)=>a+(+i.mu||1),0), o: tip.reduce((a,i)=>a+(+i.ou||0),0) };
 }
+
+/**
+ * Agrupa as unidades por tipologia, para onde um resumo é o que serve — o texto do PEA,
+ * o briefing, a linha do setor. O estado continua por unidade; agrupa-se para mostrar,
+ * nunca para guardar.
+ *
+ * @returns {{t:string, n:number, m:number, o:number}[]}
+ */
+function agruparTip(tip){
+  const por = {};
+  (tip||[]).forEach(it=>{
+    const k = it.t || "";
+    if(!por[k]) por[k] = { t:k, n:0, m:0, o:0 };
+    por[k].n++; por[k].m += (+it.mu||1); por[k].o += (+it.ou||0);
+  });
+  return Object.keys(por).map(k=>por[k]);
+}
+/**
+ * Medidor do tempo de uma unidade no teatro de operações: uma razão contra um limite,
+ * que é a forma certa para «quanto falta até à rendição» — pista e marca na mesma escala,
+ * sem donut e sem ícone.
+ *
+ * A cor diz o estado; **o número ao lado diz quanto, em tinta de texto e não na cor da
+ * marca**, para que a leitura não dependa de distinguir cores. O limiar é o mesmo que o
+ * quadro de rendições usa, e o título traz a hora-limite por extenso.
+ */
+function medidorTempo(it){
+  if(!it || !it.ts) return '<span class="med-h" title="sem instante de empenhamento: esta unidade não conta tempo no TO">sem relógio</span>';
+  const L = limiares(), d = catDef(it.t);
+  const teto = (it.ar || d.ar)? L.aer : L.lim;
+  const avi  = (it.ar || d.ar)? Math.max(1, L.aer-2) : L.av;
+  const h = (Date.now() - it.ts)/3600000;
+  const nivel = h>=teto? "r" : (h>=avi? "a" : "v");
+  const pct = Math.max(0, Math.min(100, (h/teto)*100));
+  const limite = gdhDe(it.ts + teto*3600000);
+  const titulo = h.toFixed(1)+" h no TO desde "+gdhDe(it.ts)+" · limite de "+teto+" h · rendição prevista para "+limite;
+  return '<span class="med '+nivel+'" title="'+esc(titulo)+'">'
+    + '<span class="med-p"><span class="med-f" style="width:'+pct.toFixed(0)+'%"></span></span>'
+    + '<span class="med-h">'+h.toFixed(1)+' h</span></span>';
+}
+
+/** O resumo em texto: «2× ECIN, 1× VFCI». */
+function resumoTip(tip){ return agruparTip(tip).map(g=>g.n+"× "+g.t).join(", "); }
 function renderSetores(){
   const e = estObj();
   $("s-n").value = String(e.n||0);
@@ -61,16 +107,14 @@ function renderSetores(){
         <select id="ta-t-${i}">${catOptions()}</select>
         <span class="lbl">QTD</span><input id="ta-q-${i}" type="number" min="1" value="1">
         <span class="lbl">OP/UNID</span><input id="ta-o-${i}" type="number" min="0" value="5">
+        <span class="lbl">ORIGEM</span><input id="ta-e-${i}" placeholder="corpo de bombeiros ou entidade" style="width:180px">
         <button class="btn btn-g" type="button" data-add="${i}">Atribuir</button>
       </div>
       <div class="tip-chips" id="tc-${i}">${(x.tip||[]).map((it,j)=>{
-        const h = it.ts? (Date.now()-it.ts)/3600000 : 0;
-        const hc = h>=12? "var(--fogo)" : (h>=8? "var(--terra)" : "var(--tx2)");
-        const hTxt = it.ts? `<span style="color:${hc};font-weight:600">${h.toFixed(1)} h</span>` : "";
         const destinos = ['<option value="">mover…</option>']
           .concat(e.setores.map((_,k)=>k!==i? `<option value="${k}">→ ${NOMES_SETOR[k]}</option>`:"").filter(Boolean))
           .concat(['<option value="D">Desmobilizar</option>']).join("");
-        return `<span class="tchip"><b>${it.q}×${esc(it.t)}</b> ${it.q*(it.mu||1)}m/${it.q*(it.ou||0)}op ${hTxt}
+        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${(it.mu||1)}m/${(it.ou||0)}op ${medidorTempo(it)}
           <select data-mv="${i}" data-j="${j}" class="mv">${destinos}</select>
           <button type="button" data-del="${i}" data-j="${j}" aria-label="remover">×</button></span>`;
       }).join("")}</div></div>`;
@@ -91,16 +135,21 @@ function renderSetores(){
   L.querySelectorAll("[data-add]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const i=+b.dataset.add, t=$("ta-t-"+i).value, q=+$("ta-q-"+i).value||1, ou=+$("ta-o-"+i).value||0;
-      const d=catDef(t);
-      e.setores[i].tip.push({t, q, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts:Date.now()});
-      fita("Atribuído "+q+"×"+t+" ao Setor "+NOMES_SETOR[i]);
+      const ent = ($("ta-e-"+i)? $("ta-e-"+i).value.trim() : "");
+      const d=catDef(t), ts=Date.now();
+      /* A quantidade é comodidade de escrita, não forma do estado: cria n unidades
+         independentes, cada uma com o seu relógio e a sua origem daí para a frente. */
+      for(let k=0;k<Math.max(1,Math.round(q));k++){
+        e.setores[i].tip.push({t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent});
+      }
+      fita("Atribuído "+q+"× "+t+(ent? " ("+ent+")":"")+" ao Setor "+NOMES_SETOR[i]);
       renderSetores(); pintarDON(); persistir(false);
     });
   });
   L.querySelectorAll("[data-del]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const it = e.setores[+b.dataset.del].tip[+b.dataset.j];
-      fita("Removido "+it.q+"×"+it.t+" do Setor "+NOMES_SETOR[+b.dataset.del]);
+      fita("Removido "+it.t+(it.ent? " ("+it.ent+")":"")+" do Setor "+NOMES_SETOR[+b.dataset.del]);
       e.setores[+b.dataset.del].tip.splice(+b.dataset.j,1); renderSetores(); persistir(false); });
   });
   L.querySelectorAll("[data-mv]").forEach(sel=>{
@@ -109,11 +158,11 @@ function renderSetores(){
       if(dest===""){ return; }
       const it = e.setores[i].tip[j];
       if(dest==="D"){
-        fita("Desmobilizado "+it.q+"×"+it.t+" (Setor "+NOMES_SETOR[i]+", "+((Date.now()-(it.ts||Date.now()))/3600000).toFixed(1)+" h de empenhamento)");
+        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+((Date.now()-(it.ts||Date.now()))/3600000).toFixed(1)+" h de empenhamento)");
         e.setores[i].tip.splice(j,1);
       } else {
         const k=+dest;
-        fita("Movimento: "+it.q+"×"+it.t+" de "+NOMES_SETOR[i]+" para "+NOMES_SETOR[k]);
+        fita("Movimento: "+it.t+(it.ent? " ("+it.ent+")":"")+" de "+NOMES_SETOR[i]+" para "+NOMES_SETOR[k]);
         e.setores[i].tip.splice(j,1);
         e.setores[k].tip.push(it); // mantém ts original: as horas de empenhamento no TO não se apagam com a mudança de setor
       }
@@ -131,7 +180,7 @@ function comporSetores(){
     if(x.adj) partes.push("Adj: "+x.adj);
     const tip=x.tip||[];
     if(tip.length){
-      partes.push(tip.map(it=>it.q+" "+it.t).join(", "));
+      partes.push(agruparTip(tip).map(g=>g.n+" "+g.t).join(", "));
       const t=totSetor(x); partes.push(t.m+" meios / "+t.o+" op.");
     } else if(x.m||x.o) partes.push((x.m||"?")+" meios / "+(x.o||"?")+" op.");
     return partes.join("; ");

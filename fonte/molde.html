@@ -16,6 +16,8 @@
     --terra:#E0B84F;
     --metal:#B8C2CC;
     --azul:var(--agua); --verde:var(--madeira); --laranja:#E89354; --vermelho:var(--fogo); --amarelo:var(--terra);
+    /* Escala de estado do medidor de tempos. No tema escuro coincide com a de sempre. */
+    --med-v:var(--madeira); --med-a:var(--terra); --med-r:var(--fogo);
     --mono:'JetBrains Mono',ui-monospace,monospace;
     --disp:'Barlow Semi Condensed','Inter',sans-serif;
     --body:'Inter',system-ui,sans-serif;
@@ -26,6 +28,10 @@
     --tx:#2C2A25; --tx2:#6E6858; --tx3:#9A927F;
     --agua:#3E7CB1; --madeira:#4E8F57; --fogo:#B84B3F; --terra:#B08A2E; --metal:#8A9099;
     --azul:var(--agua); --verde:var(--madeira); --laranja:#C4703C; --vermelho:var(--fogo); --amarelo:var(--terra);
+    /* O âmbar de texto do tema claro (#B08A2E) só dá 2,80:1 contra a superfície do
+       cartão, abaixo do mínimo de 3:1 para uma marca não textual. O medidor usa um passo
+       mais escuro da mesma cor, que dá 3,96:1. Medido, não estimado. */
+    --med-v:var(--madeira); --med-a:#957020; --med-r:var(--fogo);
   }
     *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--tx);font-family:var(--body);font-size:15px;line-height:1.55}
@@ -484,8 +490,20 @@
   .tip-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 64px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
+  .tchip .ent{font-size:11px;color:var(--tx3)}
   /* setor a que o registo em composição se refere */
   .tchip.on{border-color:var(--agua);box-shadow:inset 0 0 0 1px var(--agua)}
+  /* Medidor de tempo no TO: uma razão contra um limite — o tempo decorrido contra o
+     limiar de rendição. Pista e marca na mesma escala, sem donut e sem ícone. A cor é
+     o estado; o número ao lado é que diz quanto, em tinta de texto e não na cor da
+     marca, para que a leitura não dependa de distinguir cores. */
+  .med{display:inline-flex;align-items:center;gap:6px}
+  .med-p{position:relative;width:46px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;flex:none}
+  .med-f{position:absolute;inset:0 auto 0 0;border-radius:2px;background:var(--med-v)}
+  .med.a .med-f{background:var(--med-a)} .med.r .med-f{background:var(--med-r)}
+  .med-h{font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap}
+  .med.r .med-h{font-weight:700}
+  @media(max-width:520px){ .med-p{width:32px} }
   /* registo encerrado: o que está inerte tem de se ver que está */
   html.encerrada .card input:disabled,html.encerrada .card select:disabled,
   html.encerrada .card textarea:disabled{opacity:.55;cursor:not-allowed}
@@ -1237,6 +1255,14 @@
           <button class="fr" type="button" data-tp="agravamento" data-fr="projeções para além da linha de contenção">projeções</button>
           <button class="fr" type="button" data-tp="melhoria" data-est="Em conclusão (extinto)" data-fr="consolidação e rescaldo concluídos">consolidação concluída</button>
           <button class="fr" type="button" data-tp="posit" data-est="Vigilância ativa e consolidação de rescaldo" data-fr="rescaldo em curso">rescaldo em curso</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="ataque direto sobre a frente">ataque direto</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="ataque indireto a partir de linha de apoio">ataque indireto</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="linha de contenção estabelecida">linha estabelecida</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="linha de contenção ultrapassada">linha ultrapassada</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="cabeça do incêndio contida">cabeça contida</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="flanco esquerdo consolidado">flanco esq. consolidado</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="flanco direito consolidado">flanco dto. consolidado</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="reacendimento em ponto quente">reacendimento</button>
         </div>
         <div class="fr-g"><span class="fr-l">Propagação</span>
           <span class="hint" style="margin:0">propagação para</span>
@@ -1250,11 +1276,13 @@
           <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NO">NO</button>
         </div>
         <div class="fr-g"><span class="fr-l">Perímetro</span>
+          <button class="fr mini" type="button" data-tp="posit" data-fr="10 % do perímetro em consolidação">10 %</button>
           <button class="fr mini" type="button" data-tp="posit" data-fr="25 % do perímetro em consolidação">25 %</button>
           <button class="fr mini" type="button" data-tp="posit" data-fr="50 % do perímetro em consolidação">50 %</button>
           <button class="fr mini" type="button" data-tp="melhoria" data-fr="75 % do perímetro em consolidação">75 %</button>
           <button class="fr mini" type="button" data-tp="melhoria" data-fr="90 % do perímetro em consolidação">90 %</button>
           <button class="fr" type="button" data-tp="melhoria" data-fr="perímetro fechado">perímetro fechado</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="perímetro reaberto">perímetro reaberto</button>
         </div>
         <div class="fr-g"><span class="fr-l">Meios</span>
           <button class="fr" type="button" data-tp="meios" data-fr="necessita reforço de meios">necessita reforço</button>
@@ -1264,6 +1292,14 @@
           <button class="fr" type="button" data-tp="meios" data-fr="meio inoperacional por avaria">avaria de meio</button>
           <button class="fr" type="button" data-tp="posit" data-fr="meios aéreos em ciclo de descargas">aéreos em descargas</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="meios aéreos suspensos (vento/fumo)">aéreos suspensos</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="pedido de rendição ao CSREPC">pedido de rendição</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meio a caminho do TO">a caminho</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meio chegou ao ponto de trânsito">chegou ao ponto de trânsito</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meio deslocado para outro setor">deslocado de setor</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="reabastecimento de água">reabastecimento de água</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="reabastecimento de combustível">reabastecimento de combustível</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="equipa em período de descanso">equipa em descanso</button>
+          <button class="fr" type="button" data-tp="meios" data-fr="meio recolhido a quartel">recolhido a quartel</button>
         </div>
         <div class="fr-g"><span class="fr-l">Segurança</span>
           <button class="fr" type="button" data-tp="agravamento" data-fr="rotação de vento observada no TO">rotação observada</button>
@@ -1271,12 +1307,40 @@
           <button class="fr" type="button" data-tp="agravamento" data-fr="atividade convectiva à vista">trovoada à vista</button>
           <button class="fr" type="button" data-tp="posit" data-fr="visibilidade reduzida por fumo">visibilidade reduzida</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="cessação de trabalhos determinada pelo adjunto de segurança (art. 36.º, n.º 2)">cessação por segurança</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="zona de segurança estabelecida">zona de segurança</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="rota de fuga definida e difundida">rota de fuga</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="operacional ferido; núcleo de emergência médica acionado (art. 24.º)">operacional ferido</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="acidente com viatura no TO">acidente com viatura</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="linha elétrica sobre a área de trabalho">linha elétrica</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="risco de queda de árvores na via de acesso">queda de árvores</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="comportamento extremo do fogo observado">comportamento extremo</button>
         </div>
         <div class="fr-g"><span class="fr-l">População</span>
           <button class="fr" type="button" data-tp="decisao" data-fr="evacuação preventiva determinada pelo COS (art. 8.º, n.º 2, al. m))">evacuação preventiva</button>
           <button class="fr" type="button" data-tp="decisao" data-fr="confinamento determinado pelo COS (art. 8.º, n.º 2, al. m))">confinamento</button>
           <button class="fr" type="button" data-tp="decisao" data-fr="interdição de via solicitada à força de segurança (art. 23.º)">interdição de via</button>
           <button class="fr" type="button" data-tp="meios" data-fr="apoio sanitário a operacional (núcleo de emergência médica — art. 24.º)">apoio a operacional</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="aglomerado ameaçado pela progressão">aglomerado ameaçado</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="defesa de habitações isoladas em curso">defesa de habitações</button>
+          <button class="fr" type="button" data-tp="melhoria" data-fr="aglomerado dado por seguro">aglomerado seguro</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="reabertura de via determinada">reabertura de via</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="apoio a população deslocada">apoio a deslocados</button>
+        </div>
+        <div class="fr-g"><span class="fr-l">Comando</span>
+          <button class="fr" type="button" data-tp="posit" data-fr="POSIT transmitido ao CSREPC">POSIT transmitido</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="mudança de COS">mudança de COS</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="posto de comando operacional instalado">PCO instalado</button>
+          <button class="fr" type="button" data-tp="decisao" data-fr="reforço da estrutura de comando solicitado">reforço de comando</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="briefing aos comandantes de setor">briefing a setores</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="reunião de coordenação no PCO">reunião de coordenação</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="visita de entidade ao teatro de operações">visita ao TO</button>
+        </div>
+        <div class="fr-g"><span class="fr-l">Danos</span>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="habitação afetada pelo incêndio">habitação afetada</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="anexo ou apoio agrícola afetado">anexo agrícola</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="infraestrutura elétrica afetada">infraestrutura elétrica</button>
+          <button class="fr" type="button" data-tp="agravamento" data-fr="área agrícola ou pecuária afetada">área agrícola</button>
+          <button class="fr" type="button" data-tp="posit" data-fr="sem danos em edificado a registar">sem danos a registar</button>
         </div>
       </div>
       <div class="grid g2">

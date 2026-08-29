@@ -29,7 +29,9 @@ function ocorrenciaCompleta() {
   O.dados.est.n = 2;
   O.dados.est.setores = [
     { estado: 'Em curso (ativo)', cmd: 'Cmdt CB Moimenta', ct: '910000001', adj: '', m: '', o: '',
-      siresp: 'PC MAN 4', tip: [{ t: 'ECIN', q: 2, mu: 1, ou: 5, mr: 0, ar: 0, ts: t0 }] },
+      siresp: 'PC MAN 4',
+      tip: [{ t: 'ECIN', mu: 1, ou: 5, mr: 0, ar: 0, ts: t0, ent: '' },
+            { t: 'ECIN', mu: 1, ou: 5, mr: 0, ar: 0, ts: t0, ent: '' }] },
     { estado: 'Em resolução (dominado)', cmd: '', ct: '', adj: '', m: '', o: '', tip: [] },
   ];
   O.dados.est.aerL = [{ t: 'HEBL', ind: 'HOTEL 15', g: INICIO, ts: t0 }];

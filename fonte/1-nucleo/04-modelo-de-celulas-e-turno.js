@@ -113,6 +113,35 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 9 -> 10 · Cada meio é uma unidade, e não um bloco com quantidade.
+   Três viaturas do mesmo tipo num setor podem vir de corpos diferentes e ter entrado no
+   teatro a horas diferentes. Enquanto partilhavam um bloco com `q:3` e um único instante,
+   o relógio da rendição era o mesmo para as três — e a rendição pede-se por unidade, ao
+   CSREPC, indicando o veículo e a hora de saída (DON n.º 2, ponto 7.e.(5)(r)).
+
+   A migração reparte: um bloco de `q` unidades dá `q` entradas iguais, cada uma com o seu
+   instante e a sua origem, que a partir daqui divergem. Nada se perde — o que se perde é
+   a falsa igualdade entre unidades que só estavam juntas por comodidade de escrita. */
+MIGRACOES.push(e => {
+  const est = (e.dados && e.dados.est) || {};
+  (est.setores||[]).forEach(s=>{
+    if(!Array.isArray(s.tip)) { s.tip = []; return; }
+    const fora = [];
+    s.tip.forEach(it=>{
+      if(!it || typeof it !== "object") return;
+      const n = Math.max(1, Math.round(+it.q || 1));
+      for(let k=0;k<n;k++){
+        const u = Object.assign({}, it);
+        delete u.q;
+        if(typeof u.ent !== "string") u.ent = "";
+        fora.push(u);
+      }
+    });
+    s.tip = fora;
+  });
+  return e;
+});
+
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;

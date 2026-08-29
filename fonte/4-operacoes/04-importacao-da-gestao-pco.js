@@ -52,6 +52,29 @@ const GP_INDICATIVOS = {
 
 function erroGP(texto){ return new Error(texto); }
 
+/**
+ * O pacote fala em quantidades — «2× VFCI» —, e o estado guarda unidades desde a versão
+ * 10: duas viaturas iguais podem vir de corpos diferentes e ter entrado no TO a horas
+ * diferentes, e a rendição pede-se por veículo. A conversão reparte, mantendo em cada
+ * unidade a entidade e o instante que o pacote deu ao bloco. Se depois divergirem, é
+ * porque alguém as corrigiu uma a uma — que é justamente o que antes não se podia fazer.
+ *
+ * A forma interna do conversor mantém `q`, porque é a do pacote; o que sai para o estado
+ * é por unidade.
+ */
+function expandirUnidades(forcas){
+  const fora = [];
+  forcas.forEach(f=>{
+    const n = Math.max(1, Math.round(+f.q || 1));
+    for(let k=0;k<n;k++){
+      const u = Object.assign({}, f);
+      delete u.q;
+      fora.push(u);
+    }
+  });
+  return fora;
+}
+
 /** Instante ISO 8601 com fuso, em milissegundos. Null quando ausente ou ilegível. */
 function instanteISO(s){
   if(s == null || s === "") return null;
@@ -325,7 +348,7 @@ function converterGestaoPCO(p){
   const setores = [];
   (Array.isArray(dp.setores)? dp.setores : []).forEach(s=>{
     const onde = "Setor "+String(s.id||"?");
-    const tip = (Array.isArray(s.forcas)? s.forcas : []).map(f=>forcaGP(f, onde, avisos));
+    const tip = expandirUnidades((Array.isArray(s.forcas)? s.forcas : []).map(f=>forcaGP(f, onde, avisos)));
     setores.push({ estado: estadoSetorGP(s.estado, onde, avisos),
       cmd:String(s.comandante||""), adj:String(s.adjunto||""), ct:String(s.contacto||""),
       m:"", o:"", tip, livre: (s.livre != null)? String(s.livre) : "" });
@@ -419,8 +442,8 @@ function diferencialGestaoPCO(c){
   if(O.meta.num || c.meta.num) add("Ocorrência", O.meta.num||"—", c.meta.num||"—", !!O.meta.num && !c.meta.num);
 
   add("Setores", e.setores.length, c.est.setores.length, c.est.setores.length < e.setores.length);
-  add("Forças", forcas(e.setores), forcas(c.est.setores), forcas(c.est.setores) < forcas(e.setores));
-  add("Forças com instante de empenhamento", comRelogio(e.setores), comRelogio(c.est.setores),
+  add("Unidades", forcas(e.setores), forcas(c.est.setores), forcas(c.est.setores) < forcas(e.setores));
+  add("Unidades com instante de empenhamento", comRelogio(e.setores), comRelogio(c.est.setores),
       comRelogio(c.est.setores) < comRelogio(e.setores));
   add("Meios aéreos", (e.aerL||[]).length, c.est.aerL.length, c.est.aerL.length < (e.aerL||[]).length);
   add("Reserva (veículos/operacionais)", (reservaObj().m||0)+"/"+(reservaObj().o||0), (c.est.res.m||0)+"/"+(c.est.res.o||0));
@@ -442,7 +465,7 @@ function diferencialGestaoPCO(c){
     if(!a && d){ linhas.push({ rot, antes:"—", depois:"novo", perda:false }); continue; }
     add(rot+" · estado", a.estado||"—", d.estado||"—");
     add(rot+" · comandante", a.cmd||"—", d.cmd||"—", !!a.cmd && !d.cmd);
-    add(rot+" · forças", (a.tip||[]).length, d.tip.length, d.tip.length < (a.tip||[]).length);
+    add(rot+" · unidades", (a.tip||[]).length, d.tip.length, d.tip.length < (a.tip||[]).length);
     const ra = (a.tip||[]).filter(f=>f.ts).length, rd = d.tip.filter(f=>f.ts).length;
     add(rot+" · com relógio", ra, rd, rd < ra);
   }
@@ -482,7 +505,7 @@ function fundirFuncaoPCO(atual, nova){
 
 /**
  * Escreve no estado. Regra 5: a fita do tempo regista a origem, o operador, o
- * instante de emissão e o de importação, e quantas forças vieram sem relógio.
+ * instante de emissão e o de importação, e quantas unidades vieram sem relógio.
  */
 function aplicarGestaoPCO(c){
   Object.keys(c.meta).forEach(k=>{ O.meta[k] = c.meta[k]; });
@@ -518,8 +541,8 @@ function aplicarGestaoPCO(c){
     + (r.posto? " · posto "+r.posto : "")
     + (r.emitido? " · emitido "+r.emitido : "")
     + " · importado "+gdhAgora()
-    + " · "+r.setores+" setores, "+r.forcas+" forças, "+r.aereos+" meios aéreos, "+r.funcoes+" funções"
-    + (r.semRelogio? " · "+r.semRelogio+" força(s) sem instante de empenhamento" : ""));
+    + " · "+r.setores+" setores, "+r.forcas+" unidades, "+r.aereos+" meios aéreos, "+r.funcoes+" funções"
+    + (r.semRelogio? " · "+r.semRelogio+" unidade(s) sem instante de empenhamento" : ""));
   return r;
 }
 
@@ -544,7 +567,7 @@ function gpDizer(cls, texto){
 
 /** Resumo de uma conversão, em texto corrido. */
 function resumoGestaoPCO(r){
-  return r.setores+" setores, "+r.forcas+" forças e "+r.aereos+" meios aéreos"
+  return r.setores+" setores, "+r.forcas+" unidades e "+r.aereos+" meios aéreos"
     + (r.funcoes? ", "+r.funcoes+" funções do PCO" : "")
     + (r.emitido? " · emitido "+r.emitido : "")
     + (r.app? " · "+r.app+(r.operador? ", "+r.operador : "")+(r.posto? ", "+r.posto : "") : "");
@@ -701,7 +724,7 @@ function converterV11GestaoPCO(p, avisos){
   const setores = [];
   (Array.isArray(p.setores)? p.setores : []).forEach(s=>{
     const onde = "Setor "+String(s.nome||"?");
-    const tip = (Array.isArray(s.meios)? s.meios : []).map(m=>{
+    const tip = expandirUnidades((Array.isArray(s.meios)? s.meios : []).map(m=>{
       const t = siglaV11(m.tipologia, onde, avisos);
       const d = catDef(t);
       const mu = (m.veiculos != null)? +m.veiculos : ((d && d.mu) || 1);
@@ -723,7 +746,7 @@ function converterV11GestaoPCO(p, avisos){
       }
       return { t, q:+m.quantidade||0, mu, ou, mr:(d && d.mr)||0, ar:(d && d.ar)||0,
         ts: i.ts, ent:String(m.entidade||""), estimado: !!m.empenhado_estimado, livre:false };
-    });
+    }));
     setores.push({ estado: estadoSetorGP(s.estado, onde, avisos),
       cmd:String(s.comandante||""), adj:String(s.adjunto||""), ct:String(s.contacto||""),
       m:"", o:"", tip, livre:"" });

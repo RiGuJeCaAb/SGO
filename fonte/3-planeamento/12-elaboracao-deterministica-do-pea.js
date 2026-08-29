@@ -3,7 +3,7 @@
 function retratoOperacional(){
   const e = estObj(), c = contarDispositivo(), PT = ptObj();
   const setores = (e.setores||[]).map((x,i)=>({n:NOMES_SETOR[i], estado:x.estado||"", cmd:x.cmd||"",
-    m:totSetor(x).m, o:totSetor(x).o, tip:(x.tip||[]).map(t=>t.q+"× "+t.t)}));
+    m:totSetor(x).m, o:totSetor(x).o, tip:agruparTip(x.tip).map(g=>g.n+"× "+g.t)}));
   const conta = est => setores.filter(x=>x.estado===est).length;
   const ativos = setores.filter(x=>x.estado===ESTADOS_SETOR[0]);
   const reativados = setores.filter(x=>x.estado===ESTADOS_SETOR[4]);

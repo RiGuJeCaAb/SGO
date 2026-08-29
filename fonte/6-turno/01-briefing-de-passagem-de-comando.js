@@ -54,7 +54,7 @@ function briefingPassagem(ts){
   /* ---- 2. dispositivo ---- */
   const porSetor = (e.setores||[]).map((s,i)=>{
     const t = totSetor(s);
-    const meios = (s.tip||[]).map(x=>x.q+"× "+x.t).join(", ");
+    const meios = resumoTip(s.tip);
     return "Setor "+NOMES_SETOR[i]+" — "+(s.estado||"estado por declarar")
       + (s.cmd? ", comando "+s.cmd : ", sem comando nomeado")
       + (meios? ". Meios: "+meios : ". Sem meios registados")
