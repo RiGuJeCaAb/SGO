@@ -12,6 +12,9 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0010_..._NavClaro_CLD.png` | r0038 | A cor por célula nos separadores, tema claro |
 | `CSREPCDouro_qa0010_..._NavEscuro_CLD.png` | r0038 | O mesmo, tema escuro |
 | `CSREPCDouro_qa0010_..._TurnoCores_CLD.png` | r0038 | O quadro de passagem de turno com a cor de cada célula |
+| `CSREPCDouro_qa0011_..._MedidorGomos_CLD.png` | r0049 | O medidor em gomos nas unidades de setor: um gomo por hora, acesos os que faltam |
+| `CSREPCDouro_qa0011_..._MedidorAereos_CLD.png` | r0049 | O mesmo medidor nos meios aéreos, com o teto de 6 h |
+| `CSREPCDouro_qa0011_..._LexicoArrumado_CLD.png` | r0049 | O registo de evolução em três blocos, com o léxico por grupo e procura |
 
 Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exceções às
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o

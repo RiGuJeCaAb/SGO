@@ -22,10 +22,9 @@ function renderAereos(){
   const ch = $("aer-chips"); if(!ch) return;
   ch.innerHTML = L.length? L.map((a,j)=>{
     const d = catDef(a.t);
-    const h = a.ts? (Date.now()-a.ts)/3600000 : null;
-    const lim = limiares().aer;
-    const cor = h===null? "var(--tx2)" : (h>=lim? "var(--fogo)" : (h>=Math.max(1,lim-2)? "var(--terra)" : "var(--tx2)"));
-    return `<span class="tchip"><b>${esc(a.ind||d.ind||a.t)}</b> ${esc(a.t)}${h!==null? ` <span style="color:${cor};font-weight:600">${h.toFixed(1)} h</span>`:""}
+    /* O mesmo medidor das unidades de setor, com o limiar aéreo — uma aeronave também
+       tem tempo no TO, e ficara de fora. */
+    return `<span class="tchip"><b>${esc(a.ind||d.ind||a.t)}</b> ${esc(a.t)} ${medidorTempo(a, true)}
       <button type="button" data-aerdel="${j}" aria-label="remover">×</button></span>`;
   }).join("") : '<span class="hint">Sem meios aéreos registados.</span>';
   ch.querySelectorAll("[data-aerdel]").forEach(b=>b.addEventListener("click", ()=>{

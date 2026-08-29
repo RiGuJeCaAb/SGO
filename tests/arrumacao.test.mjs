@@ -255,6 +255,48 @@ test('nenhuma frase se repete', semAplicacao, () => {
   assert.deepEqual(rep, []);
 });
 
+test('o léxico mostra um grupo de cada vez, com a barra composta dos próprios grupos', semAplicacao, () => {
+  const barra = [...doc().querySelectorAll('#fr-grupos [data-g]')];
+  const grupos = [...doc().querySelectorAll('#evo-frases .fr-g')];
+  assert.equal(barra.length, grupos.length, 'um separador por grupo');
+  assert.match(barra[0].textContent, /^Combate/);
+  // A contagem na barra é a do grupo, não um número escrito à mão.
+  barra.forEach((b, i) => assert.equal(b.querySelector('.n').textContent,
+    String(grupos[i].querySelectorAll('[data-fr]').length)));
+
+  assert.equal(grupos[0].hidden, false, 'o primeiro grupo está à vista');
+  assert.ok(grupos.slice(1).every((g) => g.hidden === true), 'os outros estão recolhidos');
+
+  barra[3].dispatchEvent(new janela.Event('click', { bubbles: true }));
+  assert.equal(grupos[3].hidden, false);
+  assert.equal(grupos[0].hidden, true);
+  assert.ok(barra[3].classList.contains('on'));
+  barra[0].dispatchEvent(new janela.Event('click', { bubbles: true }));
+});
+
+test('a procura corta os grupos todos e diz quando não encontra', semAplicacao, () => {
+  const q = doc().getElementById('fr-q');
+  const grupos = [...doc().querySelectorAll('#evo-frases .fr-g')];
+  const escrever = (v) => { q.value = v; q.dispatchEvent(new janela.Event('input', { bubbles: true })); };
+
+  escrever('rendição');
+  const vistas = [...doc().querySelectorAll('#evo-frases [data-fr]')].filter((b) => !b.hidden);
+  assert.ok(vistas.length >= 2, 'a procura devia achar as frases de rendição');
+  assert.ok(vistas.every((b) => /rendição/i.test(b.textContent + b.getAttribute('data-fr'))));
+  // Achou fora do grupo à vista: a procura é transversal.
+  assert.ok(grupos.some((g, i) => i !== 0 && !g.hidden));
+  assert.ok(doc().getElementById('evo-frases').classList.contains('q'),
+    'a procurar, o rótulo do grupo volta a aparecer');
+
+  escrever('zzz não existe');
+  assert.equal(doc().getElementById('fr-vazio').style.display, 'block');
+
+  escrever('');
+  assert.equal(grupos[0].hidden, false);
+  assert.equal(doc().getElementById('fr-vazio').style.display, 'none');
+  assert.ok([...doc().querySelectorAll('#evo-frases [data-fr]')].every((b) => !b.hidden));
+});
+
 test('uma frase do léxico entra na descrição e classifica o registo', semAplicacao, () => {
   const ta = doc().getElementById('e-txt');
   ta.value = '';

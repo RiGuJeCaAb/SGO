@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-08-28.
+Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0048**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0049**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 52, das anteriores à convenção de nomes até à r0048 |
+| Entregas em `app/` | 53, das anteriores à convenção de nomes até à r0049 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 292, todos a passar |
+| Testes | 294, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,63 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O medidor em gomos e o léxico arrumado, na r0049
+
+Duas coisas que o Ricardo viu no ecrã e que estavam por resolver: o medidor da r0048 não
+era a imagem que ele tinha pedido, e os meios aéreos tinham ficado sem medidor nenhum.
+
+### A laranja cortada
+
+«Imagino o medidor como uma laranja cortada verticalmente em que se veem os gomos, que
+neste caso representariam tempo e que ao passar iam desaparecendo.» É melhor imagem do que
+a pista da r0048, e por uma razão que se percebe ao vê-la: **os gomos são contáveis**. Uma
+pista a 30 % obriga a estimar; três gomos acesos leem-se de relance, sem número.
+
+Um gomo por hora do limite — doze nas unidades terrestres, seis nos meios aéreos. Acesos
+os que **faltam**; gastos os que já passaram, que não desaparecem de todo: ficam em traço
+apagado, porque sem eles perdia-se o denominador — três gomos acesos não dizem nada se não
+se vir que eram doze. Passado o limite, a laranja fica toda vermelha.
+
+O número ao lado mudou de sentido com o desenho: já não são as horas decorridas, são **as
+que faltam** (`3.0 h`), ou o excedente com sinal quando o limite já passou (`−1.0 h`). É o
+número sobre o qual se decide — «faltam três horas para render esta viatura». As duas
+regras da r0048 mantêm-se: a cor é o estado, o número vai em tinta de texto, e o âmbar do
+tema claro é o passo medido a 3,96:1.
+
+**Os meios aéreos passaram a ter o mesmo medidor**, com o teto de seis horas. Antes tinham
+só as horas em texto colorido; uma aeronave também tem tempo no TO.
+
+### O registo de evolução em três blocos
+
+«O anexo era para pedir que a informação ficasse mais e melhor organizada, pois está muito
+confusa no ecrã.» Estava: as 78 frases do léxico apareciam todas ao mesmo tempo, num muro
+de oitenta botões iguais, e por baixo, sem separação nenhuma, os campos do registo.
+
+O cartão passa a ler-se como a sequência que é: **1 · A que respeita** (os atalhos de
+setor), **2 · O que aconteceu** (o léxico), **3 · Registo** (tipo, GDH, descrição e o
+botão). Três blocos numerados, cada um no seu relevo.
+
+O léxico ganhou uma barra de grupos — Combate, Propagação, Perímetro, Meios, Segurança,
+População, Comando, Danos, cada um com a sua contagem — e mostra **um grupo de cada vez**,
+com uma caixa de procura que corta transversalmente todos eles. A barra é composta a
+partir dos próprios grupos do HTML e não de uma lista à parte: grupo novo aparece sozinho.
+
+Cada frase leva agora na aresta esquerda a cor do tipo com que vai entrar — vermelho
+agravamento, verde melhoria, azul decisão do COS, laranja alteração de meios, sem aresta o
+ponto de situação. As cinco cores foram medidas contra a superfície do cartão nos dois
+temas; a mais fraca dá 3,08:1, acima do mínimo de 3:1 para marca não textual. A legenda em
+texto diz o mesmo, que a cor sozinha nunca é a informação.
+
+Nos chips do setor, o `1m` desapareceu de todas as unidades que trazem um só veículo: era
+ruído repetido em cada bloco. As forças que trazem vários — brigadas, grupos — continuam a
+declará-lo.
+
+### Verificação
+
+294 testes, dois novos sobre a barra de grupos e a procura, e o do medidor reescrito para
+os gomos e para as horas que faltam. Verificado em navegador nos dois temas e a 480 px;
+provas em `docs/qa/` (`qa0011`).
 
 ## Cada meio é uma unidade, com o seu relógio, na r0048
 

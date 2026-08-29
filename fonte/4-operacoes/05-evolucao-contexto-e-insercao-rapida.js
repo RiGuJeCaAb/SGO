@@ -66,6 +66,62 @@ function proporEstadoDaFrase(estado){
   });
 }
 
+/**
+ * Arruma o léxico: uma barra de grupos por cima, um grupo de cada vez por baixo, e uma
+ * caixa de procura que corta transversalmente.
+ *
+ * Oitenta frases todas à vista são um muro — o oficial procura com os olhos aquilo que
+ * a barra lhe dá num clique. A barra é composta a partir dos próprios grupos do HTML,
+ * e não de uma lista à parte: grupo novo aparece sozinho, sem nada mais a alterar.
+ */
+function montarFrases(){
+  const cx = $("evo-frases"), barra = $("fr-grupos"), procura = $("fr-q");
+  if(!cx || !barra || !procura) return;
+  const grupos = [...cx.querySelectorAll(".fr-g")].map(g=>({
+    el: g,
+    nome: (g.querySelector(".fr-l")||{textContent:""}).textContent.trim(),
+    frases: [...g.querySelectorAll("[data-fr]")]
+  }));
+  if(!grupos.length) return;
+
+  /* Mostra um grupo, ou o resultado da procura quando há termo. Sem correspondência,
+     diz-se; um ecrã vazio sem explicação é defeito. */
+  function mostrar(){
+    const q = procura.value.trim().toLowerCase();
+    cx.classList.toggle("q", !!q);
+    let achados = 0;
+    grupos.forEach((g,i)=>{
+      if(!q){
+        g.el.hidden = i !== FR_GRUPO;
+        g.frases.forEach(b=>{ b.hidden = false; });
+        return;
+      }
+      let visiveis = 0;
+      g.frases.forEach(b=>{
+        const alvo = (b.textContent + " " + (b.getAttribute("data-fr")||"")).toLowerCase();
+        const bate = alvo.indexOf(q) >= 0;
+        b.hidden = !bate;
+        if(bate) visiveis++;
+      });
+      g.el.hidden = visiveis === 0;
+      achados += visiveis;
+    });
+    const vazio = $("fr-vazio"); if(vazio) vazio.style.display = (q && !achados)? "block" : "none";
+    barra.querySelectorAll("[data-g]").forEach(b=>
+      b.classList.toggle("on", !q && +b.getAttribute("data-g") === FR_GRUPO));
+  }
+
+  barra.innerHTML = grupos.map((g,i)=>
+    '<button type="button" class="fr-t" data-g="'+i+'">'+esc(g.nome)+'<span class="n">'+g.frases.length+'</span></button>').join("");
+  barra.querySelectorAll("[data-g]").forEach(b=>b.addEventListener("click", ()=>{
+    FR_GRUPO = +b.getAttribute("data-g"); procura.value = ""; mostrar();
+  }));
+  procura.addEventListener("input", mostrar);
+  mostrar();
+}
+/* Grupo do léxico à vista. Combate é o primeiro porque é o que se regista mais vezes. */
+let FR_GRUPO = 0;
+
 document.querySelectorAll("#evo-frases [data-fr]").forEach(b=>b.addEventListener("click", ()=>{
   inserirEvo(b.dataset.fr+"; ");
   if(b.dataset.tp) $("e-tipo").value = b.dataset.tp;

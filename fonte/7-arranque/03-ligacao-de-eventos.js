@@ -40,6 +40,7 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
 (async()=>{ try{ await carregarIndex(); }catch(e){} 
   try{ await carregarCanais(); }catch(e){}
   try{ initCatalogo(); }catch(e){}
+  try{ montarFrases(); }catch(e){}
   if(ARMAZEM.modo==="sessao"){
     fita("AVISO: armazenamento indisponivel neste ambiente — o estado perde-se ao fechar a pagina");
     /* Aviso permanente, não uma mensagem que passa: aqui a exportação deixa de ser

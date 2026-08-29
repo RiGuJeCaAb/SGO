@@ -50,27 +50,59 @@ function agruparTip(tip){
   return Object.keys(por).map(k=>por[k]);
 }
 /**
- * Medidor do tempo de uma unidade no teatro de operações: uma razão contra um limite,
- * que é a forma certa para «quanto falta até à rendição» — pista e marca na mesma escala,
- * sem donut e sem ícone.
+ * Medidor do tempo até à rendição, em gomos.
  *
- * A cor diz o estado; **o número ao lado diz quanto, em tinta de texto e não na cor da
- * marca**, para que a leitura não dependa de distinguir cores. O limiar é o mesmo que o
- * quadro de rendições usa, e o título traz a hora-limite por extenso.
+ * A imagem é a de uma laranja cortada: um gomo por hora do limite, e os gomos vão-se
+ * gastando à medida que o tempo passa. O que fica aceso é **o que resta**, que é o
+ * número sobre o qual se decide — «faltam três horas para render esta viatura».
+ *
+ * Os gomos gastos não desaparecem por completo: ficam em traço apagado. Se sumissem, a
+ * leitura perdia o denominador — três gomos acesos não dizem nada sem se ver que eram
+ * doze. Ficam presentes e claramente gastos, que é o que a imagem da laranja já sugere.
+ *
+ * Passado o limite não há gomo nenhum a restar, e a laranja fica toda vermelha: é estado
+ * terminal, e é para ser inconfundível.
+ *
+ * A cor é o estado; o número diz quanto, em tinta de texto, para que a leitura não
+ * dependa de distinguir cores. O limiar é o mesmo do quadro de rendições.
+ *
+ * @param {{t?:string, ar?:number, ts?:number}} it unidade com instante de empenhamento
+ * @param {boolean} [aereo] força o limiar aéreo, para a lista de meios aéreos
  */
-function medidorTempo(it){
+function medidorTempo(it, aereo){
   if(!it || !it.ts) return '<span class="med-h" title="sem instante de empenhamento: esta unidade não conta tempo no TO">sem relógio</span>';
   const L = limiares(), d = catDef(it.t);
-  const teto = (it.ar || d.ar)? L.aer : L.lim;
-  const avi  = (it.ar || d.ar)? Math.max(1, L.aer-2) : L.av;
+  const ar = aereo || !!(it.ar || d.ar);
+  const teto = ar? L.aer : L.lim;
+  const avi  = ar? Math.max(1, L.aer-2) : L.av;
   const h = (Date.now() - it.ts)/3600000;
+  const resta = teto - h;
   const nivel = h>=teto? "r" : (h>=avi? "a" : "v");
-  const pct = Math.max(0, Math.min(100, (h/teto)*100));
+
+  /* Um gomo por hora do limite. Doze num círculo de 18 px dão 30° cada, que ainda se
+     contam; acima disso deixaria de se ver, e nenhum limite operacional lá chega. */
+  const n = Math.max(1, Math.round(teto));
+  const acesos = h>=teto? n : Math.ceil(Math.max(0, resta));
+  const R = 8.2, C = 9, folga = 3.2;   /* folga em graus: o albedo entre gomos */
+  const gomos = [];
+  for(let k=0;k<n;k++){
+    const a1 = -90 + k*(360/n) + folga/2, a2 = -90 + (k+1)*(360/n) - folga/2;
+    const p = g => [C + R*Math.cos(g*Math.PI/180), C + R*Math.sin(g*Math.PI/180)];
+    const [x1,y1] = p(a1), [x2,y2] = p(a2);
+    /* Os que restam contam-se a partir do topo, no sentido do relógio. */
+    const vivo = h>=teto? true : (k < acesos);
+    gomos.push('<path class="'+(vivo? "gm":"gm-x")+'" d="M'+C+','+C+' L'+x1.toFixed(2)+','+y1.toFixed(2)
+      +' A'+R+','+R+' 0 0 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z"/>');
+  }
+
   const limite = gdhDe(it.ts + teto*3600000);
-  const titulo = h.toFixed(1)+" h no TO desde "+gdhDe(it.ts)+" · limite de "+teto+" h · rendição prevista para "+limite;
+  const titulo = h>=teto
+    ? "Limite de "+teto+" h excedido em "+(h-teto).toFixed(1)+" h. No TO desde "+gdhDe(it.ts)+"; rendição era devida às "+limite+"."
+    : "Faltam "+resta.toFixed(1)+" h para o limite de "+teto+" h. No TO desde "+gdhDe(it.ts)+"; rendição prevista para "+limite+".";
+  const rot = h>=teto? "\u2212"+(h-teto).toFixed(1)+" h" : resta.toFixed(1)+" h";
   return '<span class="med '+nivel+'" title="'+esc(titulo)+'">'
-    + '<span class="med-p"><span class="med-f" style="width:'+pct.toFixed(0)+'%"></span></span>'
-    + '<span class="med-h">'+h.toFixed(1)+' h</span></span>';
+    + '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
+    + '<span class="med-h">'+rot+'</span></span>';
 }
 
 /** O resumo em texto: «2× ECIN, 1× VFCI». */
@@ -114,7 +146,10 @@ function renderSetores(){
         const destinos = ['<option value="">mover…</option>']
           .concat(e.setores.map((_,k)=>k!==i? `<option value="${k}">→ ${NOMES_SETOR[k]}</option>`:"").filter(Boolean))
           .concat(['<option value="D">Desmobilizar</option>']).join("");
-        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${(it.mu||1)}m/${(it.ou||0)}op ${medidorTempo(it)}
+        /* Uma entrada é uma unidade: dizer «1m» em todas era ruído. Só as forças que
+           trazem vários veículos — brigadas, grupos — declaram o número de meios. */
+        const efet = (it.mu||1) > 1? `${(it.mu||1)}m/${(it.ou||0)}op` : `${(it.ou||0)} op`;
+        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${efet} ${medidorTempo(it)}
           <select data-mv="${i}" data-j="${j}" class="mv">${destinos}</select>
           <button type="button" data-del="${i}" data-j="${j}" aria-label="remover">×</button></span>`;
       }).join("")}</div></div>`;
