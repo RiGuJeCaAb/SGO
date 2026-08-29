@@ -307,3 +307,113 @@ test('a sub-região do TO tem campo próprio e atravessa a migração', semAplic
   const m = janela.migrarGravado({ versao: 7, meta: { num: '2026/900' }, pco: { funcoes: [] } });
   assert.equal(m.meta.subregiao, '');
 });
+
+/* ---- obrigações que se podem dar por cumpridas ---- */
+
+/** Uma ocorrência a arder há N minutos, sem nenhum setor dominado. */
+function aArderHa(minutos) {
+  const O = avaliar(janela, 'O');
+  janela.eval('O.cumprimentos = {}');
+  O.meta.num = '2026/4711';
+  O.meta.inicio = janela.gdhDe(janela.agora() - minutos * 60000);
+  const e = janela.estObj();
+  e.n = 1;
+  e.setores = [{ estado: ATIVO, cmd: '', ct: '', adj: '', m: '', o: '', tip: [] }];
+  janela.escreverForm();
+  return () => JSON.parse(JSON.stringify(janela.verificacoesDON()));
+}
+
+test('só é declarável o que a aplicação não consegue observar', semAplicacao, () => {
+  // Uma obrigação observável no estado cumpre-se fazendo a coisa. Declarar o que se pode
+  // observar abriria a porta a dar por cumprido o que não está.
+  assert.deepEqual(Object.keys(JSON.parse(JSON.stringify(avaliar(janela, 'CUMPRIVEIS')))).sort(),
+    ['notif', 'pmepc']);
+});
+
+test('a notificação das duas horas fecha quando se confirma, com GDH e autor',
+  semAplicacao, async () => {
+    const don = aArderHa(150);
+    const antes = don().find((x) => x.id === 'notif');
+    assert.equal(antes.n, 'ob');
+    assert.match(antes.t, /Notificação das duas horas por confirmar/);
+
+    const r = await janela.registarCumprimento('notif', 'Cmdt Costa', 'SINOP difundida');
+    assert.equal(r.ok, true);
+
+    const depois = don().find((x) => x.id === 'notif');
+    assert.equal(depois.n, 'ok');
+    assert.match(depois.s, /Confirmada a \d{6}[A-Z]{3}\d{2} por Cmdt Costa — SINOP difundida/);
+    assert.match(depois.a, /Uma reativação repõe a obrigação/);
+  });
+
+test('a proposta de ativação do PMEPC fecha do mesmo modo', semAplicacao, async () => {
+  const don = aArderHa(1500);
+  assert.equal(don().find((x) => x.id === 'pmepc').n, 'ob');
+  await janela.registarCumprimento('pmepc', 'Cmdt Costa');
+  const depois = don().find((x) => x.id === 'pmepc');
+  assert.equal(depois.n, 'ok');
+  assert.match(depois.t, /Ativação do PMEPC proposta/);
+});
+
+test('o cumprimento deixa rasto na evolução e na fita', semAplicacao, async () => {
+  const O = avaliar(janela, 'O');
+  aArderHa(150);
+  O.evolucao.length = 0;
+  await janela.registarCumprimento('notif', 'Cmdt Costa', 'SINOP difundida');
+  assert.equal(O.evolucao.at(-1).tipo, 'decisao');
+  assert.match(O.evolucao.at(-1).txt, /Cumprimento registado.*notificação SINOP.*Cmdt Costa.*SINOP difundida/);
+  assert.match(O.fita.at(-1).e, /Obrigação dada por cumprida/);
+});
+
+test('não se declara cumprida uma obrigação que a aplicação observa', semAplicacao, async () => {
+  const r = await janela.registarCumprimento('placom', 'Cmdt Costa');
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /cumpre-se fazendo a coisa/);
+});
+
+test('não se declara cumprimento sem autor', semAplicacao, async () => {
+  aArderHa(150);
+  const r = await janela.registarCumprimento('notif', '  ');
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /Indicar quem confirma/);
+  assert.equal(janela.cumprimentoDe('notif'), null);
+});
+
+test('retirar o cumprimento repõe a obrigação, e diz que foi retirado', semAplicacao, async () => {
+  const don = aArderHa(150);
+  const O = avaliar(janela, 'O');
+  await janela.registarCumprimento('notif', 'Cmdt Costa');
+  assert.equal(don().find((x) => x.id === 'notif').n, 'ok');
+
+  const r = await janela.retirarCumprimento('notif', 'Cmdt Silva');
+  assert.equal(r.ok, true);
+  assert.equal(janela.cumprimentoDe('notif'), null);
+  assert.equal(don().find((x) => x.id === 'notif').n, 'ob', 'a obrigação não voltou');
+  assert.match(O.evolucao.at(-1).txt, /Cumprimento retirado.*retirado por Cmdt Silva/);
+});
+
+/* ---- o ataque ampliado fecha-se emitindo o PEA, e não declarando ---- */
+
+test('o ataque ampliado fecha quando o PEA é emitido depois do limiar', semAplicacao, () => {
+  // Até à r0046 esta obrigação ficava vermelha para sempre, mesmo com o plano emitido
+  // e difundido. Uma obrigação que nunca fecha ensina a ignorar o vermelho.
+  const don = aArderHa(150);
+  const O = avaliar(janela, 'O');
+  O.peas.length = 0;
+  assert.equal(don().find((x) => x.id === 'ata').n, 'ob');
+
+  O.peas.push({ n: 1, g: janela.gdhAgora(), ts: janela.agora(), ctrl: [], base: {} });
+  const depois = don().find((x) => x.id === 'ata');
+  assert.equal(depois.n, 'ok');
+  assert.match(depois.t, /Ataque ampliado com PEA formal emitido/);
+  assert.match(depois.s, /PEA n\.º 1 foi emitido/);
+});
+
+test('um PEA emitido antes do limiar não fecha o ataque ampliado', semAplicacao, () => {
+  const don = aArderHa(150);
+  const O = avaliar(janela, 'O');
+  O.peas.length = 0;
+  O.peas.push({ n: 1, g: '', ts: janela.agora() - 140 * 60000, ctrl: [], base: {} });
+  assert.equal(don().find((x) => x.id === 'ata').n, 'ob',
+    'um plano anterior ao limiar não é o PEA que o limiar exige');
+});

@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0046**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0047**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 50, das anteriores à convenção de nomes até à r0046 |
+| Entregas em `app/` | 51, das anteriores à convenção de nomes até à r0047 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 274, todos a passar |
+| Testes | 283, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 8 |
+| Versão do estado gravado | 9 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,49 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Avisos que se podem fechar, na r0047
+
+**Uma obrigação que nunca fecha ensina o oficial a ignorar o vermelho**, que é o pior que
+um motor de conformidade pode fazer. Havia três nessa situação, e são de duas naturezas
+diferentes — a distinção é o que interessa aqui.
+
+### O que a aplicação consegue observar cumpre-se fazendo a coisa
+
+O **ataque ampliado** exige um PEA formalmente elaborado passados os 90 minutos. A
+aplicação vê o PEA emitido e sabe a que horas — e mesmo assim a obrigação ficava vermelha
+para sempre. Passa a fechar sozinha quando há PEA emitido **depois do limiar**, e diz qual
+e a que horas. Um plano anterior ao limiar não a fecha, porque não é o PEA que o limiar
+exige.
+
+Não há aqui nada a declarar: cumpre-se emitindo.
+
+### O que a aplicação não vê acontecer declara-se, com GDH e autor
+
+A **notificação das duas horas** e a **proposta de ativação do PMEPC** cumprem-se fora da
+aplicação — confirmar junto do CSREPC, propor à Autoridade Municipal. A Estação não as vê,
+e por isso ganham botão: «Registar a confirmação ao CSREPC», «Registar a proposta de
+ativação». Pede quem confirma — pré-preenchido com o COS, se estiver nomeado — e uma nota,
+e a obrigação passa a conformidade, dizendo **a que horas e por quem**. Fica na evolução e
+na fita, porque o que se declara cumprido é prova documental, e prova sem autor nem hora
+não é prova.
+
+Retira-se com um clique, e a retirada regista-se também: as circunstâncias mudam, e uma
+reativação repõe a obrigação de notificar.
+
+**Só duas obrigações entram nisto, e o registo `CUMPRIVEIS` declara-as.** Uma obrigação
+observável no estado — um canal atribuído, uma função nomeada, um ponto de trânsito
+definido — não é declarável, e a função recusa: declarar o que se pode observar abriria a
+porta a dar por cumprido o que não está.
+
+Versão 9 do estado, com migração. Nasce vazio.
+
+### Um tropeção repetido
+
+A anotação `@type {RegraDON[]}` ficou outra vez separada do que anota, porque a constante
+nova entrou entre as duas — exatamente o que aconteceu na r0039 com o `migrarGravado`. A
+camada 1 apanhou-o na mesma volta. Vale a pena reter: **inserir código imediatamente antes
+de uma declaração anotada rouba-lhe a anotação**, e nenhuma das duas dá erro em uso.
 
 ## A pasta sub-regional segue o TO, na r0046
 
@@ -896,6 +939,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0047 | 291220 | — | Avisos que se podem fechar: o ataque ampliado fecha com o PEA emitido depois do limiar; a notificação das duas horas e a proposta de PMEPC declaram-se cumpridas com GDH e autor. Estado na versão 9 |
 | r0046 | 291215 | — | Pasta sub-regional corrigida para «Douro Op» e deixa de estar fixa no código: a ocorrência declara a sua, e os canais sub-regionais só se aplicam quando batem. Estado na versão 8 |
 | r0045 | 291143 | — | Catálogo de elementos do TO, fora da ocorrência e sem canal: guardar, procurar, recolher desta ocorrência e levar ao formulário do PCO |
 | r0044 | 291139 | — | Encerramento do registo da ocorrência: carimbo, fecho à escrita e reabertura, com as reservas no registo de evolução. Estado na versão 7 |

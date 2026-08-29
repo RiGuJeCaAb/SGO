@@ -168,6 +168,12 @@ interface Estado {
    * relação com o encerramento da ocorrência no SADO, que a Estação não faz.
    */
   encerramento: { g: string; por: string; nota: string };
+  /**
+   * Obrigações dadas por cumpridas: id da regra para `{g, por, nota}`. Só as que são ato
+   * externo — ver `CUMPRIVEIS`. O que a aplicação consegue observar no estado cumpre-se
+   * fazendo a coisa, não declarando que se fez.
+   */
+  cumprimentos: { [id: string]: { g: string; por: string; nota: string } };
   versao: number;
   [outro: string]: any;
 }

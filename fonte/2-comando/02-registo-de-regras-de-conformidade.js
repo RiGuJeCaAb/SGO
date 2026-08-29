@@ -3,6 +3,61 @@
    doutrinárias que invoca — as chaves estão em docs/FONTES.md — e uma função do
    contexto que devolve os itens. Cresce por acrescento de regras, não por
    acrescento dentro de uma função, e cada regra exercita-se sozinha. */
+/* Obrigações que se cumprem **fora** da aplicação, e que por isso ela não vê acontecer:
+   notificar o CSREPC, propor a ativação do PMEPC. Sem forma de as fechar, ficavam
+   vermelhas para sempre — e uma obrigação que nunca fecha ensina o oficial a ignorar o
+   vermelho, que é o pior que um motor de conformidade pode fazer.
+
+   Só entram aqui as que são mesmo ato externo. Uma obrigação que a aplicação consegue
+   observar no estado — um PEA emitido, um canal atribuído, uma função nomeada — fecha-se
+   fazendo a coisa, e não declarando que se fez. Declarar o que se pode observar seria
+   abrir a porta a dar por cumprido o que não está. */
+const CUMPRIVEIS = {
+  notif: { rot:"Registar a confirmação ao CSREPC",
+           d:"notificação SINOP difundida às entidades gestoras do território" },
+  pmepc: { rot:"Registar a proposta de ativação",
+           d:"proposta de ativação do PMEPC apresentada ao CSREPC" }
+};
+
+/** O cumprimento registado para uma obrigação, ou null. */
+function cumprimentoDe(id){
+  const C = O.cumprimentos || {};
+  const x = C[id];
+  return (x && typeof x === "object" && x.g)? x : null;
+}
+
+/**
+ * Dá uma obrigação por cumprida, com GDH e quem. Fica na evolução e na fita, como
+ * qualquer outro facto — o que se declara cumprido é prova documental, e prova sem
+ * autor nem hora não é prova.
+ */
+async function registarCumprimento(id, por, nota, ts){
+  if(!CUMPRIVEIS[id]) return { ok:false, motivo:"Esta obrigação não se declara cumprida: cumpre-se fazendo a coisa." };
+  const quem = String(por||"").trim();
+  if(!quem) return { ok:false, motivo:"Indicar quem confirma o cumprimento." };
+  O.cumprimentos = O.cumprimentos || {};
+  const g = gdhDe(ts==null? agora() : ts);
+  O.cumprimentos[id] = { g, por:quem, nota:String(nota||"").trim() };
+  O.evolucao.push({g, tipo:"decisao",
+    txt:"Cumprimento registado — "+CUMPRIVEIS[id].d+" — por "+quem
+      + (String(nota||"").trim()? " — "+String(nota).trim() : "")});
+  fita("Obrigação dada por cumprida: "+CUMPRIVEIS[id].d+" · "+quem+" · "+g);
+  await persistir(false);
+  return { ok:true, g };
+}
+
+/** Retira o registo. As circunstâncias mudam, e o que estava cumprido pode deixar de estar. */
+async function retirarCumprimento(id, por){
+  const x = cumprimentoDe(id); if(!x) return { ok:false, motivo:"Não há cumprimento registado." };
+  delete O.cumprimentos[id];
+  O.evolucao.push({g:gdhAgora(), tipo:"agravamento",
+    txt:"Cumprimento retirado — "+(CUMPRIVEIS[id]? CUMPRIVEIS[id].d : id)
+      +", registado a "+x.g+" por "+x.por+(String(por||"").trim()? "; retirado por "+String(por).trim() : "")});
+  fita("Cumprimento retirado: "+(CUMPRIVEIS[id]? CUMPRIVEIS[id].d : id));
+  await persistir(false);
+  return { ok:true };
+}
+
 /** @type {RegraDON[]} */
 const REGRAS_DON = [
   /* Rotatividade de funções da EPCO — DON n.º 2 / DECIR 2026, pontos 7.d.(29) e 7.d.(30) */
@@ -56,9 +111,22 @@ const REGRAS_DON = [
 
   { id:"ata", ids:["ata"], t:"Prazo de ataque inicial e ampliado", fontes:["DON2"],
     avaliar(x){ const v = []; const { ini, decorrido, dur } = x;
-      /* 1. Regra dos 90 minutos: transição de ATI para ATA */
+      /* 1. Regra dos 90 minutos: transição de ATI para ATA.
+
+         A obrigação cumpre-se emitindo o PEA, e a aplicação **vê** o PEA emitido: fecha
+         sozinha, sem ninguém ter de declarar nada. Até à r0046 não fechava — ficava
+         vermelha para sempre, mesmo com o plano emitido e difundido. */
       if(decorrido !== null){
-        if(decorrido >= 90){
+        const limiar = ini? ini.getTime() + 90*60000 : null;
+        const peaDepois = limiar === null? null
+          : O.peas.filter(p=>p.ts && p.ts >= limiar).slice(-1)[0];
+        if(decorrido >= 90 && peaDepois){
+          v.push({n:"ok", id:"ata", t:"Ataque ampliado com PEA formal emitido",
+            s:"A ocorrência decorre há "+dur(decorrido)+", e o PEA n.º "+peaDepois.n+" foi emitido a "+peaDepois.g+", depois do limiar dos 90 minutos, às "+gdhMais(ini,90)+".",
+            f:"Ultrapassados os 90 minutos, é exigível um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO.",
+            a:"Manter o plano difundido e em vigor; a validade e as divergências são acompanhadas na verificação própria.",
+            r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a)"});
+        } else if(decorrido >= 90){
           v.push({n:"ob", id:"ata", t:"Ataque ampliado — PEA formal obrigatório",
             s:"A ocorrência decorre há "+dur(decorrido)+", contados a partir do GDH de início "+O.meta.inicio+". O limiar dos 90 minutos foi ultrapassado às "+gdhMais(ini,90)+".",
             f:"Sempre que a ocorrência ultrapasse os 90 minutos, ou na previsão de tal acontecer, o COS deve solicitar atempadamente o reforço de meios e aumentar a capacidade de comando e controlo, assegurando a implementação de um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO, com informação sobre a proteção de pessoas e bens e sobre a gestão do incêndio em espaço rural, com alocação de meios e comando específico a cada setor.",
@@ -80,7 +148,24 @@ const REGRAS_DON = [
       if(decorrido !== null){
         const st = (estObj().setores||[]).map(x=>x.estado||"");
         const naoDominado = !st.length || st.some(e=>e.startsWith("Em curso") || e==="Reativação");
-        if(decorrido >= 1440 && naoDominado){
+
+        /* Estas duas cumprem-se fora da aplicação — notificar, propor. Declarado o
+           cumprimento, com GDH e autor, a obrigação fecha e fica a prova de quem a
+           fechou. As circunstâncias mudam, e por isso a nota diz o que a repõe. */
+        const cPmepc = x.cumprido("pmepc"), cNotif = x.cumprido("notif");
+        if(decorrido >= 1440 && naoDominado && cPmepc){
+          v.push({n:"ok", id:"pmepc", t:"Ativação do PMEPC proposta",
+            s:"Proposta apresentada a "+cPmepc.g+" por "+cPmepc.por+(cPmepc.nota? " — "+cPmepc.nota : "")+".",
+            f:"Recomenda-se que o Plano Municipal de Emergência de Proteção Civil seja ativado sempre que um incêndio não dominado atinja o período de duração de 24 horas.",
+            a:"Acompanhar a decisão da Autoridade Municipal de Proteção Civil. Retirar o registo se a proposta tiver de ser refeita.",
+            r:"DON n.º 2 / DECIR 2026, pontos 7.l.(1) e 7.l.(2)"});
+        } else if(decorrido >= 120 && naoDominado && cNotif && decorrido < 1440){
+          v.push({n:"ok", id:"notif", t:"Notificação das duas horas confirmada",
+            s:"Confirmada a "+cNotif.g+" por "+cNotif.por+(cNotif.nota? " — "+cNotif.nota : "")+".",
+            f:"As organizações públicas ou privadas responsáveis pela gestão do território onde se desenvolve o incêndio são notificadas pelo CSREPC.",
+            a:"Manter. Uma reativação repõe a obrigação: nesse caso, retirar o registo e confirmar de novo.",
+            r:"DON n.º 2 / DECIR 2026, pontos 7.k.(1) e 7.k.(2)"});
+        } else if(decorrido >= 1440 && naoDominado){
           v.push({n:"ob", id:"pmepc", t:"Ativação do PMEPC a recomendar",
             s:"O incêndio decorre há "+dur(decorrido)+" sem estar dominado. "+(st.length? "Setores ainda em curso ou em reativação: "+st.map((e,i)=>({e,i})).filter(o=>o.e.startsWith("Em curso")||o.e==="Reativação").map(o=>NOMES_SETOR[o.i]).join(", ")+"." : "Não há setorização registada."),
             f:"Recomenda-se que o Plano Municipal de Emergência de Proteção Civil seja ativado sempre que um incêndio não dominado atinja o período de duração de 24 horas, ou se preveja que tal possa acontecer. Recomenda-se ainda a ativação do plano de nível superior sempre que existam mais do que 2 PMEPC ativados na mesma área de jurisdição, quando se trate do mesmo incêndio.",
@@ -433,7 +518,9 @@ function contextoDON(ts){
        `nivObj()` normaliza, e uma verificação que altera o que verifica já não é de
        confiança. Os valores lidos são os mesmos. */
     NV: (canaisObj() && canaisObj().niveis) || {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false},
-    SUG: niveisSugeridos(), P: pcoObj() };
+    SUG: niveisSugeridos(), P: pcoObj(),
+    /* O que já foi dado por cumprido, para as regras que representam ato externo. */
+    cumprido: cumprimentoDe };
 }
 
 /* Percorre o registo. Uma regra que rebente não leva as outras atrás: passa a aviso

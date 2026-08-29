@@ -101,6 +101,18 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 8 -> 9 · Registo de cumprimento de obrigações que são ato externo.
+   Várias obrigações da DON cumprem-se fora da aplicação — notificar o CSREPC, propor a
+   ativação do PMEPC. A Estação não as vê acontecer, e por isso ficavam vermelhas para
+   sempre. Uma obrigação que nunca fecha ensina o oficial a ignorar o vermelho, que é o
+   pior que um motor de conformidade pode fazer. Nasce vazio. */
+MIGRACOES.push(e => {
+  if(!e.cumprimentos || typeof e.cumprimentos !== "object" || Array.isArray(e.cumprimentos)){
+    e.cumprimentos = {};
+  }
+  return e;
+});
+
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
@@ -136,6 +148,9 @@ function novoEstado(){
     pco:{funcoes:[]},
     /* Encerramento do registo da ocorrência nesta Estação. Vazio enquanto aberta. */
     encerramento:{ g:"", por:"", nota:"" },
+    /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
+       externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
+    cumprimentos:{},
     evolucao:[], csv:"", peas:[], fita:[], turno:novoTurno(), versao:VERSAO_ESTADO };
 }
 /* O acessor devolve qualquer elemento; a verificação de tipos incide sobre o estado,

@@ -61,6 +61,11 @@ const AV_DESTINO = {
 function caixaAviso(x){
   const rot = x.n==="ob"? "Obrigação legal" : (x.n==="av"? "Antecipação" : "Conformidade verificada");
   const d = AV_DESTINO[x.id];
+  /* Só as obrigações que são ato externo ganham o botão de dar por cumprido, e só
+     enquanto estiverem por cumprir. O que a aplicação consegue observar cumpre-se
+     fazendo a coisa. */
+  const feito = cumprimentoDe(x.id);
+  const cump = (x.n === "ob" && CUMPRIVEIS[x.id] && !feito)? CUMPRIVEIS[x.id] : null;
   return `<div class="avd-b ${x.n}">
     <span class="avd-n">${rot}</span>
     <div class="avd-t">${esc(x.t)}</div>
@@ -69,12 +74,37 @@ function caixaAviso(x){
     <div class="avd-s"><span class="avd-k">Determinação</span><div class="avd-v">${esc(x.a)}</div></div>
     <div class="avd-f">
       <span class="avd-r">${esc(x.r)}</span>
+      ${cump? `<button type="button" class="avd-go" data-cump="${esc(x.id)}">${esc(cump.rot)}</button>`:""}
+      ${feito? `<button type="button" class="avd-go" data-descump="${esc(x.id)}">Retirar o registo de ${esc(feito.g)}</button>`:""}
       ${d? `<button type="button" class="avd-go" data-ir="${d.p}">${esc(d.l)}</button>`:""}
     </div>
   </div>`;
 }
+/* Quem confirma, por omissão: o COS se estiver nomeado. Poupa escrita e evita que o
+   campo fique com o nome de quem não determinou. */
+function quemConfirma(){
+  const n = (()=>{ try{ return nomeado("Comandante das Operações") || nomeado("COS"); }catch(e){ return null; } })();
+  return (n && n.nome) || "";
+}
+
 function ligarIr(el){
   if(!el) return;
+  el.querySelectorAll("[data-cump]").forEach(b=>b.addEventListener("click", async ()=>{
+    const id = b.getAttribute("data-cump"), c = CUMPRIVEIS[id]; if(!c) return;
+    const por = window.prompt("Quem confirma que "+c.d+"?\n\nFica registado com o GDH corrente, na evolução e na fita.", quemConfirma());
+    if(por === null) return;
+    const nota = window.prompt("Nota para o processo (opcional):", "");
+    if(nota === null) return;
+    const r = await registarCumprimento(id, por, nota);
+    if(!r.ok){ window.alert(r.motivo); return; }
+    pintarDON();
+  }));
+  el.querySelectorAll("[data-descump]").forEach(b=>b.addEventListener("click", async ()=>{
+    const id = b.getAttribute("data-descump"), x = cumprimentoDe(id); if(!x) return;
+    if(!window.confirm("Retirar o cumprimento registado a "+x.g+" por "+x.por+"?\n\nA obrigação volta a estar por cumprir.")) return;
+    await retirarCumprimento(id, quemConfirma());
+    pintarDON();
+  }));
   el.querySelectorAll("[data-ir]").forEach(b=>b.addEventListener("click", ()=>{ window.irPara(b.dataset.ir); window.scrollTo({top:0,behavior:"smooth"}); }));
 }
 function pintarDON(){
