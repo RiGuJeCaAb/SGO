@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0053**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0058**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 57, das anteriores à convenção de nomes até à r0053 |
-| Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 314, todos a passar |
+| Entregas em `app/` | 60, das anteriores à convenção de nomes até à r0058 |
+| Módulos em `fonte/` | 52, em sete zonas, mais o molde |
+| Testes | 318, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,55 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A linhagem paralela outra vez, na r0058
+
+Vieram quatro guiões novos — p0010 a p0013 — construídos sobre a **minha r0053**, e as
+entregas r0056 e r0057 que deles saíram. Aplicados por cima da r0053 reproduzem a r0057
+que veio no repositório, byte a byte, tirando o carimbo da revisão no rodapé. As 58 trocas
+foram absorvidas em `fonte/`, cada uma no módulo que a continha, e a montagem reproduz de
+novo o mesmo ficheiro. **A convergência mantém-se: há uma história só.**
+
+O que os quatro trazem:
+
+- **p0010 — a numeração morta.** A arrumação por células acabou com o fluxo numerado e
+  deixou 47 rótulos a dizer «define os setores na secção 2». A aplicação mandava o oficial
+  a um sítio que já não existe. Ficam três referências, todas ao documento do contrato de
+  interoperação, que tem secções numeradas a sério.
+- **p0011 — a ajuda dobrável.** Cada painel abria com quinhentas palavras antes do
+  primeiro campo. O título fica sempre visível, o corpo paga-se a pedido.
+- **p0012 — hierarquia tipográfica.** Trinta e cinco `text-transform:uppercase`, com o
+  rótulo do número da ocorrência tratado como «Pasta (localização de arquivo)». Rótulos e
+  sub-títulos em caixa de frase, citações da norma a recuar, e o campo-âncora de cada
+  cartão com destaque próprio.
+- **p0013 — quatro correções de uso.** O alinhamento da grelha na identificação; os dois
+  quadros de rendições que a arrumação por células juntou na mesma sala; o sinal de avisos
+  que ia ao topo do painel em vez de ir aos avisos; e o catálogo de elementos que obrigava
+  a apagar para corrigir.
+
+### Duas correções minhas por cima
+
+**A ajuda dobrável não cumpria o que o guião prometia.** «Fechado por omissão», dizia — e
+depois `alternarAjuda` abria todos os blocos porque o interruptor global está ligado, que
+é o estado normal. O muro voltava inteiro no primeiro arranque. O interruptor mostra e
+esconde a ajuda; cada título abre o seu corpo, e nenhum abre sozinho.
+
+E `av.offsetTop` num `Element` é diagnóstico de tipos: a linhagem paralela não corre o
+verificador, e a conversão fica declarada onde é precisa.
+
+### Verificação
+
+318 testes, quatro novos sobre o que veio: nenhum rótulo aponta para secção numerada que
+já não exista, a ajuda abre fechada e abre um bloco de cada vez, há um só quadro de
+rendições, e o catálogo corrige sem apagar.
+
+### E cinco documentos de fonte
+
+Chegaram também cinco documentos científicos sobre propagação — declives e vento, canhões,
+modelos de propagação, o guia de comportamento em pradaria e o livro dos planos municipais
+de defesa da floresta. Ficam em `docs/fontes/`. **Ainda não sustentam código nenhum**: por
+enquanto são leitura, e enquanto não forem citados por uma regra não entram em
+`FONTES.md`.
 
 ## As quatro baratas da triagem, na r0053
 

@@ -46,19 +46,21 @@ function descreverAer(L){
 }
 function fmtH(h){ const t=Math.round(h*60); return Math.floor(t/60)+" h "+String(t%60).padStart(2,"0")+" min"; }
 
+/* Os destinos continuam a ser os identificadores antigos: a tabela de atalhos
+   traduz-os para o painel da célula. Só os rótulos precisavam de deixar de mentir. */
 const AV_DESTINO = {
-  ata:{p:"p-pea", l:"Ir à secção 6 · PEA"},
-  posit:{p:"p-evo", l:"Registar POSIT na secção 4"},
-  copart:{p:"p-pco", l:"Nomear na secção 3"},
-  coparar:{p:"p-pco", l:"Nomear na secção 3"},
-  copesp:{p:"p-pco", l:"Nomear na secção 3"},
-  pt:{p:"p-fontes", l:"Definir na secção 2"},
-  vigor:{p:"p-pea", l:"Ver o PEA em vigor na secção 6"},
-  fase:{p:"p-occ", l:"Rever a fase na secção 1"},
+  ata:{p:"p-pea", l:"Elaborar o PEA em Planeamento"},
+  posit:{p:"p-evo", l:"Registar POSIT em Operações"},
+  copart:{p:"p-pco", l:"Nomear em Comando"},
+  coparar:{p:"p-pco", l:"Nomear em Comando"},
+  copesp:{p:"p-pco", l:"Nomear em Comando"},
+  pt:{p:"p-logistica", l:"Definir em Logística e Finanças"},
+  vigor:{p:"p-pea", l:"Ver o PEA em vigor em Planeamento"},
+  fase:{p:"p-occ", l:"Rever a fase em Comando"},
   notif:{p:"p-fita", l:"Registar confirmação na fita do tempo"},
-  pmepc:{p:"p-evo", l:"Registar o pedido na secção 4"},
-  pco:{p:"p-pco", l:"Nomear na secção 3"},
-  placom:{p:"p-pco", l:"Atribuir canais na secção 3"},
+  pmepc:{p:"p-evo", l:"Registar o pedido em Operações"},
+  pco:{p:"p-pco", l:"Nomear em Comando"},
+  placom:{p:"p-logistica", l:"Atribuir canais em Logística e Finanças"},
   reparticao:{p:"p-fontes", l:"Ver o dispositivo em Operações"}
 };
 function caixaAviso(x){
@@ -139,7 +141,7 @@ function pintarDON(){
   if(K){
     K.innerHTML = conformes.length
       ? '<div class="avd-g">'+conformes.map(caixaAviso).join("")+'</div>'
-      : '<div class="avd-vazio">Ainda sem verificações confirmadas. Preencher o GDH de início na secção 1 e o dispositivo na secção 2.</div>';
+      : '<div class="avd-vazio">Ainda sem verificações confirmadas. Preencher o GDH de início em Comando e o dispositivo em Operações.</div>';
     ligarIr(K);
   }
   const T = $("av-tag");
@@ -161,7 +163,7 @@ function pintarAmpulhetas(){
       +(venc? " · "+venc+" com rendição vencida":"")+(avi? " · "+avi+" a preparar":""))
       : "nenhum meio em contagem"; }
   if(!R.length){
-    el.innerHTML = '<div class="avd-vazio">Nenhum meio em contagem. Os relógios arrancam ao atribuir tipologias aos setores na secção 2 e ao registar meios aéreos com hora de entrada.</div>';
+    el.innerHTML = '<div class="avd-vazio">Nenhum meio em contagem. Os relógios arrancam ao atribuir tipologias aos setores em Operações e ao registar meios aéreos com hora de entrada.</div>';
     return;
   }
   const L = limiares();

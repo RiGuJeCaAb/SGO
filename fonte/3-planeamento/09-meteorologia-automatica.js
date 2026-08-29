@@ -2,7 +2,7 @@
 async function meteoAutomatica(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){
-    $("meteo-info").textContent = "Sem coordenadas na ocorrência — preenche-as na secção 1 (a app leva-te lá).";
+    $("meteo-info").textContent = "Sem coordenadas na ocorrência — preenche-as em Comando (a app leva-te lá).";
     irPara("p-occ"); return;
   }
   const btn = $("b-auto"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A obter previsão...';

@@ -106,7 +106,7 @@ function metricas(){
     avisos_ipma: O.avisos? {distrito:O.avisos.distrito, ativos:O.avisos.lista.map(x=>x.tipo+" "+x.nivel.toUpperCase()+" até "+fmtAvisoT(x.fim))} : null,
     topografia: O.dados.topo && (O.dados.topo.orient||O.dados.topo.declive) ? O.dados.topo : null,
     alinhamento_relevo_vento:null, precip_total:0,
-    nota:"sem previsão carregada — secção 5 por preencher; a análise meteorológica desta proposta está em falta"
+    nota:"sem previsão carregada — meteorologia por preencher em Planeamento; a análise meteorológica desta proposta está em falta"
   };
   return {
     janela: a.jan?{inicio:hh(a.jan.i.h),fim:hh(a.jan.f.h+1),hr_inicio:a.jan.i.rh,hr_max:a.rhMax.rh}:null,

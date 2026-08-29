@@ -32,7 +32,6 @@ const ARRUMACAO = [
   { h:"Plano de comunicações",                    cel:"logistica",   r:"art. 32.º, n.º 1, al. d); art. 34.º" },
   { h:"Pacote de canais",                         cel:"logistica",   r:"art. 34.º" },
   { h:"Ponto de trânsito",                        cel:"logistica",   r:"art. 32.º, n.º 1, al. b); DON 2, 7.d.(5), (7) e (8)" },
-  { h:"Tempos de empenhamento e rendições",       cel:"logistica",   r:"art. 33.º; DON 2, 7.d.(14) e 7.e.(5)(r)" },
   { h:"Controlo de tempos e rendições",           cel:"logistica",   r:"art. 33.º; DON 2, 7.e.(5)(r)" }
 ];
 
@@ -94,6 +93,23 @@ function arrumarCasa(){
     const c = cartaoPorTitulo(a.h), destino = document.getElementById("p-"+a.cel);
     if(c && destino) destino.appendChild(c);
   });
+  /* Um só quadro de rendições. O `amp-quadro` e o `amp-quadro-2` nasceram em painéis
+     diferentes e recebiam ambos o mesmo ciclo; juntos na célula de logística passaram
+     a mostrar a mesma tabela duas vezes. Fica o cartão dos limiares, que é o que
+     permite agir, e recebe a explicação das barras do que se retira. */
+  const cTempos = cartaoPorTitulo("Tempos de empenhamento e rendições");
+  const cCtrl = cartaoPorTitulo("Controlo de tempos e rendições");
+  if(cTempos && cCtrl){
+    const q2 = cTempos.querySelector("#amp-quadro-2");
+    cTempos.querySelectorAll(":scope > .hint, :scope > p").forEach(p=>{
+      if(!cCtrl.querySelector('[data-mov-nota]')){ p.setAttribute("data-mov-nota","1"); cCtrl.appendChild(p); }
+    });
+    if(q2) q2.remove();
+    cTempos.remove();
+    const tg = cCtrl.querySelector(".tag");
+    if(tg) tg.textContent = "art. 33.º · DON n.º 2, pontos 7.d.(14) e 7.e.(5)(r)";
+  }
+
   /* o relógio do PEA em vigor e a vista do PEA emitido não são cartões: são caixas
      que se preenchem sozinhas. Seguem a célula que elabora o plano — art. 27.º. */
   const pl = document.getElementById("p-planeamento");
@@ -156,12 +172,49 @@ function pintarGuia(){
     gi.style.display=""; gi.onclick=()=>irPara(prim.p);
   } else {
     g.className="guia-in ok";
-    gt.textContent = "Dados obrigatórios completos — podes emitir a proposta de PEA na secção 6.";
+    gt.textContent = "Dados obrigatórios completos — podes emitir a proposta de PEA em Planeamento.";
     gi.style.display=""; gi.onclick=()=>irPara("p-pea");
   }
 }
+/* Transforma cada bloco de ajuda num dobrável: o título vira botão e o resto do
+   conteúdo vai para um contentor que abre a pedido. Sem tocar no HTML — os nós são
+   movidos, como na arrumação por células, e mover preserva o que estiver ligado. */
+function dobrarAjudas(){
+  document.querySelectorAll(".help").forEach(h=>{
+    if(h.querySelector(":scope > .hb")) return;              /* já dobrado */
+    const ht = h.querySelector(":scope > .ht") || h.querySelector(":scope > h3");
+    const titulo = ht ? ht.textContent.trim() : "Ajuda desta secção";
+    const corpo = document.createElement("div");
+    corpo.className = "hc";
+    while(h.firstChild) corpo.appendChild(h.firstChild);
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "hb"; b.setAttribute("aria-expanded", "false");
+    b.innerHTML = '<span></span><span class="hseta">mostrar</span>';
+    b.firstChild.textContent = titulo;
+    b.addEventListener("click", ()=>abrirAjuda(h, !h.classList.contains("aberta")));
+    h.appendChild(b); h.appendChild(corpo);
+  });
+}
+function abrirAjuda(h, on){
+  h.classList.toggle("aberta", !!on);
+  const b = h.querySelector(":scope > .hb");
+  if(b){
+    b.setAttribute("aria-expanded", on? "true":"false");
+    const st = b.querySelector(".hseta"); if(st) st.textContent = on? "ocultar" : "mostrar";
+  }
+}
+/* O botão do cabeçalho continua a valer para tudo: abre ou fecha todos de uma vez. */
+function todasAsAjudas(on){
+  document.querySelectorAll(".help").forEach(h=>abrirAjuda(h, on));
+}
+
 async function alternarAjuda(on){
   document.documentElement.classList.toggle("ajuda", on);
+  /* Dobrados **sempre fechados** ao ligar a ajuda. O guião que trouxe os dobráveis
+     prometia «fechado por omissão», e depois abria-os todos por o interruptor global
+     estar ligado — que é o estado normal. O muro voltava inteiro no primeiro arranque.
+     O interruptor mostra e esconde a ajuda; cada título abre o seu corpo. */
+  try{ dobrarAjudas(); todasAsAjudas(false); }catch(e){}
   $("b-ajuda").setAttribute("aria-pressed", on? "true":"false");
   $("b-ajuda").textContent = on? "Ocultar" : "Ajuda";
   $("b-ajuda").title = on? "Ocultar a ajuda no ecrã" : "Mostrar a ajuda no ecrã";

@@ -1,7 +1,7 @@
 /* ================= PLANEAMENTO · relevo e perfil de elevação (art. 28.º) ================= */
 async function analisarRelevo(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
-  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("t-relevo-info").textContent="Sem coordenadas na secção 1 — preenche-as primeiro."; irPara("p-occ"); return; }
+  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("t-relevo-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-relevo"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A amostrar o terreno...';
   try{
     const RUMOS=["N","NE","E","SE","S","SO","O","NO"], DIST=[400,800,1200];
@@ -62,7 +62,7 @@ function pintarRelevo(){
       + (subidas.length? " e sobe para "+subidas.map(r=>r+" (+"+R.grad[r].toFixed(0)+" %)").join(", ") : "")
       + ". Encostas expostas a "+descidas.join("/")
       + " — com vento de "+dom+", o fogo corre encosta acima para "+OPOSTO[dom]
-      + "; o cruzamento com a previsão horária está na secção 5.";
+      + "; o cruzamento com a previsão horária está em Planeamento.";
   }
 
   const chips = '<div class="rel-chips">'

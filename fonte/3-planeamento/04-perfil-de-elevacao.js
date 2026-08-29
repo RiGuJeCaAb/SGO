@@ -22,7 +22,7 @@ function parPar(txt){
 async function tracarPerfil(){
   const info = $("pf-info");
   const base = parPar($("pf-a").value) || (()=>{ const p=parPar($("o-lat").value+","+$("o-lon").value); return p; })();
-  if(!base){ info.textContent = "Sem coordenadas na secção 1 nem origem indicada."; irPara("p-occ"); return; }
+  if(!base){ info.textContent = "Sem coordenadas em Comando nem origem indicada."; irPara("p-occ"); return; }
   let fim = null, rot = "";
   if($("pf-modo").value === "rumo"){
     const g = parseFloat($("pf-rumo").value), km = Math.max(0.5, Math.min(25, parseFloat($("pf-dist").value)||4));
@@ -119,7 +119,7 @@ function pintarPerfil(){
   else if(maxD>=20) leitura.push("O troço mais inclinado tem "+maxD.toFixed(0)+" % ao quilómetro "+kmMax.toFixed(1)+": exige cadência reduzida e vigia próprio.");
   if(subida>50 && descida>50) leitura.push("O perfil alterna subidas e descidas ("+Math.round(subida)+" m a subir, "+Math.round(descida)+" m a descer): há linhas de água e cumeadas intermédias, com inversões de vento local e mudanças bruscas de comportamento em cada uma.");
   const t = O.dados.topo||{orient:"",declive:"",obs:""};
-  if(t.orient) leitura.push("A exposição dominante registada na análise de relevo é "+t.orient+", declive "+(t.declive||"—")+": cruza este perfil com a previsão de vento na secção 5 antes de fixar o eixo de esforço.");
+  if(t.orient) leitura.push("A exposição dominante registada na análise de relevo é "+t.orient+", declive "+(t.declive||"—")+": cruza este perfil com a previsão de vento em Planeamento antes de fixar o eixo de esforço.");
   L.innerHTML = `<div class="pf-m">${cartoes}</div>
     <p class="hint" style="margin-top:12px">${leitura.map(esc).join(" ")}</p>
     <p class="hint">Cotas da Elevation API do Open-Meteo, 100 amostras no eixo, resolução do modelo de terreno na ordem dos 30 m: serve para leitura de forma e de declive, não substitui a carta militar para medições finas.</p>`;

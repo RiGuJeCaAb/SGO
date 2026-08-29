@@ -5,7 +5,7 @@ function fmtAvisoT(iso){ const d=new Date(iso); return String(d.getDate()).padSt
 async function obterAvisos(silencioso){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   const el = $("avisos-ipma");
-  if(Number.isNaN(lat)||Number.isNaN(lon)){ if(!silencioso){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Sem coordenadas na secção 1.</span></div>'; } return; }
+  if(Number.isNaN(lat)||Number.isNaN(lon)){ if(!silencioso){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Sem coordenadas na ocorrência — preenche-as em Comando.</span></div>'; } return; }
   try{
     if(!DISTRITOS_IPMA){
       const rd = await fetchT("https://api.ipma.pt/open-data/distrits-islands.json", {}, 8000);

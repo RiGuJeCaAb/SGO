@@ -231,6 +231,66 @@ test('cada nível de aviso tem peso visual próprio', semAplicacao, () => {
   assert.match(css, /\.avd-b\.ok\.avd-n\{color:var\(--madeira\)/);
 });
 
+/* ---- o que veio da linhagem paralela: p0010 a p0013 ---- */
+
+test('nenhum texto manda o utilizador a uma secção numerada que já não existe', semAplicacao, () => {
+  // A arrumação por células acabou com o fluxo numerado, e ficaram 47 rótulos a dizer
+  // «define os setores na secção 2». As referências que restam são ao documento do
+  // contrato de interoperação, que tem secções numeradas a sério.
+  const html = doc().documentElement.innerHTML;
+  const orfas = [...html.matchAll(/sec(?:ç|c)(?:ão|ões)\s*(?:n\.?º\s*)?\d+/gi)]
+    .map((m) => html.slice(Math.max(0, m.index - 90), m.index + m[0].length + 30))
+    .filter((ctx) => !/contrato|esboço/i.test(ctx));
+  assert.deepEqual(orfas, [], 'rótulos a apontar para secções que já não existem');
+});
+
+test('a ajuda é dobrável e abre fechada', semAplicacao, () => {
+  // Cada painel abria com quinhentas palavras antes do primeiro campo. O bloco continua
+  // lá, e o título também: o que se paga a pedido é o corpo.
+  const ajudas = [...doc().querySelectorAll('.help')];
+  assert.ok(ajudas.length >= 5, 'só ' + ajudas.length + ' blocos de ajuda');
+  ajudas.forEach((h) => {
+    const b = h.querySelector(':scope > .hb');
+    assert.ok(b, 'bloco de ajuda sem título dobrável');
+    assert.equal(b.getAttribute('aria-expanded'), 'false', 'a ajuda abre aberta: o muro volta');
+    assert.ok(b.textContent.trim(), 'o título tem de se ver mesmo fechado');
+    assert.ok(h.querySelector(':scope > .hc'), 'o corpo não foi para o contentor dobrável');
+  });
+
+  const um = ajudas[0];
+  um.querySelector(':scope > .hb').dispatchEvent(new janela.Event('click', { bubbles: true }));
+  assert.ok(um.classList.contains('aberta'));
+  assert.equal(um.querySelector(':scope > .hb').getAttribute('aria-expanded'), 'true');
+  assert.equal(ajudas[1].classList.contains('aberta'), false, 'abriu mais do que aquele em que se carregou');
+  janela.abrirAjuda(um, false);
+});
+
+test('há um só quadro de rendições', semAplicacao, () => {
+  // Viviam em painéis diferentes e recebiam ambos o mesmo ciclo; a arrumação por células
+  // juntou-os na mesma sala e a repetição ficou à vista.
+  assert.equal(doc().querySelectorAll('#amp-quadro, #amp-quadro-2').length, 1);
+});
+
+test('o catálogo de elementos corrige em vez de obrigar a apagar', semAplicacao, () => {
+  // Apagar é destrutivo onde bastava corrigir: um posto mudado ou um erro de escrita
+  // obrigavam a apagar e reescrever o registo todo.
+  janela.eval('ELEMENTOS = [{id:"x1", nome:"Silva", entidade:"CB Lamego", ct:"912345678", funcao:"", nota:"", g:""}]');
+  janela.pintarElementos('');
+  const b = doc().querySelector('[data-el-editar="x1"]');
+  assert.ok(b, 'a lista não oferece corrigir');
+
+  b.dispatchEvent(new janela.Event('click', { bubbles: true }));
+  assert.equal(doc().getElementById('el-nome').value, 'Silva', 'o registo não voltou ao formulário');
+  assert.equal(doc().getElementById('el-ct').value, '912345678');
+  assert.equal(avaliar(janela, 'EL_EDICAO'), 'x1',
+    'sem fixar o identificador, mudar o nome criava um segundo elemento em vez de corrigir o primeiro');
+  assert.equal(doc().getElementById('el-cancelar').style.display, '');
+
+  janela.sairDaEdicaoElemento();
+  assert.equal(avaliar(janela, 'EL_EDICAO'), '');
+  janela.eval('ELEMENTOS = []');
+});
+
 /* ---- léxico do registo de evolução ---- */
 
 test('o léxico cobre os oito grupos, e cada frase declara o tipo', semAplicacao, () => {

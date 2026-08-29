@@ -17,6 +17,7 @@ $("b-evo").onclick=addEvo;
 $("b-analisar").onclick=()=>analisarCSV(true);
 $("m-horas").addEventListener("change", ()=>{ if($("f-csv").value.trim()) analisarCSV(false); });
 try{ arrumarCasa(); }catch(e){ console.error("arrumação:", e); }
+try{ dobrarAjudas(); }catch(e){ console.error("ajudas:", e); }
 $("b-gerar").onclick=emitirPEA;
 (function(){
   const eq=$("tn-eq"), ini=$("tn-ini"), fx=$("tn-fechar");
@@ -129,7 +130,25 @@ function pintarElementos(termo){
     + '<p>'+esc(x.funcao||"função por indicar")+(x.ct? " · "+esc(x.ct):"")
     + (x.nota? " · "+esc(x.nota):"")+'</p></div>'
     + '<div class="acts"><button class="btn btn-b" type="button" data-el-usar="'+esc(x.id)+'">Nomear</button>'
+    + '<button class="btn btn-g" type="button" data-el-editar="'+esc(x.id)+'">Editar</button>'
     + '<button class="btn btn-r" type="button" data-el-apagar="'+esc(x.id)+'">Apagar</button></div></div>').join("");
+
+  /* «Editar» traz o registo de volta ao formulário deste cartão e fixa o `id` que se
+     está a corrigir. Sem esse `id`, mudar o nome criava um segundo elemento em vez de
+     corrigir o primeiro, porque a gravação procura por nome e entidade. Corrigir um
+     contacto obrigava a apagar e reescrever, e apagar é destrutivo onde bastava
+     corrigir. */
+  el.querySelectorAll("[data-el-editar]").forEach(b=>b.addEventListener("click", ()=>{
+    const x = ELEMENTOS.find(y=>y.id === b.getAttribute("data-el-editar")); if(!x) return;
+    const campos = {"el-nome":x.nome, "el-ent":x.entidade, "el-ct":x.ct, "el-fn":x.funcao, "el-nota":x.nota};
+    Object.keys(campos).forEach(id=>{ const c = $(id); if(c) c.value = campos[id] || ""; });
+    EL_EDICAO = x.id;
+    const g = $("el-add");
+    if(g) g.textContent = "Guardar alterações";
+    const cx = $("el-cancelar"); if(cx) cx.style.display = "";
+    aviso("el-msg","ok","A corrigir «"+x.nome+"». Guardar substitui este registo; cancelar deixa-o como está.");
+    const c = $("el-nome"); if(c){ c.focus(); try{ c.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){} }
+  }));
 
   /* «Nomear» leva o elemento ao formulário da estrutura do PCO. Não nomeia sozinho:
      a função e o GDH são decisão de quem comanda. */
@@ -155,12 +174,21 @@ function pintarElementos(termo){
   const campos = ["el-nome","el-ent","el-ct","el-fn","el-nota"];
   const bA = $("el-add");
   if(bA) bA.addEventListener("click", async ()=>{
-    const r = await guardarElemento({ nome:$("el-nome").value, entidade:$("el-ent").value,
+    const corrigia = EL_EDICAO;
+    const r = await guardarElemento({ id: EL_EDICAO || "", nome:$("el-nome").value, entidade:$("el-ent").value,
       ct:$("el-ct").value, funcao:$("el-fn").value, nota:$("el-nota").value });
     if(!r.ok){ dizer("err", r.motivo); return; }
-    dizer("ok", r.novo? "Elemento guardado no catálogo." : "Elemento já existia; os campos preenchidos foram atualizados.");
+    dizer("ok", corrigia? "Registo corrigido."
+      : (r.novo? "Elemento guardado no catálogo." : "Elemento já existia; os campos preenchidos foram atualizados."));
     campos.forEach(id=>{ const e=$(id); if(e) e.value=""; });
+    sairDaEdicaoElemento();
     pintarElementos($("el-proc").value);
+  });
+  const bC = $("el-cancelar");
+  if(bC) bC.addEventListener("click", ()=>{
+    campos.forEach(id=>{ const e=$(id); if(e) e.value=""; });
+    sairDaEdicaoElemento();
+    dizer("ok", "Correção cancelada; o registo ficou como estava.");
   });
   const bR = $("el-recolher");
   if(bR) bR.addEventListener("click", async ()=>{

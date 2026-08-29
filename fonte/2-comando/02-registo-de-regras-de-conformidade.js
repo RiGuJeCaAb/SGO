@@ -202,13 +202,13 @@ const REGRAS_DON = [
         if(decorrido !== null && decorrido > 60) v.push({n:"ob", id:"posit", t:"POSIT em falta desde a abertura",
           s:"Não há qualquer ponto de situação registado, com a ocorrência a decorrer há "+dur(decorrido)+".",
           f:"O COS deve assegurar informação permanente ao CSREPC, comunicando o POSIT atualizado com periodicidade máxima de 1 hora, ou sempre que se verifique alteração significativa, para inserção na fita de tempo da ocorrência na plataforma de gestão de operações.",
-          a:"Registar o ponto de situação na secção 4 com o tipo POSIT e transmitir ao CSREPC para inserção no SADO.",
+          a:"Registar o ponto de situação em Operações com o tipo POSIT e transmitir ao CSREPC para inserção no SADO.",
           r:"DON n.º 2 / DECIR 2026, ponto 7.e.(4)(o)"});
       } else if(mp >= 60){
         v.push({n:"ob", id:"posit", t:"POSIT vencido há "+(mp-60)+" minutos",
           s:"O último POSIT foi registado às "+posits[posits.length-1].g+", há "+dur(mp)+". A periodicidade máxima de 1 hora está ultrapassada.",
           f:"O COS deve assegurar informação permanente ao CSREPC, comunicando o POSIT atualizado com periodicidade máxima de 1 hora, ou sempre que se verifique alteração significativa.",
-          a:"Transmitir POSIT imediato ao CSREPC e registá-lo na secção 4. Em ataque ampliado, assegurar também POSIT dirigido aos órgãos de comunicação social em hora previamente acordada, através do adjunto de relações públicas.",
+          a:"Transmitir POSIT imediato ao CSREPC e registá-lo em Operações. Em ataque ampliado, assegurar também POSIT dirigido aos órgãos de comunicação social em hora previamente acordada, através do adjunto de relações públicas.",
           r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(o) e 7.e.(5)(t)"});
       } else if(mp >= 45){
         v.push({n:"av", id:"posit", t:"POSIT a vencer em "+(60-mp)+" minutos",
@@ -237,9 +237,9 @@ const REGRAS_DON = [
         a:"Manter a nomeação registada e o canal atribuído no plano de comunicações. Com a continuidade da atividade aérea, ponderar a ativação do núcleo de meios aéreos e a nomeação do OPAR.",
         r:"Despacho n.º 4067/2024, art. 20.º, n.º 6 · DON n.º 2, ponto 7.d.(18)"});
       else if(c.arComb > 2) v.push({n:"ob", id:"copart", t:"Coordenador de Operações Aéreas terrestre por nomear",
-        s:"Estão registadas "+c.arComb+" aeronaves de combate no TO: "+listaAer+"."+(c.arCoord? " Acresce "+c.arCoord+" aeronave"+(c.arCoord>1?"s":"")+" de reconhecimento e coordenação, que não conta para este limiar.":"")+(semInd? " Há "+semInd+" aeronave"+(semInd>1?"s":"")+" sem indicativo de chamada nem hora de entrada registados na secção 2, o que impede a contagem de tempo no TO.":""),
+        s:"Estão registadas "+c.arComb+" aeronaves de combate no TO: "+listaAer+"."+(c.arCoord? " Acresce "+c.arCoord+" aeronave"+(c.arCoord>1?"s":"")+" de reconhecimento e coordenação, que não conta para este limiar.":"")+(semInd? " Há "+semInd+" aeronave"+(semInd>1?"s":"")+" sem indicativo de chamada nem hora de entrada registados em Operações, o que impede a contagem de tempo no TO.":""),
         f:"O COS deve nomear um Coordenador de Operações Aéreas (COPAR-T) que assegure a coordenação dos meios aéreos e o apoio técnico especializado no caso de estarem envolvidas na operação mais de 2 aeronaves de combate a incêndios. Com a continuidade da atividade aérea e a evolução do SGO, deve ser nomeado um Oficial de Operações Aéreas (OPAR). Até à nomeação, a coordenação deve ser assegurada, preferencialmente, pelo chefe da equipa helitransportada.",
-        a:"Nomear o COPAR-T e registar a nomeação na secção 3, com nome, entidade, contacto e canal. O emprego dos meios aéreos deve constar do PEA.",
+        a:"Nomear o COPAR-T e registar a nomeação em Comando, com nome, entidade, contacto e canal. O emprego dos meios aéreos deve constar do PEA.",
         r:"DON n.º 2 / DECIR 2026, pontos 7.d.(17), 7.d.(18) e 7.d.(19)"});
       if(c.arComb >= 4){
         if(nCopara) v.push({n:"ok", id:"coparar", t:"Coordenação aérea a partir do ar nomeada",
@@ -282,12 +282,12 @@ const REGRAS_DON = [
       if(c.m >= 10 && PT.des) v.push({n:"ok", id:"pt", t:"Ponto de trânsito estabelecido",
         s:PT.des+(PT.resp? "; responsável "+PT.resp:"; responsável por indicar")+(PT.cd? "; "+PT.cd:"")+".",
         f:"O ponto de trânsito garante o controlo das entradas e saídas do TO e a atribuição de missão a todas as equipas que chegam.",
-        a:PT.resp? "Difundir a localização e o contacto no plano de comunicações e ao CSREPC." : "Indicar o responsável e o contacto do ponto de trânsito na secção 2.",
+        a:PT.resp? "Difundir a localização e o contacto no plano de comunicações e ao CSREPC." : "Indicar o responsável e o contacto do ponto de trânsito em Logística e Finanças.",
         r:"DON n.º 2 / DECIR 2026, pontos 7.d.(5), 7.d.(7) e 7.d.(8)"});
       else if(c.m >= 10) v.push({n:"av", id:"pt", t:"Ponto de trânsito por definir",
         s:"O dispositivo soma "+c.m+" meios no TO, o que pressupõe pedido de reforço, e não há ponto de trânsito registado.",
         f:"O pedido de reforço de meios implica o estabelecimento de um ponto de trânsito para os restantes meios despachados para a ocorrência, que garanta o controlo das entradas e saídas do TO. Todas as equipas despachadas devem contactar à chegada o ponto de trânsito ou o COS para receberem missão.",
-        a:"Definir a localização e o responsável do ponto de trânsito na secção 2 — há sugestão automática a partir da carta — e inscrevê-los no plano logístico do PEA. Garantir a atribuição de missão nos primeiros 15 minutos após a chegada de cada equipa.",
+        a:"Definir a localização e o responsável do ponto de trânsito em Logística e Finanças — há sugestão automática a partir da carta — e inscrevê-los no plano logístico do PEA. Garantir a atribuição de missão nos primeiros 15 minutos após a chegada de cada equipa.",
         r:"DON n.º 2 / DECIR 2026, pontos 7.d.(5), 7.d.(7) e 7.d.(8)"});
 
       return v; } },
@@ -297,7 +297,7 @@ const REGRAS_DON = [
       const REF = {I:36, II:40, III:119, IV:356, V:713};
       const lim = REF[O.meta.fase];
       if(lim && c.op > lim) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
-        s:"Estão registados "+c.op+" operacionais, acima da referência de "+lim+" da fase "+O.meta.fase+" declarada na secção 1.",
+        s:"Estão registados "+c.op+" operacionais, acima da referência de "+lim+" da fase "+O.meta.fase+" declarada em Comando.",
         f:"O COS deve garantir o reforço da organização do PCO e da capacidade de comando e controlo sempre que o número de meios humanos e materiais mobilizados ultrapasse a capacidade de comando e controlo implementada. O aumento dessa capacidade deve ser acompanhado pelo aumento da capacidade de análise e planeamento, através da ativação do núcleo de especialistas na célula de planeamento.",
         a:"Rever a fase declarada, reforçar as células do PCO e ponderar a solicitação de EPCO, e de EAUF da FEPC ou EGFR do ICNF ao CNEPC.",
         r:"Despacho n.º 4067/2024, Anexo I; DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27)"});
@@ -372,7 +372,7 @@ const REGRAS_DON = [
       if(falta.length) v.push({n:"av", id:"pco", t:falta.length+(falta.length===1? " função do PCO por nomear":" funções do PCO por nomear"),
         s:falta.map(x=>x.f+" ("+x.motivo+")").join("; ")+".",
         f:"O posto de comando operacional pode ser composto por coordenador do PCO, oficial de operações, oficial de planeamento, oficial de logística e finanças, adjunto de segurança, adjunto de ligação e adjunto de relações públicas, em função das fases de desenvolvimento do SGO. A instalação do posto de comando operacional é obrigatória a partir da fase II.",
-        a:"Registar na secção 3 quem ocupa cada função, com entidade, contacto e GDH de nomeação. Sem esse registo, a passagem de comando fica sem base documental.",
+        a:"Registar em Comando quem ocupa cada função, com entidade, contacto e GDH de nomeação. Sem esse registo, a passagem de comando fica sem base documental.",
         r:"Despacho n.º 4067/2024, artigos 13.º, n.º 2, e 14.º, n.º 1"});
 
       return v; } },
@@ -384,13 +384,13 @@ const REGRAS_DON = [
         v.push({n:"ob", id:"placom", t:"Plano de comunicações por elaborar",
           s:"Não há canal de comando atribuído, com "+(estObj().setores||[]).length+" setores ativados no TO.",
           f:"Compete à célula de logística e finanças elaborar o plano de comunicações, para aprovação pelo COS, e assegurar a sua permanente atualização. A célula de operações transmite as ordens de missão e o plano de comunicações aos comandantes de setor, de frente e de área. Os canais de comando, táticos e de manobra são decididos pelo COS em articulação com o CSREPC.",
-          a:"Atribuir o canal de comando e os canais táticos na secção 3 e difundi-los aos comandantes de setor. Cada teatro de operações é um núcleo isolado: o contacto rádio com o exterior faz-se em exclusivo pelo PCO.",
+          a:"Atribuir o canal de comando e os canais táticos em Logística e Finanças e difundi-los aos comandantes de setor. Cada teatro de operações é um núcleo isolado: o contacto rádio com o exterior faz-se em exclusivo pelo PCO.",
           r:"Despacho n.º 4067/2024, art. 32.º, al. d), art. 17.º, al. c), e art. 34.º"});
       } else if(NV.manobra && setsSemCanal.length){
         v.push({n:"av", id:"placom", t:setsSemCanal.length+(setsSemCanal.length===1? " setor sem canal de manobra":" setores sem canal de manobra"),
           s:"Sem canal atribuído: "+setsSemCanal.map(o=>NOMES_SETOR[o.i]).join(", ")+". Canal de comando em vigor: "+canaisObj().cmd+".",
           f:"A hierarquização das comunicações no teatro de operações adequa-se aos diversos níveis de comando e chefia colocados a funcionar por decisão do COS. O nível de manobra determina e executa tarefas específicas.",
-          a:"Atribuir canal de manobra a cada setor na secção 3 e confirmar a sua difusão aos chefes de equipa.",
+          a:"Atribuir canal de manobra a cada setor em Logística e Finanças e confirmar a sua difusão aos chefes de equipa.",
           r:"Despacho n.º 4067/2024, art. 4.º, n.º 4 · DON n.º 1 / DIOPS, organização das comunicações"});
       } else if(canaisObj().cmd){
         v.push({n:"ok", id:"placom", t:"Plano de comunicações atribuído",
@@ -408,7 +408,7 @@ const REGRAS_DON = [
       if(nvFalta.length) v.push({n:"av", id:"placom", t:nvFalta.length===1? "Nível de comunicações por ativar":"Níveis de comunicações por ativar",
         s:nvFalta.map(k=>NIVEL_ROT[k].t.toLowerCase()+" ("+NIVEL_ROT[k].d+")").join("; ")+".",
         f:"As comunicações no teatro de operações são hierarquizadas e adequadas aos diversos níveis de comando e chefia colocados a funcionar por decisão do COS. Com setores ativados exigem-se os níveis tático e de manobra; com meios aéreos no teatro de operações exige-se a ligação terra/ar/terra.",
-        a:"Ativar o nível na secção 3 e atribuir os canais correspondentes, ou registar a razão de não o colocar a funcionar.",
+        a:"Ativar o nível em Logística e Finanças e atribuir os canais correspondentes, ou registar a razão de não o colocar a funcionar.",
         r:"Despacho n.º 4067/2024, art. 4.º · DON n.º 1 / DIOPS, organização das comunicações, al. e)"});
       const setsCom = (estObj().setores||[]);
       const man = NV.manobra? setsCom.map((x,i)=>({d:(x.siresp||"").trim(), n:NOMES_SETOR[i]})).filter(o=>o.d) : [];
@@ -418,7 +418,7 @@ const REGRAS_DON = [
       if(conflito.length) v.push({n:"av", id:"placom", t:"Canal repetido em níveis diferentes",
         s:conflito.join("; ")+".",
         f:"As comunicações no teatro de operações são hierarquizadas e adequadas aos diversos níveis de comando e chefia colocados a funcionar por decisão do COS. O nível de comando, o nível tático e o nível de manobra têm âmbitos distintos e não devem partilhar o mesmo canal.",
-        a:"Atribuir canais distintos a cada nível na secção 3 e difundir a correção aos comandantes de setor e aos chefes de equipa.",
+        a:"Atribuir canais distintos a cada nível em Logística e Finanças e difundir a correção aos comandantes de setor e aos chefes de equipa.",
         r:"Despacho n.º 4067/2024, art. 4.º · DON n.º 1 / DIOPS, organização das comunicações, al. e)"});
       const partilha = {};
       man.forEach(o=>{ const k=o.d.toUpperCase(); (partilha[k]=partilha[k]||[]).push(o.n); });
@@ -446,7 +446,7 @@ const REGRAS_DON = [
       if(nAer && NV.aereo && !canaisObj().aero) v.push({n:"av", id:"placom", t:"Ligação terra/ar/terra por definir",
         s:nAer+(nAer===1? " meio aéreo no TO":" meios aéreos no TO")+" sem frequência do ar registada"+(canaisObj().opar? "; "+canaisObj().opar+" registado como alternativa SIRESP":"")+".",
         f:"O canal prioritário de ligação terra/ar/terra é a frequência do ar (banda aeronáutica) atribuída ao incêndio, sendo o canal SIRESP OPAR 01 da sub-região onde decorre a ocorrência um canal alternativo e/ou de emergência, bem como o manobra 4 (CM4) da Rede Operacional dos Bombeiros.",
-        a:"Registar na secção 3 a frequência do ar atribuída à ocorrência e confirmar a alternativa SIRESP e de banda alta com o COPAR e com todos os meios aéreos empenhados.",
+        a:"Registar em Logística e Finanças a frequência do ar atribuída à ocorrência e confirmar a alternativa SIRESP e de banda alta com o COPAR e com todos os meios aéreos empenhados.",
         r:"DON n.º 2 / DECIR 2026, ponto 10(5)"});
 
       return v; } },
@@ -459,12 +459,12 @@ const REGRAS_DON = [
         if(dv.verd==="caducado") v.push({n:"ob", id:"vigor", t:"PEA n.º "+pv.n+" caducado",
           s:"A validade fixada na proposta esgotou-se"+(dv.itens.length? "; divergência acumulada de "+dv.score+" ("+detalhe+")":"")+".",
           f:"O plano estratégico de ação vigora enquanto descrever o teatro de operações. Esgotada a validade, o dispositivo passa a operar sem plano determinado que o sustente.",
-          a:"Emitir a revisão do PEA na secção 6 e submetê-la à aprovação e determinação do COS.",
+          a:"Emitir a revisão do PEA em Planeamento e submetê-la à aprovação e determinação do COS.",
           r:"Despacho n.º 4067/2024, art. 46.º e art. 8.º, n.º 2, al. e)"});
         else if(dv.verd==="rever") v.push({n:"ob", id:"vigor", t:"Revisão do PEA n.º "+pv.n+" devida",
           s:"Divergência acumulada de "+dv.score+": "+detalhe+".",
           f:"A base de planeamento do PEA em vigor deixou de corresponder ao dispositivo e à situação registados. A revisão é obrigatória à mudança de fase do SGO e sempre que a alteração da situação o justifique.",
-          a:"Emitir a revisão do PEA na secção 6, incorporando as alterações listadas no cartão do PEA em vigor.",
+          a:"Emitir a revisão do PEA em Planeamento, incorporando as alterações listadas no cartão do PEA em vigor.",
           r:"Despacho n.º 4067/2024, art. 46.º"});
         else if(dv.verd==="atencao") v.push({n:"av", id:"vigor", t:"PEA n.º "+pv.n+" com divergências",
           s:"Divergência acumulada de "+dv.score+": "+detalhe+".",

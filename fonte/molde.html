@@ -319,7 +319,20 @@
   nav button:focus-visible{outline:2px solid var(--azul)}
 
   .help{display:none;border:1px solid var(--line);border-left:4px solid var(--agua);background:var(--surf);border-radius:10px;padding:16px 22px;margin-bottom:18px;font-size:14px;color:var(--tx2);line-height:1.65}
-  .help .ht{display:block;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.3px;margin:0 0 4px;color:var(--agua)}
+  .ht{display:block;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.3px;margin:0 0 4px;color:var(--agua)}
+  /* Ajuda dobrável: o título fica sempre à vista, o corpo abre a pedido. */
+  .help{padding:0}
+  .help > .hb{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;
+    width:100%;padding:13px 20px;cursor:pointer;font-family:var(--disp);font-weight:700;
+    font-size:15px;letter-spacing:.2px;color:var(--agua)}
+  .help > .hb:hover{color:var(--tx)}
+  .help > .hb:focus-visible{outline:2px solid var(--agua);outline-offset:-2px;border-radius:8px}
+  .help > .hb .hseta{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--tx3);
+    letter-spacing:.6px;text-transform:none;white-space:nowrap}
+  .help > .hc{display:none;padding:0 20px 16px}
+  .help.aberta > .hc{display:block}
+  .help.aberta > .hb{color:var(--tx)}
+  .help > .hc > .ht{display:none}   /* o título passou para o botão */
   .help .hd{margin:0 0 10px}
   .help b{color:var(--tx)}
   .help ul,.help ol{margin:2px 0 10px 20px;padding:0}
@@ -333,6 +346,10 @@
   .help ol{margin:6px 0 0 18px}
   .help li{margin-bottom:3px}
   html.ajuda .help{display:block}
+  /* Com a ajuda desligada no cabeçalho, os blocos continuam presentes mas fechados:
+     vê-se que existe ajuda e sobre o quê, sem pagar o muro de texto para o saber. */
+  .help{display:block}
+  .help:not(.aberta) > .hc{display:none}
   .guia{max-width:1460px;margin:14px auto 0;padding:0 20px}
   .guia-in{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 18px;background:var(--surf);font-size:15px}
   .guia-in.ok{border-color:var(--madeira)}
@@ -348,7 +365,11 @@
   .pane.on{display:block}
   .card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:22px 26px;margin-bottom:18px}
   .card h2{font-family:var(--disp);font-weight:600;font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--tx3);border:1px solid var(--line);padding:2px 7px;border-radius:5px;letter-spacing:.5px}
+    /* A citação da norma é o que sustenta a aplicação e estava a competir com o
+     conteúdo em todas as superfícies. Fica sempre presente e nunca em primeiro plano:
+     ao passar o rato, ou ao focar o cartão, volta à força plena. */
+.card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--tx3);border:1px solid var(--line);padding:2px 7px;border-radius:5px;letter-spacing:.5px;opacity:.62;transition:opacity .12s}
+  .card:hover h2 .tag, .card:focus-within h2 .tag, .card h2 .tag:hover{opacity:1}
 
   .grid{display:grid;gap:12px}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
   /* Um rótulo que quebre em duas linhas empurrava o seu campo para baixo do dos
@@ -357,11 +378,42 @@
   .grid>div{display:flex;flex-direction:column;justify-content:flex-end}
   .grid>div>label{margin-top:auto}
   @media(max-width:760px){.g3,.g2,.g4{grid-template-columns:1fr}}
-  label{display:block;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--tx2);margin-bottom:7px}
+  /* Caixa de frase. O rótulo distingue-se do valor pelo peso e pela cor; a caixa alta
+     custava a forma da palavra sem dar nada em troca. O espaçamento de letra desce em
+     proporção, porque só era preciso para abrir as maiúsculas. */
+  label{display:block;font-size:12.5px;font-weight:600;letter-spacing:.1px;color:var(--tx2);margin-bottom:7px}
   input,textarea,select{width:100%;background:var(--surf2);border:1px solid var(--line);border-radius:8px;color:var(--tx);padding:12px 14px;font-family:var(--body);font-size:15px}
   textarea{font-family:var(--mono);font-size:13.5px;resize:vertical}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
   .hint{font-size:13px;color:var(--tx3);margin-top:6px}
+  /* Numa grelha, a célula mais alta manda na linha inteira. Uma nota comprida sob
+     um campo empurrava os vizinhos para o fundo da linha, e o campo do GDH ficava
+     sessenta pixéis acima do nível DECIR e da latitude, que são da mesma linha.
+     Todos os campos encostam ao rótulo; a nota fica a pender por baixo, e é a
+     única coisa que ocupa o espaço extra. */
+  .grid > div{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start}
+  /* O rótulo do campo-âncora tem letra maior; sem altura fixa a caixa dele cresce
+     e o campo desce em relação aos vizinhos. */
+  .grid > div > label{margin-top:0;line-height:18px;min-height:18px}
+  .grid > div > input, .grid > div > select, .grid > div > textarea{margin-top:0}
+  /* Altura de controlo constante: o campo-âncora tem letra maior e a caixa crescia
+     um pixel, o que numa grelha se repete em todas as linhas. A altura passa a ser
+     do desenho, não do tamanho da letra. */
+  .grid > div > input, .grid > div > select{height:45px;box-sizing:border-box}
+  .grid > div > textarea{min-height:45px}
+  /* Campo âncora: aquele de que o resto do cartão depende. O número da ocorrência
+     ancora os noventa minutos e o arquivo; o local ancora as coordenadas, a meteorologia
+     e os avisos do distrito. Sem eles o cartão não serve, e isso deve ver-se antes de
+     se ler. Marca-se com a cor da célula, que já é a linguagem da casa. */
+  .campo-chave > label{font-size:13.5px;font-weight:700;color:var(--tx)}
+  .campo-chave > input, .campo-chave > select{font-size:16px;font-weight:600;
+    border-color:var(--linha-chave,var(--line));box-shadow:inset 2px 0 0 var(--c-chave,var(--agua))}
+  .campo-chave > input:focus, .campo-chave > select:focus{box-shadow:inset 2px 0 0 var(--c-chave,var(--agua)), 0 0 0 3px var(--foco,rgba(107,166,232,.22))}
+  #p-comando .campo-chave{--c-chave:var(--cel-comando)}
+  #p-planeamento .campo-chave{--c-chave:var(--cel-planeamento)}
+  #p-operacoes .campo-chave{--c-chave:var(--cel-operacoes)}
+  #p-logistica .campo-chave{--c-chave:var(--cel-logistica)}
+  #p-turno .campo-chave{--c-chave:var(--cel-turno)}
   .mono-sm{font-family:var(--mono);font-size:11.5px;color:var(--tx2);letter-spacing:.2px}
 
   .btn{font-family:var(--disp);font-weight:600;font-size:15px;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
@@ -454,7 +506,9 @@
   .chkbx{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--tx2);cursor:pointer;user-select:none}
   .chkbx input{width:15px;height:15px;accent-color:var(--agua)}
   .sub{border:1px solid var(--line);border-radius:10px;background:var(--surf2);padding:16px 18px;margin-bottom:16px}
-  .sub .stit{display:block;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--tx2);margin-bottom:12px}
+  /* Aqui é que doía: alguns destes sub-títulos passam dos noventa caracteres, com a
+     referência legal incluída. Em caixa alta deixavam de ser título. */
+  .sub .stit{display:block;font-family:var(--disp);font-size:13.5px;font-weight:700;letter-spacing:.15px;color:var(--tx);margin-bottom:12px}
   .set-box{border:1px solid var(--line);border-radius:10px;background:var(--surf);padding:14px 16px;margin-bottom:12px}
   .set-head,.set-row{display:grid;grid-template-columns:74px 1fr 1.3fr 1.1fr 1fr 70px 70px;gap:10px;align-items:center;margin-bottom:8px}
   .set-head{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px}
@@ -893,8 +947,8 @@
     <div class="card">
       <h2>Identificação da ocorrência <span class="tag">n.º SADO · registo automático neste dispositivo</span></h2>
       <div class="grid g3">
-        <div><label for="o-num">Ocorrência n.º</label><input id="o-num" data-campo="meta.num" placeholder="número SADO"></div>
-        <div><label for="o-local">Local (freguesia — concelho)</label><input id="o-local" data-campo="meta.local" placeholder="freguesia — concelho"></div>
+        <div class="campo-chave"><label for="o-num">Ocorrência n.º</label><input id="o-num" data-campo="meta.num" placeholder="número SADO"></div>
+        <div class="campo-chave"><label for="o-local">Local (freguesia — concelho)</label><input id="o-local" data-campo="meta.local" placeholder="freguesia — concelho"></div>
         <div><label for="o-pasta">Pasta (localização de arquivo)</label><input id="o-pasta" data-campo="meta.pasta" placeholder="sub-região · concelho"></div>
         <div><label for="o-sreg" title="Pasta sub-regional do SIRESP onde decorre o TO. Determina que grupos sub-regionais são aplicáveis.">Sub-região do TO (pasta SIRESP)</label><input id="o-sreg" data-campo="meta.subregiao" placeholder="ex.: Douro Op"></div>
         <div><label for="o-pco">PCO</label><input id="o-pco" data-campo="meta.pco" placeholder="localidade do posto de comando"></div>
@@ -1040,7 +1094,7 @@
           <span class="hint" style="margin:0" id="t-relevo-info">Amostra 25 cotas reais em 8 rumos até 1200 m do ponto e preenche orientação e declive.</span>
         </div>
         <div id="relevo-dash" style="margin-top:6px"></div>
-        <div class="hint">O cruzamento relevo × vento aparece na análise da secção 5: horas em que o escoamento sobe as encostas indicadas (alinhamento fogo-declive-vento).</div>
+        <div class="hint">O cruzamento relevo × vento aparece na análise de Planeamento: horas em que o escoamento sobe as encostas indicadas (alinhamento fogo-declive-vento).</div>
       </div>
 
       <div class="sub"><span class="stit">Exposição e anexos</span>
@@ -1130,6 +1184,7 @@
       <div class="row" style="margin-top:12px">
         <button class="btn btn-o" type="button" id="el-add">Guardar no catálogo</button>
         <button class="btn btn-b" type="button" id="el-recolher">Recolher desta ocorrência</button>
+        <button class="btn btn-g" type="button" id="el-cancelar" style="display:none">Cancelar correção</button>
         <span class="xtr" style="margin-left:auto"><input id="el-proc" placeholder="procurar" style="width:200px"></span>
       </div>
       <div class="msg" id="el-msg" style="display:none"></div>
@@ -1175,7 +1230,7 @@
         <b>Leitura automática da app Gestão PCO e do FEB</b><span class="chip pl">PLANEADO · FASE 2</span>
         <div class="kv"><b>O que falta:</b> a app PCO (Netlify) não expõe API — é preciso acrescentar-lhe um botão "Exportar JSON" com <code>{ocorrencia, setores[], meios[], operacionais, meios_aereos}</code>, que esta estação importa com um clique em vez do colar manual. No FEB, descarregar o KML/GeoJSON do perímetro diretamente pelo n.º de ocorrência.</div>
         <div class="kv"><b>Ganho:</b> elimina os dois carregamentos manuais e o risco de POSIT desatualizado entre plataformas.</div>
-        <div class="kv"><b>Esforço estimado:</b> 1–2 semanas (o esquema JSON já está definido no documento de arquitetura, secção 5).</div>
+        <div class="kv"><b>Esforço estimado:</b> 1–2 semanas (o esquema JSON já está definido no documento de arquitetura).</div>
       </div></div>
 
       <div class="src"><div class="st wip"></div><div style="flex:1">
@@ -1588,7 +1643,7 @@
     <div class="card">
       <h2>Turno corrente <span class="tag" id="turno-tag">DON n.º 2, pontos 7.d.(29) e 7.d.(30)</span></h2>
       <div class="grid g3">
-        <div><label for="tn-eq">Designação da equipa</label><input id="tn-eq" placeholder="ex.: EPCO Douro — turno A"></div>
+        <div class="campo-chave"><label for="tn-eq">Designação da equipa</label><input id="tn-eq" placeholder="ex.: EPCO Douro — turno A"></div>
         <div><label for="tn-ini">GDH de início do turno</label><input id="tn-ini" placeholder="vazio = agora"></div>
         <div><label>Decorrido</label><div class="occ-tag" id="tn-dec" style="min-height:40px;display:flex;align-items:center">—</div></div>
       </div>

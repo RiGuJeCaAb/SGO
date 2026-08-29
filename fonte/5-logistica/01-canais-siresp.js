@@ -177,12 +177,12 @@ function renderCatalogo(){
     : "pacote vazio";
   let h = '<div class="pk-r"><span class="k">Distrito</span><span class="v">'+(O.meta.distrito
       ? esc(O.meta.distrito)+(O.meta.concelho? ", concelho de "+esc(O.meta.concelho):"")+' <span class="pend">— determinado pelas coordenadas do teatro de operações</span>'
-      : '<span class="pend">por determinar — depende das coordenadas do TO, na secção 1</span>')+'</span></div>';
+      : '<span class="pend">por determinar — depende das coordenadas do TO, em Comando</span>')+'</span></div>';
   h += '<div class="pk-r"><span class="k">Sub-região do TO</span><span class="v">'+(subregiaoTO()
       ? esc(subregiaoTO())+(semAcento(subregiaoTO())===semAcento(SUBREGIAO_PACOTE)
           ? ' <span class="pend">— a do pacote carregado neste posto</span>'
           : ' <span class="fora">— o pacote carregado é o de '+esc(SUBREGIAO_PACOTE)+'; os canais sub-regionais desta pasta não servem este TO</span>')
-      : '<span class="pend">por indicar, na secção 1 — a pasta sub-regional depende dela</span>')+'</span></div>';
+      : '<span class="pend">por indicar, em Comando — a pasta sub-regional depende dela</span>')+'</span></div>';
   Object.keys(PASTAS).forEach(k=>{
     const arr = CANAIS.ent.filter(x=>(x.pasta||"local")===k);
     if(!arr.length) return;

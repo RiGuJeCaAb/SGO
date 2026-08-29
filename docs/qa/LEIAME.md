@@ -20,6 +20,14 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0013_..._LexicoPorCor_CLD.png` | r0051 | O grupo População em blocos de cor: agrava, melhora, meios, decisão, ponto de situação |
 | `CSREPCDouro_qa0013_..._EscalaIntacta_CLD.png` | r0051 | A escala do perímetro inteira, à cabeça do grupo, sem ser desmanchada pela cor |
 | `CSREPCDouro_qa0014_..._CarimboEncerramento_CLD.png` | r0053 | O carimbo de integridade no cartão de encerramento, a conferir com o registo |
+| `CSREPCDouro_qa0011_202608291730_Comando_CLD.png` | r0056 | Da linhagem paralela: o painel de Comando com a hierarquia tipográfica do p0012 |
+| `CSREPCDouro_qa0011_202608291730_Logistica_CLD.png` | r0056 | O mesmo, no painel de Logística |
+| `CSREPCDouro_qa0012_202608291830_Comando_CLD.png` | r0057 | Comando depois das quatro correções do p0013 |
+| `CSREPCDouro_qa0012_202608291830_Logistica_CLD.png` | r0057 | Logística com um só quadro de rendições |
+
+Os `qa0011` e `qa0012` de 29 de agosto às 17h30 e 18h30 vieram da linhagem paralela e
+repetem números que esta linhagem já tinha usado nesse dia. Distinguem-se pelo carimbo de
+data e ficam como vieram: renumerá-los partiria a referência dos documentos que os citam.
 
 Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exceções às
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o

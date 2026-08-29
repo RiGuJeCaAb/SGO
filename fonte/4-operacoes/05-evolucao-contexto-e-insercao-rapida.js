@@ -8,7 +8,7 @@ function inserirEvo(txt){
 function pintarEvoCtx(){
   const e = O.dados && O.dados.est;
   const el = $("evo-ctx"); if(!el) return;
-  if(!e || !e.n){ el.innerHTML = '<span class="hint">Define os setores na secção 2 e aparecem aqui como atalhos.</span>'; return; }
+  if(!e || !e.n){ el.innerHTML = '<span class="hint">Define os setores em Operações e aparecem aqui como atalhos.</span>'; return; }
   const chips = e.setores.map((x,i)=>{
     const t = totSetor(x);
     const mo = (x.tip||[]).length? t.m+"m/"+t.o+"op" : ((x.m||x.o)? (x.m||"?")+"m/"+(x.o||"?")+"op" : "");

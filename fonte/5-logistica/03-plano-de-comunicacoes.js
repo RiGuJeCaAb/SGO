@@ -105,7 +105,7 @@ function renderComs(){
             sel(`data-cs="${i}" data-f="tat"`, "siresp", "tatico"),
             sel(`data-cs="${i}" data-f="tatba"`, "ba", "tatico"))).join("");
       c += fnDo("tatico").map(linhaFuncao).join("");
-      if(!(e.setores||[]).length) c += '<p class="hint">Define os setores na secção 2 e aparecem aqui.</p>';
+      if(!(e.setores||[]).length) c += '<p class="hint">Define os setores em Operações e aparecem aqui.</p>';
       h += painel("tatico", c, "A célula de operações transmite as ordens de missão e o plano de comunicações aos comandantes de setor, de frente e de área. Sem canal próprio, o setor usa o canal tático geral.");
     }
     if(N.manobra){
@@ -113,7 +113,7 @@ function renderComs(){
         ? cab(true) + (e.setores||[]).map((x,i)=>linha("Equipas do setor "+NOMES_SETOR[i], x.cmd||"comandante por designar",
             sel(`data-cs="${i}" data-f="siresp"`, "siresp", "manobra"),
             sel(`data-cs="${i}" data-f="ba"`, "ba", "manobra"))).join("")
-        : '<p class="hint">Define os setores na secção 2 e aparecem aqui para atribuição de canal de manobra.</p>';
+        : '<p class="hint">Define os setores em Operações e aparecem aqui para atribuição de canal de manobra.</p>';
       h += painel("manobra", c, "O nível de manobra é interno a cada setor. Setores distintos no mesmo canal saturam a rede e confundem a origem das mensagens.");
     }
     if(N.aereo){
@@ -174,5 +174,5 @@ function renderComs(){
 }
 
 /* ================= verificações automáticas — DON n.º 2 / DECIR 2026 =================
-   Regras determinísticas derivadas do dispositivo introduzido na secção 2 e do relógio.
+   Regras determinísticas derivadas do dispositivo introduzido em Operações e do relógio.
    Cada verificação transporta a referência do ponto da DON que a fundamenta. */

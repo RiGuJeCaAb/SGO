@@ -55,7 +55,7 @@ const TIPO_PT = {fire_station:"quartel", parking:"parque de estacionamento", fue
   village:"aldeia", town:"vila", hamlet:"lugar"};
 async function sugerirPT(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
-  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("pt-info").textContent="Sem coordenadas na secção 1."; irPara("p-occ"); return; }
+  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("pt-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-pt"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A consultar OSM...';
   try{
     const A = "(around:8000,"+lat+","+lon+")";
@@ -125,7 +125,7 @@ window.adotarPT = i => {
 };
 async function detetarSensiveis(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
-  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("sens-info").textContent="Sem coordenadas na secção 1."; irPara("p-occ"); return; }
+  if(Number.isNaN(lat)||Number.isNaN(lon)){ $("sens-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-sens"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A consultar OSM...';
   try{
     const q = '[out:json][timeout:12];(node(around:3000,'+lat+','+lon+')[place~"^(village|hamlet|town|suburb|locality)$"];node(around:3000,'+lat+','+lon+')[amenity~"^(school|kindergarten|hospital|nursing_home)$"];);out body 40;';

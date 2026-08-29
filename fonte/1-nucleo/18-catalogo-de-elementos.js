@@ -17,6 +17,14 @@
 const ELEM_CHAVE = "peaapp:elementos";
 /** @type {{id:string,nome:string,entidade:string,ct:string,funcao:string,nota:string,g:string}[]} */
 let ELEMENTOS = [];
+/* Identificador do registo em correção. Vazio, guardar cria ou funde pelo nome;
+   preenchido, guardar substitui aquele registo — e só assim se pode corrigir o nome. */
+let EL_EDICAO = "";
+function sairDaEdicaoElemento(){
+  EL_EDICAO = "";
+  const g = $("el-add"); if(g) g.textContent = "Guardar no catálogo";
+  const cx = $("el-cancelar"); if(cx) cx.style.display = "none";
+}
 
 function novoElemento(){ return { id:"", nome:"", entidade:"", ct:"", funcao:"", nota:"", g:"" }; }
 
@@ -51,14 +59,21 @@ async function guardarElemento(dados){
   x.entidade = String(x.entidade||"").trim();
   if(!x.nome) return { ok:false, novo:false, motivo:"O elemento precisa de nome." };
 
-  const i = ELEMENTOS.findIndex(y=>chaveElemento(y) === chaveElemento(x));
+  /* A correção manda sobre a fusão por nome: quando se está a corrigir um registo
+     conhecido, é esse que se substitui, mesmo que o nome mude. */
+  const i = (dados && dados.id)
+    ? ELEMENTOS.findIndex(y=>y.id === dados.id)
+    : ELEMENTOS.findIndex(y=>chaveElemento(y) === chaveElemento(x));
   if(i < 0){
     x.id = "e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     x.g = gdhAgora();
     ELEMENTOS.push(x);
   } else {
     const atual = ELEMENTOS[i];
-    ["nome","entidade","ct","funcao","nota"].forEach(k=>{ if(x[k]) atual[k] = x[k]; });
+    /* Ao corrigir, um campo esvaziado é para ficar vazio; ao fundir dois registos com
+       o mesmo nome, um campo vazio não deve apagar o que já lá estava. */
+    const corrigir = !!(dados && dados.id);
+    ["nome","entidade","ct","funcao","nota"].forEach(k=>{ if(corrigir || x[k]) atual[k] = x[k]; });
   }
   ELEMENTOS.sort((a,b)=>a.nome.localeCompare(b.nome, "pt"));
   await gravarElementos();
