@@ -66,6 +66,30 @@ function proporEstadoDaFrase(estado){
   });
 }
 
+/* Ordem das arestas dentro de cada grupo. Vinte frases por grupo em mosaico de cores
+   obrigam a ler uma a uma; por blocos de cor, a vista salta logo para o bloco certo. E a
+   ordem é a mesma em todos os grupos, que é o que faz a mão aprender onde está o
+   vermelho. Quem não tem aresta — o ponto de situação — fica no fim. */
+const ORDEM_TIPO = ["agravamento", "melhoria", "meios", "decisao", "posit"];
+
+/**
+ * Reordena as frases de um grupo por tipo, sem lhes tocar de outra maneira — são os
+ * mesmos botões, com os mesmos ouvintes, noutra ordem.
+ *
+ * As miniaturas ficam à cabeça e pela ordem em que estão escritas: a rosa dos ventos e a
+ * escala do perímetro são sequências, e uma sequência desmanchada por cor lê-se pior do
+ * que um mosaico. Só o que não é sequência se arruma por cor.
+ */
+function arrumarPorTipo(g){
+  const chave = b => b.classList.contains("mini")? -1
+    : (ORDEM_TIPO.indexOf(b.getAttribute("data-tp")) < 0
+        ? ORDEM_TIPO.length : ORDEM_TIPO.indexOf(b.getAttribute("data-tp")));
+  [...g.querySelectorAll("[data-fr]")]
+    .map((b,i)=>({b, k:chave(b), i}))
+    .sort((x,y)=> (x.k - y.k) || (x.i - y.i))
+    .forEach(o=>g.appendChild(o.b));
+}
+
 /**
  * Arruma o léxico: uma barra de grupos por cima, um grupo de cada vez por baixo, e uma
  * caixa de procura que corta transversalmente.
@@ -77,6 +101,7 @@ function proporEstadoDaFrase(estado){
 function montarFrases(){
   const cx = $("evo-frases"), barra = $("fr-grupos"), procura = $("fr-q");
   if(!cx || !barra || !procura) return;
+  [...cx.querySelectorAll(".fr-g")].forEach(arrumarPorTipo);
   const grupos = [...cx.querySelectorAll(".fr-g")].map(g=>({
     el: g,
     nome: (g.querySelector(".fr-l")||{textContent:""}).textContent.trim(),

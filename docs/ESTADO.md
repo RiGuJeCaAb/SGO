@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0050**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0051**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 54, das anteriores à convenção de nomes até à r0050 |
+| Entregas em `app/` | 55, das anteriores à convenção de nomes até à r0051 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 296, todos a passar |
+| Testes | 298, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,31 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O léxico arrumado por cor, na r0051
+
+Vinte frases por grupo resolveram a falta de vocabulário e criaram outro problema: vinte
+teclas com arestas de cinco cores diferentes, entremeadas, são um mosaico — obriga a ler
+uma a uma para achar a que se quer.
+
+Passam a estar **arrumadas por cor, e sempre pela mesma ordem**: o que agrava, o que
+melhora, os meios, as decisões do COS e, no fim, o que é só ponto de situação e não leva
+aresta. A ordem é igual nos oito grupos, que é o que faz a mão aprender onde está o
+vermelho sem ter de ler.
+
+**As sequências não se desmancham.** A rosa dos ventos (N a NO) e a escala do perímetro
+(10 % a 100 %) são miniaturas e ficam inteiras à cabeça do grupo, pela ordem em que se
+leem: pôr o 75 % antes do 10 % por ser verde seria pior do que o mosaico que se queria
+resolver. Um teste guarda as duas sequências.
+
+A arrumação é feita no arranque, sobre os próprios botões — os mesmos nós, com os mesmos
+ouvintes, noutra ordem. Frase nova escrita em qualquer sítio do grupo vai sozinha para o
+seu bloco de cor; não há uma segunda lista para manter alinhada.
+
+### Verificação
+
+298 testes, dois novos: a ordem das cores dentro de cada grupo, e as duas sequências
+intactas. Provas em `docs/qa/` (`qa0013`).
 
 ## Vinte frases por grupo, em teclas com relevo, na r0050
 

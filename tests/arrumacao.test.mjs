@@ -258,6 +258,39 @@ test('cada grupo do léxico traz pelo menos vinte frases', semAplicacao, () => {
   assert.deepEqual(magros, [], 'grupos abaixo de vinte frases: ' + JSON.stringify(magros));
 });
 
+test('dentro do grupo, as frases estão arrumadas por cor', semAplicacao, () => {
+  // A cor da aresta é o tipo. Arrumadas por ela, e sempre pela mesma ordem em todos os
+  // grupos, a vista salta para o bloco certo em vez de ler frase a frase.
+  const ordem = avaliar(janela, 'ORDEM_TIPO');
+  assert.deepEqual([...ordem], ['agravamento', 'melhoria', 'meios', 'decisao', 'posit']);
+
+  [...doc().querySelectorAll('#evo-frases .fr-g')].forEach((g) => {
+    const nome = g.querySelector('.fr-l').textContent.trim();
+    const botoes = [...g.querySelectorAll('[data-fr]')];
+    const minis = botoes.filter((b) => b.classList.contains('mini'));
+    // as sequências ficam à cabeça, inteiras
+    assert.deepEqual(botoes.slice(0, minis.length), minis,
+      `em ${nome} as miniaturas não estão à cabeça do grupo`);
+
+    const graus = botoes.slice(minis.length)
+      .map((b) => [...ordem].indexOf(b.getAttribute('data-tp')));
+    graus.forEach((n, i) => assert.ok(i === 0 || graus[i - 1] <= n,
+      `em ${nome} a frase «${botoes[minis.length + i].textContent}» está fora da ordem das cores`));
+  });
+});
+
+test('a escala do perímetro e a rosa dos ventos não se desmancham', semAplicacao, () => {
+  // São sequências: 10, 25, 50, 75, 90, 100; N, NE, E, SE, S, SO, O, NO. Arrumá-las por
+  // cor punha o 75 antes do 10, que é pior do que o mosaico que se queria resolver.
+  const mini = (grupo) => [...doc().querySelectorAll('#evo-frases .fr-g')]
+    .find((g) => g.querySelector('.fr-l').textContent.trim() === grupo)
+    .querySelectorAll('.fr.mini');
+  assert.deepEqual([...mini('Perímetro')].map((b) => b.textContent),
+    ['10 %', '25 %', '50 %', '75 %', '90 %', '100 %']);
+  assert.deepEqual([...mini('Propagação')].map((b) => b.textContent),
+    ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO']);
+});
+
 test('as teclas do léxico têm o relevo das teclas de canal', semAplicacao, () => {
   // A tridimensionalidade não é enfeite: uma tecla que se vê saliente diz que se carrega,
   // e crava-se ao ser carregada. É a mesma mecânica das teclas de canal — e o mesmo CSS.
