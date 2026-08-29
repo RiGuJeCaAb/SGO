@@ -88,3 +88,27 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   if(bD) bD.addEventListener("click", ()=>{ try{ descarregarBriefing(); }catch(e){ aviso("msg-occ","err","Não foi possível descarregar ("+e+")."); } });
 })();
 
+/* encerramento da ocorrência — art. 8.º, n.º 2 */
+(function(){
+  const bE = $("enc-encerrar"), bR = $("enc-reabrir");
+  const dizer = (cls, txt) => { const m = $("enc-msg"); if(!m) return;
+    m.className = "msg "+cls; m.textContent = txt; m.style.display = "block"; };
+  if(bE) bE.addEventListener("click", async ()=>{
+    const v = verificarEncerramento();
+    const aviso = v.reservas.length? "\n\nCom reservas:\n· "+v.reservas.join("\n· ") : "";
+    if(!window.confirm("Encerrar o registo da ocorrência "+(O.meta.num||"")+"?"
+      +"\n\nO registo fica fechado à escrita. Não encerra a ocorrência no SADO."+aviso)) return;
+    const r = await encerrarOcorrencia($("enc-por").value, $("enc-nota").value);
+    if(!r.ok){ dizer("err", r.motivo); pintarEncerramento(); return; }
+    dizer("ok", "Registo encerrado."+(r.reservas.length? " "+r.reservas.length+" reserva(s) ficaram no processo." : ""));
+    pintarTudo();
+  });
+  if(bR) bR.addEventListener("click", async ()=>{
+    const motivo = window.prompt("Motivo da reabertura (fica no registo):", "");
+    if(motivo === null) return;
+    const r = await reabrirOcorrencia($("enc-por").value, motivo);
+    if(!r.ok){ dizer("err", r.motivo); return; }
+    dizer("ok", "Registo reaberto.");
+    pintarTudo();
+  });
+})();

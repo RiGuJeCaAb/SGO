@@ -15,6 +15,7 @@
 function mudarEstadoSetor(i, novo){
   const e = estObj(), x = e.setores[i];
   if(!x || ESTADOS_SETOR.indexOf(novo) < 0 || x.estado === novo) return false;
+  if(encerrada()) return false;   /* registo fechado: reabrir antes de alterar */
   const anterior = x.estado || "\u2014";
   const tipoEvo = (novo===ESTADOS_SETOR[0] || novo===ESTADOS_SETOR[4])? "agravamento" : "melhoria";
   x.estado = novo;

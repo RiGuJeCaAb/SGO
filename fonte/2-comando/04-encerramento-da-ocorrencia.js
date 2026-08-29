@@ -1,0 +1,138 @@
+/* ================= COMANDO · encerramento do registo da ocorrência =================
+   Encerrar é ato de comando — art. 8.º, n.º 2 — e o registo temporal da ocorrência tem
+   de ser explícito e completo, art. 2.º, al. c). O encerramento carimba o fim, fecha o
+   registo à escrita e deixa prova de quem o determinou.
+
+   **O que isto não é:** não encerra a ocorrência no SADO nem em plataforma nenhuma. A
+   Estação não fala com o SADO, e dizer o contrário seria mentir ao oficial. Encerra-se
+   aqui o registo que aqui se fez.
+
+   O fecho à escrita é o que uma aplicação de uma página pode dar: os campos ficam
+   inertes e os dois caminhos que escrevem factos operacionais — a mudança de estado de
+   setor e o registo de evolução — recusam. Não é selo criptográfico; é a diferença entre
+   alterar por engano e alterar de propósito, que num processo é o que importa. A
+   reabertura é sempre possível, e regista-se como o encerramento. */
+
+/**
+ * O que impede o encerramento, e o que apenas o desaconselha.
+ *
+ * Impedem: não haver ocorrência, e haver setor em curso ou reativado — não se encerra
+ * o registo de um incêndio que ainda arde. Desaconselham: obrigações de conformidade
+ * em incumprimento e missões por fechar, que ficam no processo como ficaram.
+ *
+ * @returns {{pode:boolean, impedimentos:string[], reservas:string[]}}
+ */
+function verificarEncerramento(){
+  const impedimentos = [], reservas = [];
+  if(!O.meta.num) impedimentos.push("Não há ocorrência carregada.");
+
+  const S = cargaDosSetores(), ativos = S.filter(s=>s.ativo);
+  if(ativos.length){
+    impedimentos.push(ativos.length+(ativos.length===1? " setor está":" setores estão")
+      + " em curso ou reativado: " + ativos.map(s=>s.nome+" ("+s.estado+")").join(", ")
+      + ". Não se encerra o registo de uma ocorrência com frente ativa.");
+  }
+
+  const don = (()=>{ try{ return verificacoesDON(); }catch(e){ return []; } })();
+  const ob = don.filter(x=>x.n==="ob");
+  if(ob.length) reservas.push(ob.length+(ob.length===1? " obrigação legal fica em incumprimento no processo: "
+    : " obrigações legais ficam em incumprimento no processo: ")+ob.map(x=>x.t).join("; ")+".");
+
+  const pv = (()=>{ try{ return peaVigor(); }catch(e){ return null; } })();
+  const abertas = pv && (pv.ctrl||[]).filter(x=>!x.estado);
+  if(abertas && abertas.length) reservas.push(abertas.length
+    +(abertas.length===1? " missão do PEA n.º ":" missões do PEA n.º ")+pv.n+" continuam sem estado.");
+
+  const R = (()=>{ try{ return rendicoes(); }catch(e){ return []; } })();
+  const venc = R.filter(x=>x.nivel==="r");
+  if(venc.length) reservas.push(venc.length+(venc.length===1? " meio está":" meios estão")
+    +" com o tempo de empenhamento excedido à hora do encerramento.");
+
+  return { pode: !impedimentos.length, impedimentos, reservas };
+}
+
+/**
+ * Encerra. Carimba o GDH, quem determinou e a nota, e deixa registo na evolução e na
+ * fita — a mesma disciplina de qualquer outro facto operacional.
+ *
+ * @param {string} por quem determinou o encerramento
+ * @param {string} [nota]
+ * @param {number} [ts] instante; sem ele, o relógio corrente
+ */
+async function encerrarOcorrencia(por, nota, ts){
+  const v = verificarEncerramento();
+  if(!v.pode) return { ok:false, motivo:v.impedimentos.join(" ") };
+  if(encerrada()) return { ok:false, motivo:"A ocorrência já está encerrada." };
+
+  const quem = String(por||"").trim();
+  if(!quem) return { ok:false, motivo:"Indicar quem determina o encerramento." };
+
+  const E = encObj();
+  E.g = gdhDe(ts==null? agora() : ts);
+  E.por = quem;
+  E.nota = String(nota||"").trim();
+
+  /* As reservas ficam mesmo no processo, e não só na frase que diz que ficam: entram
+     no registo de evolução do encerramento, que é o que sobrevive à sessão e vai no
+     PEA. Contá-las na fita seria contar mensagens, não o que elas descrevem. */
+  O.evolucao.push({g:E.g, tipo:"decisao",
+    txt:"Encerramento do registo da ocorrência determinado por "+quem+(E.nota? " — "+E.nota : "")
+      + (v.reservas.length? " · Reservas ao encerramento: "+v.reservas.join(" ") : "")});
+  fita("Ocorrência encerrada por "+quem+" · "+E.g
+    + (v.reservas.length? " · com reservas, registadas na evolução" : " · sem reservas"));
+  await persistir(false);
+  return { ok:true, reservas:v.reservas };
+}
+
+/** Reabre. Uma reativação depois do encerramento acontece, e tem de caber. */
+async function reabrirOcorrencia(por, motivo){
+  if(!encerrada()) return { ok:false, motivo:"A ocorrência não está encerrada." };
+  const quem = String(por||"").trim();
+  if(!quem) return { ok:false, motivo:"Indicar quem determina a reabertura." };
+  const E = encObj(), fechada = E.g;
+  E.g = ""; E.por = ""; E.nota = "";
+  O.evolucao.push({g:gdhAgora(), tipo:"agravamento",
+    txt:"Reabertura do registo, encerrado a "+fechada+", determinada por "+quem
+      +(String(motivo||"").trim()? " — "+String(motivo).trim() : "")});
+  fita("Ocorrência reaberta por "+quem+" (estava encerrada desde "+fechada+")");
+  await persistir(false);
+  return { ok:true };
+}
+
+/* Fecho à escrita. Marca a raiz e inerta os campos, deixando de fora o que continua a
+   ser preciso com a ocorrência fechada: navegar, imprimir, exportar e reabrir. */
+const ENC_LIVRES = ["b-tema","b-ajuda","b-guardar","enc-reabrir","enc-por","enc-nota",
+  "b-exp-occ","b-imp-occ","b-imprimir"];
+function aplicarFechoDeEscrita(){
+  const fechada = encerrada();
+  document.documentElement.classList.toggle("encerrada", fechada);
+  document.querySelectorAll(".card input,.card select,.card textarea,.card button")
+    .forEach(el=>{
+      if(ENC_LIVRES.indexOf(el.id) >= 0 || el.closest("#c-encerramento")) return;
+      if(el.hasAttribute("data-ir")) return;   /* os atalhos dos avisos continuam a levar lá */
+      if(fechada) el.setAttribute("disabled", "disabled");
+      else el.removeAttribute("disabled");
+    });
+}
+
+function pintarEncerramento(){
+  const cx = $("enc-estado"); if(!cx) return;
+  const E = encObj();
+  if(encerrada()){
+    cx.className = "msg ok"; cx.style.display = "block";
+    cx.textContent = "Registo encerrado a "+E.g+" por "+E.por+(E.nota? " — "+E.nota : "")
+      + ". O registo está fechado à escrita; para o alterar é preciso reabrir.";
+  } else {
+    const v = verificarEncerramento();
+    cx.style.display = "block";
+    cx.className = v.pode? (v.reservas.length? "msg av" : "msg ok") : "msg err";
+    cx.textContent = v.pode
+      ? (v.reservas.length? "Pode encerrar-se, com reservas: "+v.reservas.join(" ")
+                          : "Pode encerrar-se: nenhum setor em curso e nada por fechar.")
+      : v.impedimentos.join(" ");
+  }
+  const bE = $("enc-encerrar"), bR = $("enc-reabrir");
+  if(bE){ bE.style.display = encerrada()? "none" : ""; bE.disabled = !verificarEncerramento().pode; }
+  if(bR) bR.style.display = encerrada()? "" : "none";
+  aplicarFechoDeEscrita();
+}

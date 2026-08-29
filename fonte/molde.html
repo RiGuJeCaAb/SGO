@@ -486,6 +486,11 @@
   .tchip b{color:var(--agua);font-family:var(--mono)}
   /* setor a que o registo em composição se refere */
   .tchip.on{border-color:var(--agua);box-shadow:inset 0 0 0 1px var(--agua)}
+  /* registo encerrado: o que está inerte tem de se ver que está */
+  html.encerrada .card input:disabled,html.encerrada .card select:disabled,
+  html.encerrada .card textarea:disabled{opacity:.55;cursor:not-allowed}
+  html.encerrada .card button:disabled{opacity:.4;cursor:not-allowed}
+  html.encerrada #c-encerramento{border-color:var(--madeira)}
   .tchip button{background:none;border:none;color:var(--fogo);font-weight:700;cursor:pointer;font-size:13px;padding:0 2px}
   .tchip .mv{width:auto;padding:2px 4px;font-size:10.5px;background:var(--bg);border:1px solid var(--line);border-radius:5px;color:var(--tx2)}
   .fr-g{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px}
@@ -1061,6 +1066,21 @@
 
       <div class="msg" id="msg-pt"></div>
     </div>
+        <div class="card" id="c-encerramento">
+      <h2>Encerramento da ocorrência <span class="tag">ato de comando — art. 8.º, n.º 2; registo completo — art. 2.º, al. c)</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">Carimba o fim do registo desta ocorrência, fecha-o à escrita e deixa prova de quem o determinou. <b>Não encerra a ocorrência no SADO</b> — a Estação não fala com o SADO. Encerra-se aqui o registo que aqui se fez, e a reabertura é sempre possível.</p>
+      <div class="msg" id="enc-estado" style="display:none"></div>
+      <div class="grid g2" style="margin-top:12px">
+        <div><label for="enc-por">Quem determina</label><input id="enc-por" placeholder="posto, nome e apelido do COS"></div>
+        <div><label for="enc-nota">Nota para o processo</label><input id="enc-nota" placeholder="opcional"></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-r" type="button" id="enc-encerrar">Encerrar a ocorrência</button>
+        <button class="btn btn-o" type="button" id="enc-reabrir" style="display:none">Reabrir o registo</button>
+      </div>
+      <div class="msg" id="enc-msg" style="display:none"></div>
+    </div>
+
     <div class="card">
       <h2>Estado das integrações <span class="tag">o que faz, de onde vem, onde entra no PEA</span></h2>
 

@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0043**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0044**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 47, das anteriores à convenção de nomes até à r0043 |
+| Entregas em `app/` | 48, das anteriores à convenção de nomes até à r0044 |
 | Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 244, todos a passar |
+| Testes | 258, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 6 |
+| Versão do estado gravado | 7 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,50 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Encerramento do registo da ocorrência, na r0044
+
+Encerrar é ato de comando — art. 8.º, n.º 2 — e o registo temporal tem de ficar explícito
+e completo, art. 2.º, al. c). O botão carimba o fim, fecha o registo à escrita e deixa
+prova de quem o determinou.
+
+**O que isto não é, e está escrito no próprio cartão:** não encerra a ocorrência no SADO.
+A Estação não fala com o SADO, e dizer o contrário seria mentir ao oficial. Encerra-se
+aqui o registo que aqui se fez.
+
+### O que impede, e o que apenas fica dito
+
+Impede uma coisa só: **haver setor em curso ou reativado.** Não se encerra o registo de um
+incêndio que ainda arde, e o botão fica inerte a dizer qual é o setor.
+
+O resto não impede — fica no processo. Obrigações de conformidade por cumprir, missões do
+PEA sem estado, meios com o tempo de empenhamento excedido: são reservas, e entram **no
+próprio registo de evolução do encerramento**, que é o que sobrevive à sessão e vai no
+PEA. A primeira versão contava-as na fita e dizia «1 reserva» quando eram três obrigações
+— contava mensagens, não o que elas descrevem. Corrigido: a fita diz que há reservas, e as
+reservas estão escritas onde ficam.
+
+### O fecho à escrita, e o que ele é
+
+Os campos ficam inertes e os dois caminhos que escrevem facto operacional — a mudança de
+estado de setor e o registo de evolução — recusam. Ficam de fora o que continua a ser
+preciso com o registo fechado: navegar, imprimir, exportar, mudar de tema, e reabrir.
+
+**Não é selo criptográfico**, e não se apresenta como tal: é a diferença entre alterar por
+engano e alterar de propósito, que num processo é o que importa. A reabertura é sempre
+possível — uma reativação depois do encerramento acontece —, exige quem a determina e um
+motivo, e regista-se como o encerramento.
+
+Versão 7 do estado, com migração. Uma ocorrência gravada antes chega **aberta**: presumi-la
+encerrada seria fechar à força o que ninguém fechou.
+
+### Verificação
+
+258 testes, catorze novos. O cartão novo foi apanhado pelas duas auditorias no momento em
+que nasceu — sem célula declarada em `ARRUMACAO`, a verificação partiu, que é o que ela
+existe para fazer. Verificado ponta a ponta em navegador: com frente ativa o botão está
+inerte e diz porquê; passado o setor a vigilância, encerra com as reservas listadas, os
+campos ficam inertes e o botão de reabrir aparece.
 
 ## Análise da repartição dos meios, na r0043
 
@@ -788,6 +832,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0044 | 291139 | — | Encerramento do registo da ocorrência: carimbo, fecho à escrita e reabertura, com as reservas no registo de evolução. Estado na versão 7 |
 | r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |
 | r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |
 | r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |

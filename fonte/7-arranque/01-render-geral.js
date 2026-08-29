@@ -18,6 +18,7 @@ function pintarTudo(){
     : '<p class="hint">Nenhum PEA emitido nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
+  try{ pintarEncerramento(); }catch(e){}
 }
 
 function letrasV(txt){

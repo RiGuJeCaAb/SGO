@@ -30,5 +30,12 @@ function canaisObj(){
   if(!Array.isArray(C.comunicacoes.atrib)) C.comunicacoes.atrib = [];
   return C.comunicacoes;
 }
+/* Encerramento do registo da ocorrência — acessor único, como os outros. */
+function encObj(){
+  O.encerramento = Object.assign({g:"",por:"",nota:""}, O.encerramento||{});
+  return O.encerramento;
+}
+/** A ocorrência está encerrada quando tem GDH de encerramento, e só então. */
+function encerrada(){ return !!encObj().g; }
 function reservaObj(){ return logisticaObj().reserva; }
 function zaObj(){ return logisticaObj().zonaApoio; }

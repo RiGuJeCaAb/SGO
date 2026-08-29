@@ -1,6 +1,7 @@
 /* ================= OPERAÇÕES · evolução e POSIT (art. 17.º, al. a)) ================= */
 function addEvo(){
   const t=$("e-txt").value.trim(); if(!t) return;
+  if(encerrada()){ aviso("msg-occ","err","O registo está encerrado. Reabrir antes de acrescentar evolução."); return; }
   O.evolucao.push({g:$("e-gdh").value.trim()||gdhAgora(), tipo:$("e-tipo").value, txt:t});
   $("e-txt").value=""; $("e-gdh").value="";
   fita("Evolução registada ("+O.evolucao[O.evolucao.length-1].tipo+")");

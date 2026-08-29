@@ -78,6 +78,18 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 6 -> 7 · Encerramento do registo da ocorrência.
+   Nasce vazio, e vazio significa aberta: uma ocorrência gravada antes desta versão não
+   traz marca de encerramento, e presumi-la encerrada seria fechar à força o que ninguém
+   fechou. O caminho seguro é o que deixa a ocorrência trabalhável. */
+MIGRACOES.push(e => {
+  const E = e.encerramento;
+  e.encerramento = { g:"", por:"", nota:"" };
+  if(E && typeof E === "object") Object.assign(e.encerramento, E);
+  ["g","por","nota"].forEach(k=>{ if(typeof e.encerramento[k] !== "string") e.encerramento[k] = ""; });
+  return e;
+});
+
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
@@ -111,6 +123,8 @@ function novoEstado(){
       comunicacoes:{cmd:"",tat:"",ba:"",tatba:"",aero:"",opar:"",cmar:"",atrib:[],niveis:null} },
     /* Comando: as nomeações do art. 14.º, e mais nada. */
     pco:{funcoes:[]},
+    /* Encerramento do registo da ocorrência nesta Estação. Vazio enquanto aberta. */
+    encerramento:{ g:"", por:"", nota:"" },
     evolucao:[], csv:"", peas:[], fita:[], turno:novoTurno(), versao:VERSAO_ESTADO };
 }
 /* O acessor devolve qualquer elemento; a verificação de tipos incide sobre o estado,

@@ -12,6 +12,7 @@ const ARRUMACAO = [
   { h:"Conformidade verificada",                  cel:"comando",     r:"prova documental da ocorrência" },
   { h:"Arquivo de ocorrências",                   cel:"comando",     r:"—" },
   { h:"Estado das integrações",                   cel:"comando",     r:"—" },
+  { h:"Encerramento da ocorrência",               cel:"comando",     r:"art. 8.º, n.º 2; art. 2.º, al. c)" },
   /* --- Planeamento: arts. 26.º a 30.º --- */
   { h:"Dados operacionais da ocorrência",         cel:"planeamento", r:"art. 28.º — análise da zona de intervenção" },
   { h:"Leitura do terreno",                       cel:"planeamento", r:"art. 28.º" },

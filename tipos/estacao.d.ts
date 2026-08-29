@@ -155,6 +155,12 @@ interface Estado {
   fita: { g: string; e: string }[];
   logistica: Logistica;
   turno: Turno;
+  /**
+   * Encerramento do registo da ocorrência nesta Estação — art. 8.º, n.º 2, e art. 2.º,
+   * al. c). `g` vazio significa aberta: é o GDH que a fecha, e mais nada. Não tem
+   * relação com o encerramento da ocorrência no SADO, que a Estação não faz.
+   */
+  encerramento: { g: string; por: string; nota: string };
   versao: number;
   [outro: string]: any;
 }

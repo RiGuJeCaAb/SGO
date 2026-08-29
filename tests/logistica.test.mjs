@@ -49,8 +49,8 @@ test('o comando fica só com as nomeações do art. 14.º', semAplicacao, () => 
 
 /* ---- a escada de migrações ---- */
 
-test('a versão subiu para 6 e há um degrau por versão', semAplicacao, () => {
-  assert.equal(VERSAO, 6);
+test('a versão subiu para 7 e há um degrau por versão', semAplicacao, () => {
+  assert.equal(VERSAO, 7);
   assert.equal(avaliar(janela, 'MIGRACOES').length, VERSAO);
 });
 
