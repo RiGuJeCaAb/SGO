@@ -10,9 +10,36 @@ function fmtGMS(v,isLat){
   const a=Math.abs(v), d=Math.floor(a), mF=(a-d)*60, m=Math.floor(mF), sec=(mF-m)*60;
   return String(d).padStart(isLat?2:3,"0")+"\u00B0 "+String(m).padStart(2,"0")+"' "+sec.toFixed(1).padStart(4,"0")+"'' "+h;
 }
+/**
+ * Regista de onde vieram as coordenadas em vigor.
+ *
+ * A fita do tempo já dizia isto, mas a fita não acompanha o campo: quando o pacote muda
+ * de posto de comando, quem o abre vê um par de números sem saber se foram lidos numa
+ * carta, achados por um serviço de geocodificação ou herdados de uma importação. A
+ * origem passa a viver ao lado da coordenada.
+ *
+ * @param {string} fonte descrição curta: «manual», «geocodificação · …», «Gestão PCO»
+ */
+function marcarOrigemCoord(fonte){
+  if(!O || !O.meta) return;
+  O.meta.coordFonte = String(fonte||"");
+  try{ pintarOrigemCoord(); }catch(e){}
+}
+/** Escreve a origem por baixo dos formatos. Sem coordenadas, não há nada a dizer. */
+function pintarOrigemCoord(){
+  const el = $("coord-fonte"); if(!el) return;
+  /* Olha para os campos e para o estado: entre fixar a coordenada e o estado a receber
+     — só acontece no `lerForm()` seguinte — há um instante em que só os campos a têm. */
+  const posto = id => String(($(id)||{}).value||"").trim() || String((O&&O.meta&&O.meta[id.slice(2)])||"").trim();
+  const ha = !!(posto("o-lat") && posto("o-lon"));
+  const f = (O && O.meta && O.meta.coordFonte) || "";
+  el.textContent = !ha? ""
+    : (f? "Origem: "+f : "Origem não registada — coordenadas anteriores à revisão que passou a guardá-la.");
+}
 function renderFormats(){
   const lat=parseFloat($("o-lat").value.replace(",",".")), lon=parseFloat($("o-lon").value.replace(",","."));
   const el=$("coord-formats");
+  try{ pintarOrigemCoord(); }catch(e){}
   if(Number.isNaN(lat)||Number.isNaN(lon)){ el.innerHTML=""; return; }
   el.innerHTML = `
     <div class="cfmt"><span class="lab">Decimal (WGS84)</span><span class="val">${fmtDec(lat,lon)}</span><span class="uso">APIs · SpotWX · Open-Meteo</span></div>
@@ -68,6 +95,8 @@ $("c-any").addEventListener("change", ()=>{
   if(!r){ $("geo-info").textContent = "Formato de coordenadas nao reconhecido — verifica o exemplo do campo."; return; }
   $("o-lat").value = r.lat.toFixed(5); $("o-lon").value = r.lon.toFixed(5);
   COORD_APROX = false;
+  O.meta.lat = $("o-lat").value; O.meta.lon = $("o-lon").value;
+  marcarOrigemCoord("manual — coladas em "+(r.nota? "formato corrigido" : "formato reconhecido"));
   $("c-any").value = "";
   renderFormats();
   fita("Coordenadas introduzidas manualmente: "+fmtDec(r.lat,r.lon)+(r.nota? " ("+r.nota+")":""));
@@ -78,3 +107,12 @@ $("c-any").addEventListener("change", ()=>{
 $("o-lat").addEventListener("input", renderFormats);
 $("o-lon").addEventListener("input", renderFormats);
 
+
+/* Quem escreve por cima da coordenada assume-a: a origem passa a manual, e o que lá
+   estava — a geocodificação, a importação — deixa de descrever o que está no campo. */
+["o-lat","o-lon"].forEach(id=>{
+  const el = $(id);
+  if(el) el.addEventListener("change", ()=>{
+    if(String(el.value||"").trim()) marcarOrigemCoord("manual — escrita no campo");
+  });
+});

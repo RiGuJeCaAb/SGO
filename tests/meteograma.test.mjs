@@ -3,7 +3,7 @@
 
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { abrirAplicacao, CSV_ENSAIO } from './app.mjs';
+import { abrirAplicacao, avaliar, CSV_ENSAIO } from './app.mjs';
 
 const janela = await abrirAplicacao();
 const semAplicacao = { skip: janela ? false : 'sem revisão em app/' };
@@ -60,4 +60,41 @@ test('a separação de segmentos do topónimo continua a funcionar', semAplicaca
     partes.map((x) => x.trim()).filter(Boolean),
     ['Vila Chã de Caria', 'Moimenta da Beira', 'Leomil'],
   );
+});
+
+/* ---- limiares declarados ---- */
+
+/** Série horária mínima: `h` hora, `t` temperatura, `rh` HR, `wd` rumo, `ws` vento, `pr` precipitação. */
+const serie = (linhas) => linhas.map((x, i) => ({
+  h: i, d: '28AGO26', t: 30, rh: 40, wd: 0, ws: 20, pr: 0, ...x,
+}));
+
+test('uma rotação com vento fraco não é rotação', semAplicacao, () => {
+  const L = avaliar(janela, 'LIMIARES_METEO');
+  // 350° -> 30° são 40° pelo caminho curto: abaixo do limiar, seja qual for o vento
+  assert.equal(janela.analisar(serie([{ wd: 350 }, { wd: 30 }])).rot.length, 0);
+
+  // 350° -> 90° são 100°, mas com vento de 3 km/h a direção oscila sozinha
+  const fraco = janela.analisar(serie([{ wd: 350, ws: 3 }, { wd: 90, ws: 3 }]));
+  assert.equal(fraco.rot.length, 0, 'com vento fraco a direção não é sinal');
+
+  const forte = janela.analisar(serie([{ wd: 350, ws: 22 }, { wd: 90, ws: 22 }]));
+  assert.equal(forte.rot.length, 1);
+  assert.equal(forte.rot[0].g, 100, 'a diferença é circular: 350 para 90 são 100 graus');
+  assert.ok(forte.rot[0].ws >= L.rotVentoMin);
+});
+
+test('um décimo de milímetro não é assinatura convectiva', semAplicacao, () => {
+  assert.equal(janela.analisar(serie([{ pr: 0.1 }, { pr: 0.1 }])).conv.length, 0);
+  assert.equal(janela.analisar(serie([{ pr: 0.4 }, { pr: 0 }])).conv.length, 1);
+});
+
+test('uma hora isolada acima dos 50 % não é janela de consolidação', semAplicacao, () => {
+  const isolada = janela.analisar(serie([{ rh: 40 }, { rh: 55 }, { rh: 40 }]));
+  assert.equal(isolada.jan, null, 'não se monta um ataque numa hora');
+
+  const util = janela.analisar(serie([{ rh: 40 }, { rh: 55 }, { rh: 60 }, { rh: 40 }]));
+  assert.ok(util.jan, 'duas horas seguidas já são janela');
+  assert.equal(util.jan.i.rh, 55);
+  assert.equal(util.jan.f.rh, 60);
 });

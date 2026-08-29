@@ -43,6 +43,17 @@ análise — desqualifica três achados dela, e vale a pena tê-lo presente na p
 
 ---
 
+## Achados corrigidos na r0053
+
+Os quatro que se resolviam sem decidir a arquitetura.
+
+| # | Achado | O que se fez |
+|---|---|---|
+| 4.18 / P0-3 | Sem carimbo de integridade | SHA-256 escrito no projeto, contra os vetores do FIPS 180-4, com serialização de chaves ordenadas. O pacote leva revisão da app, ficheiro de origem e resumo do estado; a importação confere e **avisa sem recusar**; o encerramento carimba o registo que fecha. **Destapou um defeito de fundo**: os acessores de estado trocavam o objeto a cada chamada, e qualquer referência guardada antes escrevia no vazio, sem erro. Passam a preencher no lugar. |
+| 4.5 / P0-4 | Origem das coordenadas fora do estado | `meta.coordFonte`: manual, geocodificação com serviço e topónimo, ou importação. Mostrada por baixo dos formatos; escrever por cima assume-a como manual. |
+| 4.14 | Limiares sem chão | `LIMIARES_METEO`, declarados: rotação ≥ 50° **e** vento ≥ 8 km/h, convectivo ≥ 0,2 mm, janela ≥ 2 h. A legenda diz os mesmos números. |
+| 4.8 | Datas do DECIR fixas no código | Tabela por ano com fonte. Ano sem tabela devolve vazio e a aplicação diz que não tem a diretiva desse ano. |
+
 ## Achados que procedem e estão por fazer
 
 Por ordem de gravidade operacional, não pela ordem da análise.
@@ -51,10 +62,6 @@ Por ordem de gravidade operacional, não pela ordem da análise.
 |---|---|---|---|
 | 4.1 / 4.20 | Persistência local, fita do tempo sem prova | **Procede, e é o principal.** É a mesma decisão de arquitetura já em cima da mesa: sem serviço, não há prova imutável nem estado partilhado entre células. | Grande — decisão do Ricardo |
 | 8.1 / 8.2 | Sem autenticação nem perfis | **Procede.** Mesma decisão. A tabela de perfis da análise (observador, operador, planeamento, logística, COS, administrador, auditor) é boa e serve de ponto de partida. | Grande — decisão do Ricardo |
-| 4.18 / P0-3 | Encerramento e exportação sem carimbo de integridade | **Procede em parte.** O nome do ficheiro já leva número, GDH e versão do estado (`nomeExportacao`), e o encerramento já regista quem determina, GDH e nota. Falta o resumo criptográfico e a revisão da app no pacote. **Isto faz-se sem servidor** — é a única parte de «integridade probatória» que a aplicação local pode dar sozinha. | Pequeno |
-| 4.5 / P0-4 | Coordenadas aceites sem confirmação; origem não guardada | **Procede em parte.** Com vários resultados, a app pergunta; com um só, fixa e escreve na fita a fonte e o nome. O que falta é a **origem ficar no estado** — manual, geocodificação, importação — e não só na fita. | Pequeno |
-| 4.14 | Limiares da análise meteorológica sem chão | **Procede.** Rotação de 50° com vento de 3 km/h é ruído; assinatura convectiva com `pr>0` dispara com 0,1 mm; a janela de consolidação conta uma hora isolada. Faltam três limiares declarados. | Pequeno |
-| 4.8 | Datas do DECIR fixas no código | **Procede.** Estão em `13-leitura-de-gdh-e-nivel-decir.js:13-16`. Mudam por despacho anual: em 2027 a app fica calada e errada. Passa a tabela por ano, com fonte. | Pequeno |
 | 4.2 | Trabalho sem ocorrência aberta | **Procede.** Não há porta: escreve-se em qualquer célula sem número de ocorrência. O guia diz o que falta, mas não impede. | Médio |
 | 4.9 | Avisos sem drill-down | **Procede em parte.** Cada regra já traz situação medida, determinação e referência legal (`REGRAS_DON`, com `s`, `a`, `r`). Falta mostrar tudo isso no ecrã em vez de o resumir. | Pequeno |
 | 4.11 | Pontos sensíveis são só nome e prioridade | **Procede.** Para decidir proteção de pessoas é pouco. A lista de campos da análise é acertada. | Médio |

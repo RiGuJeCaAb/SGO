@@ -4,6 +4,34 @@ const card = d => CARD[Math.round((((d%360)+360)%360)/22.5)%16];
 const angDiff = (a,b)=>{let x=Math.abs(a-b)%360;return x>180?360-x:x;};
 const hh = n => String(n).padStart(2,"0")+"h";
 
+/**
+ * Os limiares da análise, declarados num sítio só.
+ *
+ * Estavam escritos por dentro das comparações, e dois deles não tinham chão nenhum: uma
+ * rotação de 50° com vento de 3 km/h é ruído de modelo, não é mudança de regime, e
+ * `precipitação > 0` acende a assinatura convectiva com um décimo de milímetro. A análise
+ * é determinística; o que não pode é ser determinística a partir de limiares que ninguém
+ * vê. Ficam aqui, com a razão de cada um, e a legenda no ecrã diz os mesmos números.
+ *
+ * Não são doutrina: são heurísticas de leitura de meteograma, e é por isso que se
+ * declaram em vez de se citarem.
+ */
+const LIMIARES_METEO = {
+  /** graus entre duas horas consecutivas a partir dos quais há rotação a assinalar */
+  rotGraus: 50,
+  /** km/h abaixo dos quais a direção do vento não é sinal: com vento fraco a direção
+      oscila sozinha, e o modelo devolve-a na mesma */
+  rotVentoMin: 8,
+  /** mm/h a partir dos quais a precipitação conta como assinatura convectiva */
+  convPrecip: 0.2,
+  /** horas seguidas que uma janela de consolidação tem de ter para valer a pena montá-la */
+  janelaMinH: 2,
+  /** HR % igual ou abaixo da qual o combustível fino está totalmente disponível */
+  rhCritica: 20,
+  /** HR % a partir da qual há janela de ataque direto favorável */
+  rhJanela: 50,
+};
+
 function parseCSV(txt){
   const L = txt.trim().split(/\r?\n/).filter(l=>l.trim());
   if(L.length<4) throw "Poucos dados: são precisas pelo menos 3 horas.";
@@ -28,24 +56,36 @@ function parseCSV(txt){
   return out;
 }
 function analisar(S){
+  const L = LIMIARES_METEO;
   const jans=[]; let cur=null;
-  S.forEach(p=>{ if(p.rh>=50){ if(!cur)cur={i:p}; cur.f=p; } else if(cur){ jans.push(cur); cur=null; } });
+  S.forEach(p=>{ if(p.rh>=L.rhJanela){ if(!cur)cur={i:p}; cur.f=p; } else if(cur){ jans.push(cur); cur=null; } });
   if(cur) jans.push(cur);
-  const rot=[]; for(let i=1;i<S.length;i++){ const d=angDiff(S[i].wd,S[i-1].wd);
-    if(d>=50) rot.push({p:S[i],de:card(S[i-1].wd),para:card(S[i].wd),g:Math.round(d)}); }
+  const rot=[]; for(let i=1;i<S.length;i++){
+    const d=angDiff(S[i].wd,S[i-1].wd);
+    /* Com vento fraco dos dois lados, a direção não é sinal: oscila sozinha e o modelo
+       devolve-a na mesma. Uma rotação exige que haja vento para rodar. */
+    const vento = Math.max(+S[i].ws||0, +S[i-1].ws||0);
+    if(d>=L.rotGraus && vento>=L.rotVentoMin){
+      rot.push({p:S[i],de:card(S[i-1].wd),para:card(S[i].wd),g:Math.round(d),ws:Math.round(vento)});
+    }
+  }
   const rhMin=S.reduce((a,b)=>b.rh<a.rh?b:a), rhMax=S.reduce((a,b)=>b.rh>a.rh?b:a);
   const tMax=S.reduce((a,b)=>b.t>a.t?b:a), tMin=S.reduce((a,b)=>b.t<a.t?b:a);
-  const conv=S.filter(p=>p.pr>0), crit=S.filter(p=>p.rh<=20);
-  const jan = jans.length ? jans.reduce((a,b)=>(b.f.h-b.i.h)>(a.f.h-a.i.h)?b:a) : null;
+  const conv=S.filter(p=>p.pr>=L.convPrecip), crit=S.filter(p=>p.rh<=L.rhCritica);
+  /* Uma hora isolada acima dos 50 % não é janela: não dá para montar um ataque nela.
+     `h` é a hora do dia, e a série é horária — a duração é a diferença mais um. */
+  const uteis = jans.filter(j=>((j.f.h - j.i.h + 24) % 24) + 1 >= L.janelaMinH);
+  const jan = uteis.length ? uteis.reduce((a,b)=>(b.f.h-b.i.h)>(a.f.h-a.i.h)?b:a) : null;
   return {jan,rot,rhMin,rhMax,tMax,tMin,conv,crit};
 }
 function leitura(p,a){
-  if(p.pr>0) return "Assinatura convectiva — rajadas erráticas possíveis";
+  const L = LIMIARES_METEO;
+  if(p.pr>=L.convPrecip) return "Assinatura convectiva — rajadas erráticas possíveis";
   const r=a.rot.find(r=>r.p===p); if(r) return "Rotação "+r.de+"→"+r.para+" ("+r.g+"°)";
   if(a.jan&&p===a.jan.i) return "ABERTURA da janela de consolidação";
   if(a.jan&&p===a.jan.f) return "Último período pleno da janela";
-  if(p.rh<=20) return "Crítico — combustível fino totalmente disponível";
-  if(p.rh>=50) return "Janela — ataque direto favorável";
+  if(p.rh<=L.rhCritica) return "Crítico — combustível fino totalmente disponível";
+  if(p.rh>=L.rhJanela) return "Janela — ataque direto favorável";
   if(p.rh>=30) return "Transição"; return "";
 }
 function resumoHoras(hs){

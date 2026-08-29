@@ -195,7 +195,10 @@ function autoNivelDECIR(){
   const base = parseGDH($("o-inicio").value.trim()) || new Date();
   const n = nivelDECIR(base);
   const inf = $("o-inicio-info");
-  if(inf) inf.textContent = "Base do cálculo dos 90 minutos (ATI para ATA, DON n.º 2, ponto 7.e.(5)). Nível DECIR para esta data: " + n + ".";
+  if(inf) inf.textContent = "Base do cálculo dos 90 minutos (ATI para ATA, DON n.º 2, ponto 7.e.(5)). "
+    + (n? "Nível DECIR para esta data: "+n+" ("+fonteDECIR(base)+")."
+        : "Nível DECIR: não há tabela de períodos para "+base.getFullYear()
+          +" nesta revisão da aplicação — escolhe-o à mão, pela diretiva do ano.");
 }
 
 

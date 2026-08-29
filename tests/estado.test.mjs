@@ -125,3 +125,43 @@ test('o estado novo nasce com turno e a função nasce com solicitado', semAplic
   assert.deepEqual(Object.keys(JSON.parse(JSON.stringify(e.turno))).sort(),
     ['celulas', 'entregas', 'equipa', 'inicio']);
 });
+
+/* ---- nível DECIR por ano, e origem das coordenadas ---- */
+
+test('o nível DECIR sai de uma tabela por ano, com fonte', semAplicacao, () => {
+  const d = (a, m, dia) => new Date(a, m - 1, dia);
+  assert.equal(janela.nivelDECIR(d(2026, 8, 15)), 'DELTA');
+  assert.equal(janela.nivelDECIR(d(2026, 6, 10)), 'CHARLIE');
+  assert.equal(janela.nivelDECIR(d(2026, 5, 20)), 'BRAVO');
+  assert.equal(janela.nivelDECIR(d(2026, 2, 1)), 'ALFA');
+  assert.equal(janela.fonteDECIR(d(2026, 8, 15)), 'DON n.º 2 / DECIR 2026');
+
+  // fronteiras, que é onde estas tabelas costumam falhar
+  assert.equal(janela.nivelDECIR(d(2026, 5, 14)), 'ALFA');
+  assert.equal(janela.nivelDECIR(d(2026, 5, 15)), 'BRAVO');
+  assert.equal(janela.nivelDECIR(d(2026, 9, 30)), 'DELTA');
+  assert.equal(janela.nivelDECIR(d(2026, 10, 1)), 'CHARLIE');
+  assert.equal(janela.nivelDECIR(d(2026, 11, 1)), 'ALFA');
+});
+
+test('um ano sem tabela não inventa nível', semAplicacao, () => {
+  // Os períodos são fixados a cada ano por diretiva. Sem diretiva em fonte, a aplicação
+  // pergunta em vez de responder — regra 4 do projeto.
+  assert.equal(janela.nivelDECIR(new Date(2027, 7, 15)), '');
+  assert.equal(janela.fonteDECIR(new Date(2027, 7, 15)), '');
+});
+
+test('a origem das coordenadas fica no estado, não só na fita', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  assert.equal(avaliar(janela, 'O').meta.coordFonte, '');
+
+  janela.marcarOrigemCoord('manual — escrita no campo');
+  assert.equal(avaliar(janela, 'O').meta.coordFonte, 'manual — escrita no campo');
+
+  janela.fixarCoords(41.2, -7.5, 'Leomil', 'Photon');
+  assert.match(avaliar(janela, 'O').meta.coordFonte, /^geocodificação · Photon · Leomil/);
+
+  // e atravessa a migração sem se inventar para trás
+  const velho = janela.migrarGravado({ versao: 10, meta: { num: '1' } });
+  assert.equal(velho.meta.coordFonte, '', 'não se sabe de onde vieram: diz-se que não se sabe');
+});

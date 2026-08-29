@@ -54,8 +54,10 @@ export function montar(molde, modulos, revisao, ficheiro) {
   if (!molde.includes(MARCA)) throw new Error(`o molde não tem a marca ${MARCA}`);
   return molde
     .replace(MARCA, () => modulos)
-    .replace('@REVISAO@', revisao)
-    .replace('@FICHEIRO@', ficheiro);
+    /* A revisão e o nome aparecem no rodapé e outra vez no cabeçalho do script: são
+       duas ocorrências cada, e uma substituição só carimbava a primeira. */
+    .replaceAll('@REVISAO@', revisao)
+    .replaceAll('@FICHEIRO@', ficheiro);
 }
 
 /** Devolve o número da revisão seguinte, a partir do que já existe em `app/`. */

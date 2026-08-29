@@ -5,12 +5,21 @@
    file://, e dá ao oficial uma cópia que ele controla e pode levar para outro posto. */
 function nomeExportacao(){
   const num = String(O.meta.num||"sem-num").replace(/[^\w.-]+/g,"-");
-  return "CSREPCDouro_ocorrencia-"+num+"_"+carimboFich()+"_EstacaoPEA_CLD.json";
+  const rev = String(REVISAO_APP||"").replace(/[^\w]+/g,"");
+  return "CSREPCDouro_ocorrencia-"+num+"_"+carimboFich()+(rev? "_"+rev : "")+"_EstacaoPEA_CLD.json";
 }
 
+/**
+ * O pacote que sai para ficheiro.
+ *
+ * Leva a revisão da aplicação que o escreveu — um pacote sem ela não se sabe de onde veio
+ * — e o **resumo do estado no momento em que saiu**. O resumo é do estado, não do pacote:
+ * o pacote leva-o dentro, e um resumo de si próprio não fecha.
+ */
 function pacoteOcorrencia(){
   lerForm();
-  return {tipo:"peaapp:ocorrencia", versao:VERSAO_ESTADO, g:gdhAgora(), estado:O};
+  return {tipo:"peaapp:ocorrencia", versao:VERSAO_ESTADO, app:REVISAO_APP,
+    ficheiro:FICHEIRO_APP, g:gdhAgora(), sha:resumoEstado(O), estado:O};
 }
 
 function exportarOcorrencia(){
@@ -50,13 +59,54 @@ async function importarOcorrencia(texto){
      !window.confirm("Substituir a ocorrência "+O.meta.num+" em memória pela ocorrência "+(estado.meta.num||"sem número")+" do ficheiro?")){
     return false;
   }
+  /* Conferir antes de importar: depois de `O = estado` o ficheiro já não é o que está
+     à frente, e a fita a escrever teria de ser a do estado novo. */
+  const q = conferirCarimbo(texto);
+
   O = estado;
   escreverForm(); pintarTudo();
   if(O.csv){ $("f-csv").value=O.csv; try{ analisarCSV(false); }catch(e){} }
   fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":""));
   await persistir(false);
-  aviso("msg-occ","ok","Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos).");
+  if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(JSON.parse(texto).sha));
+  else if(q.bate === false) fita("ATENÇÃO: o carimbo de integridade do ficheiro importado não confere");
+  aviso("msg-occ", q.bate===false? "av" : "ok",
+    "Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos). "+q.nota);
   return true;
+}
+
+/**
+ * Confere o carimbo de um pacote **contra o estado que vem dentro do próprio pacote**.
+ *
+ * É esta a comparação que faz sentido, e enganei-me nela à primeira: comparar contra o
+ * estado em memória não prova nada e acusa sempre. O estado em memória muda no instante
+ * em que se importa — a própria importação escreve na fita do tempo —, e o carimbo
+ * passava a não bater em todas as importações legítimas. O que se confere é se o ficheiro
+ * está consistente consigo mesmo: se o estado que lá está é o que foi carimbado quando
+ * saiu. É isso que apanha o ficheiro truncado, o editado à mão e a cópia mal copiada.
+ *
+ * Por isso também não há caso especial para pacotes de versões anteriores: o carimbo
+ * cobre o estado **como foi escrito**, e a migração só acontece depois de se conferir.
+ *
+ * **Avisa, não recusa.** Recusar podia ser a diferença entre ter a ocorrência e não ter
+ * nada. Diz-se o que se sabe, fica na fita do tempo, e quem decide é quem está no PCO.
+ *
+ * @param {string} texto o pacote como veio do ficheiro
+ * @returns {{bate:(boolean|null), nota:string}}
+ */
+function conferirCarimbo(texto){
+  let p = null;
+  try{ p = JSON.parse(texto); }catch(e){ p = null; }
+  if(!p || typeof p !== "object") return { bate:null, nota:"" };
+  const sha = p.sha;
+  if(!sha) return { bate:null, nota:"O ficheiro não traz carimbo de integridade: foi exportado por uma revisão anterior à que passou a carimbar." };
+  const nosso = resumoEstado(p.estado !== undefined? p.estado : p);
+  if(sha === nosso){
+    return { bate:true, nota:"Carimbo de integridade confere ("+resumoCurto(sha)+")." };
+  }
+  return { bate:false, nota:"ATENÇÃO: o carimbo de integridade não confere — o ficheiro diz "
+    +resumoCurto(sha)+" e o conteúdo dá "+resumoCurto(nosso)
+    +". Foi alterado depois de exportado, ou está truncado. Confere antes de o usar como prova." };
 }
 
 /* ██████ PLANEAMENTO ██████ */

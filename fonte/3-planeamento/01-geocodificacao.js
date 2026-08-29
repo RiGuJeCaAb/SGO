@@ -1,6 +1,7 @@
 /* ================= PLANEAMENTO · geocodificação (art. 28.º) ================= */
 function fixarCoords(lat, lon, nome, fonte){
   $("o-lat").value = (+lat).toFixed(5); $("o-lon").value = (+lon).toFixed(5);
+  marcarOrigemCoord("geocodificação · "+fonte+" · "+nome+(COORD_APROX? " (origem estimada)":""));
   $("geo-opts").innerHTML = "";
   renderFormats();
   if(COORD_APROX){

@@ -321,6 +321,7 @@ function converterGestaoPCO(p){
   if(oc.local != null) meta.local = String(oc.local);
   if(oc.lat != null) meta.lat = String(oc.lat);
   if(oc.lon != null) meta.lon = String(oc.lon);
+  if(oc.lat != null || oc.lon != null) meta.coordFonte = "importação da Gestão PCO";
   if(oc.fase_sgo != null) meta.fase = String(oc.fase_sgo);
   if(oc.concelho != null) meta.concelho = String(oc.concelho);
   if(oc.distrito != null) meta.distrito = String(oc.distrito);
@@ -708,6 +709,7 @@ function converterV11GestaoPCO(p, avisos){
   if(fase != null) meta.fase = String(fase);
   if(oc.latitude != null) meta.lat = String(oc.latitude);
   if(oc.longitude != null) meta.lon = String(oc.longitude);
+  if(oc.latitude != null || oc.longitude != null) meta.coordFonte = "importação da Gestão PCO";
   if(oc.inicio || oc.inicio_iso){
     const i = instanteCampo(oc, "inicio", "Início da ocorrência", avisos);
     if(i.ts !== null) meta.inicio = i.g;

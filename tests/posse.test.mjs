@@ -169,3 +169,40 @@ test('o aviso de posse acende com um ramo órfão e apaga-se quando ele sai', se
   janela.renderQuadroTurno();
   assert.equal(av.style.display, 'none');
 });
+
+/* ---- os acessores não podem trocar o objeto ---- */
+
+test('um acessor devolve sempre o mesmo objeto, e o que se lhe escreve fica', semAplicacao, () => {
+  // O acessor trocava o objeto a cada chamada. Quem guardasse a referência escrevia no
+  // vazio: sem erro, sem aviso, e sem ficar no estado. Foi o que fez o carimbo do
+  // encerramento desaparecer entre ser calculado e ser gravado.
+  janela.eval('O = novoEstado()');
+  const acessores = ['encObj', 'logisticaObj', 'canaisObj', 'reservaObj', 'zaObj', 'ptObj', 'estObj'];
+  acessores.forEach((nome) => {
+    const a = janela[nome]();
+    assert.equal(janela[nome](), a, `${nome}() devolve um objeto diferente à segunda chamada`);
+  });
+
+  // e a referência sobrevive a outro acessor mexer no mesmo ramo
+  const R = janela.reservaObj();
+  janela.canaisObj(); janela.ptObj(); janela.logisticaObj();
+  R.m = '4';
+  assert.equal(avaliar(janela, 'O').logistica.reserva.m, '4',
+    'escreveu-se numa referência que já não era o estado');
+
+  const E = janela.encObj();
+  janela.pintarEncerramento();
+  E.sha = 'a'.repeat(64);
+  assert.equal(avaliar(janela, 'O').encerramento.sha, 'a'.repeat(64));
+});
+
+test('o acessor acrescenta o que falta e não pisa o que lá está', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.logistica = { reserva: { m: '7' }, extra: 'não é meu, mas não se deita fora' };
+  const L = janela.logisticaObj();
+  assert.equal(L.reserva.m, '7', 'o que lá estava perdeu-se');
+  assert.equal(L.reserva.o, '', 'o que faltava não foi acrescentado');
+  assert.equal(L.extra, 'não é meu, mas não se deita fora');
+  assert.deepEqual(daqui(L.pontoTransito), { des: '', resp: '', ct: '', cd: '', obs: '' });
+});

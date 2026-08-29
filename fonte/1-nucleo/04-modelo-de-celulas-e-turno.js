@@ -160,8 +160,25 @@ let O = novoEstado();
 let SERIE = [], ANALISE = null;
 
 /** @returns {Estado} */
+/* 10 -> 11. Dois campos que faltavam para se saber de onde vêm as coisas.
+   `meta.coordFonte` guarda **como** a coordenada foi parar ali — escrita à mão, achada
+   pela geocodificação, ou trazida da Gestão PCO. Estava na fita do tempo e mais lado
+   nenhum, e a fita não acompanha o campo quando o pacote muda de posto.
+   `encerramento.sha` é o carimbo de integridade do registo no momento em que fechou.
+   Nenhum dos dois se pode inventar para trás: ficam vazios no que já existe, que é a
+   resposta honesta — não se sabe. */
+MIGRACOES.push(e => {
+  if(e.meta && typeof e.meta === "object" && typeof e.meta.coordFonte !== "string"){
+    e.meta.coordFonte = "";
+  }
+  if(e.encerramento && typeof e.encerramento === "object" && typeof e.encerramento.sha !== "string"){
+    e.encerramento.sha = "";
+  }
+  return e;   /* a escada é `e = MIGRACOES[v](e)`: um degrau que não devolve parte-a */
+});
+
 function novoEstado(){
-  return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
+  return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
     dados:{area:"", perimNome:"", setores:"", sensiveis:"", anexos:[],
       perfil:null,
@@ -176,7 +193,7 @@ function novoEstado(){
     /* Comando: as nomeações do art. 14.º, e mais nada. */
     pco:{funcoes:[]},
     /* Encerramento do registo da ocorrência nesta Estação. Vazio enquanto aberta. */
-    encerramento:{ g:"", por:"", nota:"" },
+    encerramento:{ g:"", por:"", nota:"", sha:"" },
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},

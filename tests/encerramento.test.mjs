@@ -37,7 +37,7 @@ beforeEach(() => { if (janela) ocorrenciaApagada(); });
 
 test('uma ocorrência nasce aberta, e é o GDH que a fecha', semAplicacao, () => {
   assert.equal(janela.encerrada(), false);
-  assert.deepEqual(daqui(janela.novoEstado().encerramento), { g: '', por: '', nota: '' });
+  assert.deepEqual(daqui(janela.novoEstado().encerramento), { g: '', por: '', nota: '', sha: '' });
 });
 
 test('não se encerra com frente ativa', semAplicacao, async () => {
@@ -173,11 +173,48 @@ test('uma ocorrência gravada antes da versão 7 chega aberta', semAplicacao, ()
   // fechou. O caminho seguro é o que a deixa trabalhável.
   const m = janela.migrarGravado({ versao: 6, meta: { num: '2026/900' }, pco: { funcoes: [] } });
   assert.equal(m.versao, avaliar(janela, 'VERSAO_ESTADO'));
-  assert.deepEqual(daqui(m.encerramento), { g: '', por: '', nota: '' });
+  assert.deepEqual(daqui(m.encerramento), { g: '', por: '', nota: '', sha: '' });
 });
 
 test('o ramo do encerramento tem dono declarado', semAplicacao, () => {
   assert.equal(janela.donoDoRamo('encerramento').celula, 'comando');
   const a = daqui(janela.auditarPosse(janela.novoEstado()));
   assert.deepEqual(a.orfaos, []);
+});
+
+/* ---- carimbo de integridade ---- */
+
+test('o encerramento carimba o estado, e o carimbo confere logo a seguir', semAplicacao, async () => {
+  const r = await janela.encerrarOcorrencia('Cmdt Distrital', 'processo entregue');
+  assert.equal(r.ok, true, JSON.stringify(r));
+  const E = janela.encObj();
+  assert.match(E.sha, /^[0-9a-f]{64}$/);
+
+  // O carimbo é do estado com o próprio carimbo vazio — senão o estado continha o resumo
+  // de si mesmo. E é calculado depois de tudo o que o encerramento escreve: o registo de
+  // evolução e a linha da fita fazem parte do que se encerra.
+  const guardado = E.sha;
+  E.sha = '';
+  assert.equal(janela.resumoEstado(estado()), guardado,
+    'o carimbo não fecha sobre o estado que carimbou');
+  E.sha = guardado;
+});
+
+test('mexer no registo encerrado faz o carimbo deixar de bater', semAplicacao, async () => {
+  await janela.encerrarOcorrencia('Cmdt Distrital', '');
+  const E = janela.encObj(), guardado = E.sha;
+  estado().meta.local = 'Outro sítio';   // alteração por fora, com o registo fechado
+  E.sha = '';
+  assert.notEqual(janela.resumoEstado(estado()), guardado);
+  E.sha = guardado;
+});
+
+test('reabrir limpa o carimbo e diz na evolução qual era', semAplicacao, async () => {
+  await janela.encerrarOcorrencia('Cmdt Distrital', '');
+  const antes = janela.encObj().sha;
+  await janela.reabrirOcorrencia('COS', 'reativação');
+  assert.equal(janela.encObj().sha, '', 'o carimbo é do que estava fechado, e já não está');
+  const ultimo = estado().evolucao[estado().evolucao.length - 1];
+  assert.match(ultimo.txt, new RegExp(antes.slice(0, 12)),
+    'a evolução tem de dizer que carimbo tinha o registo que se reabriu');
 });

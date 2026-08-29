@@ -72,6 +72,7 @@ async function encerrarOcorrencia(por, nota, ts){
   E.por = quem;
   E.nota = String(nota||"").trim();
 
+
   /* As reservas ficam mesmo no processo, e não só na frase que diz que ficam: entram
      no registo de evolução do encerramento, que é o que sobrevive à sessão e vai no
      PEA. Contá-las na fita seria contar mensagens, não o que elas descrevem. */
@@ -80,7 +81,22 @@ async function encerrarOcorrencia(por, nota, ts){
       + (v.reservas.length? " · Reservas ao encerramento: "+v.reservas.join(" ") : "")});
   fita("Ocorrência encerrada por "+quem+" · "+E.g
     + (v.reservas.length? " · com reservas, registadas na evolução" : " · sem reservas"));
+
+  /* Carimbo de integridade do que fica fechado. A ordem aqui custou duas tentativas, e
+     a razão é a mesma das duas vezes: **tudo o que escreve no estado tem de estar escrito
+     antes de se carimbar**. Da primeira pus o carimbo antes do registo de evolução e da
+     fita; da segunda, antes de `persistir`, que chama `lerForm()` e `pintarTudo()` — e
+     estes assentam campos derivados. Em ambos os casos o carimbo acusava alteração no
+     instante seguinte ao encerramento.
+     Agora: deixa-se o estado assentar, carimba-se, e grava-se o carimbo sem voltar a
+     passar por `persistir`, que tornaria a mexer no que se acabou de carimbar. Nada é
+     escrito depois — nem uma linha de fita a anunciar o número, que se invalidava a si
+     própria. O número mostra-se no cartão. */
   await persistir(false);
+  E.sha = "";
+  E.sha = resumoEstado(O);
+  try{ await ARMAZEM.set(chave(), JSON.stringify(O)); }catch(e){}
+  pintarEncerramento();
   return { ok:true, reservas:v.reservas };
 }
 
@@ -89,10 +105,11 @@ async function reabrirOcorrencia(por, motivo){
   if(!encerrada()) return { ok:false, motivo:"A ocorrência não está encerrada." };
   const quem = String(por||"").trim();
   if(!quem) return { ok:false, motivo:"Indicar quem determina a reabertura." };
-  const E = encObj(), fechada = E.g;
-  E.g = ""; E.por = ""; E.nota = "";
+  const E = encObj(), fechada = E.g, carimbo = E.sha;
+  E.g = ""; E.por = ""; E.nota = ""; E.sha = "";
   O.evolucao.push({g:gdhAgora(), tipo:"agravamento",
-    txt:"Reabertura do registo, encerrado a "+fechada+", determinada por "+quem
+    txt:"Reabertura do registo, encerrado a "+fechada
+      +(carimbo? " com o carimbo "+resumoCurto(carimbo) : "")+", determinada por "+quem
       +(String(motivo||"").trim()? " — "+String(motivo).trim() : "")});
   fita("Ocorrência reaberta por "+quem+" (estava encerrada desde "+fechada+")");
   await persistir(false);
@@ -120,8 +137,12 @@ function pintarEncerramento(){
   const E = encObj();
   if(encerrada()){
     cx.className = "msg ok"; cx.style.display = "block";
-    cx.textContent = "Registo encerrado a "+E.g+" por "+E.por+(E.nota? " — "+E.nota : "")
-      + ". O registo está fechado à escrita; para o alterar é preciso reabrir.";
+    const bate = E.sha? (E.sha === (()=>{ const g=encObj(), guardado=g.sha; g.sha=""; const r=resumoEstado(O); g.sha=guardado; return r; })()) : null;
+    cx.className = "msg " + (bate === false? "av" : "ok");
+    cx.innerHTML = esc("Registo encerrado a "+E.g+" por "+E.por+(E.nota? " — "+E.nota : "")
+      + ". O registo está fechado à escrita; para o alterar é preciso reabrir.")
+      + (E.sha? "<br><span class=\"mono-sm\">Carimbo de integridade: "+esc(resumoCurto(E.sha))
+        + (bate? " — confere com o registo em memória." : " — <b>não confere</b>: o registo foi alterado depois de encerrado.")+"</span>" : "");
   } else {
     const v = verificarEncerramento();
     cx.style.display = "block";

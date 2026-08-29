@@ -43,7 +43,33 @@ test('o nome do ficheiro segue a convenção e não leva caracteres ilegais', se
   ocorrenciaDeEnsaio();
   janela.lerForm();
   const nome = janela.nomeExportacao();
-  assert.match(nome, /^CSREPCDouro_ocorrencia-2026-4711_\d{12}_EstacaoPEA_CLD\.json$/);
+  // A revisão da app entra no nome: um ficheiro tem de se saber de que entrega saiu.
+  assert.match(nome, /^CSREPCDouro_ocorrencia-2026-4711_\d{12}_r\d{4}_EstacaoPEA_CLD\.json$/);
+});
+
+test('o pacote leva a revisão da app e o carimbo do estado', semAplicacao, () => {
+  ocorrenciaDeEnsaio();
+  const pacote = janela.pacoteOcorrencia();
+  assert.match(pacote.app, /^r\d{4}$/, 'sem revisão não se sabe de onde veio o ficheiro');
+  assert.match(pacote.sha, /^[0-9a-f]{64}$/);
+  assert.equal(pacote.sha, janela.resumoEstado(pacote.estado), 'o carimbo é o do estado que vai dentro');
+});
+
+test('o carimbo apanha o ficheiro alterado depois de exportado', semAplicacao, () => {
+  ocorrenciaDeEnsaio();
+  const texto = JSON.stringify(janela.pacoteOcorrencia());
+  assert.equal(janela.conferirCarimbo(texto).bate, true, 'o pacote acabado de escrever confere');
+
+  // alguém abriu o ficheiro e mudou o local, sem tocar no carimbo
+  const mexido = JSON.parse(texto);
+  mexido.estado.meta.local = 'Outro sítio qualquer';
+  const q = janela.conferirCarimbo(JSON.stringify(mexido));
+  assert.equal(q.bate, false);
+  assert.match(q.nota, /não confere/);
+
+  // e um pacote de antes do carimbo não é acusado de nada: diz-se que não o traz
+  const antigo = JSON.parse(texto); delete antigo.sha;
+  assert.equal(janela.conferirCarimbo(JSON.stringify(antigo)).bate, null);
 });
 
 test('sem número de ocorrência o nome continua a ser válido', semAplicacao, () => {

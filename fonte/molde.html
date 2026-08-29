@@ -362,6 +362,7 @@
   textarea{font-family:var(--mono);font-size:13.5px;resize:vertical}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
   .hint{font-size:13px;color:var(--tx3);margin-top:6px}
+  .mono-sm{font-family:var(--mono);font-size:11.5px;color:var(--tx2);letter-spacing:.2px}
 
   .btn{font-family:var(--disp);font-weight:600;font-size:15px;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .btn:hover{filter:brightness(1.12)}.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -923,6 +924,7 @@
           <button class="btn btn-b" id="b-geo">Obter coordenadas a partir do local</button>
           <span class="hint" id="geo-info" style="margin-left:10px">Escreve o local acima e a app procura as coordenadas (tenta também automaticamente ao sair do campo).</span>
           <div id="geo-opts" style="margin-top:10px"></div>
+          <div class="mono-sm" id="coord-fonte" style="margin-top:8px"></div>
         </div>
         <div style="grid-column:1/-1">
           <label for="c-any">Colar coordenadas em qualquer formato (decimal, graus-minutos ou graus-minutos-segundos)</label>
@@ -1517,7 +1519,7 @@
         <span><i class="dot" style="background:#E89354"></i>Temperatura °C (eixo direito)</span>
         <span><i class="dot" style="background:#6BA6E8"></i>Vento km/h; setas = escoamento (para onde sopra)</span>
         <span><i class="dot" style="background:#3E7CB1"></i>Precipitação mm</span>
-        <span>Sombra vermelha = HR &lt; 30 % · limiares 30/50 % a tracejado · ROT = rotação ≥ 50° · CONV = assinatura convectiva · passar o cursor lê cada hora</span>
+        <span>Sombra vermelha = HR &lt; 30 % · limiares 30/50 % a tracejado · ROT = rotação ≥ 50° <b>com vento ≥ 8 km/h</b> · CONV = precipitação ≥ 0,2 mm · janela = HR ≥ 50 % durante <b>2 h ou mais</b> · passar o cursor lê cada hora</span>
       </div>
       <div class="metrics" id="metrics"></div>
     </div>
@@ -1630,6 +1632,9 @@
 </div>
 
 <script>
+/* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
+   para que um ficheiro se saiba sempre de que revisão veio. */
+const REVISAO_APP = "@REVISAO@", FICHEIRO_APP = "@FICHEIRO@";
 
 /* ██████ NÚCLEO ██████ */
 @MODULOS@</script>

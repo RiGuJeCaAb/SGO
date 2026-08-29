@@ -46,7 +46,7 @@ function briefingPassagem(ts){
     O.meta.pco? "Posto de comando em "+O.meta.pco : "Posto de comando por registar",
     ini? "Início às "+O.meta.inicio+(decorrido!==null? ", decorre há "+dur(decorrido) : "")
        : "GDH de início por registar — sem ele não há contagem de prazos",
-    "Fase do SGO: "+(O.meta.fase||"por declarar")+" · Nível DECIR: "+(O.meta.nivel||nivelDECIR(ini||new Date(instante))),
+    "Fase do SGO: "+(O.meta.fase||"por declarar")+" · Nível DECIR: "+(O.meta.nivel||nivelDECIR(ini||new Date(instante))||"por declarar"),
     O.dados.area? "Área ardida estimada: "+O.dados.area+" ha" : null,
     (O.meta.concelho||O.meta.distrito)? "Localização: "+[O.meta.concelho, O.meta.distrito].filter(Boolean).join(", ") : null
   ];

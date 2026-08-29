@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0052**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0053**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 56, das anteriores à convenção de nomes até à r0052 |
+| Entregas em `app/` | 57, das anteriores à convenção de nomes até à r0053 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 301, todos a passar |
+| Testes | 314, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 10 |
+| Versão do estado gravado | 11 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,78 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## As quatro baratas da triagem, na r0053
+
+Os quatro achados que se resolviam sem decidir a arquitetura. Deram trabalho a mais do que
+prometiam, e num deles a razão vale a revisão inteira.
+
+### Carimbo de integridade
+
+SHA-256 escrito no projeto — não `crypto.subtle`, que é assíncrona e só existe em contexto
+seguro, e o `file://` não o é em todo o lado. Exercitado contra os vetores do FIPS 180-4,
+incluindo o do milhão de caracteres. Serializa-se o estado com as **chaves ordenadas**,
+senão o resumo mudava sozinho: a ordem das chaves é a de escrita, e o estado que volta do
+armazenamento traz a ordem do ficheiro.
+
+O pacote exportado passa a levar a revisão da aplicação, o nome do ficheiro de onde saiu e
+o resumo do estado; o nome do ficheiro leva a revisão. Na importação, confere-se — e
+**avisa, não recusa**: um pacote que não bate pode ser a única cópia que existe da
+ocorrência. O encerramento carimba o registo que fecha, e o cartão mostra o número.
+
+Isto não é assinatura: quem alterar o pacote pode recalcular o resumo. É deteção de
+alteração acidental e de troca de ficheiros, que é o que acontece a sério.
+
+### O defeito que o carimbo destapou
+
+A primeira versão não funcionava, e a razão não era o carimbo. **Os acessores de estado
+trocavam o objeto a cada chamada**: `O.ramo = Object.assign({...padrão}, O.ramo)` devolve
+um objeto novo e deixa órfã qualquer referência guardada antes. Escrever numa referência
+dessas não dá erro nenhum — escreve-se, e o estado fica na mesma.
+
+Era o que acontecia ao carimbo: `encerrarOcorrencia` guardava `const E = encObj()`,
+`persistir` repintava, `pintarEncerramento` chamava `encObj()` outra vez e destacava o `E`
+que a função tinha na mão. O carimbo era calculado e escrito num objeto que já não era o
+estado. **É a terceira vez que este projeto apanha a mesma família de defeito** — alguma
+coisa muda de sítio e fica um ponteiro para o sítio antigo — e desta vez o ponteiro não
+era de ninguém em particular: era de toda a gente que tivesse chamado o acessor antes.
+
+Os sete acessores passam a **preencher no lugar**, com identidade estável. Dois testes:
+o mesmo objeto à segunda chamada, e uma referência que sobrevive a outro acessor mexer no
+mesmo ramo.
+
+A ordem do carimbo também custou duas tentativas, pela mesma razão de fundo: tudo o que
+escreve no estado tem de estar escrito antes de se carimbar — o registo de evolução, a
+linha da fita, e o `lerForm()`/`pintarTudo()` que o `persistir` arrasta atrás.
+
+### Origem das coordenadas
+
+`meta.coordFonte` guarda **como** a coordenada foi parar ali: escrita à mão, achada pela
+geocodificação (com serviço e topónimo), ou trazida da Gestão PCO. Estava na fita do tempo
+e mais lado nenhum, e a fita não acompanha o campo quando o pacote muda de posto. Aparece
+por baixo dos formatos. Quem escrever por cima assume-a: passa a manual.
+
+### Limiares da análise meteorológica
+
+Estavam por dentro das comparações, e dois não tinham chão: uma rotação de 50° com vento
+de 3 km/h é ruído de modelo, e `precipitação > 0` acendia a assinatura convectiva com um
+décimo de milímetro. Ficam declarados em `LIMIARES_METEO`, com a razão de cada um:
+rotação ≥ 50° **e** vento ≥ 8 km/h, convectivo ≥ 0,2 mm, janela de consolidação com **2 h
+ou mais** — uma hora isolada não dá para montar um ataque. A legenda do meteograma diz os
+mesmos números. A diferença angular já era circular; isso a análise externa leu mal.
+
+### Tabela do DECIR por ano
+
+Os períodos estavam fixos no código, o que é o mesmo que dizer que em 2027 a aplicação
+respondia calada e errada. Passam a tabela por ano, com a fonte declarada. **Um ano sem
+tabela devolve vazio** e a aplicação diz que não tem a diretiva desse ano, em vez de
+adivinhar a partir do ano anterior — é a regra 4 do projeto.
+
+### Verificação
+
+314 testes, treze novos. Verificado em navegador: encerramento com carimbo a conferir, e a
+origem das coordenadas a mudar de «geocodificação · Photon» para «manual» quando se
+escreve por cima. Prova em `docs/qa/` (`qa0014`).
 
 ## A área do perímetro estava errada, na r0052
 
