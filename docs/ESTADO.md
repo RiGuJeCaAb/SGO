@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0044**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0045**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 48, das anteriores à convenção de nomes até à r0044 |
-| Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 258, todos a passar |
+| Entregas em `app/` | 49, das anteriores à convenção de nomes até à r0045 |
+| Módulos em `fonte/` | 51, em sete zonas, mais o molde |
+| Testes | 269, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,39 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Catálogo de elementos do TO, na r0045
+
+Quem passa pelo teatro de operações repete-se de ocorrência para ocorrência: o mesmo
+comandante, o mesmo adjunto, o mesmo responsável de núcleo. O catálogo guarda quem são
+para não se voltar a escrever o que já se escreveu.
+
+**Vive fora da ocorrência**, e é essa a decisão de desenho que tudo o resto segue. Não é
+ramo do estado — não entra no PEA, não viaja na exportação da ocorrência, não tem dono no
+registo de posse, e sobrevive ao encerramento. Guarda-se em chave própria do `ARMAZEM`,
+porque é registo do dispositivo humano da sub-região e não daquele incêndio.
+
+**Não guarda canal**, por indicação do Ricardo e pela razão certa: o canal atribui-se no
+plano de comunicações, a partir dos que o CSREPC atribui ao TO — DON n.º 2, ponto 10 —, e
+muda com a ocorrência. Guardá-lo no catálogo criaria uma segunda verdade para uma coisa
+que a doutrina manda ter fonte única. É a mesma razão por que a v1.2 da ligação à Gestão
+PCO deixou as comunicações de fora. Um teste fixa que o campo não existe.
+
+Guarda nome, entidade, contacto, função habitual e nota. A identidade é o par nome e
+entidade: o mesmo nome em corpos diferentes são duas pessoas, e a mesma pessoa registada
+duas vezes é um erro. Ao atualizar, **campo vazio não sobrepõe o que está** — vale a
+mesma regra da fusão de funções do PCO.
+
+Duas operações que poupam trabalho: **recolher desta ocorrência**, que apanha quem está
+nomeado no PCO e a comandar setores e ainda não está no catálogo — e **devolve, não
+guarda**: quem decide o que fica no registo da sub-região é o oficial, não a importação
+de um pacote; e **nomear**, que leva o elemento ao formulário da estrutura do PCO sem o
+nomear, porque a função e o GDH são decisão de quem comanda.
+
+### Verificação
+
+269 testes, onze novos. Verificado ponta a ponta em navegador: guardar à mão, recolher
+dois da ocorrência, procurar por entidade, e levar um ao formulário do PCO.
 
 ## Encerramento do registo da ocorrência, na r0044
 
@@ -832,6 +865,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0045 | 291143 | — | Catálogo de elementos do TO, fora da ocorrência e sem canal: guardar, procurar, recolher desta ocorrência e levar ao formulário do PCO |
 | r0044 | 291139 | — | Encerramento do registo da ocorrência: carimbo, fecho à escrita e reabertura, com as reservas no registo de evolução. Estado na versão 7 |
 | r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |
 | r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |

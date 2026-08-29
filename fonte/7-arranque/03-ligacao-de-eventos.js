@@ -112,3 +112,66 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
     pintarTudo();
   });
 })();
+
+/* catálogo de elementos — vive fora da ocorrência */
+function pintarElementos(termo){
+  const el = $("el-lista"); if(!el) return;
+  const L = procurarElementos(termo);
+  if(!L.length){
+    el.innerHTML = ELEMENTOS.length
+      ? '<p class="hint">Nenhum elemento corresponde à procura.</p>'
+      : '<p class="hint">Catálogo vazio. Guardar aqui, ou recolher os que já estão nomeados nesta ocorrência.</p>';
+    return;
+  }
+  el.innerHTML = L.map(x=>
+    '<div class="arq-i"><div><b>'+esc(x.nome)+(x.entidade? " — "+esc(x.entidade):"")+'</b>'
+    + '<p>'+esc(x.funcao||"função por indicar")+(x.ct? " · "+esc(x.ct):"")
+    + (x.nota? " · "+esc(x.nota):"")+'</p></div>'
+    + '<div class="acts"><button class="btn btn-b" type="button" data-el-usar="'+esc(x.id)+'">Nomear</button>'
+    + '<button class="btn btn-r" type="button" data-el-apagar="'+esc(x.id)+'">Apagar</button></div></div>').join("");
+
+  /* «Nomear» leva o elemento ao formulário da estrutura do PCO. Não nomeia sozinho:
+     a função e o GDH são decisão de quem comanda. */
+  el.querySelectorAll("[data-el-usar]").forEach(b=>b.addEventListener("click", ()=>{
+    const x = ELEMENTOS.find(y=>y.id === b.getAttribute("data-el-usar")); if(!x) return;
+    if($("pc-n")) $("pc-n").value = x.nome;
+    if($("pc-e")) $("pc-e").value = x.entidade;
+    if($("pc-c")) $("pc-c").value = x.ct;
+    irPara("p-comando");
+    const alvo = $("pc-f"); if(alvo) alvo.focus();
+  }));
+  el.querySelectorAll("[data-el-apagar]").forEach(b=>b.addEventListener("click", async ()=>{
+    const id = b.getAttribute("data-el-apagar");
+    const x = ELEMENTOS.find(y=>y.id === id); if(!x) return;
+    if(!window.confirm("Apagar "+x.nome+" do catálogo? A ocorrência não é tocada.")) return;
+    await apagarElemento(id); pintarElementos($("el-proc")? $("el-proc").value : "");
+  }));
+}
+
+(function(){
+  const dizer = (cls, txt) => { const m = $("el-msg"); if(!m) return;
+    m.className = "msg "+cls; m.textContent = txt; m.style.display = "block"; };
+  const campos = ["el-nome","el-ent","el-ct","el-fn","el-nota"];
+  const bA = $("el-add");
+  if(bA) bA.addEventListener("click", async ()=>{
+    const r = await guardarElemento({ nome:$("el-nome").value, entidade:$("el-ent").value,
+      ct:$("el-ct").value, funcao:$("el-fn").value, nota:$("el-nota").value });
+    if(!r.ok){ dizer("err", r.motivo); return; }
+    dizer("ok", r.novo? "Elemento guardado no catálogo." : "Elemento já existia; os campos preenchidos foram atualizados.");
+    campos.forEach(id=>{ const e=$(id); if(e) e.value=""; });
+    pintarElementos($("el-proc").value);
+  });
+  const bR = $("el-recolher");
+  if(bR) bR.addEventListener("click", async ()=>{
+    const fora = elementosPorRecolher();
+    if(!fora.length){ dizer("ok", "Nada por recolher: quem está nomeado nesta ocorrência já está no catálogo."); return; }
+    if(!window.confirm("Guardar no catálogo "+fora.length+" elemento(s) desta ocorrência?\n\n"
+      + fora.map(x=>"· "+x.nome+(x.entidade? " ("+x.entidade+")":"")).join("\n"))) return;
+    for(const x of fora) await guardarElemento(x);
+    dizer("ok", fora.length+(fora.length===1? " elemento recolhido." : " elementos recolhidos."));
+    pintarElementos($("el-proc").value);
+  });
+  const bP = $("el-proc");
+  if(bP) bP.addEventListener("input", ()=>pintarElementos(bP.value));
+  carregarElementos().then(()=>pintarElementos(""));
+})();

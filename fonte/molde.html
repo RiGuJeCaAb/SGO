@@ -1066,6 +1066,25 @@
 
       <div class="msg" id="msg-pt"></div>
     </div>
+        <div class="card" id="c-elementos">
+      <h2>Catálogo de elementos <span class="tag">dispositivo humano da sub-região — fora da ocorrência</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">Quem passa pelo teatro de operações repete-se de ocorrência para ocorrência. O catálogo guarda quem são para não se voltar a escrever o que já se escreveu. <b>Não guarda canal:</b> o canal atribui-se no plano de comunicações a partir dos que o CSREPC atribui ao TO, e muda com a ocorrência. Vive fora da ocorrência — não entra no PEA nem na sua exportação, e sobrevive ao encerramento.</p>
+      <div class="grid g3">
+        <div><label for="el-nome">Nome</label><input id="el-nome" placeholder="posto, nome e apelido"></div>
+        <div><label for="el-ent">Entidade</label><input id="el-ent" placeholder="corpo de bombeiros, ANEPC, GNR, ICNF"></div>
+        <div><label for="el-ct">Contacto</label><input id="el-ct" placeholder="telemóvel" inputmode="tel"></div>
+        <div><label for="el-fn">Função habitual</label><input id="el-fn" placeholder="a que costuma ocupar; não fixa nada"></div>
+        <div style="grid-column:span 2"><label for="el-nota">Nota</label><input id="el-nota" placeholder="opcional"></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-o" type="button" id="el-add">Guardar no catálogo</button>
+        <button class="btn btn-b" type="button" id="el-recolher">Recolher desta ocorrência</button>
+        <span class="xtr" style="margin-left:auto"><input id="el-proc" placeholder="procurar" style="width:200px"></span>
+      </div>
+      <div class="msg" id="el-msg" style="display:none"></div>
+      <div id="el-lista" style="margin-top:12px"></div>
+    </div>
+
         <div class="card" id="c-encerramento">
       <h2>Encerramento da ocorrência <span class="tag">ato de comando — art. 8.º, n.º 2; registo completo — art. 2.º, al. c)</span></h2>
       <p class="hint" style="margin:0 0 12px 0">Carimba o fim do registo desta ocorrência, fecha-o à escrita e deixa prova de quem o determinou. <b>Não encerra a ocorrência no SADO</b> — a Estação não fala com o SADO. Encerra-se aqui o registo que aqui se fez, e a reabertura é sempre possível.</p>
