@@ -20,3 +20,24 @@ function contarDispositivo(){
   op += (+RS.o || 0) + (+ZA.o || 0);
   return {ar, arComb, arCoord, mr, m, op, setores:(e.setores||[]).length};
 }
+
+/* Carga e estado de cada setor, para a análise da repartição do dispositivo.
+
+   `ativo` é o setor onde o fogo ainda pede meios — em curso, ou reativado.
+   `libertavel` é aquele cujo estado já não os justifica na mesma medida — em conclusão,
+   ou em vigilância ativa. **Não quer dizer vazio:** a vigilância ativa e o rescaldo
+   exigem presença, e por isso a análise nunca conta meios parados em absoluto — compara
+   uns setores com os outros. O estado intermédio, em resolução (dominado), não é nem um
+   nem outro: ainda consolida, e não se mexe nele. */
+function cargaDosSetores(){
+  const ATIVOS = [ESTADOS_SETOR[0], ESTADOS_SETOR[4]];
+  const LIBERTAVEIS = [ESTADOS_SETOR[2], ESTADOS_SETOR[3]];
+  return (estObj().setores||[]).map((s,i)=>{
+    const t = totSetor(s);
+    return { i, nome:NOMES_SETOR[i] || ("Setor "+(i+1)), estado:s.estado||"",
+      m:t.m, op:t.o, forcas:(s.tip||[]).length, cmd:s.cmd||"",
+      ativo: ATIVOS.indexOf(s.estado) >= 0,
+      reativado: s.estado === ESTADOS_SETOR[4],
+      libertavel: LIBERTAVEIS.indexOf(s.estado) >= 0 };
+  });
+}

@@ -484,6 +484,8 @@
   .tip-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 64px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
+  /* setor a que o registo em composição se refere */
+  .tchip.on{border-color:var(--agua);box-shadow:inset 0 0 0 1px var(--agua)}
   .tchip button{background:none;border:none;color:var(--fogo);font-weight:700;cursor:pointer;font-size:13px;padding:0 2px}
   .tchip .mv{width:auto;padding:2px 4px;font-size:10.5px;background:var(--bg);border:1px solid var(--line);border-radius:5px;color:var(--tx2)}
   .fr-g{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px}
@@ -1188,13 +1190,13 @@
       <div id="evo-ctx" class="tip-chips" style="margin:0 0 10px 0"></div>
       <div id="evo-frases" style="margin-bottom:12px">
         <div class="fr-g"><span class="fr-l">Combate</span>
-          <button class="fr" type="button" data-tp="melhoria" data-fr="frente dominada">frente dominada</button>
+          <button class="fr" type="button" data-tp="melhoria" data-est="Em resolução (dominado)" data-fr="frente dominada">frente dominada</button>
           <button class="fr" type="button" data-tp="posit" data-fr="frente ativa a ceder a meios">a ceder a meios</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="frente ativa sem cedência a meios">sem cedência</button>
-          <button class="fr" type="button" data-tp="agravamento" data-fr="reativação de ponto quente">reativação</button>
+          <button class="fr" type="button" data-tp="agravamento" data-est="Reativação" data-fr="reativação de ponto quente">reativação</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="projeções para além da linha de contenção">projeções</button>
-          <button class="fr" type="button" data-tp="melhoria" data-fr="consolidação e rescaldo concluídos">consolidação concluída</button>
-          <button class="fr" type="button" data-tp="posit" data-fr="rescaldo em curso">rescaldo em curso</button>
+          <button class="fr" type="button" data-tp="melhoria" data-est="Em conclusão (extinto)" data-fr="consolidação e rescaldo concluídos">consolidação concluída</button>
+          <button class="fr" type="button" data-tp="posit" data-est="Vigilância ativa e consolidação de rescaldo" data-fr="rescaldo em curso">rescaldo em curso</button>
         </div>
         <div class="fr-g"><span class="fr-l">Propagação</span>
           <span class="hint" style="margin:0">propagação para</span>
@@ -1248,6 +1250,7 @@
           </select></div>
         <div><label for="e-gdh">GDH (vazio = agora)</label><input id="e-gdh" placeholder="DDHHMMMESAA"></div>
       </div>
+      <div class="msg" id="evo-efeito" style="display:none;margin-top:10px"></div>
       <div style="margin-top:12px"><label for="e-txt">Descrição</label><textarea id="e-txt" rows="3" placeholder="descrever o facto operacional, o local e a hora"></textarea></div>
       <div class="row" style="margin-top:12px"><button class="btn btn-b" id="b-evo">Registar na evolução</button></div>
     </div>

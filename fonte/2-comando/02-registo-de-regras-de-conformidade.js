@@ -218,6 +218,68 @@ const REGRAS_DON = [
         r:"Despacho n.º 4067/2024, Anexo I; DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27)"});
 
       return v; } },
+  /* Repartição do dispositivo pelos setores. As regras anteriores medem prazos e
+     nomeações; esta lê o dispositivo contra si próprio, e faz a pergunta que o COS faz
+     de hora a hora: os meios estão onde está o fogo?
+
+     Compara setores uns com os outros e nunca conta meios em absoluto — um setor em
+     vigilância ativa tem de ter presença, e o rescaldo também. O que se assinala é a
+     desproporção: um setor cujo estado já não justifica a força que lá está, havendo
+     outro em curso com menos.
+
+     Propõe, e não determina. Quem move meios é o COS — art. 8.º, n.º 2 —, e é ele que
+     sabe o que a carta não diz. */
+  { id:"reparticao", ids:["reparticao"], t:"Repartição dos meios pelos setores", fontes:["SGO4067","DON2"],
+    avaliar(x){ const v = [], { c } = x;
+      const S = cargaDosSetores();
+      if(!S.length) return v;
+      const ativos = S.filter(s=>s.ativo), libertaveis = S.filter(s=>s.libertavel);
+      const nomes = L => L.map(s=>s.nome+" ("+s.m+(s.m===1? " veículo":" veículos")+")").join(", ");
+
+      /* Sem frente ativa nenhuma, e ainda com meios no TO: é hora de repor a capacidade
+         de ataque inicial, que é obrigação declarada da DON e não opinião. */
+      if(!ativos.length && c.m > 0){
+        v.push({n:"av", id:"reparticao", t:"Dispositivo sem frente ativa, com meios no TO",
+          s:"Nenhum dos "+S.length+(S.length===1? " setor está":" setores está")+" em curso ou reativado, e o TO soma "
+            +c.m+(c.m===1? " veículo e ":" veículos e ")+c.op+(c.op===1? " operacional":" operacionais")+".",
+          f:"Assegurar em paralelo a reposição da capacidade de ataque inicial, desmobilizando meios para os locais de origem, em coordenação com o CSREPC.",
+          a:"Iniciar a desmobilização faseada, mantendo o efetivo que a vigilância ativa e o rescaldo exigem, e registar cada saída na evolução. Confirmar a libertação com o CSREPC.",
+          r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a)"});
+        return v;
+      }
+      if(!ativos.length) return v;
+
+      /* O termo de comparação é o setor em curso mais desguarnecido: é para lá que a
+         proposta aponta, salvo havendo reativação, que tem precedência. */
+      const maisFraco = ativos.reduce((a,s)=> s.m < a.m ? s : a);
+      const reativado = ativos.find(s=>s.reativado && s.m <= maisFraco.m) || ativos.find(s=>s.reativado);
+      const excedentes = libertaveis.filter(s=>s.m > maisFraco.m);
+
+      if(excedentes.length){
+        const destino = reativado || maisFraco;
+        const disp = excedentes.reduce((a,s)=>a+s.m,0);
+        v.push({n:"av", id:"reparticao",
+          t: reativado? "Reativação com menos meios do que um setor já concluído"
+                      : "Meios concentrados em setor que já não os exige",
+          s: nomes(excedentes)+" "+(excedentes.length===1? "está":"estão")+" em conclusão ou vigilância ativa, "
+            +"e "+destino.nome+", "+(destino.reativado? "reativado":"em curso")+", tem "+destino.m
+            +(destino.m===1? " veículo":" veículos")+".",
+          f: reativado
+            ? "A reativação de um setor repõe a exigência de meios que o seu estado anterior já não justificava, e a célula de operações executa e implementa as decisões do plano, transmitindo as ordens de missão aos comandantes de setor."
+            : "A célula de operações executa e implementa as decisões do plano quanto à setorização e às forças atribuídas, transmitindo as ordens de missão aos comandantes de setor.",
+          a: "Ponderar deslocar meios de "+excedentes.map(s=>s.nome).join(", ")+" para "+destino.nome
+            +(destino.cmd? ", ao cuidado de "+destino.cmd : "")+", mantendo em cada setor o efetivo que a vigilância ativa e o rescaldo exigem. "
+            +"Até "+disp+(disp===1? " veículo":" veículos")+" em causa. Registar a decisão na evolução, com o tipo «alteração de meios».",
+          r:"Despacho n.º 4067/2024, art. 17.º, n.º 1, als. a) e d); DON n.º 2 / DECIR 2026, ponto 7.f"});
+      } else if(c.m > 0){
+        v.push({n:"ok", id:"reparticao", t:"Meios repartidos conforme a atividade",
+          s: ativos.length+(ativos.length===1? " setor em curso":" setores em curso")
+            +(libertaveis.length? ", e nenhum setor em conclusão ou vigilância com mais meios do que o mais desguarnecido dos ativos" : "")+".",
+          f:"A célula de operações executa e implementa as decisões do plano quanto à setorização e às forças atribuídas.",
+          a:"Manter, e reavaliar a cada mudança de estado de setor.",
+          r:"Despacho n.º 4067/2024, art. 17.º, n.º 1, als. a) e d)"});
+      }
+      return v; } },
   { id:"pco", ids:["pco"], t:"Estrutura do posto de comando", fontes:["SGO4067"],
     avaliar(x){ const v = []; void x;
       /* 6-B. Estrutura do posto de comando */

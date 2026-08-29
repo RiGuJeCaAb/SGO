@@ -12,18 +12,64 @@ function pintarEvoCtx(){
   const chips = e.setores.map((x,i)=>{
     const t = totSetor(x);
     const mo = (x.tip||[]).length? t.m+"m/"+t.o+"op" : ((x.m||x.o)? (x.m||"?")+"m/"+(x.o||"?")+"op" : "");
-    return `<span class="tchip" style="cursor:pointer" data-ins="Setor ${NOMES_SETOR[i]}: "><b>${NOMES_SETOR[i]}</b> ${esc(x.estado||"")}${mo? " · "+mo:""}</span>`;
+    return `<span class="tchip" style="cursor:pointer" data-set="${i}" data-ins="Setor ${NOMES_SETOR[i]}: "><b>${NOMES_SETOR[i]}</b> ${esc(x.estado||"")}${mo? " · "+mo:""}</span>`;
   });
   const AL = (()=>{ try{ return aerLista(); }catch(err){ return []; } })();
   if(AL.length) chips.push(`<span class="tchip" style="cursor:pointer" data-ins="Meios aéreos: "><b>Aéreos</b> ${AL.length} · ${esc(AL.map(a=>a.ind||a.t).join(", "))}</span>`);
   const RSc = reservaObj();
   if(RSc.m||RSc.o) chips.push(`<span class="tchip" style="cursor:pointer" data-ins="Reserva: "><b>Reserva</b> ${esc(RSc.m||"?")}m/${esc(RSc.o||"?")}op</span>`);
   el.innerHTML = chips.join("");
-  el.querySelectorAll("[data-ins]").forEach(c=>c.addEventListener("click", ()=>inserirEvo(c.dataset.ins)));
+  el.querySelectorAll("[data-ins]").forEach(c=>c.addEventListener("click", ()=>{
+    inserirEvo(c.dataset.ins);
+    const iSet = c.getAttribute("data-set");
+    EVO_SETOR = (iSet != null)? +iSet : null;
+    el.querySelectorAll("[data-set]").forEach(o=>o.classList.toggle("on", o === c));
+    const ef = $("evo-efeito"); if(ef) ef.style.display = "none";
+  }));
 }
+/* Setor a que o registo em composição se refere. Fica marcado quando o oficial clica
+   no atalho do setor, que é a ordem natural: escolhe-se o setor e depois diz-se o que
+   lá aconteceu. Sem setor escolhido, uma frase-tipo é só texto. */
+let EVO_SETOR = null;
+
+/**
+ * Quatro das frases-tipo nomeiam, no seu próprio texto, um dos cinco estados de setor do
+ * ponto 7.f da DON n.º 2. Dizer «frente dominada» na evolução e deixar o setor «em
+ * curso» no dispositivo é ter duas verdades — e a análise da repartição lê o dispositivo,
+ * não a prosa. A frase passa por isso a propor a mudança.
+ *
+ * **Propõe, não aplica.** O registo da evolução é narrativa do oficial; o estado do setor
+ * é facto que entra no PEA e dispara regras de conformidade. Uma coisa não muda a outra
+ * sem alguém dizer que sim.
+ */
+function proporEstadoDaFrase(estado){
+  const el = $("evo-efeito"); if(!el) return;
+  const e = estObj();
+  if(!estado || EVO_SETOR === null || !e.setores[EVO_SETOR]){ el.style.display = "none"; return; }
+  const s = e.setores[EVO_SETOR], nome = NOMES_SETOR[EVO_SETOR];
+  if(s.estado === estado){
+    el.className = "msg ok"; el.style.display = "block";
+    el.textContent = "O setor "+nome+" já está em \u00ab"+estado+"\u00bb.";
+    return;
+  }
+  el.className = "msg av"; el.style.display = "block";
+  el.innerHTML = "O setor "+esc(nome)+" está em \u00ab"+esc(s.estado||"sem estado")+"\u00bb. "
+    + "A frase diz outra coisa \u2014 passar a \u00ab"+esc(estado)+"\u00bb? "
+    + '<button class="btn btn-o" type="button" id="evo-aplicar" style="margin-left:10px">Alterar o estado do setor</button>';
+  const b = $("evo-aplicar");
+  if(b) b.addEventListener("click", ()=>{
+    if(mudarEstadoSetor(EVO_SETOR, estado)){
+      el.className = "msg ok";
+      el.textContent = "Setor "+nome+" passou a \u00ab"+estado+"\u00bb, com registo automático na evolução e na fita.";
+      pintarTudo();
+    }
+  });
+}
+
 document.querySelectorAll("#evo-frases [data-fr]").forEach(b=>b.addEventListener("click", ()=>{
   inserirEvo(b.dataset.fr+"; ");
   if(b.dataset.tp) $("e-tipo").value = b.dataset.tp;
+  proporEstadoDaFrase(b.getAttribute("data-est") || "");
 }));
 
 

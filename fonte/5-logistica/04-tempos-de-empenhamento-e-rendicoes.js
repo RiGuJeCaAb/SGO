@@ -55,7 +55,8 @@ const AV_DESTINO = {
   notif:{p:"p-fita", l:"Registar confirmação na fita do tempo"},
   pmepc:{p:"p-evo", l:"Registar o pedido na secção 4"},
   pco:{p:"p-pco", l:"Nomear na secção 3"},
-  placom:{p:"p-pco", l:"Atribuir canais na secção 3"}
+  placom:{p:"p-pco", l:"Atribuir canais na secção 3"},
+  reparticao:{p:"p-fontes", l:"Ver o dispositivo em Operações"}
 };
 function caixaAviso(x){
   const rot = x.n==="ob"? "Obrigação legal" : (x.n==="av"? "Antecipação" : "Conformidade verificada");

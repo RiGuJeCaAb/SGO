@@ -1,4 +1,29 @@
 /* ================= OPERAÇÕES · setorização do TO (art. 17.º, al. d)) ================= */
+/**
+ * Muda o estado de um setor pelo caminho único, seja qual for a porta por onde a
+ * mudança entrou — o menu da linha do setor, ou uma frase-tipo da evolução.
+ *
+ * A mudança de estado é facto operacional, e por isso deixa registo sozinha: entra na
+ * evolução como automática e na fita do tempo. Um segundo caminho que não fizesse isto
+ * daria um dispositivo a mudar sem que a evolução o contasse — e a análise da repartição
+ * lê o dispositivo, portanto passaria a analisar o que ninguém registou.
+ *
+ * @param {number} i índice do setor
+ * @param {string} novo estado, dos cinco do ponto 7.f da DON n.º 2
+ * @returns {boolean} se o estado mudou de facto
+ */
+function mudarEstadoSetor(i, novo){
+  const e = estObj(), x = e.setores[i];
+  if(!x || ESTADOS_SETOR.indexOf(novo) < 0 || x.estado === novo) return false;
+  const anterior = x.estado || "\u2014";
+  const tipoEvo = (novo===ESTADOS_SETOR[0] || novo===ESTADOS_SETOR[4])? "agravamento" : "melhoria";
+  x.estado = novo;
+  O.evolucao.push({g:gdhAgora(), tipo:tipoEvo,
+    txt:"Setor "+NOMES_SETOR[i]+" \u2014 estado alterado de \""+anterior+"\" para \""+novo+"\" (registo automático)"});
+  fita("Evolução automática: Setor "+NOMES_SETOR[i]+" -> "+novo);
+  comporSetores(); persistir(false);
+  return true;
+}
 function totSetor(x){
   const tip = x.tip||[];
   return { m: tip.reduce((a,i)=>a+(+i.q||0)*(+i.mu||1),0), o: tip.reduce((a,i)=>a+(+i.q||0)*(+i.ou||0),0) };
@@ -52,13 +77,9 @@ function renderSetores(){
   // eventos das linhas
   L.querySelectorAll(".set-row input,.set-row select").forEach(el=>{
     el.addEventListener("change", ()=>{
-      const x=e.setores[+el.dataset.i];
-      if(el.dataset.f==="estado" && x.estado!==el.value){
-        const tipoEvo = (el.value==="Em curso (ativo)"||el.value==="Reativação")? "agravamento" : (el.value==="Em resolução (dominado)"||el.value==="Em conclusão (extinto)"||el.value.startsWith("Vigilância")? "melhoria" : "posit");
-        O.evolucao.push({g:gdhAgora(), tipo:tipoEvo, txt:"Setor "+NOMES_SETOR[+el.dataset.i]+" — estado alterado de \""+(x.estado||"—")+"\" para \""+el.value+"\" (registo automático)."});
-        fita("Evolução automática: Setor "+NOMES_SETOR[+el.dataset.i]+" -> "+el.value);
-      }
-      x[el.dataset.f]=el.value; comporSetores(); persistir(false); });
+      const i = +el.dataset.i;
+      if(el.dataset.f==="estado"){ mudarEstadoSetor(i, el.value); return; }
+      e.setores[i][el.dataset.f]=el.value; comporSetores(); persistir(false); });
   });
   // selects de tipologia: pré-preencher op/unid do catálogo
   e.setores.forEach((x,i)=>{

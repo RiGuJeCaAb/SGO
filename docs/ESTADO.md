@@ -4,7 +4,7 @@ Atualizado em 2026-08-28.
 
 ## Situação atual
 
-A revisão em vigor é a **r0042**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0043**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,14 +13,14 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 46, das anteriores à convenção de nomes até à r0042 |
+| Entregas em `app/` | 47, das anteriores à convenção de nomes até à r0043 |
 | Módulos em `fonte/` | 49, em sete zonas, mais o molde |
-| Testes | 233, todos a passar |
+| Testes | 244, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
 | Versão do estado gravado | 6 |
-| Regras de conformidade | 14, com as fontes declaradas |
+| Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
 também.** A documentação está arrumada por natureza — ver `docs/README.md`.
@@ -67,6 +67,65 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Análise da repartição dos meios, na r0043
+
+A conformidade media prazos e nomeações. Passa a ler o dispositivo contra si próprio, e a
+fazer a pergunta que o COS faz de hora a hora: **os meios estão onde está o fogo?**
+
+### A regra
+
+`cargaDosSetores()` dá, por setor, a carga e a classe do estado. `ativo` é onde o fogo
+ainda pede meios — em curso, ou reativado. `libertavel` é aquele cujo estado já não os
+justifica na mesma medida — em conclusão, ou em vigilância ativa. O intermédio, em
+resolução (dominado), não é nem um nem outro: ainda consolida, e não se mexe nele.
+
+**A regra compara, e nunca conta meios em absoluto.** A distinção importa e foi uma
+correção ao primeiro desenho: a vigilância ativa e o rescaldo *exigem* presença no
+terreno, e uma regra que acusasse meios num setor em vigilância estaria a acusar o que a
+doutrina manda lá ter. O que se assinala é a desproporção — um setor cujo estado já não
+justifica a força que lá está, **havendo outro em curso com menos**. O termo de comparação
+sai do próprio dispositivo, e por isso não há limiar inventado em lado nenhum.
+
+Três emissões:
+
+| Quando | O que diz |
+|---|---|
+| Setor em conclusão ou vigilância com mais veículos do que o setor em curso mais desguarnecido | Nomeia os setores e os números, propõe o destino e o comandante a quem entregar, e diz quantos veículos estão em causa |
+| O mesmo, havendo setor reativado | A reativação tem precedência como destino, e o título muda para o dizer |
+| Nenhum setor em curso, e ainda meios no TO | Propõe a reposição da capacidade de ataque inicial, com desmobilização faseada em coordenação com o CSREPC |
+
+Base: Despacho n.º 4067/2024, art. 17.º, n.º 1, als. a) e d), e DON n.º 2, ponto 7.f para
+os estados; para a desmobilização, DON n.º 2, pontos 7.e.(4)(t) e 7.e.(5)(a). Ambas as
+citações já existiam no motor — não se inventou fundamento para regra nova.
+
+**Propõe, não determina.** Quem move meios é o COS, e é ele que sabe o que a carta não diz.
+
+### E as frases-tipo passam a produzir efeito
+
+Quatro das frases nomeiam, no seu próprio texto, um dos cinco estados do ponto 7.f:
+«frente dominada», «reativação de ponto quente», «rescaldo em curso», «consolidação e
+rescaldo concluídos». Dizer «frente dominada» na evolução e deixar o setor «em curso» no
+dispositivo é ter duas verdades — e a análise lê o dispositivo, não a prosa.
+
+Escolhe-se o setor no atalho, clica-se na frase, e a aplicação **propõe** a mudança de
+estado. Não a aplica: o registo da evolução é narrativa do oficial, o estado do setor é
+facto que entra no PEA e dispara regras. Uma coisa não muda a outra sem alguém dizer que
+sim.
+
+A mudança de estado passou a ter caminho único, `mudarEstadoSetor()`, seja qual for a
+porta por onde entra — o menu da linha do setor ou a frase-tipo. Um segundo caminho sem
+registo daria um dispositivo a mudar sem que a evolução o contasse, e a análise passaria a
+analisar o que ninguém registou. Mesma lição do `canaisObj()`.
+
+### Verificação
+
+244 testes, onze novos, entre eles o caso que motivou a regra e os três que a impedem de
+disparar onde não deve. Verificado ponta a ponta em navegador: dois setores em curso com
+os meios repartidos dão conformidade; o oficial diz que a frente do Bravo cedeu, a
+aplicação propõe, ele aplica, marca o setor como concluído — e a regra passa a dizer
+«Bravo (6 veículos) está em conclusão, e Alfa, em curso, tem 2 veículos», com o destino e
+o nome do comandante a quem entregar.
 
 ## Legibilidade dos campos e peso dos avisos, na r0042
 
@@ -729,5 +788,6 @@ intermédias de trabalho não saem do computador e não contam.
 | r0038 | 282230 | paralela | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso |
 | r0039 | 282255 | — | Fonte repartida por célula em sete zonas. Ponto de trânsito religado ao ramo da logística, que o formulário tinha deixado para trás; `auditarArrumacao` passa a acender aviso; código morto do movimento da logística removido |
 | r0040 | 282334 | — | Plano de comunicações passa para `logistica.comunicacoes`, estado na versão 6, com `canaisObj()` como acessor único; a importação da Gestão PCO vai para Operações e a posse do estado para o núcleo |
+| r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |
 | r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |
 | r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |
