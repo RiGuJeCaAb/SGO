@@ -1,26 +1,55 @@
 /* ================= PLANEAMENTO · perímetro e área da ZI (art. 28.º) ================= */
+/**
+ * Área em hectares de um perímetro GeoJSON.
+ *
+ * Até à r0052 devolvia **o maior anel** e mais nada. Um incêndio raramente é um polígono
+ * só: parte-se em manchas separadas (MultiPolygon) e deixa ilhas por arder dentro do
+ * perímetro (anéis interiores). O maior anel subestimava a área nas manchas separadas e
+ * contava as ilhas como ardidas. A área vai no PEA e no ponto de situação — é número que
+ * se transmite, não estimativa de gabinete.
+ *
+ * Agora: soma os anéis exteriores de todos os polígonos de todas as geometrias, e desconta
+ * os interiores. Continua a ser planar com correção de latitude, que a esta escala chega:
+ * o erro da projeção é muito menor do que o do próprio traçado do perímetro.
+ *
+ * @param {any} gj GeoJSON: FeatureCollection, Feature, GeometryCollection ou geometria
+ * @returns {number} hectares, arredondados
+ */
 function areaGeoJSON(gj){
-  // devolve hectares (aprox. planar com correção de latitude) do maior polígono
-  let feats=[];
-  if(gj.type==="FeatureCollection") feats=gj.features;
-  else if(gj.type==="Feature") feats=[gj];
-  else feats=[{geometry:gj}];
-  let melhor=0;
-  for(const f of feats){
-    const g=f.geometry; if(!g) continue;
-    const polys = g.type==="Polygon"? [g.coordinates] : (g.type==="MultiPolygon"? g.coordinates : []);
-    for(const rings of polys){
-      const ring=rings[0]; if(!ring||ring.length<4) continue;
-      const lat0 = ring[0][1]*Math.PI/180, mLat=111320, mLon=111320*Math.cos(lat0);
-      let a=0;
-      for(let i=0;i<ring.length-1;i++){
-        const x1=ring[i][0]*mLon, y1=ring[i][1]*mLat, x2=ring[i+1][0]*mLon, y2=ring[i+1][1]*mLat;
-        a += x1*y2 - x2*y1;
-      }
-      melhor = Math.max(melhor, Math.abs(a/2)/10000);
+  if(!gj || typeof gj!=="object") return 0;
+  /** Área planar de um anel, em m², sem sinal. */
+  const areaAnel = anel => {
+    if(!Array.isArray(anel) || anel.length < 4) return 0;
+    const lats = anel.map(p=>+p[1]).filter(x=>isFinite(x));
+    if(!lats.length) return 0;
+    const latM = lats.reduce((a,b)=>a+b,0)/lats.length;
+    const mLat = 111320, mLon = 111320*Math.cos(latM*Math.PI/180);
+    let a = 0;
+    for(let i=0;i<anel.length-1;i++){
+      const p1=anel[i], p2=anel[i+1];
+      if(!p1 || !p2) continue;
+      a += (p1[0]*mLon)*(p2[1]*mLat) - (p2[0]*mLon)*(p1[1]*mLat);
     }
-  }
-  return Math.round(melhor);
+    return Math.abs(a/2);
+  };
+  /* Um polígono é o anel exterior menos as ilhas que traz dentro. */
+  const areaPoligono = aneis => !Array.isArray(aneis) || !aneis.length? 0
+    : Math.max(0, areaAnel(aneis[0]) - aneis.slice(1).reduce((t,a)=>t+areaAnel(a), 0));
+
+  const somaGeometria = g => {
+    if(!g || typeof g!=="object") return 0;
+    if(g.type==="Polygon") return areaPoligono(g.coordinates);
+    if(g.type==="MultiPolygon") return (g.coordinates||[]).reduce((t,p)=>t+areaPoligono(p), 0);
+    if(g.type==="GeometryCollection") return (g.geometries||[]).reduce((t,x)=>t+somaGeometria(x), 0);
+    return 0;
+  };
+
+  let feats;
+  if(gj.type==="FeatureCollection") feats = gj.features||[];
+  else if(gj.type==="Feature") feats = [gj];
+  else feats = [{geometry:gj}];
+  const m2 = feats.reduce((t,f)=>t + somaGeometria(f && f.geometry), 0);
+  return Math.round(m2/10000);
 }
 $("d-perim").onchange = e=>{
   const f=e.target.files[0]; if(!f) return;
@@ -41,7 +70,7 @@ $("d-anexos").onchange = e=>{
   persistir(false);
 };
 $("b-dados").onclick = ()=>{ lerForm(); fita("Dados da ocorrência atualizados (setores/área/sensíveis)"); persistir(false); aviso("msg-dados","ok","Dados guardados — entram no próximo PEA."); };
-$("p-limpar").onclick = ()=>{ O.dados.perimNome=""; $("d-perim").value=""; $("d-perim-info").textContent="Nenhum ficheiro carregado. A área é estimada automaticamente a partir do polígono."; fita("Perímetro removido"); persistir(false); };
+$("p-limpar").onclick = ()=>{ O.dados.perimNome=""; $("d-perim").value=""; $("d-perim-info").textContent="Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono."; fita("Perímetro removido"); persistir(false); };
 $("a-limpar").onclick = ()=>{ O.dados.anexos=[]; $("d-anexos").value=""; $("d-anexos-info").textContent="Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia)."; fita("Anexos removidos"); persistir(false); };
 ["t-orient","t-declive","t-obs"].forEach(id=>$(id).addEventListener("change", ()=>{
   lerForm();

@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0051**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0052**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 55, das anteriores à convenção de nomes até à r0051 |
+| Entregas em `app/` | 56, das anteriores à convenção de nomes até à r0052 |
 | Módulos em `fonte/` | 51, em sete zonas, mais o molde |
-| Testes | 298, todos a passar |
+| Testes | 301, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,37 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A área do perímetro estava errada, na r0052
+
+Veio uma análise clínica externa ao r0050, extensa e bem estruturada. Triada achado a
+achado em `docs/CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md`, com a prova em
+código de cada veredito. Três achados não procedem — são texto de arranque que o
+JavaScript substitui, lido no ficheiro em vez de na aplicação a correr, e uma leitura
+trocada dos limiares de humidade. O resto procede, e a maior parte é a decisão de
+arquitetura que já estava em cima da mesa.
+
+Um dos achados era pior do que a análise dizia. **`areaGeoJSON` devolvia o maior anel do
+perímetro e mais nada.** Um incêndio raramente é um polígono só: parte-se em manchas
+separadas e deixa ilhas por arder lá dentro. A área contava a maior mancha e ignorava as
+outras; e contava as ilhas como ardidas. Passa a somar os anéis exteriores de todos os
+polígonos, de todas as geometrias, e a descontar os interiores. **A área vai no PEA e
+transmite-se pelo rádio** — era número errado a sair do posto de comando.
+
+Corrigida também a frase do perímetro, que prometia área calculada do polígono quando não
+havia polígono nenhum.
+
+### O que a análise não viu
+
+Três coisas, que ficam registadas na triagem: o relógio do dispositivo, de que dependem
+todos os medidores e regras de prazo, sem verificação nenhuma; a escada de dez migrações
+do estado, sem nada que confirme que a migração preservou o que interessava; e os
+`try{}catch(e){}` mudos do arranque, que já esconderam uma regressão.
+
+### Verificação
+
+301 testes, três novos sobre a área: manchas separadas, ilha descontada, e coleções com
+geometrias que não são área.
 
 ## O léxico arrumado por cor, na r0051
 

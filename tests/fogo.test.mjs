@@ -106,3 +106,56 @@ test('a leitura distingue reforço, cruzamento e oposição', semAplicacao, () =
   assert.match(com(270), /Cruzam-se/);
   assert.match(com(0), /Opõem-se/);
 });
+
+/* ---- área do perímetro ---- */
+
+// Um quadrado de 0,01° de lado à latitude 41 N: ~1113 m × ~840 m ≈ 93,5 ha. Serve de
+// unidade de medida para os casos compostos abaixo.
+const quadrado = (lat, lon, d = 0.01) => [[
+  [lon, lat], [lon + d, lat], [lon + d, lat + d], [lon, lat + d], [lon, lat],
+]];
+
+test('a área soma as manchas separadas em vez de ficar pela maior', semAplicacao, () => {
+  // Um incêndio parte-se em manchas. Até à r0052 a área era a do maior anel, e as
+  // outras manchas simplesmente não contavam.
+  const uma = janela.areaGeoJSON({ type: 'Polygon', coordinates: quadrado(41, -7.5) });
+  assert.ok(uma > 80 && uma < 110, 'quadrado de referência: ' + uma + ' ha');
+
+  const duas = janela.areaGeoJSON({
+    type: 'MultiPolygon',
+    coordinates: [quadrado(41, -7.5), quadrado(41, -7.4)],
+  });
+  // o arredondamento é ao hectare, por isso compara-se com essa tolerância
+  assert.ok(Math.abs(duas - uma * 2) <= 1, `${duas} ha não é o dobro de ${uma} ha`);
+});
+
+test('a área desconta as ilhas por arder dentro do perímetro', semAplicacao, () => {
+  const lat = 41, lon = -7.5;
+  const cheio = janela.areaGeoJSON({ type: 'Polygon', coordinates: quadrado(lat, lon) });
+  const ilha = quadrado(lat + 0.002, lon + 0.002, 0.005)[0];
+  const comIlha = janela.areaGeoJSON({
+    type: 'Polygon', coordinates: [quadrado(lat, lon)[0], ilha],
+  });
+  assert.ok(comIlha < cheio, 'a ilha não foi descontada');
+  // a ilha é metade do lado, portanto um quarto da área
+  assert.ok(Math.abs(comIlha - cheio * 0.75) <= 1, `${comIlha} ha contra ${cheio} ha`);
+});
+
+test('a área percorre coleções e geometrias soltas sem se enganar', semAplicacao, () => {
+  const um = janela.areaGeoJSON({ type: 'Polygon', coordinates: quadrado(41, -7.5) });
+  const colecao = janela.areaGeoJSON({
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', geometry: { type: 'Polygon', coordinates: quadrado(41, -7.5) } },
+      { type: 'Feature', geometry: { type: 'GeometryCollection', geometries: [
+        { type: 'Polygon', coordinates: quadrado(41, -7.4) },
+      ] } },
+      { type: 'Feature', geometry: { type: 'LineString', coordinates: [[-7.5, 41], [-7.4, 41]] } },
+      { type: 'Feature', geometry: null },
+    ],
+  });
+  assert.ok(Math.abs(colecao - um * 2) <= 1, 'linhas e geometrias vazias não são área');
+  assert.equal(janela.areaGeoJSON(null), 0);
+  assert.equal(janela.areaGeoJSON({ type: 'Polygon', coordinates: [[[-7.5, 41], [-7.4, 41]]] }), 0,
+    'um anel com dois pontos não fecha polígono nenhum');
+});

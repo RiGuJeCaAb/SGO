@@ -22,6 +22,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | **A especificação completa.** Arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
 | `CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais |
 | `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
+| `CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md` | Triagem, achado a achado e com a prova em código, da análise clínica externa ao r0050 |
 
 ## `interop/` — a ligação à Gestão PCO
 
