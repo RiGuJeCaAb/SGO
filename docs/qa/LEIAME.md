@@ -26,6 +26,7 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0012_202608291830_Logistica_CLD.png` | r0057 | Logística com um só quadro de rendições |
 | `CSREPCDouro_qa0013_202608291930_PEAImpresso_CLD.pdf` | r0058 (paralela) | O PEA impresso no formato do modelo .docx aceite |
 | `CSREPCDouro_qa0014_202608292000_PEAImpresso_CLD.pdf` | r0059 (paralela) | O mesmo, com uma folha por célula |
+| `CSREPCDouro_qa0015_..._AprovacaoCOS_CLD.png` | r0060 | Os três estados da proposta, com a aprovação registada e as ordens produzidas |
 
 Os `qa0011` e `qa0012` de 29 de agosto às 17h30 e 18h30 vieram da linhagem paralela e
 repetem números que esta linhagem já tinha usado nesse dia. Distinguem-se pelo carimbo de

@@ -67,9 +67,17 @@ Responde APENAS JSON válido, sem markdown:
    operacionais estabelecidas no PEA e transmitir as ordens de missão aos comandantes
    de setor, de frente e de área (al. c)). Recebe o plano; não o reescreve. */
 async function gerarOrdens(n, novas, anterior, pea){
-  const j = await llm(`És a célula de operações de um PCO da proteção civil portuguesa (SGO — Despacho n.º 4067/2024). A célula de planeamento elaborou o plano estratégico de ação n.º ${n} e o COS aprovou-o. Compete-te executar e implementar as decisões nele estabelecidas e transmitir as ordens de missão aos comandantes de setor, de frente e de área — art. 17.º, n.º 1, al. c). Não alteres o objetivo nem as prioridades do plano: converte-os em ordens executáveis, com atribuição e GDH limite.
+  /* A aprovação afirmada aqui tem agora de existir. Enquanto as ordens eram produzidas
+     no mesmo fôlego da proposta, este texto dizia ao modelo que o COS tinha aprovado um
+     plano que ninguém tinha visto — e o modelo trabalhava sobre essa ficção. A função só
+     é chamada a partir de `aprovarPEA`, e o nome e o GDH que aqui entram são os que
+     ficaram registados. */
+  const ap = (O.peas.find(x=>x.n === n) || {}).aprovacao || {};
+  const quem = ap.por? (ap.funcao||"COS")+" "+ap.por : "o COS";
+  const quando = ap.g? " em "+ap.g : "";
+  const j = await llm(`És a célula de operações de um PCO da proteção civil portuguesa (SGO — Despacho n.º 4067/2024). A célula de planeamento elaborou o plano estratégico de ação n.º ${n} e ${quem} aprovou-o e determinou-o${quando}. Compete-te executar e implementar as decisões nele estabelecidas e transmitir as ordens de missão aos comandantes de setor, de frente e de área — art. 17.º, n.º 1, al. c). Não alteres o objetivo nem as prioridades do plano: converte-os em ordens executáveis, com atribuição e GDH limite.
 
-PLANO ESTRATÉGICO DE AÇÃO APROVADO: ${JSON.stringify(pea)}
+PLANO ESTRATÉGICO DE AÇÃO APROVADO POR ${quem.toUpperCase()}${quando}: ${JSON.stringify(pea)}
 
 ${contexto(n,novas,anterior)}
 

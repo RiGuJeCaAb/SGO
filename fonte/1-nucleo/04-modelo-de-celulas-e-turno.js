@@ -177,6 +177,27 @@ MIGRACOES.push(e => {
   return e;   /* a escada é `e = MIGRACOES[v](e)`: um degrau que não devolve parte-a */
 });
 
+/* 11 -> 12. Os três estados de uma proposta de PEA.
+   O que já está emitido foi-o num modelo em que emitir valia por aprovar: as ordens de
+   missão nasciam no mesmo instante. Marcá-los «proposta» seria reescrever a história —
+   deixaria de haver PEA em vigor em ocorrências que o têm, e as regras de conformidade
+   mudariam de veredicto sobre factos passados. Ficam **aprovados**, com o GDH da emissão
+   e a nota de que a aprovação não foi registada à parte, que é a verdade. */
+MIGRACOES.push(e => {
+  (e.peas||[]).forEach(p=>{
+    if(!p || typeof p !== "object") return;
+    if(typeof p.estado !== "string" || !p.estado){
+      p.estado = "aprovado";
+      p.analise = { g:"" };
+      p.aprovacao = { g:p.g||"", por:"", funcao:"",
+        nota:"registo anterior ao modelo de aprovação: a emissão valia por aprovação" };
+    }
+    if(!p.analise || typeof p.analise !== "object") p.analise = { g:"" };
+    if(!p.aprovacao || typeof p.aprovacao !== "object") p.aprovacao = { g:"", por:"", funcao:"", nota:"" };
+  });
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,

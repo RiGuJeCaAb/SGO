@@ -38,7 +38,85 @@ function controloMissoes(ops){
   (ops.propostas||[]).forEach(x=>out.push({k:x.id||"P", tipo:"Proposta", texto:x.texto||"", estado:0}));
   return out;
 }
-function peaVigor(){ return O.peas.length? O.peas[O.peas.length-1] : null; }
+/* ================= os três estados de uma proposta de PEA =================
+   A elaboração é da célula de planeamento; a aprovação e a determinação são do COS —
+   art. 8.º, n.º 2, al. e), e art. 46.º. Até à r0061 a aplicação não modelava a diferença:
+   emitia a proposta e produzia as ordens de missão no instante seguinte, dizendo ao
+   modelo de linguagem que «o COS aprovou-o». Não tinha aprovado nada.
+
+   E há um facto operacional que o modelo tem de respeitar: **o COS aprova depois de ter
+   o PEA impresso à sua frente.** A aplicação não é o sítio onde a aprovação acontece; é
+   o sítio onde ela fica registada, com quem a determinou, a função e o GDH.
+
+     proposta  elaborada pela célula, ainda não saiu do ecrã
+     análise   entregue ao COS, em apreciação — o documento está impresso e com ele
+     aprovado  determinado pelo COS; só aqui nascem as ordens de missão
+
+   `peaVigor()` passa a ser o último **aprovado**: o que está em vigor é o que o COS
+   determinou, e não o último que a célula produziu. */
+const PEA_ESTADOS = ["proposta", "analise", "aprovado"];
+const PEA_ROT = { proposta:"Proposta", analise:"Em análise pelo COS", aprovado:"Aprovado pelo COS" };
+
+/** O estado de uma proposta, com omissão segura para o que vier de antes. */
+function estadoPEA(p){
+  const e = p && p.estado;
+  return PEA_ESTADOS.indexOf(e) >= 0? e : "proposta";
+}
+/** A última proposta produzida, esteja em que estado estiver. */
+function peaUltimo(){ return O.peas.length? O.peas[O.peas.length-1] : null; }
+/** O PEA em vigor: o último que o COS aprovou. */
+function peaVigor(){
+  for(let i=O.peas.length-1; i>=0; i--){ if(estadoPEA(O.peas[i]) === "aprovado") return O.peas[i]; }
+  return null;
+}
+
+/**
+ * Entrega a proposta ao COS. Passa de «proposta» a «em análise».
+ *
+ * Não é ato de comando: é o registo de que o documento saiu da célula e está com quem
+ * decide. Serve para se saber há quanto tempo espera.
+ */
+function entregarPEA(n, ts){
+  const p = O.peas.find(x=>x.n === n);
+  if(!p || estadoPEA(p) !== "proposta") return { ok:false, motivo:"Só uma proposta por entregar pode passar a análise." };
+  p.estado = "analise";
+  p.analise = { g: gdhDe(ts==null? agora() : ts) };
+  O.evolucao.push({g:p.analise.g, tipo:"posit",
+    txt:"Proposta de PEA n.º "+n+" entregue ao COS para apreciação."});
+  fita("PEA n.º "+n+" entregue ao COS ("+p.analise.g+")");
+  return { ok:true };
+}
+
+/**
+ * Regista a aprovação do COS, e só então produz as ordens de missão.
+ *
+ * A ordem importa e é doutrinária: a célula de operações transmite as ordens de missão
+ * **depois** de o plano estar aprovado — art. 17.º, n.º 1, al. c). Enquanto não houver
+ * aprovação registada, não há ordens nenhumas para transmitir.
+ *
+ * @param {number} n número da proposta
+ * @param {{por:string, funcao:string, nota?:string, g?:string}} quem
+ */
+function aprovarPEA(n, quem){
+  const p = O.peas.find(x=>x.n === n);
+  if(!p) return { ok:false, motivo:"Proposta não encontrada." };
+  if(estadoPEA(p) === "aprovado") return { ok:false, motivo:"O PEA n.º "+n+" já está aprovado." };
+  const por = String((quem&&quem.por)||"").trim();
+  if(!por) return { ok:false, motivo:"Indicar quem determina a aprovação." };
+  const g = String((quem&&quem.g)||"").trim() || gdhAgora();
+  if(!parseGDH(g)) return { ok:false, motivo:motivoGDH(g) };
+
+  p.estado = "aprovado";
+  p.aprovacao = { g, por, funcao:String((quem&&quem.funcao)||"COS").trim() || "COS",
+    nota:String((quem&&quem.nota)||"").trim() };
+  p.ultVerd = "vigor";
+  O.evolucao.push({g, tipo:"decisao",
+    txt:"PEA n.º "+n+" aprovado e determinado por "+p.aprovacao.funcao+" "+por
+      + (p.aprovacao.nota? " — "+p.aprovacao.nota : "")+"."});
+  fita("PEA n.º "+n+" aprovado por "+por+" ("+g+")");
+  return { ok:true, pea:p };
+}
+
 function divergencia(p){
   if(!p || !p.base) return null;
   const b = p.base, r = retratoOperacional(), it = [];
@@ -235,4 +313,60 @@ function pecas(p){
           objetivo:ops.objetivo, propostas:ops.propostas||[], seguranca:ops.seguranca||[], validade:ops.validade},
     ordens: {missoes:ops.missoes||[]}
   };
+}
+
+/**
+ * O cartão do estado da última proposta: onde ela está e o que falta para andar.
+ *
+ * Vive por cima da vista do PEA, porque é a pergunta que se faz primeiro ao olhar para
+ * um plano: já foi aprovado?
+ */
+function renderEstadoPEA(){
+  const C = $("pea-estado"); if(!C) return;
+  const p = peaUltimo();
+  if(!p){ C.innerHTML = ""; return; }
+  const est = estadoPEA(p);
+  const ap = p.aprovacao || {};
+
+  const corpo = est === "proposta"
+    ? `<p class="hint" style="margin:0 0 12px 0">A proposta está elaborada e por entregar. O COS aprecia o plano <b>a partir do documento impresso</b>: imprime a proposta, entrega-a, e regista aqui a entrega.</p>
+       <div class="row"><button class="btn btn-o" type="button" id="pe-entregar">Entregar ao COS para apreciação</button></div>`
+    : est === "analise"
+    ? `<p class="hint" style="margin:0 0 12px 0">Entregue ao COS a <b>${esc(p.analise.g||"—")}</b>. A aprovação é ato de comando e acontece fora desta aplicação: aqui regista-se quem a determinou, com que função e a que horas. <b>As ordens de missão são produzidas no momento em que a aprovação fica registada</b> — antes disso não há ordens para transmitir.</p>
+       <div class="grid g3">
+         <div><label for="pe-por">Quem determina</label><input id="pe-por" placeholder="posto, nome e apelido"></div>
+         <div><label for="pe-fn">Função</label><input id="pe-fn" placeholder="COS" value="COS"></div>
+         <div><label for="pe-g">GDH da aprovação</label><input id="pe-g" placeholder="vazio = agora"></div>
+       </div>
+       <div style="margin-top:12px"><label for="pe-nota">Nota para o processo</label><input id="pe-nota" placeholder="opcional — determinações do COS na aprovação"></div>
+       <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pe-aprovar">Registar aprovação do COS</button></div>`
+    : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
+         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`;
+
+  C.innerHTML = `<div class="card">
+    <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
+    <div class="pe-fx">${PEA_ESTADOS.map(k=>`<span class="pe-e ${k===est? "on":""}${PEA_ESTADOS.indexOf(k)<PEA_ESTADOS.indexOf(est)? " feita":""}">${esc(PEA_ROT[k])}</span>`).join("")}</div>
+    ${corpo}
+    <div class="msg" id="pe-msg" style="display:none"></div>
+  </div>`;
+
+  const bE = $("pe-entregar");
+  if(bE) bE.addEventListener("click", ()=>{
+    const r = entregarPEA(p.n);
+    if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
+    persistir(false); pintarTudo();
+  });
+  const bA = $("pe-aprovar");
+  if(bA) bA.addEventListener("click", async ()=>{
+    const q = gdhDoCampo("pe-g", "pe-msg");
+    if(!q.ok) return;
+    const r = aprovarPEA(p.n, { por:$("pe-por").value, funcao:$("pe-fn").value,
+      nota:$("pe-nota").value, g:($("pe-g").value.trim()? q.g : "") });
+    if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
+    bA.disabled = true; bA.innerHTML = '<span class="spin"></span> Ordens de missão…';
+    try{ await produzirOrdens(r.pea); }catch(e){}
+    await persistir(false);
+    pintarTudo();
+    aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas e em controlo de execução.");
+  });
 }

@@ -158,3 +158,89 @@ test('o campo assinala-se enquanto se escreve, sem esperar pelo botão', semApli
   assert.equal(el.getAttribute('aria-invalid'), null);
   assert.equal(el.getAttribute('title'), null);
 });
+
+/* ---- a aprovação do COS, que é ato de comando ---- */
+
+/** Uma ocorrência com o mínimo para se poder emitir uma proposta. */
+function comProposta() {
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4711'; O.meta.local = 'Leomil'; O.meta.fase = 'IV';
+  O.meta.inicio = janela.gdhDe(janela.agora() - 3 * 3600000);
+  O.peas.push({ n: 1, g: '281200AGO26', ts: janela.agora() - 3600000, validoTs: janela.agora() + 3600000,
+    base: null, ctrl: [], ultVerd: '', estado: 'proposta', analise: { g: '' },
+    aprovacao: { g: '', por: '', funcao: '', nota: '' },
+    modo: 'Determinística', json: { pea: { objetivo: 'conter a frente norte' }, ordens: null },
+    met: {}, serie: [], dados: {}, evoIdx: 0, meta: { ...O.meta }, don: [], pco: { funcoes: [], canais: {} } });
+  janela.escreverForm();
+  return O.peas[0];
+}
+
+test('uma proposta nasce por aprovar, e sem ordens de missão', semAplicacao, () => {
+  const p = comProposta();
+  assert.equal(janela.estadoPEA(p), 'proposta');
+  assert.equal(p.json.ordens, null, 'as ordens não podem nascer com a proposta');
+  assert.deepEqual(p.ctrl, []);
+  assert.equal(janela.peaVigor(), null, 'uma proposta por aprovar não está em vigor');
+  assert.equal(janela.peaUltimo().n, 1, 'mas é a última proposta, e vê-se');
+});
+
+test('a entrega ao COS é registo, não é aprovação', semAplicacao, () => {
+  const p = comProposta();
+  const r = janela.entregarPEA(1, janela.agora());
+  assert.equal(r.ok, true);
+  assert.equal(janela.estadoPEA(p), 'analise');
+  assert.ok(p.analise.g, 'a entrega tem de deixar o GDH');
+  assert.equal(janela.peaVigor(), null, 'em análise ainda não é PEA em vigor');
+  assert.match(avaliar(janela, 'O').evolucao.slice(-1)[0].txt, /entregue ao COS/);
+
+  assert.equal(janela.entregarPEA(1).ok, false, 'não se entrega duas vezes');
+});
+
+test('a aprovação exige quem determina e um GDH que exista', semAplicacao, () => {
+  const p = comProposta();
+  janela.entregarPEA(1, janela.agora());
+
+  assert.equal(janela.aprovarPEA(1, { por: '' }).ok, false, 'aprovou sem ninguém a determinar');
+  assert.equal(janela.estadoPEA(p), 'analise');
+
+  const mau = janela.aprovarPEA(1, { por: 'Cmdt Silva', g: '311000FEV26' });
+  assert.equal(mau.ok, false);
+  assert.match(mau.motivo, /não tem dia 31/);
+  assert.equal(janela.estadoPEA(p), 'analise', 'ficou aprovado com uma data que não existe');
+
+  const bom = janela.aprovarPEA(1, { por: 'Cmdt Silva', funcao: 'COS', nota: 'difundir aos setores', g: '281400AGO26' });
+  assert.equal(bom.ok, true);
+  assert.equal(janela.estadoPEA(p), 'aprovado');
+  assert.equal(p.aprovacao.por, 'Cmdt Silva');
+  assert.equal(p.aprovacao.g, '281400AGO26');
+  assert.equal(janela.peaVigor().n, 1, 'aprovado, passa a ser o PEA em vigor');
+  assert.match(avaliar(janela, 'O').evolucao.slice(-1)[0].txt, /aprovado e determinado por COS Cmdt Silva/);
+  assert.equal(avaliar(janela, 'O').evolucao.slice(-1)[0].tipo, 'decisao');
+
+  assert.equal(janela.aprovarPEA(1, { por: 'Outro' }).ok, false, 'aprovou duas vezes');
+});
+
+test('o PEA em vigor é o último aprovado, não o último emitido', semAplicacao, () => {
+  const p = comProposta();
+  janela.entregarPEA(1, janela.agora());
+  janela.aprovarPEA(1, { por: 'Cmdt Silva' });
+  // emite-se a proposta n.º 2, que ainda ninguém aprovou
+  const O = avaliar(janela, 'O');
+  O.peas.push({ ...JSON.parse(JSON.stringify(p)), n: 2, estado: 'proposta',
+    aprovacao: { g: '', por: '', funcao: '', nota: '' }, analise: { g: '' }, ctrl: [] });
+  assert.equal(janela.peaUltimo().n, 2);
+  assert.equal(janela.peaVigor().n, 1, 'o que está em vigor é o que o COS determinou');
+});
+
+test('os PEA anteriores ao modelo continuam em vigor depois da migração', semAplicacao, () => {
+  // Marcá-los «proposta» seria reescrever a história: deixaria de haver PEA em vigor em
+  // ocorrências que o têm, e as regras de conformidade mudariam de veredicto sobre
+  // factos passados.
+  const m = janela.migrarGravado({ versao: 11, meta: { num: '1' },
+    peas: [{ n: 1, g: '281200AGO26', ts: 1, ctrl: [{ k: 'M1' }] }] });
+  assert.equal(m.peas[0].estado, 'aprovado');
+  assert.equal(m.peas[0].aprovacao.g, '281200AGO26');
+  assert.equal(m.peas[0].aprovacao.por, '', 'não se inventa quem aprovou');
+  assert.match(m.peas[0].aprovacao.nota, /anterior ao modelo de aprovação/);
+});

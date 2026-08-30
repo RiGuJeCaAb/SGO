@@ -15,11 +15,11 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
 | Módulos em `fonte/` | 52, em sete zonas, mais o molde |
-| Testes | 335, todos a passar |
+| Testes | 340, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 11 |
+| Versão do estado gravado | 12 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,62 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Robustecimento 3 de 3: a aprovação do COS existe, na r0060
+
+Era o achado que menos tinha de informático. O `emitirPEA` chamava o `gerarOrdens` no
+instante seguinte ao `gerarPEA`, e o contexto entregue ao modelo dizia **«a célula de
+planeamento elaborou o plano n.º X e o COS aprovou-o»**, passando-lhe um «PLANO
+ESTRATÉGICO DE AÇÃO APROVADO». Não havia aprovação nenhuma pelo meio. O botão dizia
+«Emitir proposta» e o documento impresso trazia a linha «Aprovado — O COS: ______».
+
+**A aplicação declarava ao modelo um ato de comando que não tinha acontecido.**
+
+### Três estados, e o facto operacional que os fixa
+
+O Ricardo pôs o ponto que faltava: **o COS aprova depois de ter o PEA impresso à sua
+frente.** A aplicação não é onde a aprovação acontece; é onde ela fica registada.
+
+| Estado | O que é |
+|---|---|
+| **Proposta** | Elaborada pela célula de planeamento. Ainda não saiu do ecrã. |
+| **Em análise** | Entregue ao COS. O documento está impresso e com quem decide. |
+| **Aprovado** | Determinado pelo COS, com nome, função e GDH. |
+
+`peaVigor()` passa a ser **o último aprovado**, e não o último elaborado: o que está em
+vigor é o que o COS determinou. `peaUltimo()` serve para mostrar a proposta enquanto ela
+espera.
+
+### As ordens de missão nascem na aprovação
+
+É a única mudança que altera comportamento a sério, e é doutrinária: a célula de operações
+transmite as ordens **depois** de o plano estar aprovado — art. 17.º, n.º 1, al. c). Uma
+proposta por aprovar não tem ordens nenhumas para transmitir, e o controlo de execução
+nasce vazio.
+
+O contexto entregue ao modelo passa a dizer a verdade, com o nome e o GDH que ficaram
+registados: «o COS Cmdt Silva aprovou-o e determinou-o em 281400AGO26».
+
+### O que a regra dos 90 minutos passa a ver
+
+Uma proposta por aprovar deixa de fechar a obrigação do ataque ampliado — mas também não
+a deixa vermelha como se nada existisse. Ganha aviso próprio, que diz onde está a proposta
+e qual é o passo seguinte: entregar, ou registar a aprovação.
+
+### A migração não reescreve a história
+
+Os PEA que já existem foram emitidos num modelo em que emitir valia por aprovar. Marcá-los
+«proposta» apagaria o PEA em vigor de ocorrências que o têm e mudaria o veredicto de
+regras de conformidade sobre factos passados. Ficam **aprovados**, com o GDH da emissão e
+a nota de que a aprovação não foi registada à parte — que é a verdade.
+
+### Verificação
+
+340 testes, cinco novos: a proposta nasce sem ordens e não está em vigor, a entrega é
+registo e não aprovação, a aprovação exige quem determina e um GDH que exista, o PEA em
+vigor é o último aprovado, e os PEA anteriores atravessam a migração sem perder o vigor.
+Fluxo completo confirmado em navegador — proposta, entrega, aprovação, e as três missões a
+aparecerem só no fim. Prova em `docs/qa/` (`qa0015`).
 
 ## Robustecimento 2 de 3: o GDH deixa de inventar datas, na r0060
 

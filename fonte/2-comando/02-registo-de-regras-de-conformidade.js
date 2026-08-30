@@ -118,11 +118,27 @@ const REGRAS_DON = [
          vermelha para sempre, mesmo com o plano emitido e difundido. */
       if(decorrido !== null){
         const limiar = ini? ini.getTime() + 90*60000 : null;
-        const peaDepois = limiar === null? null
-          : O.peas.filter(p=>p.ts && p.ts >= limiar).slice(-1)[0];
-        if(decorrido >= 90 && peaDepois){
+        /* O que fecha a obrigação é um PEA **aprovado**: uma proposta por aprovar é
+           trabalho da célula, não é ainda o plano que a norma exige partilhado. Mas
+           também não é nada — por isso tem aviso próprio, com o que falta. */
+        const depoisDoLimiar = limiar === null? []
+          : O.peas.filter(p=>p.ts && p.ts >= limiar);
+        const peaDepois = depoisDoLimiar.filter(p=>estadoPEA(p) === "aprovado").slice(-1)[0];
+        const propostaDepois = depoisDoLimiar.slice(-1)[0];
+        if(decorrido >= 90 && !peaDepois && propostaDepois){
+          const est = estadoPEA(propostaDepois);
+          v.push({n:"av", id:"ata", t:"Ataque ampliado — proposta de PEA por aprovar",
+            s:"A ocorrência decorre há "+dur(decorrido)+". A proposta n.º "+propostaDepois.n+" foi elaborada a "+propostaDepois.g
+              +" e está "+(est==="analise"? "em análise pelo COS desde "+(propostaDepois.analise&&propostaDepois.analise.g||"—") : "por entregar ao COS")+".",
+            f:"Ultrapassados os 90 minutos, é exigível um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO. A elaboração é da célula de planeamento; a aprovação e a determinação são do COS.",
+            a:(est==="analise"
+              ? "Registar a aprovação do COS na secção do PEA, com quem determina e o GDH — as ordens de missão são produzidas nesse momento."
+              : "Imprimir a proposta, entregá-la ao COS e registar a entrega; a aprovação regista-se a seguir."),
+            r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a); Despacho n.º 4067/2024, art. 8.º, n.º 2, al. e)"});
+        } else if(decorrido >= 90 && peaDepois){
           v.push({n:"ok", id:"ata", t:"Ataque ampliado com PEA formal emitido",
-            s:"A ocorrência decorre há "+dur(decorrido)+", e o PEA n.º "+peaDepois.n+" foi emitido a "+peaDepois.g+", depois do limiar dos 90 minutos, às "+gdhMais(ini,90)+".",
+            s:"A ocorrência decorre há "+dur(decorrido)+", e o PEA n.º "+peaDepois.n+" foi emitido a "+peaDepois.g+", depois do limiar dos 90 minutos, às "+gdhMais(ini,90)+"."
+              +(peaDepois.aprovacao&&peaDepois.aprovacao.por? " Aprovado por "+peaDepois.aprovacao.funcao+" "+peaDepois.aprovacao.por+" a "+peaDepois.aprovacao.g+"." : ""),
             f:"Ultrapassados os 90 minutos, é exigível um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO.",
             a:"Manter o plano difundido e em vigor; a validade e as divergências são acompanhadas na verificação própria.",
             r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a)"});

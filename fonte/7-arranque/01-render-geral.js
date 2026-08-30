@@ -2,7 +2,7 @@
 function pintarTudo(){
   try{ renderTurno(); }catch(e){}
   pintarArquivo(); try{ renderCheck(); }catch(e){}
-  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
+  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); renderEstadoPEA(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
   try{ pintarEvoCtx(); }catch(e){}
   try{ pintarGuia(); }catch(e){}
   try{ pintarAvisos(); }catch(e){}
@@ -12,10 +12,11 @@ function pintarTudo(){
     `<div class="evo-i tipo-${esc(e.tipo)}"><div class="g">${esc(e.g)}</div><div class="tp">${esc(e.tipo)}</div><div class="t">${esc(e.txt)}</div></div>`).join("")
     : '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>';
   $("prox-n").textContent = "n.º "+(O.peas.length+1);
-  $("pea-count").textContent = O.peas.length+" emitidos";
+  const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
+  $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(p.modo)}</div></div>`).join("")
-    : '<p class="hint">Nenhum PEA emitido nesta ocorrência.</p>';
+    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
+    : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
   try{ pintarEncerramento(); }catch(e){}
@@ -56,7 +57,7 @@ window.verPEA = function(n){
     <div class="pea-dash">
       <div class="pd-head">
         <span class="n">PEA ${p.n}</span>
-        <span class="t">Proposta — Ocorrência ${esc(p.meta.num)}</span>
+        <span class="t">${esc(PEA_ROT[estadoPEA(p)])} — Ocorrência ${esc(p.meta.num)}</span>
         <span class="meta">${esc(p.meta.local)} · PCO ${esc(p.meta.pco)} · Fase ${esc(p.meta.fase)} · ${esc((p.dados&&p.dados.area)||"—")} ha · Elaborado ${esc(p.g)} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"} · Validade proposta: ${jan? jan.fim+" (fecho da janela)":"a determinar"}${(p.meta.lat&&p.meta.lon)? " · "+fmtGMS(+p.meta.lat,true)+" "+fmtGMS(+p.meta.lon,false):""}</span>
       </div>
       <div class="pd-grid">
@@ -133,14 +134,16 @@ window.verPEA = function(n){
       </div>
     </div>
     <div class="paper">
-      <div class="p-tit">Proposta de Plano Estratégico de Ação n.º ${p.n}</div>
+      <div class="p-tit">${estadoPEA(p)==="aprovado"? "Plano Estratégico de Ação n.º "+p.n : "Proposta de Plano Estratégico de Ação n.º "+p.n}</div>
       <div class="p-sub">Ocorrência n.º ${esc(p.meta.num)} — Classificação 3102 (Incêndio Rural)</div>
       <div class="p-sub2">${esc(p.meta.local||"")}${p.meta.pco? " · "+esc(p.meta.pco):""}</div>
-      <div class="p-apr">Aprovado — O COS: ____________________</div>
+      <div class="p-apr">${estadoPEA(p)==="aprovado"
+        ? "Aprovado e determinado por "+esc((p.aprovacao.funcao||"COS")+" "+p.aprovacao.por)+" — "+esc(p.aprovacao.g)
+        : "Aprovado — O COS: ____________________"}</div>
       <div class="p-rodape"><span>PEA n.º ${p.n} — Ocorrência ${esc(p.meta.num||"")}${p.meta.local? " · "+esc(p.meta.local):""}</span><span>Este documento tem carácter: RESERVADO</span></div>
       <div class="hz">${"<i></i>".repeat(36)}</div>
       <table class="p-cab">
-        <tr><td class="l">Elaborado (GDH):</td><td>${esc(p.g)}</td><td class="l">Nome do COS:</td><td>____________________</td></tr>
+        <tr><td class="l">Elaborado (GDH):</td><td>${esc(p.g)}</td><td class="l">Nome do COS:</td><td>${estadoPEA(p)==="aprovado" && p.aprovacao.por? esc(p.aprovacao.por) : "____________________"}</td></tr>
         <tr><td class="l">Válido até (GDH):</td><td>${jan? jan.fim+" (proposta — fecho da janela; confirmação do COS)" : "____________________"}</td><td class="l">Substitui o PEA:</td><td>${p.n>1? "N.º "+(p.n-1):"N.º 0 (inicial)"}</td></tr>
       </table>
       <table class="p-pco"><tr>

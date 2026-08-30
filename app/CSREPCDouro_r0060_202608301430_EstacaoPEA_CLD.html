@@ -415,6 +415,12 @@
   #p-logistica .campo-chave{--c-chave:var(--cel-logistica)}
   #p-turno .campo-chave{--c-chave:var(--cel-turno)}
   .mono-sm{font-family:var(--mono);font-size:11.5px;color:var(--tx2);letter-spacing:.2px}
+  /* Os três estados de uma proposta, em fila: vê-se onde está e o que falta. */
+  .pe-fx{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .pe-e{font-family:var(--disp);font-weight:600;font-size:13px;color:var(--tx3);
+        border:1px solid var(--line);border-radius:7px;padding:6px 12px;background:var(--surf2)}
+  .pe-e.feita{color:var(--tx2)}
+  .pe-e.on{color:var(--tx);border-color:var(--laranja);background:color-mix(in srgb, var(--laranja) 12%, var(--surf));font-weight:700}
   /* Um GDH que não é data assinala-se enquanto se escreve: dizê-lo só ao carregar no
      botão é dizê-lo tarde, com o oficial já noutro campo. */
   input[aria-invalid="true"]{border-color:var(--fogo);box-shadow:var(--ranhura), 0 0 0 2px color-mix(in srgb, var(--fogo) 28%, transparent)}
@@ -1669,22 +1675,23 @@
   <!-- 5 PEA -->
   <section class="pane" id="p-pea">
     <div id="pea-vigor"></div>
+    <div id="pea-estado"></div>
     <div class="card">
       <h2>Verificação de conformidade dos dados <span class="tag">requisitos mínimos para elaboração do PEA — art. 46.º</span></h2>
       <div id="chk-list"></div>
     </div>
     <div class="card">
       <h2>Elaborar proposta de PEA <span class="tag">art. 46.º — aprovação e determinação pelo COS (art. 8.º, n.º 2, al. e))</span></h2>
-      <p class="hint" style="margin-bottom:10px">O próximo PEA será o <b id="prox-n" style="color:var(--laranja)">n.º 1</b>. Incorpora: identificação da ocorrência, evolução registada desde o PEA anterior, e a análise meteorológica atual. A redação usa o modelo Claude; sem ligação, é emitida a versão determinística.</p>
+      <p class="hint" style="margin-bottom:10px">O próximo PEA será o <b id="prox-n" style="color:var(--laranja)">n.º 1</b>. Incorpora: identificação da ocorrência, evolução registada desde o PEA anterior, e a análise meteorológica atual. A redação usa o modelo Claude; sem ligação, é emitida a versão determinística. <b>Elaborar produz a proposta, e mais nada</b>: as ordens de missão nascem quando a aprovação do COS ficar registada, porque é a célula de operações que as transmite e só depois de o plano estar aprovado.</p>
       <div class="msg" id="llm-modo" style="display:none"></div>
       <div class="row">
-        <button class="btn btn-o" id="b-gerar">Emitir proposta de PEA</button>
+        <button class="btn btn-o" id="b-gerar">Elaborar proposta de PEA</button>
       </div>
       <div class="msg" id="msg-ia"></div>
     </div>
     <div class="card">
-      <h2>Histórico de propostas de PEA <span class="tag" id="pea-count">0 emitidas</span></h2>
-      <div id="pea-list"><p class="hint">Nenhum PEA emitido nesta ocorrência.</p></div>
+      <h2>Histórico de propostas de PEA <span class="tag" id="pea-count">0 elaboradas</span></h2>
+      <div id="pea-list"><p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p></div>
     </div>
     <div id="pea-view"></div>
   </section>
@@ -1768,14 +1775,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301402_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301430_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301402_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301430_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento ================= */
@@ -1806,7 +1813,7 @@ const ARMAZEM = (()=>{
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 11;
+const VERSAO_ESTADO = 12;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2038,6 +2045,27 @@ MIGRACOES.push(e => {
     e.encerramento.sha = "";
   }
   return e;   /* a escada é `e = MIGRACOES[v](e)`: um degrau que não devolve parte-a */
+});
+
+/* 11 -> 12. Os três estados de uma proposta de PEA.
+   O que já está emitido foi-o num modelo em que emitir valia por aprovar: as ordens de
+   missão nasciam no mesmo instante. Marcá-los «proposta» seria reescrever a história —
+   deixaria de haver PEA em vigor em ocorrências que o têm, e as regras de conformidade
+   mudariam de veredicto sobre factos passados. Ficam **aprovados**, com o GDH da emissão
+   e a nota de que a aprovação não foi registada à parte, que é a verdade. */
+MIGRACOES.push(e => {
+  (e.peas||[]).forEach(p=>{
+    if(!p || typeof p !== "object") return;
+    if(typeof p.estado !== "string" || !p.estado){
+      p.estado = "aprovado";
+      p.analise = { g:"" };
+      p.aprovacao = { g:p.g||"", por:"", funcao:"",
+        nota:"registo anterior ao modelo de aprovação: a emissão valia por aprovação" };
+    }
+    if(!p.analise || typeof p.analise !== "object") p.analise = { g:"" };
+    if(!p.aprovacao || typeof p.aprovacao !== "object") p.aprovacao = { g:"", por:"", funcao:"", nota:"" };
+  });
+  return e;
 });
 
 function novoEstado(){
@@ -3125,7 +3153,7 @@ function arrumarCasa(){
   /* o relógio do PEA em vigor e a vista do PEA emitido não são cartões: são caixas
      que se preenchem sozinhas. Seguem a célula que elabora o plano — art. 27.º. */
   const pl = document.getElementById("p-planeamento");
-  ["pea-vigor","pea-view"].forEach(id=>{ const n = document.getElementById(id); if(n && pl) pl.appendChild(n); });
+  ["pea-vigor","pea-estado","pea-view"].forEach(id=>{ const n = document.getElementById(id); if(n && pl) pl.appendChild(n); });
 
   /* os painéis antigos ficam vazios e saem da vista */
   Object.keys(ATALHOS_PANE).forEach(id=>{ const p = document.getElementById(id); if(p) p.classList.add("husk"); });
@@ -3779,11 +3807,27 @@ const REGRAS_DON = [
          vermelha para sempre, mesmo com o plano emitido e difundido. */
       if(decorrido !== null){
         const limiar = ini? ini.getTime() + 90*60000 : null;
-        const peaDepois = limiar === null? null
-          : O.peas.filter(p=>p.ts && p.ts >= limiar).slice(-1)[0];
-        if(decorrido >= 90 && peaDepois){
+        /* O que fecha a obrigação é um PEA **aprovado**: uma proposta por aprovar é
+           trabalho da célula, não é ainda o plano que a norma exige partilhado. Mas
+           também não é nada — por isso tem aviso próprio, com o que falta. */
+        const depoisDoLimiar = limiar === null? []
+          : O.peas.filter(p=>p.ts && p.ts >= limiar);
+        const peaDepois = depoisDoLimiar.filter(p=>estadoPEA(p) === "aprovado").slice(-1)[0];
+        const propostaDepois = depoisDoLimiar.slice(-1)[0];
+        if(decorrido >= 90 && !peaDepois && propostaDepois){
+          const est = estadoPEA(propostaDepois);
+          v.push({n:"av", id:"ata", t:"Ataque ampliado — proposta de PEA por aprovar",
+            s:"A ocorrência decorre há "+dur(decorrido)+". A proposta n.º "+propostaDepois.n+" foi elaborada a "+propostaDepois.g
+              +" e está "+(est==="analise"? "em análise pelo COS desde "+(propostaDepois.analise&&propostaDepois.analise.g||"—") : "por entregar ao COS")+".",
+            f:"Ultrapassados os 90 minutos, é exigível um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO. A elaboração é da célula de planeamento; a aprovação e a determinação são do COS.",
+            a:(est==="analise"
+              ? "Registar a aprovação do COS na secção do PEA, com quem determina e o GDH — as ordens de missão são produzidas nesse momento."
+              : "Imprimir a proposta, entregá-la ao COS e registar a entrega; a aprovação regista-se a seguir."),
+            r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a); Despacho n.º 4067/2024, art. 8.º, n.º 2, al. e)"});
+        } else if(decorrido >= 90 && peaDepois){
           v.push({n:"ok", id:"ata", t:"Ataque ampliado com PEA formal emitido",
-            s:"A ocorrência decorre há "+dur(decorrido)+", e o PEA n.º "+peaDepois.n+" foi emitido a "+peaDepois.g+", depois do limiar dos 90 minutos, às "+gdhMais(ini,90)+".",
+            s:"A ocorrência decorre há "+dur(decorrido)+", e o PEA n.º "+peaDepois.n+" foi emitido a "+peaDepois.g+", depois do limiar dos 90 minutos, às "+gdhMais(ini,90)+"."
+              +(peaDepois.aprovacao&&peaDepois.aprovacao.por? " Aprovado por "+peaDepois.aprovacao.funcao+" "+peaDepois.aprovacao.por+" a "+peaDepois.aprovacao.g+"." : ""),
             f:"Ultrapassados os 90 minutos, é exigível um PEA formalmente elaborado e partilhado com todas as entidades presentes no TO.",
             a:"Manter o plano difundido e em vigor; a validade e as divergências são acompanhadas na verificação própria.",
             r:"DON n.º 2 / DECIR 2026, pontos 7.e.(4)(t) e 7.e.(5)(a)"});
@@ -5583,9 +5627,17 @@ Responde APENAS JSON válido, sem markdown:
    operacionais estabelecidas no PEA e transmitir as ordens de missão aos comandantes
    de setor, de frente e de área (al. c)). Recebe o plano; não o reescreve. */
 async function gerarOrdens(n, novas, anterior, pea){
-  const j = await llm(`És a célula de operações de um PCO da proteção civil portuguesa (SGO — Despacho n.º 4067/2024). A célula de planeamento elaborou o plano estratégico de ação n.º ${n} e o COS aprovou-o. Compete-te executar e implementar as decisões nele estabelecidas e transmitir as ordens de missão aos comandantes de setor, de frente e de área — art. 17.º, n.º 1, al. c). Não alteres o objetivo nem as prioridades do plano: converte-os em ordens executáveis, com atribuição e GDH limite.
+  /* A aprovação afirmada aqui tem agora de existir. Enquanto as ordens eram produzidas
+     no mesmo fôlego da proposta, este texto dizia ao modelo que o COS tinha aprovado um
+     plano que ninguém tinha visto — e o modelo trabalhava sobre essa ficção. A função só
+     é chamada a partir de `aprovarPEA`, e o nome e o GDH que aqui entram são os que
+     ficaram registados. */
+  const ap = (O.peas.find(x=>x.n === n) || {}).aprovacao || {};
+  const quem = ap.por? (ap.funcao||"COS")+" "+ap.por : "o COS";
+  const quando = ap.g? " em "+ap.g : "";
+  const j = await llm(`És a célula de operações de um PCO da proteção civil portuguesa (SGO — Despacho n.º 4067/2024). A célula de planeamento elaborou o plano estratégico de ação n.º ${n} e ${quem} aprovou-o e determinou-o${quando}. Compete-te executar e implementar as decisões nele estabelecidas e transmitir as ordens de missão aos comandantes de setor, de frente e de área — art. 17.º, n.º 1, al. c). Não alteres o objetivo nem as prioridades do plano: converte-os em ordens executáveis, com atribuição e GDH limite.
 
-PLANO ESTRATÉGICO DE AÇÃO APROVADO: ${JSON.stringify(pea)}
+PLANO ESTRATÉGICO DE AÇÃO APROVADO POR ${quem.toUpperCase()}${quando}: ${JSON.stringify(pea)}
 
 ${contexto(n,novas,anterior)}
 
@@ -5688,7 +5740,85 @@ function controloMissoes(ops){
   (ops.propostas||[]).forEach(x=>out.push({k:x.id||"P", tipo:"Proposta", texto:x.texto||"", estado:0}));
   return out;
 }
-function peaVigor(){ return O.peas.length? O.peas[O.peas.length-1] : null; }
+/* ================= os três estados de uma proposta de PEA =================
+   A elaboração é da célula de planeamento; a aprovação e a determinação são do COS —
+   art. 8.º, n.º 2, al. e), e art. 46.º. Até à r0061 a aplicação não modelava a diferença:
+   emitia a proposta e produzia as ordens de missão no instante seguinte, dizendo ao
+   modelo de linguagem que «o COS aprovou-o». Não tinha aprovado nada.
+
+   E há um facto operacional que o modelo tem de respeitar: **o COS aprova depois de ter
+   o PEA impresso à sua frente.** A aplicação não é o sítio onde a aprovação acontece; é
+   o sítio onde ela fica registada, com quem a determinou, a função e o GDH.
+
+     proposta  elaborada pela célula, ainda não saiu do ecrã
+     análise   entregue ao COS, em apreciação — o documento está impresso e com ele
+     aprovado  determinado pelo COS; só aqui nascem as ordens de missão
+
+   `peaVigor()` passa a ser o último **aprovado**: o que está em vigor é o que o COS
+   determinou, e não o último que a célula produziu. */
+const PEA_ESTADOS = ["proposta", "analise", "aprovado"];
+const PEA_ROT = { proposta:"Proposta", analise:"Em análise pelo COS", aprovado:"Aprovado pelo COS" };
+
+/** O estado de uma proposta, com omissão segura para o que vier de antes. */
+function estadoPEA(p){
+  const e = p && p.estado;
+  return PEA_ESTADOS.indexOf(e) >= 0? e : "proposta";
+}
+/** A última proposta produzida, esteja em que estado estiver. */
+function peaUltimo(){ return O.peas.length? O.peas[O.peas.length-1] : null; }
+/** O PEA em vigor: o último que o COS aprovou. */
+function peaVigor(){
+  for(let i=O.peas.length-1; i>=0; i--){ if(estadoPEA(O.peas[i]) === "aprovado") return O.peas[i]; }
+  return null;
+}
+
+/**
+ * Entrega a proposta ao COS. Passa de «proposta» a «em análise».
+ *
+ * Não é ato de comando: é o registo de que o documento saiu da célula e está com quem
+ * decide. Serve para se saber há quanto tempo espera.
+ */
+function entregarPEA(n, ts){
+  const p = O.peas.find(x=>x.n === n);
+  if(!p || estadoPEA(p) !== "proposta") return { ok:false, motivo:"Só uma proposta por entregar pode passar a análise." };
+  p.estado = "analise";
+  p.analise = { g: gdhDe(ts==null? agora() : ts) };
+  O.evolucao.push({g:p.analise.g, tipo:"posit",
+    txt:"Proposta de PEA n.º "+n+" entregue ao COS para apreciação."});
+  fita("PEA n.º "+n+" entregue ao COS ("+p.analise.g+")");
+  return { ok:true };
+}
+
+/**
+ * Regista a aprovação do COS, e só então produz as ordens de missão.
+ *
+ * A ordem importa e é doutrinária: a célula de operações transmite as ordens de missão
+ * **depois** de o plano estar aprovado — art. 17.º, n.º 1, al. c). Enquanto não houver
+ * aprovação registada, não há ordens nenhumas para transmitir.
+ *
+ * @param {number} n número da proposta
+ * @param {{por:string, funcao:string, nota?:string, g?:string}} quem
+ */
+function aprovarPEA(n, quem){
+  const p = O.peas.find(x=>x.n === n);
+  if(!p) return { ok:false, motivo:"Proposta não encontrada." };
+  if(estadoPEA(p) === "aprovado") return { ok:false, motivo:"O PEA n.º "+n+" já está aprovado." };
+  const por = String((quem&&quem.por)||"").trim();
+  if(!por) return { ok:false, motivo:"Indicar quem determina a aprovação." };
+  const g = String((quem&&quem.g)||"").trim() || gdhAgora();
+  if(!parseGDH(g)) return { ok:false, motivo:motivoGDH(g) };
+
+  p.estado = "aprovado";
+  p.aprovacao = { g, por, funcao:String((quem&&quem.funcao)||"COS").trim() || "COS",
+    nota:String((quem&&quem.nota)||"").trim() };
+  p.ultVerd = "vigor";
+  O.evolucao.push({g, tipo:"decisao",
+    txt:"PEA n.º "+n+" aprovado e determinado por "+p.aprovacao.funcao+" "+por
+      + (p.aprovacao.nota? " — "+p.aprovacao.nota : "")+"."});
+  fita("PEA n.º "+n+" aprovado por "+por+" ("+g+")");
+  return { ok:true, pea:p };
+}
+
 function divergencia(p){
   if(!p || !p.base) return null;
   const b = p.base, r = retratoOperacional(), it = [];
@@ -5886,6 +6016,62 @@ function pecas(p){
     ordens: {missoes:ops.missoes||[]}
   };
 }
+
+/**
+ * O cartão do estado da última proposta: onde ela está e o que falta para andar.
+ *
+ * Vive por cima da vista do PEA, porque é a pergunta que se faz primeiro ao olhar para
+ * um plano: já foi aprovado?
+ */
+function renderEstadoPEA(){
+  const C = $("pea-estado"); if(!C) return;
+  const p = peaUltimo();
+  if(!p){ C.innerHTML = ""; return; }
+  const est = estadoPEA(p);
+  const ap = p.aprovacao || {};
+
+  const corpo = est === "proposta"
+    ? `<p class="hint" style="margin:0 0 12px 0">A proposta está elaborada e por entregar. O COS aprecia o plano <b>a partir do documento impresso</b>: imprime a proposta, entrega-a, e regista aqui a entrega.</p>
+       <div class="row"><button class="btn btn-o" type="button" id="pe-entregar">Entregar ao COS para apreciação</button></div>`
+    : est === "analise"
+    ? `<p class="hint" style="margin:0 0 12px 0">Entregue ao COS a <b>${esc(p.analise.g||"—")}</b>. A aprovação é ato de comando e acontece fora desta aplicação: aqui regista-se quem a determinou, com que função e a que horas. <b>As ordens de missão são produzidas no momento em que a aprovação fica registada</b> — antes disso não há ordens para transmitir.</p>
+       <div class="grid g3">
+         <div><label for="pe-por">Quem determina</label><input id="pe-por" placeholder="posto, nome e apelido"></div>
+         <div><label for="pe-fn">Função</label><input id="pe-fn" placeholder="COS" value="COS"></div>
+         <div><label for="pe-g">GDH da aprovação</label><input id="pe-g" placeholder="vazio = agora"></div>
+       </div>
+       <div style="margin-top:12px"><label for="pe-nota">Nota para o processo</label><input id="pe-nota" placeholder="opcional — determinações do COS na aprovação"></div>
+       <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pe-aprovar">Registar aprovação do COS</button></div>`
+    : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
+         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`;
+
+  C.innerHTML = `<div class="card">
+    <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
+    <div class="pe-fx">${PEA_ESTADOS.map(k=>`<span class="pe-e ${k===est? "on":""}${PEA_ESTADOS.indexOf(k)<PEA_ESTADOS.indexOf(est)? " feita":""}">${esc(PEA_ROT[k])}</span>`).join("")}</div>
+    ${corpo}
+    <div class="msg" id="pe-msg" style="display:none"></div>
+  </div>`;
+
+  const bE = $("pe-entregar");
+  if(bE) bE.addEventListener("click", ()=>{
+    const r = entregarPEA(p.n);
+    if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
+    persistir(false); pintarTudo();
+  });
+  const bA = $("pe-aprovar");
+  if(bA) bA.addEventListener("click", async ()=>{
+    const q = gdhDoCampo("pe-g", "pe-msg");
+    if(!q.ok) return;
+    const r = aprovarPEA(p.n, { por:$("pe-por").value, funcao:$("pe-fn").value,
+      nota:$("pe-nota").value, g:($("pe-g").value.trim()? q.g : "") });
+    if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
+    bA.disabled = true; bA.innerHTML = '<span class="spin"></span> Ordens de missão…';
+    try{ await produzirOrdens(r.pea); }catch(e){}
+    await persistir(false);
+    pintarTudo();
+    aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas e em controlo de execução.");
+  });
+}
 /* ================= PLANEAMENTO · emissão do PEA (art. 46.º) ================= */
 async function emitirPEA(){
   const falta = pendencias().filter(x=>!x.ok&&x.ob);
@@ -5895,23 +6081,28 @@ async function emitirPEA(){
   const n = O.peas.length+1;
   const novas = evoDesdeUltimoPEA();
   const anterior = O.peas.length? O.peas[O.peas.length-1] : null;
-  let plano=null, ordens=null, modo=LLM.rot+" · planeamento elabora, operações transmite";
+  /* **Só a proposta.** As ordens de missão nascem na aprovação, não aqui: quem as
+     transmite é a célula de operações, e só depois de o COS aprovar o plano — art. 17.º,
+     n.º 1, al. c). Produzi-las agora era dar por adquirido um ato de comando que ainda
+     não aconteceu, e era isso que a aplicação fazia. */
+  let plano=null, modo=LLM.rot+" · elaboração da célula de planeamento";
   try{
     plano = await gerarPEA(n,novas,anterior);
-    btn.innerHTML='<span class="spin"></span> Ordens de missão…';
-    ordens = await gerarOrdens(n,novas,anterior,plano);
   }catch(e){
     modo="Determinística";
     aviso("msg-ia", LLM.modo==="manual"?"ok":"err",
       (LLM.modo==="manual"
-        ? "Sem acesso a modelo neste modo de arranque — PEA elaborado por regras determinísticas."
-        : "Modelo indisponível ("+String(e).slice(0,80)+") — emitida a versão determinística completa."));
-    const d = detCompleto(novas,anterior); plano = d.pea; ordens = d.ordens;
+        ? "Sem acesso a modelo neste modo de arranque — proposta elaborada por regras determinísticas."
+        : "Modelo indisponível ("+String(e).slice(0,80)+") — emitida a versão determinística da proposta."));
+    plano = detCompleto(novas,anterior).pea;
   }
   const mm = metricas();
   const pea = { n, g:gdhAgora(), ts:Date.now(), validoTs:horizonteValidade(mm),
-    base:baseVigor(), ctrl:controloMissoes(Object.assign({}, plano, ordens)), ultVerd:"vigor",
-    modo, json:{pea:plano, ordens}, met:mm,
+    base:baseVigor(), ctrl:[], ultVerd:"",
+    /* Nasce proposta. O controlo de missões fica vazio porque ainda não há missões:
+       chegam com a aprovação, junto com as ordens. */
+    estado:"proposta", analise:{g:""}, aprovacao:{g:"",por:"",funcao:"",nota:""},
+    modo, json:{pea:plano, ordens:null}, met:mm,
     serie:SERIE.map(p=>({d:p.d,h:p.h,t:p.t,rh:p.rh,wd:p.wd,ws:p.ws,pr:p.pr})),
     dados:JSON.parse(JSON.stringify(O.dados)), evoIdx:O.evolucao.length, meta:{...O.meta},
     don:(()=>{ try{ return verificacoesDON(); }catch(e){ return []; } })(),
@@ -5923,10 +6114,38 @@ async function emitirPEA(){
                catch(e){ return {funcoes:[],canais:{}}; } })(),
     nivelDECIR:(O.meta.nivel || nivelDECIR(parseGDH(O.meta.inicio) || new Date())) };
   O.peas.push(pea);
-  fita("PEA n.º "+n+" emitido ("+modo+"); válido até "+gdhDe(pea.validoTs)+", "+pea.ctrl.length+" missões em controlo");
+  O.evolucao.push({g:pea.g, tipo:"posit",
+    txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});
+  fita("Proposta de PEA n.º "+n+" elaborada ("+modo+"); válida até "+gdhDe(pea.validoTs)+", por aprovar");
   await persistir(false);
-  btn.disabled=false; btn.textContent="Emitir proposta de PEA";
+  btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);
+}
+
+/**
+ * Produz e anexa as ordens de missão de um PEA aprovado.
+ *
+ * Separada da emissão porque é outro ato, de outra célula, e depois de outra decisão. É
+ * aqui — e só aqui — que o contexto entregue ao modelo pode dizer que o plano está
+ * aprovado, porque a essa altura está mesmo, com nome e GDH.
+ */
+async function produzirOrdens(p){
+  const novas = evoDesdeUltimoPEA();
+  const anterior = O.peas.length>1? O.peas[O.peas.length-2] : null;
+  let ordens = null;
+  try{
+    ordens = await gerarOrdens(p.n, novas, anterior, p.json.pea);
+  }catch(e){
+    ordens = detCompleto(novas, anterior).ordens;
+    aviso("msg-ia", LLM.modo==="manual"?"ok":"err",
+      (LLM.modo==="manual"
+        ? "Sem acesso a modelo neste modo de arranque — ordens de missão por regras determinísticas."
+        : "Modelo indisponível ("+String(e).slice(0,80)+") — ordens de missão na versão determinística."));
+  }
+  p.json.ordens = ordens;
+  p.ctrl = controloMissoes(Object.assign({}, p.json.pea, ordens));
+  fita("Ordens de missão do PEA n.º "+p.n+" produzidas: "+p.ctrl.length+" em controlo");
+  return p.ctrl.length;
 }
 
 
@@ -8350,7 +8569,7 @@ function fecharTurno(){
 function pintarTudo(){
   try{ renderTurno(); }catch(e){}
   pintarArquivo(); try{ renderCheck(); }catch(e){}
-  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
+  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); renderEstadoPEA(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
   try{ pintarEvoCtx(); }catch(e){}
   try{ pintarGuia(); }catch(e){}
   try{ pintarAvisos(); }catch(e){}
@@ -8360,10 +8579,11 @@ function pintarTudo(){
     `<div class="evo-i tipo-${esc(e.tipo)}"><div class="g">${esc(e.g)}</div><div class="tp">${esc(e.tipo)}</div><div class="t">${esc(e.txt)}</div></div>`).join("")
     : '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>';
   $("prox-n").textContent = "n.º "+(O.peas.length+1);
-  $("pea-count").textContent = O.peas.length+" emitidos";
+  const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
+  $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(p.modo)}</div></div>`).join("")
-    : '<p class="hint">Nenhum PEA emitido nesta ocorrência.</p>';
+    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
+    : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
   try{ pintarEncerramento(); }catch(e){}
@@ -8404,7 +8624,7 @@ window.verPEA = function(n){
     <div class="pea-dash">
       <div class="pd-head">
         <span class="n">PEA ${p.n}</span>
-        <span class="t">Proposta — Ocorrência ${esc(p.meta.num)}</span>
+        <span class="t">${esc(PEA_ROT[estadoPEA(p)])} — Ocorrência ${esc(p.meta.num)}</span>
         <span class="meta">${esc(p.meta.local)} · PCO ${esc(p.meta.pco)} · Fase ${esc(p.meta.fase)} · ${esc((p.dados&&p.dados.area)||"—")} ha · Elaborado ${esc(p.g)} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"} · Validade proposta: ${jan? jan.fim+" (fecho da janela)":"a determinar"}${(p.meta.lat&&p.meta.lon)? " · "+fmtGMS(+p.meta.lat,true)+" "+fmtGMS(+p.meta.lon,false):""}</span>
       </div>
       <div class="pd-grid">
@@ -8481,14 +8701,16 @@ window.verPEA = function(n){
       </div>
     </div>
     <div class="paper">
-      <div class="p-tit">Proposta de Plano Estratégico de Ação n.º ${p.n}</div>
+      <div class="p-tit">${estadoPEA(p)==="aprovado"? "Plano Estratégico de Ação n.º "+p.n : "Proposta de Plano Estratégico de Ação n.º "+p.n}</div>
       <div class="p-sub">Ocorrência n.º ${esc(p.meta.num)} — Classificação 3102 (Incêndio Rural)</div>
       <div class="p-sub2">${esc(p.meta.local||"")}${p.meta.pco? " · "+esc(p.meta.pco):""}</div>
-      <div class="p-apr">Aprovado — O COS: ____________________</div>
+      <div class="p-apr">${estadoPEA(p)==="aprovado"
+        ? "Aprovado e determinado por "+esc((p.aprovacao.funcao||"COS")+" "+p.aprovacao.por)+" — "+esc(p.aprovacao.g)
+        : "Aprovado — O COS: ____________________"}</div>
       <div class="p-rodape"><span>PEA n.º ${p.n} — Ocorrência ${esc(p.meta.num||"")}${p.meta.local? " · "+esc(p.meta.local):""}</span><span>Este documento tem carácter: RESERVADO</span></div>
       <div class="hz">${"<i></i>".repeat(36)}</div>
       <table class="p-cab">
-        <tr><td class="l">Elaborado (GDH):</td><td>${esc(p.g)}</td><td class="l">Nome do COS:</td><td>____________________</td></tr>
+        <tr><td class="l">Elaborado (GDH):</td><td>${esc(p.g)}</td><td class="l">Nome do COS:</td><td>${estadoPEA(p)==="aprovado" && p.aprovacao.por? esc(p.aprovacao.por) : "____________________"}</td></tr>
         <tr><td class="l">Válido até (GDH):</td><td>${jan? jan.fim+" (proposta — fecho da janela; confirmação do COS)" : "____________________"}</td><td class="l">Substitui o PEA:</td><td>${p.n>1? "N.º "+(p.n-1):"N.º 0 (inicial)"}</td></tr>
       </table>
       <table class="p-pco"><tr>

@@ -113,7 +113,7 @@ function arrumarCasa(){
   /* o relógio do PEA em vigor e a vista do PEA emitido não são cartões: são caixas
      que se preenchem sozinhas. Seguem a célula que elabora o plano — art. 27.º. */
   const pl = document.getElementById("p-planeamento");
-  ["pea-vigor","pea-view"].forEach(id=>{ const n = document.getElementById(id); if(n && pl) pl.appendChild(n); });
+  ["pea-vigor","pea-estado","pea-view"].forEach(id=>{ const n = document.getElementById(id); if(n && pl) pl.appendChild(n); });
 
   /* os painéis antigos ficam vazios e saem da vista */
   Object.keys(ATALHOS_PANE).forEach(id=>{ const p = document.getElementById(id); if(p) p.classList.add("husk"); });

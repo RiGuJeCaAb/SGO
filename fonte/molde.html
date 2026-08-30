@@ -415,6 +415,12 @@
   #p-logistica .campo-chave{--c-chave:var(--cel-logistica)}
   #p-turno .campo-chave{--c-chave:var(--cel-turno)}
   .mono-sm{font-family:var(--mono);font-size:11.5px;color:var(--tx2);letter-spacing:.2px}
+  /* Os três estados de uma proposta, em fila: vê-se onde está e o que falta. */
+  .pe-fx{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .pe-e{font-family:var(--disp);font-weight:600;font-size:13px;color:var(--tx3);
+        border:1px solid var(--line);border-radius:7px;padding:6px 12px;background:var(--surf2)}
+  .pe-e.feita{color:var(--tx2)}
+  .pe-e.on{color:var(--tx);border-color:var(--laranja);background:color-mix(in srgb, var(--laranja) 12%, var(--surf));font-weight:700}
   /* Um GDH que não é data assinala-se enquanto se escreve: dizê-lo só ao carregar no
      botão é dizê-lo tarde, com o oficial já noutro campo. */
   input[aria-invalid="true"]{border-color:var(--fogo);box-shadow:var(--ranhura), 0 0 0 2px color-mix(in srgb, var(--fogo) 28%, transparent)}
@@ -1669,22 +1675,23 @@
   <!-- 5 PEA -->
   <section class="pane" id="p-pea">
     <div id="pea-vigor"></div>
+    <div id="pea-estado"></div>
     <div class="card">
       <h2>Verificação de conformidade dos dados <span class="tag">requisitos mínimos para elaboração do PEA — art. 46.º</span></h2>
       <div id="chk-list"></div>
     </div>
     <div class="card">
       <h2>Elaborar proposta de PEA <span class="tag">art. 46.º — aprovação e determinação pelo COS (art. 8.º, n.º 2, al. e))</span></h2>
-      <p class="hint" style="margin-bottom:10px">O próximo PEA será o <b id="prox-n" style="color:var(--laranja)">n.º 1</b>. Incorpora: identificação da ocorrência, evolução registada desde o PEA anterior, e a análise meteorológica atual. A redação usa o modelo Claude; sem ligação, é emitida a versão determinística.</p>
+      <p class="hint" style="margin-bottom:10px">O próximo PEA será o <b id="prox-n" style="color:var(--laranja)">n.º 1</b>. Incorpora: identificação da ocorrência, evolução registada desde o PEA anterior, e a análise meteorológica atual. A redação usa o modelo Claude; sem ligação, é emitida a versão determinística. <b>Elaborar produz a proposta, e mais nada</b>: as ordens de missão nascem quando a aprovação do COS ficar registada, porque é a célula de operações que as transmite e só depois de o plano estar aprovado.</p>
       <div class="msg" id="llm-modo" style="display:none"></div>
       <div class="row">
-        <button class="btn btn-o" id="b-gerar">Emitir proposta de PEA</button>
+        <button class="btn btn-o" id="b-gerar">Elaborar proposta de PEA</button>
       </div>
       <div class="msg" id="msg-ia"></div>
     </div>
     <div class="card">
-      <h2>Histórico de propostas de PEA <span class="tag" id="pea-count">0 emitidas</span></h2>
-      <div id="pea-list"><p class="hint">Nenhum PEA emitido nesta ocorrência.</p></div>
+      <h2>Histórico de propostas de PEA <span class="tag" id="pea-count">0 elaboradas</span></h2>
+      <div id="pea-list"><p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p></div>
     </div>
     <div id="pea-view"></div>
   </section>

@@ -404,7 +404,16 @@ test('o ataque ampliado fecha quando o PEA é emitido depois do limiar', semApli
   O.peas.length = 0;
   assert.equal(don().find((x) => x.id === 'ata').n, 'ob');
 
-  O.peas.push({ n: 1, g: janela.gdhAgora(), ts: janela.agora(), ctrl: [], base: {} });
+  // Uma proposta por aprovar não fecha a obrigação: fica em aviso, com o que falta.
+  O.peas.push({ n: 1, g: janela.gdhAgora(), ts: janela.agora(), ctrl: [], base: {},
+    estado: 'proposta', analise: { g: '' }, aprovacao: { g: '', por: '', funcao: '', nota: '' } });
+  const proposta = don().find((x) => x.id === 'ata');
+  assert.equal(proposta.n, 'av');
+  assert.match(proposta.t, /proposta de PEA por aprovar/i);
+
+  // Aprovada pelo COS, fecha.
+  O.peas[0].estado = 'aprovado';
+  O.peas[0].aprovacao = { g: janela.gdhAgora(), por: 'Cmdt Silva', funcao: 'COS', nota: '' };
   const depois = don().find((x) => x.id === 'ata');
   assert.equal(depois.n, 'ok');
   assert.match(depois.t, /Ataque ampliado com PEA formal emitido/);
@@ -415,7 +424,8 @@ test('um PEA emitido antes do limiar não fecha o ataque ampliado', semAplicacao
   const don = aArderHa(150);
   const O = avaliar(janela, 'O');
   O.peas.length = 0;
-  O.peas.push({ n: 1, g: '', ts: janela.agora() - 140 * 60000, ctrl: [], base: {} });
+  O.peas.push({ n: 1, g: '', ts: janela.agora() - 140 * 60000, ctrl: [], base: {},
+    estado: 'aprovado', analise: { g: '' }, aprovacao: { g: '', por: 'Cmdt Silva', funcao: 'COS', nota: '' } });
   assert.equal(don().find((x) => x.id === 'ata').n, 'ob',
     'um plano anterior ao limiar não é o PEA que o limiar exige');
 });
