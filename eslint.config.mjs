@@ -98,6 +98,13 @@ export default [
         console: 'readonly',
         globalThis: 'readonly',
         URL: 'readonly',
+        // Os temporizadores são globais em Node como no navegador, e os testes usam-nos
+        // para esperar pelo que é assíncrono de propósito — a gravação do diário, a
+        // resposta a um clique.
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
         // O código dentro de page.evaluate() corre no navegador, não em Node.
         window: 'readonly',
         document: 'readonly',

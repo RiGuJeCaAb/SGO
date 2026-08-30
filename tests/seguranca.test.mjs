@@ -171,3 +171,37 @@ test('todo o atributo com dados passa pelo escape', semAplicacao, () => {
   }
   assert.deepEqual(maus, [], 'atributos com dados sem escape');
 });
+
+test('nenhum dos venenos entra pelo mapa — nem no nome do ponto nem no serviço', semAplicacao, async () => {
+  /* Superfície nova da r0066: o nome de um ponto notável é campo livre, e vai parar a
+     um SVG e a uma lista. `VENENOS` sopra os três de uma vez, em vez de se escolher um. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4711'; O.meta.lat = '41,0975'; O.meta.lon = '-7,8103';
+  const d = 0.012, lat = 41.0975, lon = -7.8103;
+  janela.guardarPerimetro({ type: 'Polygon', coordinates: [[[lon - d, lat - d], [lon + d, lat - d],
+    [lon + d, lat + d], [lon - d, lat + d], [lon - d, lat - d]]] }, 'to.geojson');
+  janela.escreverForm();
+
+  VENENOS.forEach((v, i) => janela.marcarPonto('outro', 41.09 + i / 1000, -7.81, v));
+  janela.pintarPontos();
+  assert.deepEqual(intrusos('mapa-pontos'), [], 'o nome do ponto criou marcação na lista');
+
+  /* O SVG julga-se depois de o navegador o interpretar, e não por procura de texto: o
+     nome escapado contém a palavra «onfocus» como texto, e isso é inofensivo. O que não
+     pode existir é o **atributo**. */
+  janela.enquadrarMapa(640, 620);
+  const caixa = janela.document.createElement('div');
+  caixa.innerHTML = janela.camadaMapa();
+  assert.deepEqual(intrusos(caixa), [], 'o nome do ponto criou marcação no SVG do mapa');
+  VENENOS.forEach((v) => assert.ok(!janela.camadaMapa().includes(v),
+    'veneno intacto no SVG: ' + v.slice(0, 20)));
+
+  /* E a atribuição do serviço, que é texto de terceiros mostrado por baixo do mapa. */
+  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', VENENOS[2], 'https://t', 19);
+  const M = avaliar(janela, 'MAPA');
+  M.pronto = true; M.falhas = 0; M.recusados = 0;
+  janela.pintarEstadoMapa(1, 1);
+  assert.deepEqual(intrusos('mapa-info'), [], 'a atribuição criou marcação');
+  await janela.retirarCarta();
+});

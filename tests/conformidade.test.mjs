@@ -108,7 +108,7 @@ function reparticao(setores) {
   const O = avaliar(janela, 'O');
   const e = janela.estObj();
   e.n = setores.length;
-  e.setores = setores.map((s, i) => ({
+  e.setores = setores.map((s) => ({
     estado: s.estado, cmd: s.cmd || '', ct: '', adj: '', m: '', o: '',
     // Uma entrada por unidade: é essa a forma do estado desde a versão 10.
     tip: Array.from({ length: s.veiculos || 0 }, () =>
