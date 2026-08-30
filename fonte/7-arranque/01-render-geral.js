@@ -22,6 +22,7 @@ function pintarTudo(){
   try{ pintarEncerramento(); }catch(e){}
   try{ pintarProveniencia(); }catch(e){}
   try{ pintarMeteoIdade(); }catch(e){}
+  try{ pintarSessao(); }catch(e){}
 }
 
 function letrasV(txt){

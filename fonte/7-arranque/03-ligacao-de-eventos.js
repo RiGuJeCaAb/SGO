@@ -43,6 +43,7 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   try{ initCatalogo(); }catch(e){}
   try{ montarFrases(); }catch(e){}
   try{ ligarCamposGDH(); }catch(e){}
+  try{ await carregarSessao(); pintarSessao(); }catch(e){}
   if(ARMAZEM.modo==="sessao"){
     fita("AVISO: armazenamento indisponivel neste ambiente — o estado perde-se ao fechar a pagina");
     /* Aviso permanente, não uma mensagem que passa: aqui a exportação deixa de ser
@@ -204,4 +205,36 @@ function pintarElementos(termo){
   const bP = $("el-proc");
   if(bP) bP.addEventListener("input", ()=>pintarElementos(bP.value));
   carregarElementos().then(()=>pintarElementos(""));
+})();
+
+/* ---- quem regista: identidade declarada ---- */
+function pintarSessao(){
+  const sel = $("id-perfil");
+  if(sel && !sel.options.length){
+    sel.innerHTML = PERFIS.map(p=>'<option value="'+esc(p.k)+'">'+esc(p.n)+'</option>').join("");
+  }
+  if(sel) sel.value = SESSAO.perfil || PERFIL_DEF;
+  if($("id-posto")) $("id-posto").value = SESSAO.posto || "";
+  if($("id-nome")) $("id-nome").value = SESSAO.nome || "";
+  const e = $("id-estado");
+  if(e){
+    e.textContent = haSessao()
+      ? "Ao teclado desde " + SESSAO.desde + ": " + quemRegista() + " · " + perfilDe(SESSAO.perfil).n
+        + ". Os atos registados levam este nome."
+      : "Ninguém declarado ao teclado — os atos ficam sem nome atribuído, e a aplicação pede-o no momento.";
+    e.style.color = haSessao()? "" : "var(--terra)";
+  }
+  const bL = $("id-largar"); if(bL) bL.style.display = haSessao()? "" : "none";
+  const bA = $("id-assumir"); if(bA) bA.textContent = haSessao()? "Atualizar" : "Assumir o teclado";
+}
+(()=>{
+  const bA = $("id-assumir");
+  if(bA) bA.addEventListener("click", async ()=>{
+    const r = await assumirTeclado($("id-nome").value, $("id-posto").value, $("id-perfil").value);
+    if(!r.ok){ aviso("id-msg","err",r.motivo); return; }
+    aviso("id-msg","ok","Ao teclado: "+quemRegista()+" ("+perfilDe(SESSAO.perfil).n+").");
+    pintarSessao(); persistir(false);
+  });
+  const bL = $("id-largar");
+  if(bL) bL.addEventListener("click", async ()=>{ await largarTeclado(); pintarSessao(); persistir(false); });
 })();

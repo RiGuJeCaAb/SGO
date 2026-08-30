@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0060**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0064**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
-| Módulos em `fonte/` | 53, em sete zonas, mais o molde |
-| Testes | 349, todos a passar |
+| Entregas em `app/` | 64, das anteriores à convenção de nomes até à r0064 |
+| Módulos em `fonte/` | 54, em sete zonas, mais o molde |
+| Testes | 357, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,60 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Quem regista, na r0064 — a primeira etapa das contas
+
+A VCOC vai ter servidor, e as contas ficaram decididas: constroem-se de raiz. Esta revisão
+faz **o que é real sem servidor**, e escreve o contrato do que precisa dele.
+
+### Identidade declarada, com esse nome
+
+Sem serviço, qualquer palavra-passe verificada dentro de um ficheiro que se distribui é
+teatro: o segredo viaja com a aplicação e quem a abre lê-o. O que se pode fazer — e vale
+por si — é **atribuir** o registo: quem assume o teclado declara-se, e cada ato de comando
+passa a ficar com esse nome. A aprovação do PEA, o encerramento e a passagem de turno
+propõem sozinhos quem está ao teclado.
+
+A diferença entre um registo anónimo e um registo atribuído é grande; entre um atribuído e
+um autenticado também. **O cartão diz as duas coisas nas palavras certas** — «identidade
+declarada — não é autenticação», «nada é verificado», «o perfil escolhe-se em vez de se
+provar, o que previne o engano e não impede o abuso» — e diz que a autenticação chega com
+o serviço da VCOC.
+
+### Sete perfis, com efeito
+
+`PERFIS` declara o que cada um pode: observador, operador de registo, as três células, COS
+ou adjunto de comando, e administração. Um observador não escreve na evolução; um operador
+de registo não aprova um PEA; encerrar o registo é de quem comanda. A recusa diz o perfil
+declarado e onde se resolve.
+
+**Sem ninguém declarado, pode tudo.** Um PCO a meio de uma ocorrência não pára para se
+apresentar, e uma aplicação que se transforme em obstáculo por um campo vazio é uma
+aplicação que se contorna. O que a Estação faz nesse caso é pedir o nome no momento do ato.
+
+A sessão vive fora da ocorrência, como o catálogo de elementos: sobrevive-lhe, não entra no
+PEA e não viaja na exportação. Só viaja o nome que ficou dentro de um ato.
+
+### O contrato do serviço
+
+`docs/interop/CSREPCDouro_202608301515_ContratoServicoVCOC_v01_CLD.md`, para o servidor da
+VCOC ser construído em paralelo. O essencial: contas de pessoas e nunca de postos, segundo
+fator obrigatório para COS e administração, envio de **estados** com cadeia de resumos, e
+**recibo assinado pelo serviço** — que é o que dá não-repúdio, porque a chave não viaja com
+o ficheiro. E a regra que governa tudo: nenhuma operação da Estação bloqueia à espera do
+serviço.
+
+### A numeração, que já colidiu uma vez
+
+Existem duas r0058 diferentes, uma de cada linhagem. A montagem passa a ler
+`app/RESERVADAS.md`, onde se declaram os números que a outra linhagem já usou mas que ainda
+não chegaram aqui — hoje, a r0063. Esta revisão é a **r0064** por causa disso.
+
+### Verificação
+
+357 testes, oito novos sobre a identidade e os perfis. Confirmado em navegador: com o
+perfil de observador a evolução recusa e explica; mudando para COS, regista. Prova em
+`docs/qa/` (`qa0016`).
 
 ## A previsão que fica, na r0060
 

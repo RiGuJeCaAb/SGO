@@ -64,6 +64,7 @@ async function encerrarOcorrencia(por, nota, ts){
   if(!v.pode) return { ok:false, motivo:v.impedimentos.join(" ") };
   if(encerrada()) return { ok:false, motivo:"A ocorrência já está encerrada." };
 
+  if(!podeFazer("encerrar")) return { ok:false, motivo:motivoPerfil("encerrar") };
   const quem = String(por||"").trim();
   if(!quem) return { ok:false, motivo:"Indicar quem determina o encerramento." };
 
@@ -134,6 +135,11 @@ function aplicarFechoDeEscrita(){
 
 function pintarEncerramento(){
   const cx = $("enc-estado"); if(!cx) return;
+  /* Quem está ao teclado é quem se propõe: escreve-se sozinho, e corrige-se se for outro
+     a determinar. Um campo pré-preenchido com o nome certo poupa-o de ser preenchido com
+     um nome qualquer. */
+  const cPor = $("enc-por");
+  if(cPor && !cPor.value.trim() && !encerrada()) cPor.value = quemRegista();
   const E = encObj();
   if(encerrada()){
     cx.className = "msg ok"; cx.style.display = "block";

@@ -14,6 +14,7 @@ const ARRUMACAO = [
   { h:"Estado das integrações",                   cel:"comando",     r:"—" },
   { h:"Encerramento da ocorrência",               cel:"comando",     r:"art. 8.º, n.º 2; art. 2.º, al. c)" },
   { h:"Catálogo de elementos",                    cel:"comando",     r:"art. 14.º — quem ocupa as funções do PCO" },
+  { h:"Quem regista",                             cel:"comando",     r:"art. 2.º, al. c) — o registo é atribuído a quem o faz" },
   /* --- Planeamento: arts. 26.º a 30.º --- */
   { h:"Dados operacionais da ocorrência",         cel:"planeamento", r:"art. 28.º — análise da zona de intervenção" },
   { h:"Leitura do terreno",                       cel:"planeamento", r:"art. 28.º" },

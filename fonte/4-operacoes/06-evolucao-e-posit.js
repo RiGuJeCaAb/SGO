@@ -2,6 +2,7 @@
 function addEvo(){
   const t=$("e-txt").value.trim(); if(!t) return;
   if(encerrada()){ aviso("msg-occ","err","O registo está encerrado. Reabrir antes de acrescentar evolução."); return; }
+  if(!podeFazer("escrever")){ aviso("msg-occ","err",motivoPerfil("escrever")); return; }
   /* O GDH da evolução entrava como texto, sem ninguém o ler: «ABCD» era um GDH tão
      bom como outro qualquer, e a fita do tempo ficava com ele. */
   const q = gdhDoCampo("e-gdh", "msg-occ");

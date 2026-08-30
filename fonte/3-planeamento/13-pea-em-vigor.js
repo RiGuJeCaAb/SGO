@@ -100,6 +100,7 @@ function entregarPEA(n, ts){
 function aprovarPEA(n, quem){
   const p = O.peas.find(x=>x.n === n);
   if(!p) return { ok:false, motivo:"Proposta não encontrada." };
+  if(!podeFazer("aprovar")) return { ok:false, motivo:motivoPerfil("aprovar") };
   if(estadoPEA(p) === "aprovado") return { ok:false, motivo:"O PEA n.º "+n+" já está aprovado." };
   const por = String((quem&&quem.por)||"").trim();
   if(!por) return { ok:false, motivo:"Indicar quem determina a aprovação." };
@@ -334,7 +335,7 @@ function renderEstadoPEA(){
     : est === "analise"
     ? `<p class="hint" style="margin:0 0 12px 0">Entregue ao COS a <b>${esc(p.analise.g||"—")}</b>. A aprovação é ato de comando e acontece fora desta aplicação: aqui regista-se quem a determinou, com que função e a que horas. <b>As ordens de missão são produzidas no momento em que a aprovação fica registada</b> — antes disso não há ordens para transmitir.</p>
        <div class="grid g3">
-         <div><label for="pe-por">Quem determina</label><input id="pe-por" placeholder="posto, nome e apelido"></div>
+         <div><label for="pe-por">Quem determina</label><input id="pe-por" placeholder="posto, nome e apelido" value="${esc(quemRegista())}"></div>
          <div><label for="pe-fn">Função</label><input id="pe-fn" placeholder="COS" value="COS"></div>
          <div><label for="pe-g">GDH da aprovação</label><input id="pe-g" placeholder="vazio = agora"></div>
        </div>

@@ -1,5 +1,6 @@
 /* ================= PLANEAMENTO · emissão do PEA (art. 46.º) ================= */
 async function emitirPEA(){
+  if(!podeFazer("elaborar")){ aviso("msg-ia","err",motivoPerfil("elaborar")); return; }
   const falta = pendencias().filter(x=>!x.ok&&x.ob);
   if(falta.length){ renderCheck(); aviso("msg-ia","err","Em falta: "+falta.map(f=>f.c).join(", ")+". Usa os botões Preencher acima."); return; }
   lerForm();

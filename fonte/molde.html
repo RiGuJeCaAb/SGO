@@ -1086,8 +1086,24 @@
         <input type="file" id="b-importar" accept=".json,application/json" hidden>
       </div>
       <div class="mono-sm" id="occ-proveniencia" style="margin-top:10px"></div>
+
       <div class="msg" id="msg-occ"></div>
       <p class="hint" id="occ-armazem">O estado (identificação, evolução, meteograma e todos os PEA emitidos) fica guardado neste dispositivo e é reposto ao reabrir a app. A exportação para ficheiro não depende do dispositivo: serve de cópia de segurança e permite passar a ocorrência a outro posto.</p>
+    </div>
+    <div class="card">
+      <h2>Quem regista <span class="tag">identidade declarada — não é autenticação</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">Quem assume o teclado declara-se aqui, e cada ato de comando registado a partir daí fica com este nome: a aprovação do PEA, o encerramento, a passagem de turno. <b>Isto não é autenticação e não a substitui</b> — nada é verificado, e o perfil escolhe-se em vez de se provar, o que previne o engano e não impede o abuso. A autenticação com conta, palavra-passe e segundo fator chega com o serviço da VCOC.</p>
+      <div class="grid g3">
+        <div><label for="id-posto">Posto ou função</label><input id="id-posto" placeholder="ex.: Cmdt, Adj., 2.º Cmdt"></div>
+        <div><label for="id-nome">Nome</label><input id="id-nome" placeholder="nome e apelido"></div>
+        <div><label for="id-perfil">Perfil</label><select id="id-perfil"></select></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-o" type="button" id="id-assumir">Assumir o teclado</button>
+        <button class="btn btn-b" type="button" id="id-largar" style="display:none">Deixar o teclado</button>
+      </div>
+      <div class="mono-sm" id="id-estado" style="margin-top:10px"></div>
+      <div class="msg" id="id-msg" style="display:none"></div>
     </div>
     <div class="card">
       <h2>Arquivo de ocorrências <span class="tag">TO/PCO agrupados por pasta de localização</span></h2>

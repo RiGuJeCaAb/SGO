@@ -60,11 +60,30 @@ export function montar(molde, modulos, revisao, ficheiro) {
     .replaceAll('@FICHEIRO@', ficheiro);
 }
 
-/** Devolve o número da revisão seguinte, a partir do que já existe em `app/`. */
+/**
+ * O número mais alto reservado por outra linhagem, declarado em `app/RESERVADAS.md`.
+ *
+ * A numeração é uma só e é partilhada. Quando a outra linhagem já entregou revisões que
+ * ainda não chegaram aqui, os números delas não existem em `app/` — e a montagem
+ * reatribuía-os. Foi assim que passaram a existir duas r0058 diferentes.
+ */
+export async function revisaoReservada(pasta = 'app') {
+  let texto = '';
+  try { texto = await readFile(join(pasta, 'RESERVADAS.md'), 'utf8'); }
+  catch { return 0; }
+  const nums = [...texto.matchAll(/^\s{4,}r(\d{4})\b/gm)].map((m) => Number(m[1]));
+  return nums.length ? Math.max(...nums) : 0;
+}
+
+/**
+ * Devolve o número da revisão seguinte: o mais alto que existe em `app/` ou que está
+ * reservado por outra linhagem, mais um. Nunca reatribui um número que já saiu.
+ */
 export async function proximaRevisao(pasta = 'app') {
   const recente = await revisaoMaisRecente(pasta);
   const m = recente && /_r(\d{4})_/.exec(recente);
-  return m ? Number(m[1]) + 1 : 1;
+  const aqui = m ? Number(m[1]) : 0;
+  return Math.max(aqui, await revisaoReservada(pasta)) + 1;
 }
 
 /** Carimbo AAAAMMDDHHMM na hora de Lisboa, que é a do posto de comando. */
