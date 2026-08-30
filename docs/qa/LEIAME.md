@@ -28,6 +28,7 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0014_202608292000_PEAImpresso_CLD.pdf` | r0059 (paralela) | O mesmo, com uma folha por célula |
 | `CSREPCDouro_qa0015_..._AprovacaoCOS_CLD.png` | r0060 | Os três estados da proposta, com a aprovação registada e as ordens produzidas |
 | `CSREPCDouro_qa0016_..._QuemRegista_CLD.png` | r0064 | A identidade declarada e os perfis, com a recusa a explicar-se |
+| `CSREPCDouro_qa0017_..._CopiasEDiario_CLD.png` | r0064 | As cópias de recuperação e o diário do posto, com o IndexedDB a servir |
 
 Os `qa0011` e `qa0012` de 29 de agosto às 17h30 e 18h30 vieram da linhagem paralela e
 repetem números que esta linhagem já tinha usado nesse dia. Distinguem-se pelo carimbo de

@@ -1106,6 +1106,17 @@
       <div class="msg" id="id-msg" style="display:none"></div>
     </div>
     <div class="card">
+      <h2>Cópias de segurança e diário do posto <span class="tag">art. 2.º, al. c) — registo temporal explícito e completo</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">As cópias são instantâneos do estado, guardados de dez em dez minutos e ao repor. Servem para voltar atrás quando uma ocorrência se estraga a meio — <b>e não substituem a exportação para ficheiro</b>: uma cópia no mesmo disco não sobrevive ao disco. O diário é o registo do posto, fora da ocorrência: cada linha leva o resumo da anterior, e uma linha retirada pelo meio deixa a cadeia partida.</p>
+      <div class="row">
+        <button class="btn btn-b" type="button" id="cp-guardar">Guardar cópia agora</button>
+        <button class="btn btn-b" type="button" id="cp-conferir">Conferir a cadeia do diário</button>
+      </div>
+      <div class="mono-sm" id="cp-modo" style="margin-top:10px"></div>
+      <div id="cp-lista" style="margin-top:12px"></div>
+      <div class="msg" id="cp-msg" style="display:none"></div>
+    </div>
+    <div class="card">
       <h2>Arquivo de ocorrências <span class="tag">TO/PCO agrupados por pasta de localização</span></h2>
       <div id="arq-list"><p class="hint">Sem ocorrências guardadas neste dispositivo.</p></div>
     </div>

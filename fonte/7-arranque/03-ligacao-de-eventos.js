@@ -38,7 +38,12 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
 (async()=>{ try{ const r=await ARMAZEM.get("peaapp:tema"); if(r&&r.value) aplicarTema(r.value); else $("b-tema").textContent="Claro"; }catch(e){ $("b-tema").textContent="Claro"; } })();
 
 /* arranque: app abre vazia; índice de arquivo é carregado para consulta */
-(async()=>{ try{ await carregarIndex(); }catch(e){} 
+(async()=>{
+  /* Antes de ler o que quer que seja: passar ao IndexedDB, se este navegador o der, e
+     trazer com ele o que estava guardado na camada anterior. */
+  try{ await prepararArmazem(); }catch(e){}
+  try{ await diarioRetomar(); }catch(e){}
+  try{ await carregarIndex(); }catch(e){} 
   try{ await carregarCanais(); }catch(e){}
   try{ initCatalogo(); }catch(e){}
   try{ montarFrases(); }catch(e){}
@@ -237,4 +242,47 @@ function pintarSessao(){
   });
   const bL = $("id-largar");
   if(bL) bL.addEventListener("click", async ()=>{ await largarTeclado(); pintarSessao(); persistir(false); });
+})();
+
+/* ---- cópias de segurança e diário ---- */
+async function pintarCopias(){
+  const el = $("cp-lista"); if(!el) return;
+  const modo = $("cp-modo");
+  if(modo){
+    modo.textContent = ARMAZEM.modo === "indexeddb"
+      ? "Armazenamento: IndexedDB — escrita do estado e do arquivo numa só transação, e espaço para o diário e para as cópias."
+      : "Armazenamento: " + (ARMAZEM.modo === "claude"? "do ambiente" : ARMAZEM.modo === "browser"? "localStorage" : "memória da sessão")
+        + " — sem transação conjunta; o diário fica limitado às últimas " + DIARIO_MAX_LEVE
+        + " linhas e guarda-se uma cópia apenas. Exportar para ficheiro com regularidade é aqui ainda mais importante.";
+    modo.style.color = ARMAZEM.modo === "indexeddb"? "" : "var(--terra)";
+  }
+  const L = await copiasListar();
+  el.innerHTML = L.length
+    ? L.map(c=>`<div class="arq-i"><div><b>${esc(c.g)}</b> — ${esc(c.num||"sem número")}${c.local? " · "+esc(c.local):""}
+        <p>${esc(c.motivo)} · carimbo ${esc(resumoCurto(c.sha))}</p></div>
+        <div class="acts"><button class="btn btn-b" type="button" data-cp-repor="${esc(c.id)}">Repor</button></div></div>`).join("")
+    : '<p class="hint">Sem cópias guardadas. A primeira é guardada assim que a ocorrência tiver número.</p>';
+  el.querySelectorAll("[data-cp-repor]").forEach(b=>b.addEventListener("click", async ()=>{
+    const c = L.find(x=>x.id === b.getAttribute("data-cp-repor"));
+    if(!window.confirm("Repor a cópia de "+(c? c.g : "")+"?\n\nO estado atual é guardado como cópia antes de ser substituído.")) return;
+    const r = await copiaRepor(b.getAttribute("data-cp-repor"));
+    aviso("cp-msg", r.ok? "ok":"err", r.ok? "Cópia de "+r.copia.g+" reposta. O estado anterior ficou guardado." : r.motivo);
+    pintarCopias();
+  }));
+}
+(()=>{
+  const bG = $("cp-guardar");
+  if(bG) bG.addEventListener("click", async ()=>{
+    const c = await copiaGuardar("guardada à mão");
+    aviso("cp-msg", c? "ok":"err", c? "Cópia guardada ("+resumoCurto(c.sha)+")." : "Não foi possível guardar a cópia.");
+    pintarCopias();
+  });
+  const bC = $("cp-conferir");
+  if(bC) bC.addEventListener("click", async ()=>{
+    const r = await diarioConferir();
+    aviso("cp-msg", r.ok? "ok":"err", r.ok
+      ? "Diário com "+r.linhas+" linhas; a cadeia confere de ponta a ponta."
+      : "ATENÇÃO: a cadeia do diário parte "+(r.partidas.length===1? "na linha ":"nas linhas ")+r.partidas.join(", ")
+        +". O registo do posto foi alterado ou está corrompido.");
+  });
 })();

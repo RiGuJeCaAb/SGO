@@ -11,6 +11,7 @@ const ARRUMACAO = [
   { h:"Avisos ativos",                            cel:"comando",     r:"art. 8.º, n.º 2 — determinações do COS" },
   { h:"Conformidade verificada",                  cel:"comando",     r:"prova documental da ocorrência" },
   { h:"Arquivo de ocorrências",                   cel:"comando",     r:"—" },
+  { h:"Cópias de segurança e diário do posto",     cel:"comando",     r:"art. 2.º, al. c) — registo temporal explícito e completo" },
   { h:"Estado das integrações",                   cel:"comando",     r:"—" },
   { h:"Encerramento da ocorrência",               cel:"comando",     r:"art. 8.º, n.º 2; art. 2.º, al. c)" },
   { h:"Catálogo de elementos",                    cel:"comando",     r:"art. 14.º — quem ocupa as funções do PCO" },

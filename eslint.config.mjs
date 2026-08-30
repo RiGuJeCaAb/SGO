@@ -25,6 +25,7 @@ const navegador = {
   AbortController: 'readonly',
   localStorage: 'readonly',
   sessionStorage: 'readonly',
+  indexedDB: 'readonly',
   setTimeout: 'readonly',
   clearTimeout: 'readonly',
   setInterval: 'readonly',

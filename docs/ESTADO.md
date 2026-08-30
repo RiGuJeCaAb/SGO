@@ -14,8 +14,8 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 | | |
 |---|---|
 | Entregas em `app/` | 64, das anteriores à convenção de nomes até à r0064 |
-| Módulos em `fonte/` | 54, em sete zonas, mais o molde |
-| Testes | 357, todos a passar |
+| Módulos em `fonte/` | 55, em sete zonas, mais o molde |
+| Testes | 364, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,62 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Não perder a ocorrência, na r0064 — a outra metade da etapa 1
+
+O `localStorage` escrevia o estado numa chave e o arquivo noutra, sem transação conjunta,
+com cinco megabytes de teto e sem sítio para mais nada. A pergunta era se o IndexedDB
+serve em `file://`, que é como esta aplicação corre. **Medi antes de decidir: serve** — o
+Chromium abre e escreve. Onde não abrir, fica a camada de trás e nada muda.
+
+### A base entra depois do arranque, não durante
+
+Abrir uma base é assíncrono e o `ARMAZEM` constrói-se no arranque. Fica como está, e
+`prepararArmazem()` substitui a camada logo a seguir — **trazendo com ele o que estava
+guardado**. Sem essa migração, quem abrisse a aplicação depois desta revisão encontrava o
+arquivo vazio, com as ocorrências todas na camada anterior. Confirmado em navegador com
+uma ocorrência deixada no `localStorage`: aparece do outro lado.
+
+### O diário do posto
+
+A fita do tempo vive dentro da ocorrência e desaparece com ela. O diário fica fora: cada
+linha leva o resumo da anterior, e uma linha retirada pelo meio deixa a cadeia partida —
+com o número da linha onde partiu. Não impede quem tem acesso ao equipamento de reescrever
+o diário inteiro, e isso está escrito no código: para isso é preciso o serviço.
+
+**Três versões até estar certo, e as duas primeiras perdiam linhas.** A primeira numerava
+a partir de um contador em memória e escrevia com `put`: dois separadores abertos, dois
+processos no mesmo número, e o segundo apagava o primeiro. A segunda usou `add` com
+repetição em caso de choque — e ainda assim **perdeu três linhas em trinta** na prova com
+duas abas em simultâneo. A terceira lê a cauda **dentro da própria transação**: as
+transações do IndexedDB são serializadas pelo navegador, e isso dá o número e o elo certos
+sem contadores, sem fechaduras e sem repetições. Trinta em trinta, cadeia íntegra.
+
+Um registo que existe para não perder linhas não pode perder três em trinta — e nenhuma
+das duas primeiras versões teria falhado num teste em jsdom, porque lá não há IndexedDB.
+
+### As cópias de recuperação
+
+Instantâneos do estado, de dez em dez minutos e sempre antes de repor — **recuperar não
+pode ser destrutivo**: quem repõe a cópia errada tem de poder voltar. Ficam as vinte mais
+recentes. O cartão diz também, quando é o caso, que sem IndexedDB só se guarda uma e o
+diário fica limitado às últimas duzentas linhas: menos é melhor do que nada, desde que se
+saiba qual dos dois se tem.
+
+E fica escrito onde se lê: **não substituem a exportação para ficheiro.** Uma cópia no
+mesmo disco não sobrevive ao disco.
+
+### E a gravação passa a ser uma só
+
+`persistir()` escreve o estado, a última ocorrência e o índice em **`setVarias`**, que é
+uma transação onde há transação. `ARMAZEM.atomico` diz qual dos dois casos é, e o cartão
+mostra-o.
+
+### Verificação
+
+364 testes, sete novos — e correm no caminho do recuo, que é o que o jsdom tem, o que é
+útil por si. O caminho do IndexedDB verifica-se em navegador: migração, cadeia do diário,
+duas abas em simultâneo e reposição de cópia. Prova em `docs/qa/` (`qa0017`).
 
 ## Quem regista, na r0064 — a primeira etapa das contas
 

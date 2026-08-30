@@ -1106,6 +1106,17 @@
       <div class="msg" id="id-msg" style="display:none"></div>
     </div>
     <div class="card">
+      <h2>Cópias de segurança e diário do posto <span class="tag">art. 2.º, al. c) — registo temporal explícito e completo</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">As cópias são instantâneos do estado, guardados de dez em dez minutos e ao repor. Servem para voltar atrás quando uma ocorrência se estraga a meio — <b>e não substituem a exportação para ficheiro</b>: uma cópia no mesmo disco não sobrevive ao disco. O diário é o registo do posto, fora da ocorrência: cada linha leva o resumo da anterior, e uma linha retirada pelo meio deixa a cadeia partida.</p>
+      <div class="row">
+        <button class="btn btn-b" type="button" id="cp-guardar">Guardar cópia agora</button>
+        <button class="btn btn-b" type="button" id="cp-conferir">Conferir a cadeia do diário</button>
+      </div>
+      <div class="mono-sm" id="cp-modo" style="margin-top:10px"></div>
+      <div id="cp-lista" style="margin-top:12px"></div>
+      <div class="msg" id="cp-msg" style="display:none"></div>
+    </div>
+    <div class="card">
       <h2>Arquivo de ocorrências <span class="tag">TO/PCO agrupados por pasta de localização</span></h2>
       <div id="arq-list"><p class="hint">Sem ocorrências guardadas neste dispositivo.</p></div>
     </div>
@@ -1793,38 +1804,159 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0064</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0064_202608301510_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0064</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0064_202608302058_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0064", FICHEIRO_APP = "CSREPCDouro_r0064_202608301510_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0064", FICHEIRO_APP = "CSREPCDouro_r0064_202608302058_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
-/* ================= NÚCLEO · armazenamento ================= */
+/* ================= NÚCLEO · armazenamento =================
+   Três camadas, por esta ordem: o armazenamento do ambiente Claude, o do navegador, e a
+   memória da sessão. A quarta — o IndexedDB — não pode entrar aqui porque abrir uma base
+   é assíncrono e isto corre no arranque; entra logo a seguir, em `prepararArmazem()`, e
+   substitui a camada escolhida sem que ninguém tenha de saber.
+
+   O que o IndexedDB traz e o `localStorage` não tem: **escrita de várias chaves numa só
+   transação** — hoje o estado vai numa chave e o índice noutra, e uma falha entre as duas
+   deixa o arquivo a apontar para uma ocorrência que não ficou gravada —, espaço com outra
+   ordem de grandeza, e lugar para o diário e para as cópias de segurança.
+
+   Verificado: o IndexedDB abre e escreve em `file://` no Chromium. Onde não abrir — e há
+   navegadores onde não abre — fica a camada de trás, e tudo continua a funcionar. */
+
+/** Escreve várias chaves uma a uma. É o recuo de quem não tem transação. */
+async function _setSequencial(escrever, pares){
+  for(const [k,v] of pares) await escrever(k, v);
+  return { atomico:false };
+}
+
 const ARMAZEM = (()=>{
   if (typeof window!=="undefined" && window.storage && typeof window.storage.set==="function"){
-    return { modo:"claude",
+    const set = (k,v)=>window.storage.set(k,v);
+    return { modo:"claude", atomico:false,
       get:k=>window.storage.get(k),
-      set:(k,v)=>window.storage.set(k,v),
+      set,
+      setVarias:pares=>_setSequencial(set, pares),
       del:k=>window.storage.delete(k) };
   }
   try{
     localStorage.setItem("__t","1"); localStorage.removeItem("__t");
-    return { modo:"browser",
+    const set = async (k,v)=>{ localStorage.setItem(k,v); return {key:k,value:v}; };
+    return { modo:"browser", atomico:false,
       get:async k=>{ const v=localStorage.getItem(k); if(v===null) throw "sem chave"; return {key:k,value:v}; },
-      set:async (k,v)=>{ localStorage.setItem(k,v); return {key:k,value:v}; },
+      set,
+      setVarias:pares=>_setSequencial(set, pares),
       del:async k=>{ localStorage.removeItem(k); return {key:k,deleted:true}; } };
   }catch(e){}
   const M={};
-  return { modo:"sessao",
+  const set = async (k,v)=>{ M[k]=v; return {key:k,value:v}; };
+  return { modo:"sessao", atomico:false,
     get:async k=>{ if(!(k in M)) throw "sem chave"; return {key:k,value:M[k]}; },
-    set:async (k,v)=>{ M[k]=v; return {key:k,value:v}; },
+    set,
+    setVarias:pares=>_setSequencial(set, pares),
     del:async k=>{ delete M[k]; return {key:k,deleted:true}; } };
 })();
 
+/* A base do IndexedDB, quando existir. `chaves` guarda o que o ARMAZEM guardava;
+   `diario` é o registo append-only do posto; `copias` são os instantâneos de recuperação. */
+const IDB_NOME = "peaapp", IDB_VERSAO = 1;
+let IDB = null;
+
+/** Abre a base, ou devolve `null` se este navegador não a der em `file://`. */
+function abrirIDB(){
+  return new Promise(res=>{
+    if(typeof indexedDB === "undefined") return res(null);
+    let p;
+    try{ p = indexedDB.open(IDB_NOME, IDB_VERSAO); }catch(e){ return res(null); }
+    p.onupgradeneeded = ()=>{
+      const db = p.result;
+      if(!db.objectStoreNames.contains("chaves")) db.createObjectStore("chaves");
+      if(!db.objectStoreNames.contains("diario")) db.createObjectStore("diario", {keyPath:"n"});
+      if(!db.objectStoreNames.contains("copias")) db.createObjectStore("copias", {keyPath:"id"});
+    };
+    p.onsuccess = ()=>res(p.result);
+    p.onerror = ()=>res(null);
+    p.onblocked = ()=>res(null);
+    setTimeout(()=>res(null), 3000);   /* nem sempre há erro: às vezes não há resposta */
+  });
+}
+
+/**
+ * Uma operação sobre uma loja, embrulhada em promessa.
+ *
+ * O valor **colhe-se no `onsuccess` do pedido**, e não do objeto devolvido. À primeira
+ * escrevi `r.result !== undefined? r.result : r`, e isso devolvia o próprio `IDBRequest`
+ * sempre que a chave não existia: o `get` deixava de lançar «sem chave» e passava a
+ * devolver `[object IDBRequest]`, que ninguém consegue interpretar. Foi o navegador que
+ * o mostrou — em jsdom não há IndexedDB, e este caminho não corre lá.
+ */
+function _idb(loja, modo, fn){
+  return new Promise((res, rej)=>{
+    if(!IDB) return rej("sem base");
+    let tx;
+    try{ tx = IDB.transaction(loja, modo); }catch(e){ return rej(e); }
+    let valor;
+    const pedido = fn(tx.objectStore(loja), tx);
+    if(pedido && typeof pedido === "object" && "onsuccess" in pedido){
+      pedido.onsuccess = ()=>{ valor = pedido.result; };
+    }
+    tx.oncomplete = ()=>res(valor);
+    tx.onerror = ()=>rej(tx.error);
+    tx.onabort = ()=>rej(tx.error || "transação abortada");
+  });
+}
+
+/**
+ * Passa o armazenamento para o IndexedDB, se este navegador o der.
+ *
+ * O que já estava guardado vem com ele: sem isto, quem abrisse a aplicação depois desta
+ * revisão encontrava o arquivo vazio, com as ocorrências todas na camada anterior.
+ * Falhar aqui não é falhar: mantém-se o que estava, e a aplicação nem dá por isso.
+ *
+ * @returns {Promise<boolean>} se o IndexedDB ficou a servir
+ */
+async function prepararArmazem(){
+  if(ARMAZEM.modo === "claude") return false;   /* o ambiente Claude tem o seu, e é melhor */
+  IDB = await abrirIDB();
+  if(!IDB) return false;
+
+  const anterior = { get:ARMAZEM.get, set:ARMAZEM.set, del:ARMAZEM.del, modo:ARMAZEM.modo };
+  ARMAZEM.modo = "indexeddb";
+  ARMAZEM.atomico = true;
+  ARMAZEM.get = async k=>{
+    const v = await _idb("chaves", "readonly", st=>st.get(k));
+    if(v === undefined || v === null) throw "sem chave";
+    return { key:k, value:String(v) };
+  };
+  ARMAZEM.set = async (k,v)=>{ await _idb("chaves","readwrite", st=>st.put(String(v), k)); return {key:k,value:v}; };
+  ARMAZEM.setVarias = async pares=>{
+    await _idb("chaves","readwrite", st=>{ pares.forEach(([k,v])=>st.put(String(v), k)); });
+    return { atomico:true };
+  };
+  ARMAZEM.del = async k=>{ await _idb("chaves","readwrite", st=>st.delete(k)); return {key:k,deleted:true}; };
+
+  /* Trazer o que estava na camada anterior. Só o que ainda não existir aqui: uma
+     segunda passagem não pode desfazer o trabalho de hoje com a cópia de ontem. */
+  if(anterior.modo === "browser"){
+    try{
+      const chaves = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(k && k.indexOf("peaapp:") === 0) chaves.push(k);
+      }
+      for(const k of chaves){
+        let ja = true;
+        try{ await ARMAZEM.get(k); }catch(e){ ja = false; }
+        if(!ja) await ARMAZEM.set(k, localStorage.getItem(k));
+      }
+    }catch(e){}
+  }
+  return true;
+}
 /* ================= NÚCLEO · estado ================= */
 /* ================= NÚCLEO · versão do estado gravado ================= */
 /* Uma ocorrência gravada é prova documental de decisões de comando: não se abre à
@@ -2177,15 +2309,20 @@ function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
 async function persistir(nota){
   lerForm();
   try{
-    await ARMAZEM.set(chave(), JSON.stringify(O));
-    await ARMAZEM.set("peaapp:ultima", O.meta.num);
+    /* Numa transação só. O estado ia numa chave e o índice noutra: uma falha entre as
+       duas deixava o arquivo a apontar para uma ocorrência que não ficou gravada, ou uma
+       ocorrência gravada que o arquivo não conhecia. Onde não houver transação, escreve-se
+       na mesma ordem de sempre — e `ARMAZEM.atomico` diz qual dos dois casos é. */
+    const pares = [[chave(), JSON.stringify(O)], ["peaapp:ultima", O.meta.num]];
     if(O.meta.num){
       INDEX = INDEX.filter(x=>x.num!==O.meta.num);
       INDEX.push({num:O.meta.num, local:O.meta.local, pasta:O.meta.pasta||"Sem pasta", pco:O.meta.pco, g:gdhAgora(), peas:O.peas.length});
-      await ARMAZEM.set("peaapp:index", JSON.stringify(INDEX));
+      pares.push(["peaapp:index", JSON.stringify(INDEX)]);
     }
+    await ARMAZEM.setVarias(pares);
     if(nota) aviso("msg-occ","ok","Ocorrência "+O.meta.num+" guardada.");
   }catch(e){ if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+")."); }
+  try{ await copiaSeDevida(); }catch(e){}
   pintarTudo();
 }
 async function carregar(num){
@@ -2237,7 +2374,12 @@ function escreverForm(){
   $("d-anexos-info").textContent = d.anexos.length? "Anexos: "+d.anexos.join(", ") : "Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia).";
 }
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
-function fita(evento){ O.fita.push({g:gdhAgora(), e:evento}); }
+/* A fita vive dentro da ocorrência; o diário do posto vive fora dela e sobrevive-lhe.
+   Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
+function fita(evento){
+  O.fita.push({g:gdhAgora(), e:evento});
+  try{ diarioAcrescentar(evento); }catch(e){}
+}
 
 /* A proveniência de uma ocorrência que entrou por ficheiro. Fica à vista enquanto a
    ocorrência existir — ao contrário do aviso, que se apaga ao fim de cinco segundos. */
@@ -3127,6 +3269,7 @@ const ARRUMACAO = [
   { h:"Avisos ativos",                            cel:"comando",     r:"art. 8.º, n.º 2 — determinações do COS" },
   { h:"Conformidade verificada",                  cel:"comando",     r:"prova documental da ocorrência" },
   { h:"Arquivo de ocorrências",                   cel:"comando",     r:"—" },
+  { h:"Cópias de segurança e diário do posto",     cel:"comando",     r:"art. 2.º, al. c) — registo temporal explícito e completo" },
   { h:"Estado das integrações",                   cel:"comando",     r:"—" },
   { h:"Encerramento da ocorrência",               cel:"comando",     r:"art. 8.º, n.º 2; art. 2.º, al. c)" },
   { h:"Catálogo de elementos",                    cel:"comando",     r:"art. 14.º — quem ocupa as funções do PCO" },
@@ -3812,6 +3955,206 @@ async function largarTeclado(){
   if(haSessao()) fita("Deixou o teclado: "+quemRegista());
   SESSAO = novaSessao();
   await gravarSessao();
+}
+/* ================= NÚCLEO · diário do posto e cópias de recuperação =================
+   Duas coisas diferentes, que se resolvem no mesmo sítio.
+
+   **O diário** é o registo append-only do posto de comando, e não da ocorrência. A fita
+   do tempo vive dentro da ocorrência e desaparece com ela — se alguém a apagar, ou se o
+   estado se corromper, não fica nada a dizer que existiu. O diário fica: cada linha leva
+   o resumo da anterior, e por isso uma linha retirada pelo meio deixa a cadeia partida e
+   vê-se. Não impede quem tem acesso ao equipamento de reescrever o diário inteiro — isso
+   exige o serviço, e está escrito no contrato —, mas apanha o que acontece a sério: a
+   corrupção, o apagamento parcial, a cópia mal feita.
+
+   **As cópias** são instantâneos do estado, guardados de tempos a tempos. Servem para o
+   caso que mais mete medo num PCO: a ocorrência que se estraga a meio e não há por onde
+   voltar atrás. São locais e não substituem a exportação para ficheiro — um instantâneo
+   no mesmo disco não sobrevive ao disco.
+
+   Ambos preferem o IndexedDB. Sem ele, ficam numa chave do armazenamento e limitados aos
+   últimos registos, porque o `localStorage` não tem espaço para mais. Menos é melhor do
+   que nada, desde que se diga qual dos dois se tem. */
+
+const DIARIO_CHAVE = "peaapp:diario", COPIAS_CHAVE = "peaapp:copias";
+/** Quantos ficam quando não há IndexedDB. */
+const DIARIO_MAX_LEVE = 200, COPIAS_MAX = 20;
+/** Minutos entre cópias automáticas. */
+const COPIA_CADA_MIN = 10;
+
+let DIARIO_N = 0, DIARIO_ULT = "";
+let COPIA_ULT_TS = 0;
+
+/** O resumo de uma linha do diário, que encadeia na anterior. */
+function selarLinha(l){
+  return sha256([l.n, l.g, l.num, l.quem, l.evento, l.anterior].join(""));
+}
+
+/**
+ * Acrescenta uma linha ao diário. Nunca lança: um diário que parte o registo que devia
+ * proteger é pior do que não haver diário.
+ */
+/**
+ * Acrescenta uma linha no IndexedDB, **lendo a cauda dentro da própria transação**.
+ *
+ * A primeira versão numerava a partir de um contador em memória e escrevia com `put`:
+ * com dois separadores abertos, dois processos chegavam ao mesmo número e o segundo
+ * apagava o primeiro. A segunda usava `add` e repetia em caso de choque — e ainda assim
+ * perdeu três linhas em trinta, na prova com duas abas em simultâneo. Um registo que
+ * existe para não perder linhas não pode perder três em trinta.
+ *
+ * As transações do IndexedDB são serializadas pelo navegador. Ler o último registo e
+ * escrever o seguinte **dentro da mesma transação** dá o número e o elo certos sem
+ * contadores, sem fechaduras e sem repetições.
+ */
+function diarioAdicionarIDB(base){
+  return new Promise((res, rej)=>{
+    let tx;
+    try{ tx = IDB.transaction("diario","readwrite"); }catch(e){ return rej(e); }
+    const st = tx.objectStore("diario");
+    const cur = st.openCursor(null, "prev");
+    let linha = null;
+    cur.onsuccess = ()=>{
+      const c = cur.result, u = c? c.value : null;
+      linha = Object.assign({}, base, { n:(u? u.n : 0)+1, anterior:(u? u.sha : "") });
+      linha.sha = selarLinha(linha);
+      st.add(linha);
+    };
+    tx.oncomplete = ()=>res(linha);
+    tx.onerror = ()=>rej(tx.error);
+    tx.onabort = ()=>rej(tx.error || "transação abortada");
+  });
+}
+
+/**
+ * Acrescenta uma linha ao diário. Nunca lança: um diário que parte o registo que devia
+ * proteger é pior do que não haver diário.
+ */
+async function diarioAcrescentar(evento){
+  const base = { g: gdhAgora(), ts: Date.now(),
+    num: (O && O.meta && O.meta.num) || "", quem: quemRegista(), evento: String(evento||"") };
+  try{
+    if(IDB){
+      const l = await diarioAdicionarIDB(base);
+      DIARIO_N = l.n; DIARIO_ULT = l.sha;
+      return l;
+    }
+    /* Sem IndexedDB não há transação onde ler a cauda: fica o contador em memória, que
+       chega para um separador só — que é o que este caminho consegue prometer. */
+    const l = Object.assign({}, base, { n: ++DIARIO_N, anterior: DIARIO_ULT });
+    l.sha = selarLinha(l);
+    const L = await diarioLer();
+    L.push(l);
+    await ARMAZEM.set(DIARIO_CHAVE, JSON.stringify(L.slice(-DIARIO_MAX_LEVE)));
+    DIARIO_ULT = l.sha;
+    return l;
+  }catch(e){ return null; }
+}
+
+/** Lê o diário inteiro, por ordem. */
+async function diarioLer(){
+  try{
+    if(IDB) return (await _idb("diario","readonly", st=>st.getAll())) || [];
+    const r = await ARMAZEM.get(DIARIO_CHAVE);
+    const L = JSON.parse(r.value);
+    return Array.isArray(L)? L : [];
+  }catch(e){ return []; }
+}
+
+/** Retoma a numeração e o último elo, para que a cadeia continue entre sessões. */
+async function diarioRetomar(){
+  const L = await diarioLer();
+  const u = L[L.length-1];
+  DIARIO_N = u? u.n : 0;
+  DIARIO_ULT = u? u.sha : "";
+  return L.length;
+}
+
+/**
+ * Confere a cadeia do diário.
+ *
+ * @returns {Promise<{linhas:number, ok:boolean, partidas:number[]}>} onde partiu, se partiu
+ */
+async function diarioConferir(){
+  const L = await diarioLer();
+  const partidas = [];
+  let anterior = "";
+  L.forEach(l=>{
+    const esperado = selarLinha(Object.assign({}, l, { anterior }));
+    if(l.anterior !== anterior || l.sha !== esperado) partidas.push(l.n);
+    anterior = l.sha;
+  });
+  return { linhas:L.length, ok:partidas.length === 0, partidas };
+}
+
+/* ---- cópias de recuperação ---- */
+
+/** Guarda um instantâneo do estado. `motivo` diz porque foi guardado. */
+async function copiaGuardar(motivo){
+  try{
+    lerForm();
+    const c = { id:"c"+Date.now().toString(36), ts:Date.now(), g:gdhAgora(),
+      num:(O.meta.num||""), local:(O.meta.local||""), motivo:String(motivo||"automática"),
+      sha:resumoEstado(O), estado:JSON.parse(JSON.stringify(O)) };
+    if(IDB) await _idb("copias","readwrite", st=>st.put(c));
+    else {
+      const L = await copiasListar(true);
+      L.push(c);
+      /* Sem IndexedDB não cabem vinte estados numa chave: fica a última, que é a que
+         responde ao caso que interessa. */
+      await ARMAZEM.set(COPIAS_CHAVE, JSON.stringify(L.slice(-1)));
+    }
+    COPIA_ULT_TS = c.ts;
+    await copiasPodar();
+    return c;
+  }catch(e){ return null; }
+}
+
+/** Lista as cópias, da mais recente para a mais antiga. Sem o estado, salvo se `cheio`. */
+async function copiasListar(cheio){
+  try{
+    let L;
+    if(IDB) L = (await _idb("copias","readonly", st=>st.getAll())) || [];
+    else { const r = await ARMAZEM.get(COPIAS_CHAVE); L = JSON.parse(r.value); }
+    if(!Array.isArray(L)) L = [];
+    L.sort((a,b)=>b.ts-a.ts);
+    return cheio? L : L.map(c=>({id:c.id, ts:c.ts, g:c.g, num:c.num, local:c.local, motivo:c.motivo, sha:c.sha}));
+  }catch(e){ return []; }
+}
+
+/** Deixa ficar as `COPIAS_MAX` mais recentes. */
+async function copiasPodar(){
+  if(!IDB) return;
+  try{
+    const L = await copiasListar();
+    for(const c of L.slice(COPIAS_MAX)) await _idb("copias","readwrite", st=>st.delete(c.id));
+  }catch(e){}
+}
+
+/**
+ * Repõe uma cópia como estado corrente.
+ *
+ * **Guarda o que lá está antes de o substituir.** Recuperar não pode ser destrutivo: se
+ * alguém recupera a cópia errada, o que estava tem de continuar a existir.
+ */
+async function copiaRepor(id){
+  const L = await copiasListar(true);
+  const c = L.find(x=>x.id === id);
+  if(!c) return { ok:false, motivo:"Cópia não encontrada." };
+  await copiaGuardar("antes de repor a cópia de "+c.g);
+  O = migrarGravado(JSON.parse(JSON.stringify(c.estado)));
+  escreverForm();
+  fita("Reposta a cópia de segurança de "+c.g+" ("+resumoCurto(c.sha)+")");
+  await persistir(false);
+  pintarTudo();
+  return { ok:true, copia:c };
+}
+
+/** Guarda uma cópia se já passou o intervalo. Chamado a cada gravação. */
+async function copiaSeDevida(){
+  if(!O || !O.meta || !O.meta.num) return null;          /* sem ocorrência não há o que copiar */
+  if(Date.now() - COPIA_ULT_TS < COPIA_CADA_MIN*60000) return null;
+  return copiaGuardar("automática");
 }
 /* ================= COMANDO · estrutura do posto de comando (art. 14.º) ================= */
 const FUNCOES_PCO = [
@@ -8988,6 +9331,7 @@ function pintarTudo(){
   try{ pintarProveniencia(); }catch(e){}
   try{ pintarMeteoIdade(); }catch(e){}
   try{ pintarSessao(); }catch(e){}
+  try{ pintarCopias(); }catch(e){}
 }
 
 function letrasV(txt){
@@ -9238,7 +9582,12 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
 (async()=>{ try{ const r=await ARMAZEM.get("peaapp:tema"); if(r&&r.value) aplicarTema(r.value); else $("b-tema").textContent="Claro"; }catch(e){ $("b-tema").textContent="Claro"; } })();
 
 /* arranque: app abre vazia; índice de arquivo é carregado para consulta */
-(async()=>{ try{ await carregarIndex(); }catch(e){} 
+(async()=>{
+  /* Antes de ler o que quer que seja: passar ao IndexedDB, se este navegador o der, e
+     trazer com ele o que estava guardado na camada anterior. */
+  try{ await prepararArmazem(); }catch(e){}
+  try{ await diarioRetomar(); }catch(e){}
+  try{ await carregarIndex(); }catch(e){} 
   try{ await carregarCanais(); }catch(e){}
   try{ initCatalogo(); }catch(e){}
   try{ montarFrases(); }catch(e){}
@@ -9437,6 +9786,49 @@ function pintarSessao(){
   });
   const bL = $("id-largar");
   if(bL) bL.addEventListener("click", async ()=>{ await largarTeclado(); pintarSessao(); persistir(false); });
+})();
+
+/* ---- cópias de segurança e diário ---- */
+async function pintarCopias(){
+  const el = $("cp-lista"); if(!el) return;
+  const modo = $("cp-modo");
+  if(modo){
+    modo.textContent = ARMAZEM.modo === "indexeddb"
+      ? "Armazenamento: IndexedDB — escrita do estado e do arquivo numa só transação, e espaço para o diário e para as cópias."
+      : "Armazenamento: " + (ARMAZEM.modo === "claude"? "do ambiente" : ARMAZEM.modo === "browser"? "localStorage" : "memória da sessão")
+        + " — sem transação conjunta; o diário fica limitado às últimas " + DIARIO_MAX_LEVE
+        + " linhas e guarda-se uma cópia apenas. Exportar para ficheiro com regularidade é aqui ainda mais importante.";
+    modo.style.color = ARMAZEM.modo === "indexeddb"? "" : "var(--terra)";
+  }
+  const L = await copiasListar();
+  el.innerHTML = L.length
+    ? L.map(c=>`<div class="arq-i"><div><b>${esc(c.g)}</b> — ${esc(c.num||"sem número")}${c.local? " · "+esc(c.local):""}
+        <p>${esc(c.motivo)} · carimbo ${esc(resumoCurto(c.sha))}</p></div>
+        <div class="acts"><button class="btn btn-b" type="button" data-cp-repor="${esc(c.id)}">Repor</button></div></div>`).join("")
+    : '<p class="hint">Sem cópias guardadas. A primeira é guardada assim que a ocorrência tiver número.</p>';
+  el.querySelectorAll("[data-cp-repor]").forEach(b=>b.addEventListener("click", async ()=>{
+    const c = L.find(x=>x.id === b.getAttribute("data-cp-repor"));
+    if(!window.confirm("Repor a cópia de "+(c? c.g : "")+"?\n\nO estado atual é guardado como cópia antes de ser substituído.")) return;
+    const r = await copiaRepor(b.getAttribute("data-cp-repor"));
+    aviso("cp-msg", r.ok? "ok":"err", r.ok? "Cópia de "+r.copia.g+" reposta. O estado anterior ficou guardado." : r.motivo);
+    pintarCopias();
+  }));
+}
+(()=>{
+  const bG = $("cp-guardar");
+  if(bG) bG.addEventListener("click", async ()=>{
+    const c = await copiaGuardar("guardada à mão");
+    aviso("cp-msg", c? "ok":"err", c? "Cópia guardada ("+resumoCurto(c.sha)+")." : "Não foi possível guardar a cópia.");
+    pintarCopias();
+  });
+  const bC = $("cp-conferir");
+  if(bC) bC.addEventListener("click", async ()=>{
+    const r = await diarioConferir();
+    aviso("cp-msg", r.ok? "ok":"err", r.ok
+      ? "Diário com "+r.linhas+" linhas; a cadeia confere de ponta a ponta."
+      : "ATENÇÃO: a cadeia do diário parte "+(r.partidas.length===1? "na linha ":"nas linhas ")+r.partidas.join(", ")
+        +". O registo do posto foi alterado ou está corrompido.");
+  });
 })();
 </script>
 </body>

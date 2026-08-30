@@ -3,15 +3,20 @@ function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
 async function persistir(nota){
   lerForm();
   try{
-    await ARMAZEM.set(chave(), JSON.stringify(O));
-    await ARMAZEM.set("peaapp:ultima", O.meta.num);
+    /* Numa transação só. O estado ia numa chave e o índice noutra: uma falha entre as
+       duas deixava o arquivo a apontar para uma ocorrência que não ficou gravada, ou uma
+       ocorrência gravada que o arquivo não conhecia. Onde não houver transação, escreve-se
+       na mesma ordem de sempre — e `ARMAZEM.atomico` diz qual dos dois casos é. */
+    const pares = [[chave(), JSON.stringify(O)], ["peaapp:ultima", O.meta.num]];
     if(O.meta.num){
       INDEX = INDEX.filter(x=>x.num!==O.meta.num);
       INDEX.push({num:O.meta.num, local:O.meta.local, pasta:O.meta.pasta||"Sem pasta", pco:O.meta.pco, g:gdhAgora(), peas:O.peas.length});
-      await ARMAZEM.set("peaapp:index", JSON.stringify(INDEX));
+      pares.push(["peaapp:index", JSON.stringify(INDEX)]);
     }
+    await ARMAZEM.setVarias(pares);
     if(nota) aviso("msg-occ","ok","Ocorrência "+O.meta.num+" guardada.");
   }catch(e){ if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+")."); }
+  try{ await copiaSeDevida(); }catch(e){}
   pintarTudo();
 }
 async function carregar(num){
@@ -63,7 +68,12 @@ function escreverForm(){
   $("d-anexos-info").textContent = d.anexos.length? "Anexos: "+d.anexos.join(", ") : "Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia).";
 }
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
-function fita(evento){ O.fita.push({g:gdhAgora(), e:evento}); }
+/* A fita vive dentro da ocorrência; o diário do posto vive fora dela e sobrevive-lhe.
+   Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
+function fita(evento){
+  O.fita.push({g:gdhAgora(), e:evento});
+  try{ diarioAcrescentar(evento); }catch(e){}
+}
 
 /* A proveniência de uma ocorrência que entrou por ficheiro. Fica à vista enquanto a
    ocorrência existir — ao contrário do aviso, que se apaga ao fim de cinco segundos. */
