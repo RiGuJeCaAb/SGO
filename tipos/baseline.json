@@ -1,0 +1,12 @@
+{
+ "TS2339 Property 'closest' does not exist on type 'EventTarget'.": 2,
+ "TS2349 This expression is not callable.": 1,
+ "TS2339 Property 'click' does not exist on type 'Element'.": 1,
+ "TS2339 Property 'title' does not exist on type 'Element'.": 3,
+ "TS2339 Property 'onclick' does not exist on type 'Element'.": 1,
+ "TS2339 Property 'dataset' does not exist on type 'Element'.": 5,
+ "TS2339 Property 'classList' does not exist on type 'EventTarget'.": 6,
+ "TS2339 Property 'value' does not exist on type 'EventTarget'.": 1,
+ "TS2339 Property 'parentElement' does not exist on type 'EventTarget'.": 2,
+ "TS2339 Property 'hidden' does not exist on type 'EventTarget'.": 3
+}

@@ -1,0 +1,69 @@
+{
+  "tipo": "pco:dispositivo",
+  "versao": 1,
+  "emitido": "2026-08-28T15:30:00+01:00",
+  "origem": { "app": "Gestão PCO", "rev": "r0042", "operador": "Adj. Sousa", "posto": "PCO Vila Real" },
+  "ocorrencia": {
+    "num": "2026080123",
+    "local": "Alijó",
+    "freguesia": "Vilar de Maçada", "concelho": "Alijó", "distrito": "Vila Real",
+    "sub_regiao": "Douro",
+    "lat": 41.2712, "lon": -7.4738,
+    "inicio": "2026-08-28T11:42:00+01:00",
+    "fase_sgo": "IV",
+    "nivel_decir": "DELTA",
+    "area_ha": 120,
+    "pco": { "local": "Vila Real", "lat": null, "lon": null }
+  },
+  "pco": {
+    "funcoes": [
+      { "funcao": "Oficial de Operações", "nome": "Cmdt Ferreira", "entidade": "CB Alijó",
+        "contacto": "910000010", "nomeado": "2026-08-28T12:05:00+01:00",
+        "siresp": "PC TAT 1", "ba": "" },
+      { "funcao": "Oficial de Planeamento", "nome": "Adj. Sousa", "entidade": "CSREPC Douro",
+        "contacto": "910000011", "nomeado": "2026-08-28T12:10:00+01:00",
+        "siresp": "PC COM 1", "ba": "" }
+    ],
+    "nucleos_externos": [
+      { "nucleo": "Núcleo de Segurança", "entidade_nomeadora": "GNR",
+        "solicitado": "2026-08-28T13:10:00+01:00", "nomeado": "2026-08-28T13:52:00+01:00",
+        "responsavel": "Sarg. Matos", "contacto": "910000012" },
+      { "nucleo": "Núcleo de Emergência Médica", "entidade_nomeadora": "INEM, I.P.",
+        "solicitado": "2026-08-28T13:15:00+01:00", "nomeado": null,
+        "responsavel": "", "contacto": "" }
+    ]
+  },
+  "dispositivo": {
+    "setores": [
+      { "id": "A",
+        "estado": "Em curso (ativo)",
+        "comandante": "Cmdt CB Alijó", "contacto": "910000020", "adjunto": "",
+        "forcas": [
+          { "tipologia": "ECIN", "quantidade": 2, "empenhado": "2026-08-28T12:30:00+01:00",
+            "operacionais_unidade": 5, "entidade": "CB Alijó" },
+          { "tipologia": "EMR", "quantidade": 1, "empenhado": "2026-08-28T12:45:00+01:00",
+            "entidade": "ICNF" }
+        ],
+        "livre": null },
+      { "id": "B",
+        "estado": "Em resolução (dominado)",
+        "comandante": "Cmdt CB Sabrosa", "contacto": "910000021", "adjunto": "",
+        "forcas": [
+          { "tipologia": null, "quantidade": 1, "meios": 2, "operacionais": 6,
+            "empenhado": "2026-08-28T14:00:00+01:00", "empenhado_estimado": true,
+            "entidade": "equipa municipal" }
+        ],
+        "livre": null }
+    ],
+    "aereos": [
+      { "tipo": "HEBL", "indicativo": "HOTEL 15", "empenhado": "2026-08-28T13:00:00+01:00", "cma": "Vila Real" },
+      { "tipo": "HEBP", "indicativo": "KILO 04", "empenhado": "2026-08-28T13:20:00+01:00", "cma": "Vila Real" }
+    ],
+    "reserva":    { "forcas": [], "meios": 2, "operacionais": 8 },
+    "zona_apoio": { "forcas": [], "meios": 1, "operacionais": 3 },
+    "ponto_transito": { "designacao": "Largo da igreja de Vilar de Maçada",
+      "responsavel": "Adj. Pinto", "contacto": "910000030",
+      "lat": 41.2755, "lon": -7.4690, "ativo_desde": "2026-08-28T12:15:00+01:00" },
+    "zcr": { "ativa": false, "local": null, "areas": [] }
+  }
+}

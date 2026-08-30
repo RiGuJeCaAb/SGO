@@ -1,0 +1,313 @@
+/* ================= OPERAÇÕES · setorização do TO (art. 17.º, al. d)) ================= */
+/**
+ * Muda o estado de um setor pelo caminho único, seja qual for a porta por onde a
+ * mudança entrou — o menu da linha do setor, ou uma frase-tipo da evolução.
+ *
+ * A mudança de estado é facto operacional, e por isso deixa registo sozinha: entra na
+ * evolução como automática e na fita do tempo. Um segundo caminho que não fizesse isto
+ * daria um dispositivo a mudar sem que a evolução o contasse — e a análise da repartição
+ * lê o dispositivo, portanto passaria a analisar o que ninguém registou.
+ *
+ * @param {number} i índice do setor
+ * @param {string} novo estado, dos cinco do ponto 7.f da DON n.º 2
+ * @returns {boolean} se o estado mudou de facto
+ */
+function mudarEstadoSetor(i, novo){
+  const e = estObj(), x = e.setores[i];
+  if(!x || ESTADOS_SETOR.indexOf(novo) < 0 || x.estado === novo) return false;
+  if(encerrada()) return false;   /* registo fechado: reabrir antes de alterar */
+  const anterior = x.estado || "\u2014";
+  const tipoEvo = (novo===ESTADOS_SETOR[0] || novo===ESTADOS_SETOR[4])? "agravamento" : "melhoria";
+  x.estado = novo;
+  O.evolucao.push({g:gdhAgora(), tipo:tipoEvo,
+    txt:"Setor "+NOMES_SETOR[i]+" \u2014 estado alterado de \""+anterior+"\" para \""+novo+"\" (registo automático)"});
+  fita("Evolução automática: Setor "+NOMES_SETOR[i]+" -> "+novo);
+  comporSetores(); persistir(false);
+  return true;
+}
+/* Desde a versão 10 do estado, cada entrada de `tip` é **uma unidade**: não há
+   quantidade a multiplicar. Duas viaturas iguais são duas entradas, porque podem vir de
+   corpos diferentes e ter entrado no TO a horas diferentes. */
+function totSetor(x){
+  const tip = x.tip||[];
+  return { m: tip.reduce((a,i)=>a+(+i.mu||1),0), o: tip.reduce((a,i)=>a+(+i.ou||0),0) };
+}
+
+/**
+ * Agrupa as unidades por tipologia, para onde um resumo é o que serve — o texto do PEA,
+ * o briefing, a linha do setor. O estado continua por unidade; agrupa-se para mostrar,
+ * nunca para guardar.
+ *
+ * @returns {{t:string, n:number, m:number, o:number}[]}
+ */
+function agruparTip(tip){
+  const por = {};
+  (tip||[]).forEach(it=>{
+    const k = it.t || "";
+    if(!por[k]) por[k] = { t:k, n:0, m:0, o:0 };
+    por[k].n++; por[k].m += (+it.mu||1); por[k].o += (+it.ou||0);
+  });
+  return Object.keys(por).map(k=>por[k]);
+}
+/**
+ * Medidor do tempo até à rendição, em gomos.
+ *
+ * A imagem é a de uma laranja cortada: um gomo por hora do limite, e os gomos vão-se
+ * gastando à medida que o tempo passa. O que fica aceso é **o que resta**, que é o
+ * número sobre o qual se decide — «faltam três horas para render esta viatura».
+ *
+ * Os gomos gastos não desaparecem por completo: ficam em traço apagado. Se sumissem, a
+ * leitura perdia o denominador — três gomos acesos não dizem nada sem se ver que eram
+ * doze. Ficam presentes e claramente gastos, que é o que a imagem da laranja já sugere.
+ *
+ * Passado o limite não há gomo nenhum a restar, e a laranja fica toda vermelha: é estado
+ * terminal, e é para ser inconfundível.
+ *
+ * A cor é o estado; o número diz quanto, em tinta de texto, para que a leitura não
+ * dependa de distinguir cores. O limiar é o mesmo do quadro de rendições.
+ *
+ * @param {{t?:string, ar?:number, ts?:number, rend?:{g:string,por:string,nota:string}}} it unidade
+ * @param {boolean} [aereo] força o limiar aéreo, para a lista de meios aéreos
+ * @param {string} [alvo] endereço da unidade; com ele o medidor passa a botão
+ */
+function medidorTempo(it, aereo, alvo){
+  if(!it || !it.ts) return '<span class="med-h" title="sem instante de empenhamento: esta unidade não conta tempo no TO">sem relógio</span>';
+  const L = limiares(), d = catDef(it.t);
+  const ar = aereo || !!(it.ar || d.ar);
+  const teto = ar? L.aer : L.lim;
+  const avi  = ar? Math.max(1, L.aer-2) : L.av;
+  const h = (Date.now() - it.ts)/3600000;
+  const resta = teto - h;
+  const nivel = h>=teto? "r" : (h>=avi? "a" : "v");
+
+  /* Um gomo por hora do limite. Doze num círculo de 18 px dão 30° cada, que ainda se
+     contam; acima disso deixaria de se ver, e nenhum limite operacional lá chega. */
+  const n = Math.max(1, Math.round(teto));
+  const acesos = h>=teto? n : Math.ceil(Math.max(0, resta));
+  const R = 8.2, C = 9, folga = 3.2;   /* folga em graus: o albedo entre gomos */
+  const gomos = [];
+  for(let k=0;k<n;k++){
+    const a1 = -90 + k*(360/n) + folga/2, a2 = -90 + (k+1)*(360/n) - folga/2;
+    const p = g => [C + R*Math.cos(g*Math.PI/180), C + R*Math.sin(g*Math.PI/180)];
+    const [x1,y1] = p(a1), [x2,y2] = p(a2);
+    /* Os que restam contam-se a partir do topo, no sentido do relógio. */
+    const vivo = h>=teto? true : (k < acesos);
+    gomos.push('<path class="'+(vivo? "gm":"gm-x")+'" d="M'+C+','+C+' L'+x1.toFixed(2)+','+y1.toFixed(2)
+      +' A'+R+','+R+' 0 0 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z"/>');
+  }
+
+  const limite = gdhDe(it.ts + teto*3600000);
+  const titulo = h>=teto
+    ? "Limite de "+teto+" h excedido em "+(h-teto).toFixed(1)+" h. No TO desde "+gdhDe(it.ts)+"; rendição era devida às "+limite+"."
+    : "Faltam "+resta.toFixed(1)+" h para o limite de "+teto+" h. No TO desde "+gdhDe(it.ts)+"; rendição prevista para "+limite+".";
+  const rot = h>=teto? "\u2212"+(h-teto).toFixed(1)+" h" : resta.toFixed(1)+" h";
+  /* Com endereço, o medidor é o botão por onde se pede a rendição: quem vê a laranja
+     quase vazia é quem tem de agir, e a ação tem de estar onde está o sinal. Sem
+     endereço — no quadro de rendições, no PEA — continua a ser só leitura. */
+  const pedida = rendPedida(it);
+  const dentro = '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
+    + '<span class="med-h">'+rot+(pedida? " \u00b7 rend. pedida" : "")+'</span>';
+  const cls = "med "+nivel+(pedida? " ped" : "");
+  return alvo
+    ? '<button type="button" class="'+cls+'" data-rend="'+esc(alvo)+'" title="'+esc(titulo
+        +(pedida? " Rendição solicitada a "+it.rend.g+"." : " Carregar para solicitar a rendição ao CSREPC."))+'">'+dentro+'</button>'
+    : '<span class="'+cls+'" title="'+esc(titulo)+'">'+dentro+'</span>';
+}
+
+/** O resumo em texto: «2× ECIN, 1× VFCI». */
+function resumoTip(tip){ return agruparTip(tip).map(g=>g.n+"× "+g.t).join(", "); }
+/**
+ * Desenha a setorização: um bloco por setor, com quem comanda, o que lá está e o relógio
+ * de cada unidade.
+ *
+ * Cria os setores em falta e corta os que sobram quando o número muda, e migra o estado
+ * de cada um para o vocabulário em vigor. Com meios atribuídos, os campos de contagem
+ * ficam só de leitura: a soma sai das tipologias, e escrevê-la à mão por cima faria dois
+ * números para a mesma coisa.
+ */
+function renderSetores(){
+  const e = estObj();
+  $("s-n").value = String(e.n||0);
+  renderAereos();
+  const RS = reservaObj(), ZA = zaObj();
+  $("s-res").checked = !!(RS.m||RS.o); $("s-res-x").style.display = $("s-res").checked? "":"none"; $("s-res-m").value=RS.m; $("s-res-o").value=RS.o;
+  $("s-za").checked = !!(ZA.m||ZA.o); $("s-za-x").style.display = $("s-za").checked? "":"none"; $("s-za-m").value=ZA.m; $("s-za-o").value=ZA.o;
+  $("s-livre").checked = !!e.livre;
+  $("d-setores").style.display = e.livre? "":"none";
+  $("s-lista").style.display = e.livre? "none":"";
+  while(e.setores.length < e.n) e.setores.push({estado:ESTADOS_SETOR[0],cmd:"",ct:"",adj:"",m:"",o:"",lat:"",lon:"",tip:[]});
+  e.setores.length = e.n;
+  e.setores.forEach(x=>{ x.tip = x.tip||[]; x.estado = migrarEstado(x.estado); });
+  const L = $("s-lista");
+  if(!e.n){ L.innerHTML = e.livre? "" : '<p class="hint">Escolhe o número de setores e a estrutura é criada automaticamente.</p>'; comporSetores(); return; }
+  L.innerHTML = '<div class="set-head"><span>Setor</span><span>Estado</span><span>Comandante de setor (art. 10.º)</span><span>Adjunto (n.º 4)</span><span>Contacto</span><span>Meios</span><span>Op.</span></div>' +
+    e.setores.map((x,i)=>{
+      const auto = (x.tip||[]).length>0, t = totSetor(x);
+      /* Sem tipologias atribuídas, `mVal` e `oVal` são o que o oficial escreveu à mão:
+         são dados de campo como qualquer outro, e passam pelo escape. */
+      const mVal = auto? t.m : (x.m||""), oVal = auto? t.o : (x.o||"");
+      return `<div class="set-box"><div class="set-row">
+        <span class="nm">${NOMES_SETOR[i]}</span>
+        <select data-i="${i}" data-f="estado">${ESTADOS_SETOR.map(o=>`<option${o===x.estado?" selected":""}>${o}</option>`).join("")}</select>
+        <input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">
+        <input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">
+        <input data-i="${i}" data-f="ct" value="${esc(x.ct)}" placeholder="9........." inputmode="tel">
+        <input data-i="${i}" data-f="m" value="${esc(mVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        <input data-i="${i}" data-f="o" value="${esc(oVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+      </div>
+      <div class="tip-add">
+        <select id="ta-t-${i}">${catOptions()}</select>
+        <span class="lbl">QTD</span><input id="ta-q-${i}" type="number" min="1" value="1">
+        <span class="lbl">OP/UNID</span><input id="ta-o-${i}" type="number" min="0" value="5">
+        <span class="lbl">ORIGEM</span><input id="ta-e-${i}" placeholder="corpo de bombeiros ou entidade" style="width:180px">
+        <button class="btn btn-g" type="button" data-add="${i}">Atribuir</button>
+      </div>
+      <div class="tip-chips" id="tc-${i}">${(x.tip||[]).map((it,j)=>{
+        const destinos = ['<option value="">mover…</option>']
+          .concat(e.setores.map((_,k)=>k!==i? `<option value="${k}">→ ${NOMES_SETOR[k]}</option>`:"").filter(Boolean))
+          .concat(['<option value="D">Desmobilizar</option>']).join("");
+        /* Uma entrada é uma unidade: dizer «1m» em todas era ruído. Só as forças que
+           trazem vários veículos — brigadas, grupos — declaram o número de meios. */
+        const efet = (it.mu||1) > 1? `${(it.mu||1)}m/${(it.ou||0)}op` : `${(it.ou||0)} op`;
+        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${efet} ${medidorTempo(it, false, "s:"+i+":"+j)}
+          <select data-mv="${i}" data-j="${j}" class="mv">${destinos}</select>
+          <button type="button" data-del="${i}" data-j="${j}" aria-label="remover">×</button></span>`;
+      }).join("")}</div></div>`;
+    }).join("");
+  // eventos das linhas
+  L.querySelectorAll(".set-row input,.set-row select").forEach(el=>{
+    el.addEventListener("change", ()=>{
+      const i = +el.dataset.i;
+      if(el.dataset.f==="estado"){ mudarEstadoSetor(i, el.value); return; }
+      e.setores[i][el.dataset.f]=el.value; comporSetores(); persistir(false); });
+  });
+  // selects de tipologia: pré-preencher op/unid do catálogo
+  e.setores.forEach((x,i)=>{
+    const st=$("ta-t-"+i), so=$("ta-o-"+i);
+    st.addEventListener("change", ()=>{ so.value = catDef(st.value).ou; });
+    so.value = catDef(st.value).ou;
+  });
+  L.querySelectorAll("[data-add]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const i=+b.dataset.add, t=$("ta-t-"+i).value, q=+$("ta-q-"+i).value||1, ou=+$("ta-o-"+i).value||0;
+      const ent = ($("ta-e-"+i)? $("ta-e-"+i).value.trim() : "");
+      const d=catDef(t), ts=Date.now();
+      /* A quantidade é comodidade de escrita, não forma do estado: cria n unidades
+         independentes, cada uma com o seu relógio e a sua origem daí para a frente. */
+      for(let k=0;k<Math.max(1,Math.round(q));k++){
+        e.setores[i].tip.push({t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent});
+      }
+      fita("Atribuído "+q+"× "+t+(ent? " ("+ent+")":"")+" ao Setor "+NOMES_SETOR[i]);
+      renderSetores(); pintarDON(); persistir(false);
+    });
+  });
+  L.querySelectorAll("[data-rend]").forEach(b=>
+    b.addEventListener("click", ()=>abrirRendicao(b.getAttribute("data-rend"))));
+  L.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const it = e.setores[+b.dataset.del].tip[+b.dataset.j];
+      fita("Removido "+it.t+(it.ent? " ("+it.ent+")":"")+" do Setor "+NOMES_SETOR[+b.dataset.del]);
+      e.setores[+b.dataset.del].tip.splice(+b.dataset.j,1); renderSetores(); persistir(false); });
+  });
+  L.querySelectorAll("[data-mv]").forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      const i=+sel.dataset.mv, j=+sel.dataset.j, dest=sel.value;
+      if(dest===""){ return; }
+      const it = e.setores[i].tip[j];
+      if(dest==="D"){
+        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+((Date.now()-(it.ts||Date.now()))/3600000).toFixed(1)+" h de empenhamento)");
+        e.setores[i].tip.splice(j,1);
+      } else {
+        const k=+dest;
+        fita("Movimento: "+it.t+(it.ent? " ("+it.ent+")":"")+" de "+NOMES_SETOR[i]+" para "+NOMES_SETOR[k]);
+        e.setores[i].tip.splice(j,1);
+        e.setores[k].tip.push(it); // mantém ts original: as horas de empenhamento no TO não se apagam com a mudança de setor
+      }
+      renderSetores(); persistir(false);
+    });
+  });
+  comporSetores();
+}
+/**
+ * Compõe o texto da setorização, que é o que entra no PEA e no ponto de situação.
+ *
+ * Em modo de texto livre, respeita o que o oficial escreveu e não compõe nada — é para
+ * isso que o modo existe.
+ */
+function comporSetores(){
+  const e = estObj();
+  if(e.livre){ O.dados.setores = $("d-setores").value.trim(); $("s-tot").textContent=""; return; }
+  const linhas = e.setores.map((x,i)=>{
+    const partes = ["Setor "+NOMES_SETOR[i]+" — "+(x.estado||"")];
+    if(x.cmd) partes.push("Man: "+x.cmd+(x.ct? " ("+x.ct+")":""));
+    if(x.adj) partes.push("Adj: "+x.adj);
+    const tip=x.tip||[];
+    if(tip.length){
+      partes.push(agruparTip(tip).map(g=>g.n+" "+g.t).join(", "));
+      const t=totSetor(x); partes.push(t.m+" meios / "+t.o+" op.");
+    } else if(x.m||x.o) partes.push((x.m||"?")+" meios / "+(x.o||"?")+" op.");
+    return partes.join("; ");
+  });
+  const extra=[];
+  const AL = aerLista();
+  if(AL.length) extra.push("Meios aéreos: "+AL.length+" ("+AL.map(a=>a.ind||a.t).join(", ")+").");
+  const RS = reservaObj(), ZA = zaObj();
+  if(RS.m||RS.o) extra.push("Reserva: "+(RS.m||"?")+" meios / "+(RS.o||"?")+" op.");
+  if(ZA.m||ZA.o) extra.push("ZA: "+(ZA.m||"?")+" meios / "+(ZA.o||"?")+" op.");
+  O.dados.setores = [...linhas, extra.join(" ")].filter(x=>x&&x.trim()).join("\n");
+  $("d-setores").value = O.dados.setores;
+  const tm = e.setores.reduce((a,x)=>{const t=totSetor(x); return a+((x.tip||[]).length? t.m : (+x.m||0));},0)+(+RS.m||0)+(+ZA.m||0);
+  const to = e.setores.reduce((a,x)=>{const t=totSetor(x); return a+((x.tip||[]).length? t.o : (+x.o||0));},0)+(+RS.o||0)+(+ZA.o||0);
+  $("s-tot").textContent = e.n? "Totais calculados: "+tm+" meios · "+to+" operacionais"+(aerLista().length? " · "+aerLista().length+" meios aéreos":"")+". Efetivos por unidade conforme o Anexo 1 da DON n.º 2 / DECIR 2026; o campo OP/UNID pode ser corrigido para o efetivo real da força." : "";
+}
+$("s-n").addEventListener("change", ()=>{ estObj().n = +$("s-n").value; renderSetores(); persistir(false); });
+(function(){ const sf=$("pc-f"); if(sf) sf.addEventListener("change", ()=>{ try{ pintarCampoSolicitacao(); }catch(e){} }); })();
+$("pc-add").addEventListener("click", ()=>{
+  const f = $("pc-f").value, nome = $("pc-n").value.trim();
+  const P = pcoObj();
+  const idx = P.funcoes.findIndex(x=>x.f===f && f!=="Oficial de ligação de entidade" && f!=="Outra função");
+  const ant = idx>=0? P.funcoes[idx] : null;
+  const qg = gdhDoCampo("pc-g", "msg-pco"), qs = gdhDoCampo("pc-sol", "msg-pco");
+  if(!qg.ok || !qs.ok) return;
+  const reg = { f, nome, entidade:$("pc-e").value.trim(), ct:$("pc-c").value.trim(),
+    siresp:(ant&&ant.siresp)||"", ba:(ant&&ant.ba)||"",
+    /* Dois instantes distintos nos núcleos de nomeação externa (arts. 23.º n.º 2,
+       24.º n.º 2 e 25.º n.º 2): o COS solicita, a entidade nomeia. `g` fica vazio
+       enquanto o pedido estiver pendente — sem nome não há nomeação. */
+    solicitado: (($("pc-sol") && $("pc-sol").value.trim())? qs.g : "") || (ant&&ant.solicitado) || "",
+    g: ($("pc-g").value.trim()? qg.g : (nome? gdhAgora() : "")) };
+  if(idx>=0) P.funcoes[idx] = reg; else P.funcoes.push(reg);
+  ["pc-n","pc-e","pc-c","pc-g","pc-sol"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
+  fita(reg.g
+    ? "Nomeação: "+f+(nome? " — "+nome:"")+" ("+reg.g+")"
+    : "Solicitação de nomeação: "+f+" a "+(reg.entidade||pcoDef(f).ext||"entidade competente")+" ("+(reg.solicitado||gdhAgora())+") — por nomear");
+  O.evolucao.push({g: reg.g || reg.solicitado || gdhAgora(), tipo:"posit",
+    txt: reg.g
+      ? "Nomeação de "+f+(nome? ": "+nome:"")+(reg.ct? " ("+reg.ct+")":"")+"."
+      : "Solicitação de nomeação de "+f+" a "+(pcoDef(f).ext||"entidade competente")+", por nomear."});
+  renderPCO(); renderComs(); pintarDON(); persistir(false);
+});
+$("aer-add").addEventListener("click", ()=>{
+  const t = $("aer-t").value, ind = $("aer-i").value.trim();
+  const q = gdhDoCampo("aer-g", "msg-occ");
+  if(!q.ok) return;
+  aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : Date.now())});
+  $("aer-i").value=""; $("aer-g").value="";
+  fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")");
+  renderAereos(); comporSetores(); pintarDON(); persistir(false);
+});
+$("s-res").addEventListener("change", ()=>{ const R=reservaObj(); if(!$("s-res").checked){ R.m=""; R.o=""; } else R.m=R.m||"0"; renderSetores(); persistir(false); });
+["s-res-m","s-res-o"].forEach(id=>$(id).addEventListener("change", ()=>{ const R=reservaObj(); R.m=$("s-res-m").value; R.o=$("s-res-o").value; comporSetores(); persistir(false); }));
+$("s-za").addEventListener("change", ()=>{ const Z=zaObj(); if(!$("s-za").checked){ Z.m=""; Z.o=""; } else Z.m=Z.m||"0"; renderSetores(); persistir(false); });
+["s-za-m","s-za-o"].forEach(id=>$(id).addEventListener("change", ()=>{ const Z=zaObj(); Z.m=$("s-za-m").value; Z.o=$("s-za-o").value; comporSetores(); persistir(false); }));
+$("s-livre").addEventListener("change", ()=>{ estObj().livre=$("s-livre").checked; renderSetores(); persistir(false); });
+$("d-setores").addEventListener("change", ()=>{ if(estObj().livre){ O.dados.setores=$("d-setores").value.trim(); persistir(false); } });
+
+/* pontos sensíveis: adição rápida */
+$("ps-add").addEventListener("click", ()=>{
+  const n=$("ps-nome").value.trim(); if(!n) return;
+  const atual=$("d-sensiveis").value.trim();
+  $("d-sensiveis").value = (atual? atual+"; ":"") + n + " (" + $("ps-pri").value + ")";
+  $("ps-nome").value=""; O.dados.sensiveis=$("d-sensiveis").value; persistir(false);
+});
+
