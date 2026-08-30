@@ -46,8 +46,10 @@ const ARMAZEM = (()=>{
 })();
 
 /* A base do IndexedDB, quando existir. `chaves` guarda o que o ARMAZEM guardava;
-   `diario` é o registo append-only do posto; `copias` são os instantâneos de recuperação. */
-const IDB_NOME = "peaapp", IDB_VERSAO = 1;
+   `diario` é o registo append-only do posto; `copias` são os instantâneos de recuperação;
+   `mosaicos` são os quadrados de carta já descarregados, que é o que faz o mapa continuar
+   a existir quando a ligação de dados cai — e num PCO cai. */
+const IDB_NOME = "peaapp", IDB_VERSAO = 2;
 let IDB = null;
 
 /** Abre a base, ou devolve `null` se este navegador não a der em `file://`. */
@@ -61,6 +63,7 @@ function abrirIDB(){
       if(!db.objectStoreNames.contains("chaves")) db.createObjectStore("chaves");
       if(!db.objectStoreNames.contains("diario")) db.createObjectStore("diario", {keyPath:"n"});
       if(!db.objectStoreNames.contains("copias")) db.createObjectStore("copias", {keyPath:"id"});
+      if(!db.objectStoreNames.contains("mosaicos")) db.createObjectStore("mosaicos");
     };
     p.onsuccess = ()=>res(p.result);
     p.onerror = ()=>res(null);

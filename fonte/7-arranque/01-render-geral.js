@@ -28,6 +28,7 @@ function pintarTudo(){
   try{ pintarCopias(); }catch(e){}
   try{ pintarFase(); }catch(e){}
   try{ pintarCroqui(); }catch(e){}
+  try{ pintarMapaCartao(); pintarPontos(); }catch(e){}
   try{ pintarContagens(); }catch(e){}
 }
 

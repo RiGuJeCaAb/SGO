@@ -54,6 +54,7 @@ da especificação.
 |---|---|---|
 | `NEP8` | NEP n.º 8/NT/2010 | Numeração, para a banda alta de VHF. Não verificada linha a linha |
 | `NEPSIRESP` | NEP n.º 1/DIC/2026, NEP n.º 2/CNEPC/2022, NOP n.º 1701/2018 | Grupos SIRESP. A designação PC COM 1 a 5 foi deduzida por coerência; as séries CT e CM assentam em equivalência declarada, e só o CM4 tem confirmação direta |
+| `PONTOAGUA` | — | O **ponto de água** é figura corrente da manobra e entra em `TIPOS_PONTO`, no mapa operacional, sem artigo que o institua. Não se lhe atribuiu alínea do art. 32.º: aparece na interface como «fonte por confirmar» até haver documento |
 
 ## `FOGO` — comportamento do fogo: declive e vento
 

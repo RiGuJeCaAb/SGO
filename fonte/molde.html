@@ -586,6 +586,26 @@
   .card.dobravel > .cd-corpo{display:none;margin-top:16px}
   .card.dobravel.aberto > .cd-corpo{display:block}
   .cq-leg{font-size:11px;color:var(--tx3);margin:4px 0 0}
+
+  /* Mapa: os mosaicos numa camada, a sobreposição operacional noutra por cima. A tela
+     tem medida em pixéis porque é em pixéis que a projeção de Mercator trabalha; o
+     contentor limita-a à largura disponível e deixa arrastar dentro dele. */
+  /* A tela tem a proporção do teatro, e por isso raramente enche a largura do painel.
+     O contentor encolhe até ela e centra-se: um mapa encostado à esquerda dentro de
+     uma caixa vazia lê-se como erro de montagem. */
+  .mp-cx{border:1px solid var(--line);border-radius:10px;background:var(--surf2);overflow:hidden;
+    width:fit-content;max-width:100%;margin:0 auto}
+  /* Sem `max-width`: a tela tem de ficar exatamente com os pixéis que a projeção lhe
+     deu. Encolhê-la por folha de estilo esmagava a sobreposição enquanto os mosaicos
+     ficavam no tamanho natural — as marcas apareciam ao lado do sítio, e um clique
+     devolvia a coordenada errada. Quem trata da medida é `medirMapa`. */
+  .mp-tela{position:relative;overflow:hidden;cursor:crosshair;touch-action:none;background:var(--surf2)}
+  .mp-mos{position:absolute;inset:0}
+  .mp-t{position:absolute;width:256px;height:256px;user-select:none;-webkit-user-drag:none}
+  .mp-t.mp-falta{background:repeating-linear-gradient(45deg,var(--surf2),var(--surf2) 8px,var(--line) 8px,var(--line) 9px)}
+  .mp-svg{position:absolute;left:0;top:0;pointer-events:none}
+  .mp-li{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .mp-li .mono{font-family:var(--mono);font-size:11.5px;color:var(--tx2)}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1191,6 +1211,30 @@
             <button type="button" class="lk" id="p-limpar">Remover perímetro carregado</button>
           </div>
           <div><label for="d-area">Área ardida (ha) — manual ou calculada</label><input id="d-area" data-campo="dados.area" placeholder="hectares"></div>
+        </div>
+      </div>
+
+      <div class="sub" id="mapa-box" style="display:none">
+        <span class="stit">Mapa do teatro de operações <span class="hint" style="font-weight:400">art. 28.º — a forma sobre a carta</span></span>
+        <div class="row" style="margin-bottom:10px">
+          <button class="btn btn-b" type="button" id="mapa-carregar">Carregar a carta</button>
+          <button class="btn btn-b" type="button" id="mapa-mais">Aproximar</button>
+          <button class="btn btn-b" type="button" id="mapa-menos">Afastar</button>
+          <button class="btn btn-b" type="button" id="mapa-enquadrar">Enquadrar no perímetro</button>
+        </div>
+        <div class="mp-cx"><div id="mapa-tela" class="mp-tela"></div></div>
+        <div class="hint" id="mapa-info"></div>
+        <div class="grid g2" style="margin-top:12px">
+          <div><label for="mapa-alvo">Clicar no mapa marca</label>
+            <select id="mapa-alvo"></select></div>
+          <div><label for="mapa-nome">Nome do ponto (opcional)</label>
+            <input id="mapa-nome" placeholder="ex.: charca de Cambres"></div>
+        </div>
+        <div class="msg" id="mapa-msg" style="display:none"></div>
+        <div id="mapa-pontos" style="margin-top:10px"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
+          <span class="hint" id="mapa-arquivo"></span>
         </div>
       </div>
 

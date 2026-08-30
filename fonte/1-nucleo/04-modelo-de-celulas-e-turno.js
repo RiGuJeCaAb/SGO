@@ -262,10 +262,28 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 16 -> 17 · O teatro de operações ganha coordenadas.
+   Os setores existiam sem sítio: sabia-se quem os comandava e o que lá estava, e não
+   onde ficavam. Os pontos notáveis — ZCR, ponto de trânsito, zona de apoio, pontos de
+   água — viviam em texto corrido, que serve para os ler e não serve para os ver.
+   Nascem vazios: uma coordenada que não foi marcada não se adivinha do nome. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.pontos)) e.dados.pontos = [];
+  const est = e.dados.est || {};
+  (est.setores||[]).forEach(s=>{
+    if(s && typeof s === "object"){
+      if(typeof s.lat !== "string") s.lat = "";
+      if(typeof s.lon !== "string") s.lon = "";
+    }
+  });
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

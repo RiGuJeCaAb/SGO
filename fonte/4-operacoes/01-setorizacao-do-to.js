@@ -126,7 +126,7 @@ function renderSetores(){
   $("s-livre").checked = !!e.livre;
   $("d-setores").style.display = e.livre? "":"none";
   $("s-lista").style.display = e.livre? "none":"";
-  while(e.setores.length < e.n) e.setores.push({estado:ESTADOS_SETOR[0],cmd:"",ct:"",adj:"",m:"",o:"",tip:[]});
+  while(e.setores.length < e.n) e.setores.push({estado:ESTADOS_SETOR[0],cmd:"",ct:"",adj:"",m:"",o:"",lat:"",lon:"",tip:[]});
   e.setores.length = e.n;
   e.setores.forEach(x=>{ x.tip = x.tip||[]; x.estado = migrarEstado(x.estado); });
   const L = $("s-lista");

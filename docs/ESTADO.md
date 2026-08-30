@@ -14,12 +14,12 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 | | |
 |---|---|
 | Entregas em `app/` | 66, das anteriores à convenção de nomes até à r0066 |
-| Módulos em `fonte/` | 57, em sete zonas, mais o molde |
-| Testes | 401, todos a passar |
+| Módulos em `fonte/` | 58, em sete zonas, mais o molde |
+| Testes | 430, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 16 |
+| Versão do estado gravado | 17 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,75 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O mapa operacional, na r0066
+
+O croqui mostra a forma. O mapa mostra-a **sobre a carta**: onde o incêndio pega, que
+povoações tem à volta, por onde correm as estradas. É a diferença entre saber que o
+perímetro tem seiscentos hectares e ver a que distância fica a aldeia.
+
+### Escrito no projeto
+
+Sem biblioteca nenhuma, porque a entrega é um ficheiro único que abre em `file://`: uma
+biblioteca de mapas obrigaria a servidor ou a `<script src>`, e nem uma coisa nem outra
+existem aqui. São cerca de trezentas linhas — projeção de Mercator, aritmética de
+mosaicos e um SVG por cima, que é tudo o que um mapa é.
+
+A projeção do mapa **não é** a do croqui, e tinha de não ser: o croqui é
+equirrectangular local, que chega para desenhar sozinho; o mosaico vem projetado em
+Mercator, e o que se desenha por cima tem de vir na mesma projeção ou fica ao lado do
+sítio. O que os dois partilham é a caixa envolvente — `enquadrarCroqui`, que é onde está
+a regra da extensão mínima. Duas caixas calculadas em dois sítios seriam duas caixas a
+divergir.
+
+A tela toma a **proporção do teatro** e não uma proporção fixa. Quando a altura ideal não
+cabe, é a largura que cede: deixar a largura toda e cortar só a altura punha o teatro num
+retângulo deitado com margens vazias dos dois lados — ver o dobro do que interessa e
+metade do detalhe.
+
+### A carta é de terceiros, e a licença exige que se diga
+
+`CARTAS` declara a fonte, a atribuição e os termos de uso, e a atribuição fica **sempre**
+por baixo do mapa — com carta completa, incompleta ou nenhuma.
+
+O mapa **não se carrega sozinho**. Um PCO trabalha com ligação intermitente e por vezes
+tarifada; pedir dezenas de quadrados de carta assim que a página abre é gastar a ligação
+de alguém sem ela ter pedido nada. Carrega-se a pedido, e depois fica: os quadrados vão
+para o IndexedDB, numa loja própria, e voltam a servir sem rede. A aplicação diz quantos
+tem guardados e deixa esquecê-los, porque é espaço no disco de quem trabalha.
+
+**Sem rede e sem quadrados guardados não se mostra um retângulo cinzento a fingir que é
+mapa**: diz-se que não há carta, e fica o croqui, que não precisa de nada.
+
+### O que se marca no mapa
+
+Os setores existiam sem sítio: sabia-se quem os comandava e o que lá estava, e não onde
+ficavam. Os pontos notáveis viviam em texto corrido, que serve para os ler e não serve
+para os ver. Passam a marcar-se com um clique — escolhe-se o que marcar, clica-se no
+mapa, e fica com a coordenada, o GDH e quem marcou, na evolução e na fita.
+
+`TIPOS_PONTO` é registo declarado, com a norma de cada tipo. **As citações são as que o
+projeto já usa para a mesma matéria noutro sítio**, e não alíneas escolhidas por parecerem
+bem. O ponto de água é figura corrente da manobra e não se lhe achou artigo: aparece como
+«fonte por confirmar» e está inscrito em `docs/FONTES.md`, em vez de se inventar a alínea.
+
+### O que a verificação em navegador corrigiu
+
+- **A sobreposição descolava do mapa em ecrã estreito.** A tela tinha `max-width:100%` na
+  folha de estilo: era esmagada para caber enquanto os mosaicos ficavam no tamanho
+  natural, as marcas apareciam ao lado do sítio e um clique devolvia a coordenada errada.
+- **O mapa ia estreitando a cada carregamento**, por se medir o contentor da tela — que
+  encolhe até ela. Mede-se agora uma caixa vizinha de largura normal.
+- **O mapa ficava encostado à esquerda** dentro de uma caixa vazia, que se lê como erro de
+  montagem.
+
+### Verificação
+
+430 testes, vinte e nove novos em `tests/mapa.test.mjs`: a projeção e o seu inverso em
+quatro latitudes e três ampliações, os polos, a escala aferida contra a referência
+conhecida, o enquadramento (cabe, e uma ampliação acima já não caberia), a atribuição
+obrigatória, os pontos notáveis, as coordenadas dos setores, o escape do nome no SVG e a
+ida e volta pela exportação. Em navegador: com carta, sem rede nenhuma, e a 380 px.
 
 ## O croqui do teatro de operações e os cartões dobráveis, na r0066
 

@@ -29,6 +29,7 @@ const POSSE = [
       { p:"dados.perimNome",  r:"art. 28.º",                d:"Perímetro carregado" },
       { p:"dados.perim",      r:"art. 28.º",                d:"Geometria do perímetro em WGS84" },
       { p:"dados.sensDet",    r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e sensíveis detetados, com distância e rumo" },
+      { p:"dados.pontos",     r:"art. 28.º; art. 32.º, n.º 1",        d:"Pontos notáveis do TO, marcados no mapa" },
       { p:"dados.sensiveis",  r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e pontos sensíveis" },
       { p:"dados.anexos",     r:"art. 28.º",                d:"Anexos do quadro de informações" },
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },

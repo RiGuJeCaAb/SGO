@@ -78,6 +78,8 @@ interface Setor {
   m?: string; o?: string;
   /** Nível de manobra e nível tático, em SIRESP e em banda alta. */
   siresp?: string; ba?: string; tat?: string; tatba?: string;
+  /** Coordenada do setor, marcada no mapa. Vazia enquanto não for marcada. */
+  lat?: string; lon?: string;
   tip?: any[];
   [outro: string]: any;
 }
@@ -147,6 +149,13 @@ interface Logistica {
   comunicacoes: Canais;
 }
 
+/** Um ponto notável do teatro de operações, com a coordenada em que foi marcado. */
+interface PontoNotavel {
+  id: string; tipo: string; nome: string;
+  lat: number; lon: number;
+  g: string; por: string; nota: string;
+}
+
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
 interface PerimetroGravado {
   nome: string;
@@ -170,6 +179,8 @@ interface DadosOcorrencia {
   perim: PerimetroGravado | null;
   /** O que a deteção encontrou à volta; nula enquanto não se correr a deteção. */
   sensDet: DetecaoSensiveis | null;
+  /** Os pontos notáveis do teatro, marcados no mapa. Ver TIPOS_PONTO. */
+  pontos: PontoNotavel[];
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */
