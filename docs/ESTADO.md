@@ -68,7 +68,54 @@ Por ordem em que foram tomadas.
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
 
-## O mapa operacional, na r0066
+## Arrumar a casa e apagar o que ninguém usa, na r0066
+
+### A raiz
+
+Os dois históricos — o `main` e o ramo — só partilham o commit inicial, e por isso o
+`main` continuava a ter na raiz tudo o que o ramo já tinha arrumado. Foram apagados 71
+ficheiros com cópia verificada byte a byte, mais cinco cujo texto arrumado é a versão
+sucessora (caminhos de estado antigos, a tabela de triagem por corrigir, um LEIAME
+anterior).
+
+**Vinte e sete não estavam absorvidos**, ao contrário do que eu tinha afirmado. Foram para
+o seu lugar em vez de serem apagados: seis entregas que faltavam em `app/` — entre elas a
+**r0030, que não estava em lado nenhum**, e as gémeas de r0015, r0016, r0028 e r0029 —,
+nove provas de verificação, quatro guiões, cinco documentos e um exemplo de
+interoperabilidade.
+
+E três cartas de uma ocorrência real, anotadas no posto de comando. Não eram lixo: são o
+alvo do mapa operacional, e estão em `docs/cartografia/` com a leitura do que a Estação
+ainda não faz — limites de setor, frentes com direção, linhas de contenção, meios
+colocados no sítio onde estão e anotação livre georreferenciada.
+
+### O que ninguém usa
+
+`ferramentas/morto.mjs`, ligada ao `npm run tudo`. A análise estática já apanhava a função
+órfã; o que ela não via era o outro lado do mesmo defeito — o identificador que o código
+procura e o HTML não tem, a classe que nenhum elemento usa. Nada disso dá erro: o botão
+fica sem ouvinte e a regra de estilo não pinta nada.
+
+Escrevê-la bem deu mais trabalho do que parecia, e cada tropeção ficou registado no
+código. A leitura dos literais começou por emparelhar aspas pela ordem em que apareciam,
+e uma aspa dentro de uma cadeia de plicas — `'<path class="'` — abria um par falso que
+engolia o literal seguinte: classes vivas apareciam mortas. Depois faltava reconhecer a
+expressão regular, cujas aspas desalinhavam a leitura. Depois faltava entrar no `${...}`
+de uma cadeia de crase, onde há classes escritas. **Uma ferramenta que mente é pior do que
+não a haver**, e por isso o que ela não consegue ver está declarado em `SABIDOS`, com o
+sítio que o compõe.
+
+Encontrou, e removeu-se: o desenho antigo do meteograma (`.cell`, `.day-div` e variantes),
+o do plano de comunicações (`.cm-s`), cinco classes do documento impresso substituídas
+pelas `p-*` e `pd-*`, e duas linhas de tabela que ninguém marca.
+
+E um defeito a sério: **o interruptor «Meios aéreos» não ligava a nada**. O quadro dos
+meios aéreos governa-se sozinho, e a caixa de seleção ao lado — com um campo para o número
+de meios, de quando os aéreos eram uma contagem — estava inerte desde que cada meio passou
+a ser uma unidade com indicativo. Saiu.
+
+
+## A carta do mapa, na r0066
 
 ### A carta não vem no código, e não podia vir
 

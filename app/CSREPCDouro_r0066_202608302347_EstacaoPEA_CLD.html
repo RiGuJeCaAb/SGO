@@ -153,11 +153,6 @@
   .pf-x:hover{border-color:var(--fogo);color:var(--fogo)}
   @media(max-width:1100px){.pco-h{display:none}.pco-r{grid-template-columns:1fr 34px;gap:6px}}
   /* plano de comunicações */
-  .cm-s{display:grid;grid-template-columns:110px 190px 150px 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
-  .cm-s:last-child{border-bottom:none}
-  .cm-s .nm{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--agua)}
-  .cm-s input{padding:8px 11px;font-size:13.5px}
-  .cm-s .cmdt{font-size:13.5px;color:var(--tx2)}
   .cm-h,.cm-r{display:grid;grid-template-columns:104px 1fr 190px 150px;gap:14px;align-items:start;padding:10px 4px}
   .cm-h{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--line);padding-bottom:8px}
   .cm-r{border-bottom:1px solid var(--line);font-size:14.5px}
@@ -169,11 +164,10 @@
   .cm-r .qm small{display:block;font-size:12.5px;color:var(--tx2);margin-top:2px}
   .cm-r .ch{font-family:var(--mono);font-size:13.5px}
   .cm-r .ch i{color:var(--tx3);font-size:12.5px}
-  @media(max-width:1000px){.cm-h{display:none}.cm-r,.cm-s{grid-template-columns:1fr;gap:5px}}
+  @media(max-width:1000px){.cm-h{display:none}.cm-r{grid-template-columns:1fr;gap:5px}}
   .cm-r .lv.aéreo{background:rgba(224,184,79,.16);color:var(--terra)}
   .cw{display:block}
   .cw .cwo{font-family:var(--mono)}
-  .cm-s .cw select,.cm-s .cw input{padding:8px 11px;font-size:13.5px}
   .cat-h,.cat-r{display:grid;grid-template-columns:132px 132px 96px 1fr 28px;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
   .cat-h{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);padding-bottom:7px}
   .cat-r:last-child{border-bottom:none}
@@ -471,13 +465,6 @@
 
   /* fita horária */
   .strip{display:flex;gap:2px;margin:16px 0 4px;overflow-x:auto;padding:2px 0 16px}
-  .cell{min-width:42px;flex:1;border-radius:6px;padding:7px 2px 6px;text-align:center;position:relative}
-  .cell .hh{font-family:var(--mono);font-size:10px;color:#0B0E13;font-weight:600}
-  .cell .rr{font-family:var(--mono);font-size:13px;font-weight:600;color:#0B0E13}
-  .day-div{min-width:22px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:5px;background:var(--surf2);border:1px solid var(--line)}
-  .day-div span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:10px;font-weight:600;color:var(--tx2);letter-spacing:.5px}
-  .cell.rot::after{content:"ROT";position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.5px;color:var(--terra)}
-  .cell.cv::before{content:"CONV";position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.5px;color:var(--fogo)}
   .legend{display:flex;gap:16px;font-size:11.5px;color:var(--tx2);margin-top:14px;flex-wrap:wrap}
   .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
   .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px}
@@ -685,19 +672,16 @@
   .paper{background:#FDFDFB;color:#1A1A1A;border:1px solid var(--line);border-radius:12px;padding:34px 40px;margin-top:14px;font-size:13.5px;line-height:1.6}
   .paper h1{font-family:var(--disp);color:#005CA9;font-size:23px;text-align:center;margin-bottom:2px}
   .paper .sub{text-align:center;font-weight:600;font-size:13px}
-  .paper .sub2{text-align:center;font-style:italic;color:#555;font-size:12px;margin-bottom:8px}
   .hz{display:flex;height:8px;margin:10px 0 16px}
   .hz i{flex:1}.hz i:nth-child(odd){background:#C00000}.hz i:nth-child(even){background:#fff;border-top:1px solid #eee;border-bottom:1px solid #eee}
   .paper h3{font-family:var(--disp);font-size:15px;color:#fff;background:#005CA9;padding:6px 12px;border-radius:5px;margin:20px 0 10px}
   .paper h3.v{background:#3AAA35}.paper h3.l{background:#E84E0F}
   .paper p{text-align:justify;margin-bottom:9px}
-  .paper .pos{color:#C00000;font-weight:700}.paper .pid{color:#005CA9;font-weight:700}
+  .paper .pid{color:#005CA9;font-weight:700}
   .paper .fund{font-style:italic;color:#595959}
   .paper table{font-size:12px;margin:8px 0}
   .paper th{color:#fff;background:#005CA9;font-size:11.5px;border:1px solid #B9C6D6;padding:5px 8px;text-align:left}
   .paper td{font-family:var(--body);font-size:12px;border:1px solid #D5DDE6;color:#1A1A1A;padding:5px 8px}
-  .paper .obj{border:2px solid #C00000;border-radius:8px;padding:12px 14px;font-weight:600}
-  .paper .alerta{color:#C00000;font-weight:700}
   .paper .nota{font-size:11px;font-style:italic;color:#666;margin-top:16px}
   /* No papel o croqui perde as cores do tema e fica em tons de impressão. */
   .paper .croqui-papel{border:0.75pt solid #404040!important;background:#fff!important;padding:3pt!important;
@@ -739,7 +723,6 @@
   .t-of th{color:#fff;background:#005CA9;border:1px solid #B9C6D6;padding:4px 8px;text-align:left;font-size:11px}
   .t-of th.lr{background:#E84E0F}
   .t-of td{border:1px solid #D5DDE6;padding:4px 8px;color:#1A1A1A}
-  .t-of tr.win td{background:#EAF6EA}.t-of tr.crit td{background:#FBEAEA}
   .p-res{text-align:right;font-size:11px;margin-top:10px}
   .p-res b{color:#C00000}
   .p-nota{font-size:10.5px;font-style:italic;color:#666;margin-top:12px;text-align:justify}
@@ -907,7 +890,6 @@
   .paper .cel.pl .cel-tit{background:#3AAA35!important}
   .paper .cel.op .cel-tit{background:#005CA9!important}
   .paper .cel.lg .cel-tit{background:#E84E0F!important}
-  .paper .cel-corpo{display:flex!important;align-items:stretch!important}
   /* Lombada, não legenda espalhada. As letras juntam-se ao centro do bloco com
      entrelinha fixa: numa folha inteira, esticá-las de cima a baixo transformava o
      nome da célula em ruído. */
@@ -1304,7 +1286,6 @@
         <div class="row" style="margin-bottom:12px">
           <span class="xtr"><span class="hint" style="margin:0">N.º de setores</span>
             <select id="s-n" style="width:74px"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></span>
-          <label class="chkbx"><input type="checkbox" id="s-aer"> Meios aéreos</label><span class="xtr"><input type="number" id="s-aer-n" min="1" placeholder="n.º" style="display:none"></span>
           <label class="chkbx"><input type="checkbox" id="s-res"> Reserva</label><span class="xtr" id="s-res-x" style="display:none"><input type="number" id="s-res-m" min="0" placeholder="meios"><input type="number" id="s-res-o" min="0" placeholder="op."></span>
           <label class="chkbx"><input type="checkbox" id="s-za"> ZA</label><span class="xtr" id="s-za-x" style="display:none"><input type="number" id="s-za-m" min="0" placeholder="meios"><input type="number" id="s-za-o" min="0" placeholder="op."></span>
           <label class="chkbx"><input type="checkbox" id="s-livre"> Colar texto livre (alternativa)</label>
@@ -1948,14 +1929,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608302257_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608302347_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608302257_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608302347_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================

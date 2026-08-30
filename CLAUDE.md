@@ -38,7 +38,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 |---|---|
 | `fonte/` | A fonte: `molde.html` e uma pasta por célula do PCO, com um módulo por subsistema. **É aqui que se altera** |
 | `app/` | As entregas, um ficheiro HTML por revisão. **Geradas: não editar à mão** |
-| `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, auditoria visual e validação de exportações |
+| `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, código morto, auditoria visual e validação de exportações |
 | `ferramentas/historico/` | Guiões que produziram revisões antigas. Arquivados: não usar nem atualizar |
 | `tipos/` | Formas do estado em `.d.ts` e linha de base do verificador. Não vai para o navegador |
 | `tests/` | Testes, mantidos entre sessões. Ver `tests/README.md` |
@@ -62,7 +62,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
   `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
-  estática e tipos. Acrescentar um teste que exercite o caminho alterado.
+  estática, tipos e código morto. Acrescentar um teste que exercite o caminho alterado.
+- `npm run morto` relata o que está escrito e ninguém usa: identificadores procurados
+  que o HTML não tem, identificadores e classes que ninguém usa, funções nunca chamadas.
+  **Lê-se, não se aplica.** O que a análise não consegue ver — uma classe composta em
+  tempo de execução, um rótulo fixo — declara-se em `SABIDOS`, com a razão.
 - Campo novo no estado declara-se em `tipos/estacao.d.ts`; o verificador apanha o nome mal
   escrito.
 - Ao substituir blocos grandes de código, confirmar por pesquisa que nenhuma função ficou
