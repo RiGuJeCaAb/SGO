@@ -50,6 +50,9 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   try{ montarFrases(); }catch(e){}
   try{ ligarCamposGDH(); }catch(e){}
   try{ await carregarSessao(); pintarSessao(); }catch(e){}
+  /* O serviço de mosaicos é definição do posto, guardada no dispositivo como o tema:
+     lê-se ao arranque, para o mapa saber a quem pode pedir carta. */
+  try{ await carregarCarta(); pintarCarta(); await pintarArquivoMapa(); }catch(e){}
   if(ARMAZEM.modo==="sessao"){
     fita("AVISO: armazenamento indisponivel neste ambiente — o estado perde-se ao fechar a pagina");
     /* Aviso permanente, não uma mensagem que passa: aqui a exportação deixa de ser

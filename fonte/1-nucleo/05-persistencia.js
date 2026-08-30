@@ -105,11 +105,15 @@ function pintarArquivo(){
   el.innerHTML = Object.keys(pastas).map(p=>
     `<div class="arq-p">${esc(p)}</div>`+
     pastas[p].map(x=>`<div class="arq-i"><div><b>${esc(x.num)} — ${esc(x.local||"")}</b><p>PCO ${esc(x.pco||"—")} · ${x.peas} PEA · atualizada ${esc(x.g)}</p></div>
-      <div class="acts"><button class="btn btn-b" data-occ-abrir="${esc(x.num)}">Abrir</button>
-      <button class="btn btn-r" data-occ-apagar="${esc(x.num)}">Apagar</button></div></div>`).join("")
+      <div class="acts"><button class="btn btn-b" data-enc-livre data-occ-abrir="${esc(x.num)}">Abrir</button>
+      <button class="btn btn-r" data-enc-livre data-occ-apagar="${esc(x.num)}">Apagar</button></div></div>`).join("")
   ).join("");
 
-  /* Ouvintes em vez de `onclick="abrirOcc('...')"`. O número da ocorrência é campo
+  /* `data-enc-livre`: o arquivo lista **outras** ocorrências, e o fecho protege o registo
+     desta. Com a ocorrência encerrada continuava a ver-se o arquivo e não se conseguia
+     abrir nada dele — que é o contrário do que o fecho quer dizer.
+
+     Ouvintes em vez de `onclick="abrirOcc('...')"`. O número da ocorrência é campo
      livre e caía dentro de uma string de JavaScript: uma plica bastava para executar o
      que se quisesse, e o escape de HTML não o impede — o navegador desfaz a entidade
      antes de o JavaScript ver o texto. Aqui o valor nunca é código: é o conteúdo de um

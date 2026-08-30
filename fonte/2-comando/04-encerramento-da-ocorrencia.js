@@ -117,20 +117,71 @@ async function reabrirOcorrencia(por, motivo){
   return { ok:true };
 }
 
-/* Fecho à escrita. Marca a raiz e inerta os campos, deixando de fora o que continua a
-   ser preciso com a ocorrência fechada: navegar, imprimir, exportar e reabrir. */
-const ENC_LIVRES = ["b-tema","b-ajuda","b-guardar","enc-reabrir","enc-por","enc-nota",
-  "b-exp-occ","b-imp-occ","b-imprimir"];
+/* ================= fecho à escrita =================
+   Encerrar fecha **o registo desta ocorrência**, e mais nada. O que não escreve nesta
+   ocorrência continua a funcionar, e o que leva a outra também: uma ocorrência encerrada
+   é exatamente o momento em que se começa a seguinte.
+
+   A lista do que fica livre estava escrita por identificador e **três dos que lá estavam
+   já não existiam** — `b-exp-occ`, `b-imp-occ` e `b-imprimir`. Ninguém dava por isso,
+   porque um identificador que não corresponde a nada não dá erro: apenas não isenta
+   ninguém. Exportar e importar ficavam bloqueados com a ocorrência fechada, que é quando
+   mais fazem falta, e o comentário por cima da lista dizia o contrário. Faltavam, além
+   disso, começar uma ocorrência nova, abrir outra do arquivo, assumir o teclado e ver o
+   mapa — tudo bloqueado sem que nada o justificasse.
+
+   Passa a ser registo declarado, cada entrada com a razão de ficar de fora, e
+   `auditarFechoDeEscrita` recusa um identificador que não exista. É o mesmo princípio do
+   registo de posse e do da arrumação: um registo que aponta para o que não existe é
+   defeito visível.
+
+   Os controlos criados em tempo de execução não têm identificador fixo e declaram-se com
+   `data-enc-livre` no próprio elemento. */
+const ENC_LIVRES = [
+  { id:"b-tema",        porque:"o tema é de quem olha, não da ocorrência" },
+  { id:"b-ajuda",       porque:"ler a ajuda não altera nada" },
+  { id:"b-guardar",     porque:"gravar o que está não é alterá-lo" },
+  { id:"b-nova",        porque:"uma ocorrência encerrada é quando se começa a seguinte" },
+  { id:"b-carregar",    porque:"abrir outra ocorrência é sair desta, não escrever nesta" },
+  { id:"b-exportar",    porque:"o registo fechado é o que mais interessa exportar" },
+  { id:"b-importar-b",  porque:"importar substitui a ocorrência em vez de a alterar" },
+  { id:"b-importar",    porque:"o campo de ficheiro que o botão de importar aciona" },
+  { id:"enc-reabrir",   porque:"sem isto o fecho não teria volta" },
+  { id:"enc-por",       porque:"a reabertura exige quem a determina" },
+  { id:"enc-nota",      porque:"e admite o motivo" },
+  { id:"id-posto",      porque:"assumir o teclado é ato do posto, não da ocorrência" },
+  { id:"id-nome",       porque:"e é preciso estar identificado para reabrir" },
+  { id:"id-perfil",     porque:"e o perfil decide quem pode reabrir" },
+  { id:"id-assumir",    porque:"idem" },
+  { id:"id-largar",     porque:"quem larga o teclado tem de o poder largar" },
+  { id:"cp-guardar",    porque:"um instantâneo não altera o que retrata" },
+  { id:"cp-conferir",   porque:"conferir a cadeia do diário é leitura" },
+  { id:"mapa-carregar",  porque:"ver o teatro de uma ocorrência fechada é leitura" },
+  { id:"mapa-mais",      porque:"idem" },
+  { id:"mapa-menos",     porque:"idem" },
+  { id:"mapa-enquadrar", porque:"idem" },
+  { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" }
+];
+
 function aplicarFechoDeEscrita(){
   const fechada = encerrada();
   document.documentElement.classList.toggle("encerrada", fechada);
+  const livres = ENC_LIVRES.map(x=>x.id);
   document.querySelectorAll(".card input,.card select,.card textarea,.card button")
     .forEach(el=>{
-      if(ENC_LIVRES.indexOf(el.id) >= 0 || el.closest("#c-encerramento")) return;
+      if(livres.indexOf(el.id) >= 0 || el.closest("#c-encerramento")) return;
+      if(el.hasAttribute("data-enc-livre")) return;
       if(el.hasAttribute("data-ir")) return;   /* os atalhos dos avisos continuam a levar lá */
       if(fechada) el.setAttribute("disabled", "disabled");
       else el.removeAttribute("disabled");
     });
+}
+
+/** Um identificador declarado livre que não exista não isenta ninguém — e é defeito. */
+function auditarFechoDeEscrita(){
+  const semControlo = ENC_LIVRES.filter(x=>!document.getElementById(x.id)).map(x=>x.id);
+  const semRazao = ENC_LIVRES.filter(x=>!x.porque).map(x=>x.id);
+  return { n:ENC_LIVRES.length, semControlo, semRazao };
 }
 
 function pintarEncerramento(){

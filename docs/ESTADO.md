@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 66, das anteriores à convenção de nomes até à r0066 |
 | Módulos em `fonte/` | 58, em sete zonas, mais o molde |
-| Testes | 430, todos a passar |
+| Testes | 446, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,43 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O mapa operacional, na r0066
+
+### A carta não vem no código, e não podia vir
+
+A primeira versão trazia `tile.openstreetmap.org` escrito no módulo. **Estava errada**, e a
+verificação do Ricardo apanhou-a: o servidor responde com um mosaico que diz «Access
+blocked · App is not following the tile usage policy», e a aplicação colava-o como se fosse
+cartografia.
+
+Não é defeito de código — é uma escolha ilegítima. Aquele serviço é dos voluntários do
+OpenStreetMap, para uso do OpenStreetMap, e a política exige que a aplicação se identifique
+num `User-Agent` ou `Referer` próprio. Uma página aberta em `file://` não pode fazer nem uma
+coisa nem outra: o navegador manda a sua própria identificação e origem nula.
+
+Por isso **não vem serviço nenhum configurado**, e escolher outro por conta própria seria dar
+por assente um direito de uso que não está confirmado — a mesma regra das designações de
+canal e dos números de artigo. Ficam dois caminhos:
+
+1. **Declarar o serviço** que o posto tenha direito a consultar — DGT, VCOC, ou outro com
+   chave própria. Endereço no esquema de mosaicos, e **atribuição e termos obrigatórios**:
+   carta de terceiros não se mostra sem dizer de quem é. Fica guardado no dispositivo, com
+   quem o declarou e quando, porque é decisão do posto e não um acaso.
+2. **Carregar carta pré-descarregada**, da árvore `{z}/{x}/{y}.png`. Fica no IndexedDB e
+   serve **sem rede** — que é a condição normal de um PCO no terreno, e é o caminho que a
+   própria especificação já previa no agente de topografia da Fase 3: «fontes
+   pré-descarregadas por distrito para funcionar sem rede no TO».
+
+Provado em navegador com **toda a rede abortada**: doze quadrados carregados de ficheiro,
+guardados e servidos, mapa completo, sem um único pedido a sair.
+
+### Uma recusa não é carta
+
+Um servidor que recusa devolve muitas vezes a mesma imagem para todos os quadrados. A
+aplicação reconhece-o: se três quadrados diferentes trazem bytes idênticos (impressão FNV-1a
+sobre o conteúdo), não é cartografia — é uma recusa repetida. Di-lo, não a mostra e **não a
+guarda**, para não ficar com a recusa no arquivo a servir sem rede.
 
 ## O mapa operacional, na r0066
 
@@ -136,6 +173,27 @@ quatro latitudes e três ampliações, os polos, a escala aferida contra a refer
 conhecida, o enquadramento (cabe, e uma ampliação acima já não caberia), a atribuição
 obrigatória, os pontos notáveis, as coordenadas dos setores, o escape do nome no SVG e a
 ida e volta pela exportação. Em navegador: com carta, sem rede nenhuma, e a 380 px.
+
+## Encerrar fecha o registo desta ocorrência, e mais nada — na r0066
+
+Com a ocorrência encerrada, a aplicação bloqueava **tudo**, incluindo começar uma nova. O
+Ricardo apanhou-o, e por baixo estava mais do que se via.
+
+A lista do que ficava livre do fecho estava escrita por identificador, e **três dos que lá
+estavam já não existiam** — `b-exp-occ`, `b-imp-occ` e `b-imprimir`. Um identificador que não
+corresponde a nada não dá erro: apenas não isenta ninguém. Exportar e importar ficavam
+bloqueados com a ocorrência fechada, que é quando mais fazem falta, e o comentário por cima
+da lista dizia exatamente o contrário. Faltavam ainda começar uma ocorrência nova, abrir
+outra do arquivo, assumir o teclado e ver o mapa.
+
+Passa a ser registo declarado com a razão de cada entrada, e `auditarFechoDeEscrita` recusa um
+identificador que não exista, acendendo o mesmo aviso da posse na passagem de turno. É o
+princípio que o projeto já aplica em toda a parte: um registo que aponta para o que não
+existe é defeito visível.
+
+Os controlos criados em tempo de execução não têm identificador fixo e declaram-se com
+`data-enc-livre` no próprio elemento — é assim que os botões do arquivo ficam livres: o
+arquivo lista **outras** ocorrências, e o fecho protege o registo desta.
 
 ## O croqui do teatro de operações e os cartões dobráveis, na r0066
 

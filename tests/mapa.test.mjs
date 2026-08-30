@@ -93,18 +93,84 @@ test('o centro do enquadramento é o centro do teatro', semAplicacao, () => {
 
 /* ---- a carta e a atribuição ---- */
 
-test('a carta declara a atribuição e os termos que a licença obriga a mostrar', semAplicacao, () => {
-  const C = avaliar(janela, 'CARTAS');
-  assert.ok(C.length >= 1);
-  C.forEach((c) => {
-    assert.ok(c.atrib && c.atrib.length > 5, c.k + ' sem atribuição');
-    assert.match(c.termos, /^https:\/\//, c.k + ' sem termos de uso');
-    assert.ok(c.u.includes('{z}') && c.u.includes('{x}') && c.u.includes('{y}'), c.k);
-  });
+test('não vem serviço de mosaicos nenhum escrito no código', semAplicacao, async () => {
+  /* A primeira versão trazia `tile.openstreetmap.org`, e estava errada: aquele serviço
+     exige que a aplicação se identifique num cabeçalho próprio, e uma página aberta em
+     `file://` não o consegue fazer. Escolher um serviço sem direito de uso confirmado é
+     dar por assente o que não está. */
+  await janela.retirarCarta();
+  assert.equal(avaliar(janela, 'CARTA'), null);
+  assert.equal(janela.mosaicoURL(14, 7729, 6216), '', 'sem serviço não se pede nada a ninguém');
+  assert.equal(await janela.mosaicoBlob(14, 7729, 6216), null);
 });
 
-test('o endereço do mosaico sai com o nível e as coordenadas no sítio', semAplicacao, () => {
-  assert.equal(janela.mosaicoURL(14, 7729, 6216), 'https://tile.openstreetmap.org/14/7729/6216.png');
+test('declarar o serviço exige endereço de mosaicos, atribuição e termos', semAplicacao, async () => {
+  assert.equal((await janela.guardarCarta('ftp://x/{z}/{x}/{y}.png', 'a', 'https://t', 19)).ok, false);
+  assert.equal((await janela.guardarCarta('https://x/mapa.png', 'a', 'https://t', 19)).ok, false,
+    'sem {z}/{x}/{y} não é esquema de mosaicos');
+  assert.equal((await janela.guardarCarta('https://x/{z}/{x}/{y}.png', '', 'https://t', 19)).ok, false,
+    'carta de terceiros não se mostra sem dizer de quem é');
+  assert.equal((await janela.guardarCarta('https://x/{z}/{x}/{y}.png', 'Serviço X', 'nao-e-url', 19)).ok, false);
+});
+
+test('o serviço declarado fica com quem o declarou, e monta o endereço', semAplicacao, async () => {
+  const r = await janela.guardarCarta('https://carta.exemplo.pt/{z}/{x}/{y}.png',
+    'Cartografia da entidade X', 'https://carta.exemplo.pt/termos', '17');
+  assert.ok(r.ok, r.motivo);
+  const C = avaliar(janela, 'CARTA');
+  assert.equal(C.zMax, 17);
+  assert.ok(C.g, 'sem GDH da declaração');
+  assert.equal(janela.mosaicoURL(14, 7729, 6216), 'https://carta.exemplo.pt/14/7729/6216.png');
+});
+
+test('a ampliação máxima é a que o serviço declarou', semAplicacao, async () => {
+  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'X', 'https://t', '15');
+  comTeatro();
+  janela.enquadrarMapa(2000, 620);
+  assert.ok(avaliar(janela, 'MAPA').z <= 15, 'passou da ampliação que o serviço dá');
+});
+
+test('retirar o serviço leva com ele os mosaicos que dele vieram', semAplicacao, async () => {
+  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'X', 'https://t', 19);
+  await janela.retirarCarta();
+  assert.equal(avaliar(janela, 'CARTA'), null);
+});
+
+test('a impressão digital distingue bytes iguais de bytes diferentes', semAplicacao, async () => {
+  const B = (s) => new janela.Blob([s]);
+  const a = await janela.impressaoMosaico(B('quadrado um'));
+  const b = await janela.impressaoMosaico(B('quadrado um'));
+  const c = await janela.impressaoMosaico(B('quadrado dois'));
+  assert.equal(a, b, 'os mesmos bytes deviam dar a mesma impressão');
+  assert.notEqual(a, c);
+  assert.match(a, /^[0-9a-f]+-\d+$/);
+});
+
+test('a carta pré-descarregada reconhece a árvore {z}/{x}/{y}', semAplicacao, () => {
+  assert.deepEqual(daqui(janela.mosaicoDoCaminho('carta/14/7835/6135.png')), { z: 14, x: 7835, y: 6135 });
+  assert.deepEqual(daqui(janela.mosaicoDoCaminho('14/7835/6135.jpg')), { z: 14, x: 7835, y: 6135 });
+  assert.deepEqual(daqui(janela.mosaicoDoCaminho('d/viseu/carta/9/247/193.webp')), { z: 9, x: 247, y: 193 });
+});
+
+test('e ignora o que vem à boleia na mesma pasta', semAplicacao, () => {
+  ['carta/leia-me.txt', 'carta/14/7835/legenda.png', 'carta/7835/6135.png',
+    'carta/14/7835/6135.pdf', 'carta/99/1/1.png']
+    .forEach((c) => assert.equal(janela.mosaicoDoCaminho(c), null, c + ' passou e não devia'));
+});
+
+test('carregar carta local conta o que entrou e o que ficou de fora', semAplicacao, async () => {
+  /* jsdom não dá IndexedDB: nada fica guardado, e é isso que `semArquivo` diz — separado
+     do que foi recusado por não seguir a árvore, que é outra coisa. */
+  const f = (caminho) => {
+    const x = new janela.File(['x'], caminho.split('/').pop(), { type: 'image/png' });
+    Object.defineProperty(x, 'webkitRelativePath', { value: caminho });
+    return x;
+  };
+  const r = await janela.carregarMosaicosLocais([
+    f('carta/14/7835/6135.png'), f('carta/14/7835/6136.png'), f('carta/leia-me.txt')
+  ]);
+  assert.equal(r.ignorados, 1, 'um só não seguia a árvore');
+  assert.equal(r.n + r.semArquivo, 2, 'os outros dois eram mosaicos');
 });
 
 /* ---- os pontos notáveis ---- */
@@ -231,26 +297,40 @@ test('o rótulo leva contorno branco por baixo, para se ler sobre a carta', semA
 
 /* ---- sem carta ---- */
 
-test('sem carta a aplicação di-lo, e o croqui continua a servir', semAplicacao, () => {
+test('sem serviço declarado a aplicação di-lo, e o croqui continua a servir', semAplicacao, async () => {
+  await janela.retirarCarta();
   comTeatro();
   janela.enquadrarMapa(640, 620);
   const M = avaliar(janela, 'MAPA');
-  M.pronto = false; M.falhas = 4;
+  M.pronto = false; M.falhas = 4; M.recusados = 0;
   janela.pintarEstadoMapa(0, 4);
   const t = janela.document.getElementById('mapa-info').textContent;
-  assert.match(t, /Sem carta/);
-  assert.match(t, /contribuidores do OpenStreetMap/, 'a atribuição fica sempre à vista');
+  assert.match(t, /Sem serviço de mosaicos configurado/);
   assert.notEqual(janela.croquiSVG(640, 400), '', 'o croqui não devia depender da carta');
 });
 
-test('a atribuição aparece mesmo com o mapa completo', semAplicacao, () => {
+test('um serviço que devolve sempre a mesma imagem é recusa, e não carta', semAplicacao, async () => {
+  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'Serviço X', 'https://t', 19);
   comTeatro();
   janela.enquadrarMapa(640, 620);
   const M = avaliar(janela, 'MAPA');
-  M.pronto = true; M.falhas = 0;
+  M.pronto = false; M.recusados = 9; M.falhas = 9;
+  janela.pintarEstadoMapa(0, 9);
+  const t = janela.document.getElementById('mapa-info').textContent;
+  assert.match(t, /a mesma imagem em vez de carta/);
+  assert.match(t, /está a recusar os pedidos/);
+});
+
+test('a atribuição do serviço aparece sempre que há serviço', semAplicacao, async () => {
+  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'Cartografia da entidade X', 'https://t/uso', 19);
+  comTeatro();
+  janela.enquadrarMapa(640, 620);
+  const M = avaliar(janela, 'MAPA');
+  M.pronto = true; M.falhas = 0; M.recusados = 0;
   janela.pintarEstadoMapa(12, 12);
   const t = janela.document.getElementById('mapa-info').textContent;
-  assert.match(t, /contribuidores do OpenStreetMap/);
+  assert.match(t, /Cartografia da entidade X/);
+  assert.match(t, /https:\/\/t\/uso/);
   assert.match(t, /não substitui a carta militar/);
 });
 
@@ -297,4 +377,17 @@ test('uma ocorrência da versão 15 abre sem geometria e sem pontos, e não os i
   assert.deepEqual(daqui(lido.dados.pontos), []);
   assert.equal(lido.dados.est.setores[0].lat, '', 'o setor ganha o campo, vazio');
   assert.equal(lido.versao, avaliar(janela, 'VERSAO_ESTADO'));
+});
+
+test('com carta do arquivo e sem serviço, di-lo em vez de dizer que não há carta', semAplicacao, async () => {
+  await janela.retirarCarta();
+  comTeatro();
+  janela.enquadrarMapa(640, 620);
+  const M = avaliar(janela, 'MAPA');
+  M.pronto = true; M.falhas = 0; M.recusados = 0;
+  janela.pintarEstadoMapa(12, 12);
+  const t = janela.document.getElementById('mapa-info').textContent;
+  assert.match(t, /Carta pré-descarregada/);
+  assert.doesNotMatch(t, /Sem serviço de mosaicos configurado/,
+    'o mapa estava a mostrar carta e a linha dizia que não havia');
 });

@@ -135,7 +135,8 @@ function renderQuadroTurno(){
      A `auditarArrumacao` existia e não era chamada por ninguém — declarava-se defeito
      visível e não se via em lado nenhum. Passa a acender o mesmo aviso que a posse. */
   try{
-    const a = auditarPosse(O), c = auditarArrumacao(), d = auditarDobraveis(), av = document.getElementById("tn-orfaos");
+    const a = auditarPosse(O), c = auditarArrumacao(), d = auditarDobraveis(),
+          f = auditarFechoDeEscrita(), av = document.getElementById("tn-orfaos");
     if(av){
       const partes = [];
       if(a.orfaos.length) partes.push(a.orfaos.length+" ramo(s) do estado sem célula atribuída — "+a.orfaos.slice(0,6).join(", "));
@@ -150,6 +151,10 @@ function renderQuadroTurno(){
       if(d.semCartao.length) partes.push("cartão dobrável declarado que não existe — "+d.semCartao.join(", "));
       if(d.semDobrar.length) partes.push("cartão(ões) que não dobraram — "+d.semDobrar.join(", "));
       if(d.semRazao.length) partes.push("cartão dobrável sem norma ou razão declarada — "+d.semRazao.join(", "));
+      /* Um controlo declarado livre do fecho à escrita que não exista não isenta
+         ninguém: fica bloqueado com a ocorrência encerrada e ninguém dá por isso. */
+      if(f.semControlo.length) partes.push("controlo declarado livre do fecho que não existe — "+f.semControlo.join(", "));
+      if(f.semRazao.length) partes.push("controlo livre do fecho sem razão declarada — "+f.semRazao.join(", "));
       av.style.display = partes.length? "block" : "none";
       av.className = "msg err";
       if(partes.length) av.textContent = "Posse por confirmar: " + partes.join(" · ");

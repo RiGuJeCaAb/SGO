@@ -218,3 +218,75 @@ test('reabrir limpa o carimbo e diz na evolução qual era', semAplicacao, async
   assert.match(ultimo.txt, new RegExp(antes.slice(0, 12)),
     'a evolução tem de dizer que carimbo tinha o registo que se reabriu');
 });
+
+/* ---- o fecho à escrita fecha o registo desta ocorrência, e mais nada ---- */
+
+const el = (id) => janela.document.getElementById(id);
+
+test('cada controlo declarado livre do fecho existe mesmo', semAplicacao, () => {
+  /* A lista trazia três identificadores que já não existiam — `b-exp-occ`, `b-imp-occ`
+     e `b-imprimir` —, e um identificador que não corresponde a nada não isenta ninguém:
+     exportar e importar ficavam bloqueados sem que ninguém desse por isso. */
+  const a = janela.auditarFechoDeEscrita();
+  assert.deepEqual(daqui(a.semControlo), []);
+  assert.deepEqual(daqui(a.semRazao), []);
+  assert.ok(a.n >= 20, 'a lista encolheu: ' + a.n);
+});
+
+test('com a ocorrência encerrada começa-se a seguinte, e abre-se outra', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.pintarEncerramento();
+
+  ['b-nova', 'b-carregar', 'b-exportar', 'b-importar-b', 'b-importar']
+    .forEach((id) => assert.equal(el(id).disabled, false, id + ' ficou bloqueado'));
+});
+
+test('encerrada, continua a poder assumir-se o teclado e a reabrir-se', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.pintarEncerramento();
+
+  ['id-posto', 'id-nome', 'id-perfil', 'id-assumir', 'enc-reabrir', 'enc-por', 'enc-nota']
+    .forEach((id) => assert.equal(el(id).disabled, false, id + ' ficou bloqueado'));
+});
+
+test('encerrada, vê-se o mapa e guarda-se uma cópia — leitura não é escrita', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.pintarEncerramento();
+
+  ['mapa-carregar', 'mapa-mais', 'mapa-menos', 'mapa-enquadrar', 'mapa-esquecer',
+    'cp-guardar', 'cp-conferir']
+    .forEach((id) => assert.equal(el(id).disabled, false, id + ' ficou bloqueado'));
+});
+
+test('o arquivo continua a abrir-se: lista outras ocorrências, não esta', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.eval('INDEX = [{num:"2026/900", local:"Sernancelhe", pco:"x", peas:1, g:"301200AGO26", pasta:"Viseu"}]');
+  janela.pintarArquivo();
+  janela.aplicarFechoDeEscrita();
+  const b = janela.document.querySelector('[data-occ-abrir]');
+  assert.ok(b, 'sem botão de abrir no arquivo');
+  assert.equal(b.disabled, false, 'não se conseguia abrir outra ocorrência');
+});
+
+test('mas os campos da ocorrência continuam fechados', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.pintarEncerramento();
+  ['d-area', 'e-txt', 'b-gerar', 'mapa-alvo', 'mapa-nome']
+    .forEach((id) => assert.equal(el(id).disabled, true, id + ' devia estar fechado'));
+});
+
+test('reabrir devolve os campos ao serviço', semAplicacao, async () => {
+  ocorrenciaApagada();
+  await janela.encerrarOcorrencia('Cmdt Costa');
+  janela.pintarEncerramento();
+  assert.equal(el('d-area').disabled, true);
+  await janela.reabrirOcorrencia('Cmdt Costa', 'reacendimento');
+  janela.pintarEncerramento();
+  assert.equal(el('d-area').disabled, false, 'ficou bloqueado depois de reaberta');
+  assert.equal(janela.document.documentElement.classList.contains('encerrada'), false);
+});

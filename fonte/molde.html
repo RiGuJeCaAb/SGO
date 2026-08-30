@@ -1236,6 +1236,49 @@
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
           <span class="hint" id="mapa-arquivo"></span>
         </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">De onde vem a carta</span>
+          <p class="hint"><b>A aplicação não traz serviço de mosaicos nenhum.</b> Os serviços de uso comunitário —
+          o do OpenStreetMap entre eles — exigem que a aplicação se identifique num cabeçalho próprio,
+          e uma página aberta como ficheiro local não o consegue fazer: o servidor recusa e devolve uma
+          imagem a dizê-lo. Escolher um serviço por conta própria seria dar por assente um direito de uso
+          que não está confirmado.</p>
+          <p class="hint">Há dois caminhos, e o segundo é o que a especificação prevê para o teatro de operações:</p>
+          <p class="hint"><b>1. Declarar o serviço</b> que o posto tenha direito a consultar — o da Direção-Geral do
+          Território, o da VCOC, ou outro com chave própria. O endereço segue o esquema de mosaicos, com
+          <span class="mono-sm">{z}</span>, <span class="mono-sm">{x}</span> e <span class="mono-sm">{y}</span>.
+          A atribuição e os termos são obrigatórios: carta de terceiros não se mostra sem dizer de quem é.</p>
+          <p class="hint"><b>2. Carregar carta pré-descarregada</b>, da árvore de pastas
+          <span class="mono-sm">{z}/{x}/{y}.png</span>. Fica guardada no dispositivo e serve <b>sem rede</b>,
+          que é a condição normal de um posto de comando no terreno. É o caminho previsto na Fase 3, com as
+          fontes pré-descarregadas por distrito.</p>
+        </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Serviço de mosaicos</span>
+          <div class="grid g2">
+            <div style="grid-column:1/-1"><label for="carta-u">Endereço, com {z}/{x}/{y}</label>
+              <input id="carta-u" placeholder="https://servico.exemplo.pt/wmts/{z}/{x}/{y}.png"></div>
+            <div><label for="carta-atrib">Atribuição a mostrar</label>
+              <input id="carta-atrib" placeholder="ex.: Cartografia da Direção-Geral do Território"></div>
+            <div><label for="carta-termos">Termos de uso</label>
+              <input id="carta-termos" placeholder="https://..."></div>
+            <div><label for="carta-zmax">Ampliação máxima</label>
+              <input id="carta-zmax" placeholder="19" inputmode="numeric"></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn btn-o" type="button" id="carta-guardar">Declarar o serviço</button>
+            <button class="btn btn-r" type="button" id="carta-retirar">Retirar o serviço</button>
+          </div>
+          <div class="mono-sm" id="carta-estado" style="margin-top:10px"></div>
+          <div class="msg" id="carta-msg" style="display:none"></div>
+        </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Carta pré-descarregada</span>
+          <p class="hint" style="margin:0 0 10px 0">Uma pasta com a árvore <span class="mono-sm">{z}/{x}/{y}.png</span>.
+          Fica no dispositivo e serve sem rede.</p>
+          <input type="file" id="carta-fich" multiple accept="image/png,image/jpeg,image/webp">
+          <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
+        </div>
       </div>
 
       <div class="sub" data-move-ops="1"><span class="stit">Importação da Gestão PCO (esquema v1.2)</span>

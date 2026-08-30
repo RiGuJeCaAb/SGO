@@ -18,18 +18,72 @@
    Um mapa de apoio à decisão não é uma carta de navegação: não substitui a M888. */
 
 /**
- * As cartas de fundo, com a atribuição que a licença obriga a mostrar.
+ * O serviço de mosaicos em uso. Nulo enquanto não for configurado — e é o que está.
  *
- * Uma só, e declarada. Acrescentar outra é acrescentar uma linha — mas cada linha tem de
- * trazer a atribuição e os termos, que é o que torna legítimo usá-la.
+ * **A primeira versão vinha com `tile.openstreetmap.org` escrito no código, e estava
+ * errada.** Aquele serviço é dos voluntários do OpenStreetMap, para uso do próprio
+ * OpenStreetMap, e a política de uso exige que a aplicação se identifique num cabeçalho
+ * `User-Agent` ou `Referer` próprio. Uma página aberta em `file://` não pode fazer nem
+ * uma coisa nem outra: o navegador manda a sua própria identificação e origem nula. O
+ * servidor responde com um mosaico que diz «Access blocked», e a aplicação colava-o como
+ * se fosse carta.
+ *
+ * Não é defeito de código: era uma escolha ilegítima. Por isso **não vem serviço nenhum
+ * configurado de origem**. Nenhum serviço público de mosaicos que se conheça permita uso
+ * anónimo a partir de ficheiro local está confirmado, e escolher um seria dar por
+ * assente o que não está — a mesma regra que vale para as designações de canal e para os
+ * números de artigo.
+ *
+ * O endereço, a atribuição e os termos declaram-se na aplicação e ficam guardados **no
+ * dispositivo**, não na ocorrência: é definição do posto, como o tema. A VCOC ou a
+ * Direção-Geral do Território indicam o serviço; enquanto não indicarem, fica o croqui,
+ * que não precisa de rede nem de licença de ninguém.
+ *
+ * @type {null|{u:string, atrib:string, termos:string, zMax:number, por:string, g:string}}
  */
-const CARTAS = [
-  { k:"osm", n:"OpenStreetMap",
-    u:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    atrib:"© contribuidores do OpenStreetMap",
-    termos:"https://www.openstreetmap.org/copyright",
-    zMax:19 }
-];
+let CARTA = null;
+const CARTA_CHAVE = "peaapp:carta";
+
+/** Lê o serviço configurado neste dispositivo. */
+async function carregarCarta(){
+  try{
+    const r = await ARMAZEM.get(CARTA_CHAVE);
+    const c = JSON.parse(r.value);
+    if(c && typeof c.u === "string" && c.u.includes("{z}")) CARTA = c;
+  }catch(e){ CARTA = null; }
+  return CARTA;
+}
+
+/**
+ * Declara o serviço de mosaicos.
+ *
+ * Exige a atribuição e os termos, e não por formalidade: uma carta de terceiros mostrada
+ * sem dizer de quem é não se pode mostrar. Quem configura fica registado, porque é uma
+ * decisão do posto e não um acaso.
+ */
+async function guardarCarta(u, atrib, termos, zMax){
+  const url = String(u||"").trim();
+  if(!/^https:\/\//.test(url)) return { ok:false, motivo:"O endereço tem de começar por https://." };
+  if(!(url.includes("{z}") && url.includes("{x}") && url.includes("{y}")))
+    return { ok:false, motivo:"O endereço tem de trazer {z}, {x} e {y} — é o esquema de mosaicos." };
+  const a = String(atrib||"").trim();
+  if(a.length < 4) return { ok:false, motivo:"Indicar a atribuição que a licença do serviço obriga a mostrar." };
+  const t = String(termos||"").trim();
+  if(!/^https:\/\//.test(t)) return { ok:false, motivo:"Indicar o endereço dos termos de uso do serviço." };
+  const z = Math.max(3, Math.min(22, parseInt(String(zMax||"19"), 10) || 19));
+  CARTA = { u:url, atrib:a, termos:t, zMax:z, por:quemRegista(), g:gdhAgora() };
+  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
+  fita("Serviço de mosaicos declarado: "+a);
+  return { ok:true, carta:CARTA };
+}
+
+/** Retira o serviço configurado, e com ele os mosaicos que dele vieram. */
+async function retirarCarta(){
+  CARTA = null;
+  try{ await ARMAZEM.del(CARTA_CHAVE); }catch(e){}
+  await esquecerMosaicos();
+  return { ok:true };
+}
 
 /** Lado do mosaico, em pixéis. É o do esquema de mosaicos, não uma escolha nossa. */
 const MOSAICO_PX = 256;
@@ -63,7 +117,7 @@ function merEscala(lat, z){
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai
    no PEA. O que vai no PEA é o croqui, que é o desenho e não a vista. */
-const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", carta:"osm", pronto:false, falhas:0 };
+const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", pronto:false, falhas:0, recusados:0 };
 /** Os endereços temporários dos mosaicos desenhados, para os libertar no render seguinte. */
 let MAPA_URLS = [];
 
@@ -94,7 +148,7 @@ function enquadrarMapa(larg, altMax){
   if(A > teto){ A = teto; L = Math.round(A/prop); }
   MAPA.larg = Math.max(280, L);
   MAPA.alt = Math.max(260, A);
-  const zMax = (cartaAtual().zMax) || 19;
+  const zMax = (CARTA && CARTA.zMax) || 19;
   /* O maior nível de ampliação em que a caixa ainda cabe na tela. */
   let z = 5;
   for(let t=zMax; t>=3; t--){
@@ -108,38 +162,111 @@ function enquadrarMapa(larg, altMax){
   return true;
 }
 
-/** A carta em uso. */
-function cartaAtual(){ return CARTAS.find(c=>c.k === MAPA.carta) || CARTAS[0]; }
-
-/** O endereço de um mosaico. */
+/** O endereço de um mosaico. Vazio sem serviço configurado. */
 function mosaicoURL(z, x, y){
-  return cartaAtual().u.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
+  if(!CARTA) return "";
+  return CARTA.u.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
+}
+
+/** A chave de um mosaico no arquivo local. Uma só, seja qual for a sua proveniência. */
+function chaveMosaico(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
+
+/**
+ * Uma impressão digital dos bytes de um mosaico, para reconhecer o que se repete.
+ *
+ * Um servidor que recusa o pedido responde muitas vezes com **a mesma imagem para todos
+ * os quadrados** — a que diz «Access blocked», por exemplo. Isso chega ao ecrã como se
+ * fosse carta, e a aplicação dizia que o mapa estava completo. Mosaicos diferentes de
+ * sítios diferentes não são byte a byte iguais; se três o forem, não é carta.
+ *
+ * FNV-1a, que não é criptográfica e não precisa de o ser: aqui só se pergunta se dois
+ * blocos de bytes são o mesmo bloco.
+ */
+async function impressaoMosaico(b){
+  try{
+    const v = new Uint8Array(await b.arrayBuffer());
+    let h = 0x811c9dc5;
+    for(let i=0;i<v.length;i++){ h ^= v[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16)+"-"+v.length;
+  }catch(e){ return ""; }
 }
 
 /**
- * Um mosaico, do arquivo local ou da rede.
+ * Um mosaico, do arquivo local ou do serviço configurado.
  *
- * O arquivo primeiro, sempre: poupa a rede de quem a cedeu e é o que faz o mapa
- * sobreviver à ligação que cai. Falhar devolve `null` — nunca lança, porque um mapa que
- * parte a página por um quadrado que não veio é pior do que um mapa com um buraco.
+ * O arquivo primeiro, sempre: é o que permite trabalhar sem rede, e é para lá que vai a
+ * carta pré-descarregada. Sem serviço configurado, não se pede nada a ninguém.
  *
  * @returns {Promise<Blob|null>}
  */
 async function mosaicoBlob(z, x, y){
-  const chave = cartaAtual().k+"/"+z+"/"+x+"/"+y;
+  const chave = chaveMosaico(z, x, y);
   if(IDB){
     try{
       const g = await _idb("mosaicos", "readonly", st=>st.get(chave));
-      if(g && g.b && (Date.now() - (g.ts||0)) < MOSAICO_DIAS*86400000) return g.b;
+      /* A carta carregada de ficheiro não caduca: foi posta ali de propósito, para o
+         teatro, e apagá-la ao fim de dois meses seria dar cabo do que se preparou. */
+      if(g && g.b && (g.local || (Date.now() - (g.ts||0)) < MOSAICO_DIAS*86400000)) return g.b;
     }catch(e){}
   }
+  if(!CARTA) return null;
   try{
     const r = await fetchT(mosaicoURL(z, x, y), {}, 12000);
     if(!r.ok) return null;
     const b = await r.blob();
-    if(IDB){ try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:Date.now()}, chave)); }catch(e){} }
+    /* Não se guarda já: só depois de se saber que é carta e não uma recusa repetida.
+       Guardar a recusa seria ficar com ela no arquivo a servir sem rede. */
     return b;
   }catch(e){ return null; }
+}
+
+/** Guarda um mosaico vindo do serviço, depois de reconhecido como carta. */
+async function guardarMosaico(z, x, y, b){
+  if(!IDB) return;
+  try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:Date.now()}, chaveMosaico(z, x, y))); }catch(e){}
+}
+
+/**
+ * Carrega carta pré-descarregada, de ficheiros no disco.
+ *
+ * É o caminho que a especificação prevê para o agente de topografia (Fase 3): fontes
+ * pré-descarregadas por distrito, para funcionar sem rede no TO. Aceita a árvore de
+ * pastas do esquema de mosaicos — `.../{z}/{x}/{y}.png` —, que é como praticamente todas
+ * as ferramentas de exportação as escrevem.
+ *
+ * @param {FileList|File[]} ficheiros
+ * @returns {Promise<{n:number, ignorados:number, semArquivo:number, niveis:number[]}>}
+ */
+async function carregarMosaicosLocais(ficheiros){
+  const L = Array.from(ficheiros||[]);
+  let n = 0, semArvore = 0, semArquivo = 0;
+  const niveis = new Set();
+  for(const f of L){
+    const t = mosaicoDoCaminho(f.webkitRelativePath || f.name);
+    if(!t){ semArvore++; continue; }
+    if(!IDB){ semArquivo++; continue; }
+    try{
+      await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaico(t.z, t.x, t.y)));
+      niveis.add(t.z); n++;
+    }catch(e){ semArquivo++; }
+  }
+  return { n, ignorados:semArvore, semArquivo, niveis:[...niveis].sort((a,b)=>a-b) };
+}
+
+/**
+ * O mosaico que um caminho de ficheiro designa, ou nada.
+ *
+ * Separado do carregamento para ser verificável sem base de dados: é aqui que se decide
+ * o que é carta e o que é um ficheiro que veio à boleia na mesma pasta.
+ *
+ * @param {string} caminho
+ * @returns {null|{z:number, x:number, y:number}}
+ */
+function mosaicoDoCaminho(caminho){
+  const m = /(?:^|\/)(\d{1,2})\/(\d{1,7})\/(\d{1,7})\.(?:png|jpe?g|webp)$/i.exec(String(caminho||""));
+  if(!m) return null;
+  const z = +m[1];
+  return (z >= 0 && z <= 22)? { z, x:+m[2], y:+m[3] } : null;
 }
 
 /** Quantos mosaicos estão guardados, e desde quando. */
@@ -346,28 +473,57 @@ async function pintarMapa(){
     img.style.left = (x*MOSAICO_PX - ox)+"px";
     img.style.top = (y*MOSAICO_PX - oy)+"px";
     fundo.appendChild(img);
-    pedidos.push(mosaicoBlob(z, xw, y).then(b=>{
-      if(!b){ img.classList.add("mp-falta"); return false; }
-      const u = URL.createObjectURL(b);
-      MAPA_URLS.push(u); img.src = u;
-      return true;
+    pedidos.push(mosaicoBlob(z, xw, y).then(async b=>{
+      if(!b) return { img, ok:false };
+      return { img, ok:true, b, z, x:xw, y, imp: await impressaoMosaico(b) };
     }));
   }
 
   const r = await Promise.all(pedidos);
-  const vieram = r.filter(Boolean).length;
-  MAPA.falhas = r.length - vieram;
-  MAPA.pronto = vieram > 0;
-  pintarEstadoMapa(vieram, r.length);
+  const vindos = r.filter(t=>t.ok);
+
+  /* Quadrados diferentes com exatamente os mesmos bytes não são carta: são a mesma
+     imagem de recusa repetida. Foi assim que o servidor do OpenStreetMap respondeu, e a
+     aplicação colava «Access blocked» como se fosse cartografia. */
+  const contas = {};
+  vindos.forEach(t=>{ if(t.imp) contas[t.imp] = (contas[t.imp]||0) + 1; });
+  const repetida = Object.keys(contas).find(k=>contas[k] >= 3);
+  const recusados = repetida? vindos.filter(t=>t.imp === repetida) : [];
+  MAPA.recusados = recusados.length;
+
+  const carta = vindos.filter(t=>t.imp !== repetida);
+  recusados.forEach(t=>t.img.classList.add("mp-falta"));
+  r.filter(t=>!t.ok).forEach(t=>t.img.classList.add("mp-falta"));
+  carta.forEach(t=>{
+    const u = URL.createObjectURL(t.b);
+    MAPA_URLS.push(u); t.img.src = u;
+    guardarMosaico(t.z, t.x, t.y, t.b);
+  });
+
+  MAPA.falhas = r.length - carta.length;
+  MAPA.pronto = carta.length > 0;
+  pintarEstadoMapa(carta.length, r.length);
 }
 
 /** A linha por baixo do mapa: a atribuição, o que veio e o que não veio. */
 function pintarEstadoMapa(vieram, total){
   const el = $("mapa-info"); if(!el) return;
-  const c = cartaAtual();
-  const partes = [c.atrib + " — " + c.termos];
-  if(!MAPA.pronto) partes.push("Sem carta: nenhum mosaico veio da rede nem do arquivo local. Fica o croqui, que não precisa de rede.");
-  else if(MAPA.falhas) partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
+  const partes = [];
+  if(CARTA) partes.push(CARTA.atrib + " — " + CARTA.termos);
+  else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo."
+    + " A atribuição é a de quem a forneceu — não há serviço declarado que a possa dizer aqui.");
+  else partes.push("Sem serviço de mosaicos configurado. A carta declara-se abaixo, ou carrega-se de ficheiro.");
+
+  if(MAPA.recusados >= 3)
+    partes.push("O serviço devolveu " + MAPA.recusados + " vezes a mesma imagem em vez de carta — está a recusar os"
+      + " pedidos. Serviços de mosaicos de uso comunitário exigem que a aplicação se identifique, e uma página"
+      + " aberta em ficheiro local não o consegue fazer. Usar um serviço que o posto tenha direito a consultar,"
+      + " ou carta pré-descarregada.");
+  else if(!MAPA.pronto && CARTA)
+    partes.push("Sem carta: nenhum quadrado veio do serviço nem do arquivo local. Fica o croqui, que não precisa de rede.");
+  else if(MAPA.falhas)
+    partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
+
   partes.push("Ampliação "+MAPA.z+" · "+Math.round(merEscala(merLat(MAPA.cy, MAPA.z), MAPA.z))+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
@@ -478,7 +634,7 @@ function medirMapa(){
 
 /** Muda a ampliação mantendo o centro, dentro do que a carta dá. */
 function ampliarMapa(d){
-  const z = Math.max(3, Math.min((cartaAtual().zMax)||19, MAPA.z + d));
+  const z = Math.max(3, Math.min((CARTA && CARTA.zMax)||19, MAPA.z + d));
   if(z === MAPA.z) return;
   const lat = merLat(MAPA.cy, MAPA.z), lon = merLon(MAPA.cx, MAPA.z);
   MAPA.z = z; MAPA.cx = merX(lon, z); MAPA.cy = merY(lat, z);
@@ -487,6 +643,10 @@ function ampliarMapa(d){
 
 $("mapa-carregar").addEventListener("click", async ()=>{
   medirMapa();
+  if(!CARTA && !(await mosaicosGuardados()).n){
+    aviso("mapa-msg","err","Sem serviço de mosaicos declarado e sem carta pré-descarregada. Ver «De onde vem a carta», aqui abaixo.");
+    return;
+  }
   if(!enquadrarMapa(MAPA.larg, MAPA.alt)){ aviso("mapa-msg","err","Sem perímetro e sem ponto da ocorrência não há o que enquadrar."); return; }
   aviso("mapa-msg","ok","A pedir a carta...");
   await pintarMapa();
@@ -502,6 +662,53 @@ $("mapa-esquecer").addEventListener("click", async ()=>{
   const n = await esquecerMosaicos();
   await pintarArquivoMapa();
   aviso("mapa-msg","ok", n? n+" quadrados de carta esquecidos." : "Não havia carta guardada.");
+});
+
+/* ---- o serviço de mosaicos ---- */
+
+/** Diz qual é o serviço declarado, quem o declarou e quando. */
+function pintarCarta(){
+  const el = $("carta-estado"); if(!el) return;
+  el.textContent = CARTA
+    ? "Serviço declarado: "+CARTA.atrib+" · até à ampliação "+CARTA.zMax
+      + (CARTA.por? " · declarado por "+CARTA.por : "") + (CARTA.g? " a "+CARTA.g : "")
+    : "Nenhum serviço declarado. Sem serviço e sem carta pré-descarregada, fica o croqui.";
+  const b = $("carta-retirar"); if(b) b.style.display = CARTA? "" : "none";
+  if(CARTA){
+    if($("carta-u") && !$("carta-u").value) $("carta-u").value = CARTA.u;
+    if($("carta-atrib") && !$("carta-atrib").value) $("carta-atrib").value = CARTA.atrib;
+    if($("carta-termos") && !$("carta-termos").value) $("carta-termos").value = CARTA.termos;
+    if($("carta-zmax") && !$("carta-zmax").value) $("carta-zmax").value = String(CARTA.zMax);
+  }
+}
+
+$("carta-guardar").addEventListener("click", async ()=>{
+  const r = await guardarCarta($("carta-u").value, $("carta-atrib").value,
+    $("carta-termos").value, $("carta-zmax").value);
+  if(!r.ok){ aviso("carta-msg","err",r.motivo); return; }
+  pintarCarta();
+  aviso("carta-msg","ok","Serviço declarado. Carregar a carta para o experimentar.");
+});
+$("carta-retirar").addEventListener("click", async ()=>{
+  await retirarCarta();
+  ["carta-u","carta-atrib","carta-termos","carta-zmax"].forEach(id=>{ if($(id)) $(id).value = ""; });
+  pintarCarta(); await pintarArquivoMapa();
+  aviso("carta-msg","ok","Serviço retirado, e com ele os mosaicos que dele vieram.");
+});
+
+$("carta-fich").addEventListener("change", async ev=>{
+  const el = $("carta-fich-info");
+  if(!IDB){ el.textContent = "Este navegador não deu base de dados local: a carta pré-descarregada não pode ficar guardada."; return; }
+  el.textContent = "A guardar...";
+  const r = await carregarMosaicosLocais(ev.target.files);
+  el.textContent = r.n
+    ? r.n+" quadrados guardados, ampliações "+r.niveis.join(", ")
+      + (r.ignorados? " · "+r.ignorados+" ficheiros ignorados por não seguirem {z}/{x}/{y}" : "")
+      + " — servem sem rede."
+    : "Nenhum ficheiro seguia a árvore {z}/{x}/{y}. Nada foi guardado.";
+  if(r.n) fita("Carta pré-descarregada: "+r.n+" quadrados guardados no dispositivo");
+  await pintarArquivoMapa();
+  if(r.n) pintarMapa();
 });
 
 /** Diz quanta carta está guardada — é espaço no disco de quem trabalha. */
