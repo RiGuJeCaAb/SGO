@@ -188,8 +188,25 @@ function pintarAmpulhetas(){
       <div class="amp-s ${x.nivel}">${rot}</div>
     </div>`;
   }).join("");
-  el.innerHTML = `<div class="amp-h"><span>Meio</span><span>Resta</span><span>Decorrido</span><span>Capacidade restante</span><span>Rendição prevista</span><span>Estado</span></div>${linhas}
+  /* O bloco da ação, por cima do quadro: quem está para além do limite e ainda não tem
+     rendição pedida, e quem já tem. É a leitura que interessa a quem comanda — o quadro
+     diz os tempos, isto diz o que falta fazer com eles. */
+  const RD = (()=>{ try{ return estadoDasRendicoes(); }catch(e){ return {pedidas:[],porPedir:[]}; } })();
+  const acao = (!RD.porPedir.length && !RD.pedidas.length)? ""
+    : `<div class="sub" style="margin-bottom:14px">
+        <span class="stit">Solicitações de rendição ao CSREPC</span>
+        ${RD.porPedir.length? `<p class="hint" style="margin:0 0 8px 0">${RD.porPedir.length===1
+            ? "Um meio está para além do limite de empenhamento e ainda não tem rendição solicitada."
+            : RD.porPedir.length+" meios estão para além do limite de empenhamento e ainda não têm rendição solicitada."}</p>
+          <div class="tip-chips" style="margin-left:0">${RD.porPedir.map(x=>
+            `<button type="button" class="btn btn-o" data-rend="${esc(x.alvo)}">Solicitar rendição — ${esc(x.nome)} · ${esc(x.onde)}</button>`).join("")}</div>` : ""}
+        ${RD.pedidas.length? `<p class="hint" style="margin:8px 0 0 0">Solicitadas: ${RD.pedidas.map(x=>
+            esc(x.nome)+" ("+esc(x.onde)+", "+esc(x.g)+")").join("; ")}.</p>` : ""}
+      </div>`;
+  el.innerHTML = acao + `<div class="amp-h"><span>Meio</span><span>Resta</span><span>Decorrido</span><span>Capacidade restante</span><span>Rendição prevista</span><span>Estado</span></div>${linhas}
     <p class="amp-leg">Cada barra nasce cheia à entrada no TO e esvazia-se até ao limite de empenhamento: o que se vê é a capacidade que resta, não o tempo já gasto. A marca vertical assinala o momento em que a rendição deve começar a ser preparada, ${L.av} h de trabalho em terra e ${Math.max(1,L.aer-2)} h no ar, sobre limites de ${L.lim} h e ${L.aer} h. A hora de rendição prevista é a hora de entrada somada ao limite, e é o valor a transmitir ao CSREPC no pedido de substituição, junto com o número de elementos, o veículo que entra e a hora de saída dos rendidos.</p>`;
+  alvos.forEach(a=>a.querySelectorAll("[data-rend]").forEach(b=>
+    b.addEventListener("click", ()=>{ irPara("p-operacoes"); abrirRendicao(b.getAttribute("data-rend")); })));
 }
 /* nível DECIR derivado da data, quando não imposto manualmente */
 function autoNivelDECIR(){

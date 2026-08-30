@@ -52,6 +52,8 @@ declare function addSensTodos(): void;
  *  um nome mal escrito custa caro. */
 interface MetaOcorrencia {
   num: string; local: string; pco: string; fase: string;
+  /** Quando e por quem a fase foi declarada. Vazio: a fase foi escolhida, não declarada. */
+  faseG: string; fasePor: string;
   lat: string; lon: string; pasta: string; inicio: string; nivel: string;
   /**
    * Como a coordenada foi parar ali: escrita à mão, achada pela geocodificação (com o

@@ -66,10 +66,11 @@ function agruparTip(tip){
  * A cor é o estado; o número diz quanto, em tinta de texto, para que a leitura não
  * dependa de distinguir cores. O limiar é o mesmo do quadro de rendições.
  *
- * @param {{t?:string, ar?:number, ts?:number}} it unidade com instante de empenhamento
+ * @param {{t?:string, ar?:number, ts?:number, rend?:{g:string,por:string,nota:string}}} it unidade
  * @param {boolean} [aereo] força o limiar aéreo, para a lista de meios aéreos
+ * @param {string} [alvo] endereço da unidade; com ele o medidor passa a botão
  */
-function medidorTempo(it, aereo){
+function medidorTempo(it, aereo, alvo){
   if(!it || !it.ts) return '<span class="med-h" title="sem instante de empenhamento: esta unidade não conta tempo no TO">sem relógio</span>';
   const L = limiares(), d = catDef(it.t);
   const ar = aereo || !!(it.ar || d.ar);
@@ -100,9 +101,17 @@ function medidorTempo(it, aereo){
     ? "Limite de "+teto+" h excedido em "+(h-teto).toFixed(1)+" h. No TO desde "+gdhDe(it.ts)+"; rendição era devida às "+limite+"."
     : "Faltam "+resta.toFixed(1)+" h para o limite de "+teto+" h. No TO desde "+gdhDe(it.ts)+"; rendição prevista para "+limite+".";
   const rot = h>=teto? "\u2212"+(h-teto).toFixed(1)+" h" : resta.toFixed(1)+" h";
-  return '<span class="med '+nivel+'" title="'+esc(titulo)+'">'
-    + '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
-    + '<span class="med-h">'+rot+'</span></span>';
+  /* Com endereço, o medidor é o botão por onde se pede a rendição: quem vê a laranja
+     quase vazia é quem tem de agir, e a ação tem de estar onde está o sinal. Sem
+     endereço — no quadro de rendições, no PEA — continua a ser só leitura. */
+  const pedida = rendPedida(it);
+  const dentro = '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
+    + '<span class="med-h">'+rot+(pedida? " \u00b7 rend. pedida" : "")+'</span>';
+  const cls = "med "+nivel+(pedida? " ped" : "");
+  return alvo
+    ? '<button type="button" class="'+cls+'" data-rend="'+esc(alvo)+'" title="'+esc(titulo
+        +(pedida? " Rendição solicitada a "+it.rend.g+"." : " Carregar para solicitar a rendição ao CSREPC."))+'">'+dentro+'</button>'
+    : '<span class="'+cls+'" title="'+esc(titulo)+'">'+dentro+'</span>';
 }
 
 /** O resumo em texto: «2× ECIN, 1× VFCI». */
@@ -151,7 +160,7 @@ function renderSetores(){
         /* Uma entrada é uma unidade: dizer «1m» em todas era ruído. Só as forças que
            trazem vários veículos — brigadas, grupos — declaram o número de meios. */
         const efet = (it.mu||1) > 1? `${(it.mu||1)}m/${(it.ou||0)}op` : `${(it.ou||0)} op`;
-        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${efet} ${medidorTempo(it)}
+        return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${efet} ${medidorTempo(it, false, "s:"+i+":"+j)}
           <select data-mv="${i}" data-j="${j}" class="mv">${destinos}</select>
           <button type="button" data-del="${i}" data-j="${j}" aria-label="remover">×</button></span>`;
       }).join("")}</div></div>`;
@@ -183,6 +192,8 @@ function renderSetores(){
       renderSetores(); pintarDON(); persistir(false);
     });
   });
+  L.querySelectorAll("[data-rend]").forEach(b=>
+    b.addEventListener("click", ()=>abrirRendicao(b.getAttribute("data-rend"))));
   L.querySelectorAll("[data-del]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const it = e.setores[+b.dataset.del].tip[+b.dataset.j];

@@ -24,6 +24,7 @@ function pintarTudo(){
   try{ pintarMeteoIdade(); }catch(e){}
   try{ pintarSessao(); }catch(e){}
   try{ pintarCopias(); }catch(e){}
+  try{ pintarFase(); }catch(e){}
 }
 
 function letrasV(txt){

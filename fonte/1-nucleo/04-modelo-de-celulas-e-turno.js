@@ -229,8 +229,27 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 14 -> 15. A solicitação de rendição de cada unidade.
+   A aplicação media o tempo e dizia quando a rendição era devida; o pedido acontecia
+   fora dela e não deixava rasto. Cada unidade — de setor e aérea — ganha o ramo, vazio
+   no que já existe: não se sabe o que foi pedido antes disto, e inventar seria pior. */
+MIGRACOES.push(e => {
+  /* E a declaração da fase passa a ser ato com autor e hora, e não um campo que muda em
+     silêncio. Vazio no que já existe: a fase que lá está foi escolhida, não declarada. */
+  if(e.meta && typeof e.meta === "object"){
+    if(typeof e.meta.faseG !== "string") e.meta.faseG = "";
+    if(typeof e.meta.fasePor !== "string") e.meta.fasePor = "";
+  }
+  const vazio = ()=>({ g:"", por:"", nota:"" });
+  const por = it => { if(it && typeof it === "object" && (!it.rend || typeof it.rend !== "object")) it.rend = vazio(); };
+  const est = (e.dados && e.dados.est) || {};
+  (est.setores||[]).forEach(s=>(s.tip||[]).forEach(por));
+  (est.aerL||[]).forEach(por);
+  return e;
+});
+
 function novoEstado(){
-  return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
+  return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
     dados:{area:"", perimNome:"", setores:"", sensiveis:"", anexos:[],
       perfil:null,

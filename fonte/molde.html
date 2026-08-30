@@ -563,6 +563,12 @@
      número ao lado diz quanto, em tinta de texto, para que a leitura não dependa de
      distinguir cores. */
   .med{display:inline-flex;align-items:center;gap:6px}
+  /* Com endereço, o medidor é botão: quem vê a laranja quase vazia pede ali a rendição. */
+  button.med{border:1px solid transparent;border-radius:7px;background:transparent;padding:2px 5px;cursor:pointer}
+  button.med:hover{border-color:var(--line);background:var(--surf)}
+  button.med:focus-visible{outline:2px solid var(--azul);outline-offset:1px}
+  .med.ped .med-h{color:var(--agua);font-weight:700}
+  .med.ped .med-o{opacity:.55}
   .med-o{width:18px;height:18px;flex:none;display:block}
   .med-o .gm{fill:var(--med-v)}
   .med-o .gm-x{fill:none;stroke:var(--line);stroke-width:.6}
@@ -1052,7 +1058,10 @@
             <option value="IV">IV — ref. 324 op. (292–356) · até 2 frentes</option>
             <option value="V">V — ref. 648 op. (583–713) · até 4 frentes</option>
             <option value="VI">VI — decisão CNEPC · áreas de intervenção municipal</option>
-          </select></div>
+          </select>
+          <div class="mono-sm" id="fase-info" style="margin-top:8px"></div>
+          <div class="row" style="margin-top:8px"><button class="btn btn-o" type="button" id="fase-declarar" style="display:none">Declarar fase</button></div>
+          <div class="msg" id="fase-msg" style="display:none"></div></div>
         <div><label for="o-inicio">Início da ocorrência (GDH)</label><input id="o-inicio" data-campo="meta.inicio" placeholder="DDHHMMMESAA" autocomplete="off">
           <span class="hint" id="o-inicio-info">Base do cálculo dos 90 minutos (ATI para ATA, DON n.º 2, ponto 7.e.(5)).</span></div>
         <div><label for="o-nivel">Nível de empenhamento DECIR</label>
@@ -1167,6 +1176,7 @@
           <label class="chkbx"><input type="checkbox" id="s-livre"> Colar texto livre (alternativa)</label>
         </div>
         <div id="s-lista"></div>
+      <div id="rend-painel" style="display:none"></div>
         <div class="set-box" id="s-aer-box" style="display:none">
           <span class="stit" style="display:block;font-size:11px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--tx2);margin-bottom:10px">Meios aéreos no TO — indicativo e hora de entrada</span>
           <div class="tip-add">

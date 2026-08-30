@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0064**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0065**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 64, das anteriores à convenção de nomes até à r0064 |
-| Módulos em `fonte/` | 55, em sete zonas, mais o molde |
-| Testes | 364, todos a passar |
+| Entregas em `app/` | 65, das anteriores à convenção de nomes até à r0065 |
+| Módulos em `fonte/` | 56, em sete zonas, mais o molde |
+| Testes | 376, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 14 |
+| Versão do estado gravado | 15 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,54 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A rendição pede-se pela ampulheta, e a fase declara-se, na r0065
+
+Dois atos que aconteciam fora da aplicação e não deixavam rasto nenhum.
+
+### A solicitação de rendição
+
+A rendição pede-se ao CSREPC **por veículo**, indicando o número de elementos, o meio que
+entra, a hora de saída e a hora prevista de chegada ao destino — DON n.º 2, ponto
+7.e.(5)(r). A aplicação media o tempo de cada unidade e dizia quando a rendição era
+devida; o pedido em si era feito de cabeça, por rádio, e não ficava em lado nenhum.
+
+**Pede-se pela ampulheta**, que era a sugestão do Ricardo e é a certa: quem vê a laranja
+quase vazia é quem tem de agir, e a ação tem de estar onde está o sinal. O medidor de cada
+unidade passa a ser botão; abre um painel com os tempos, quem determina, o GDH — e **o
+texto do pedido já composto**, para não se transmitir de cabeça o que a norma manda
+indicar. Fica registado na unidade, na evolução e na fita, e o chip passa a dizer «rend.
+pedida».
+
+O pedido pode ser retirado, porque retirar um pedido também é facto. E **pedir não é
+render**: o que fica registado é a solicitação; a substituição regista-se quando acontecer,
+movendo ou desmobilizando a unidade como sempre.
+
+No quadro de rendições, em Logística, um bloco novo diz quem está para além do limite
+**sem pedido nenhum** — que é a leitura que interessa a quem comanda — com um botão por
+unidade que leva ao mesmo painel.
+
+### A fase do SGO
+
+Era um campo de formulário que mudava em silêncio: ninguém sabia quem a tinha declarado,
+nem quando, nem se acompanhava o dispositivo. Passa a ser ato. A aplicação **sugere** a
+partir do efetivo registado, quem comanda **declara**, e a declaração fica com autor e GDH
+na evolução.
+
+A escala das fases passa a estar declarada num sítio só — `FASES_SGO`, no catálogo — porque
+a sugestão e a regra de conformidade a leem as duas e não podem discordar sobre o que é a
+fase III. E a regra ganhou o caso que faltava: **fase por declarar com efetivo no terreno**
+é obrigação, não é silêncio.
+
+Um defeito apanhado na verificação em navegador: sem fase declarada, a linha dizia que «o
+dispositivo já ultrapassou a fase declarada» — falava de uma coisa que não existia.
+
+### Verificação
+
+376 testes, doze novos. Verificado em navegador de ponta a ponta: a ampulheta abre o
+painel, o texto sai completo com número de ocorrência, unidade, origem, operacionais, hora
+de entrada e limite, e o chip passa a marcar o pedido sem ser preciso recarregar. Prova em
+`docs/qa/` (`qa0018`).
 
 ## Não perder a ocorrência, na r0064 — a outra metade da etapa 1
 

@@ -33,10 +33,6 @@ function selarLinha(l){
 }
 
 /**
- * Acrescenta uma linha ao diário. Nunca lança: um diário que parte o registo que devia
- * proteger é pior do que não haver diário.
- */
-/**
  * Acrescenta uma linha no IndexedDB, **lendo a cauda dentro da própria transação**.
  *
  * A primeira versão numerava a partir de um contador em memória e escrevia com `put`:

@@ -24,9 +24,11 @@ function renderAereos(){
     const d = catDef(a.t);
     /* O mesmo medidor das unidades de setor, com o limiar aéreo — uma aeronave também
        tem tempo no TO, e ficara de fora. */
-    return `<span class="tchip"><b>${esc(a.ind||d.ind||a.t)}</b> ${esc(a.t)} ${medidorTempo(a, true)}
+    return `<span class="tchip"><b>${esc(a.ind||d.ind||a.t)}</b> ${esc(a.t)} ${medidorTempo(a, true, "a:"+j)}
       <button type="button" data-aerdel="${j}" aria-label="remover">×</button></span>`;
   }).join("") : '<span class="hint">Sem meios aéreos registados.</span>';
+  ch.querySelectorAll("[data-rend]").forEach(b=>
+    b.addEventListener("click", ()=>abrirRendicao(b.getAttribute("data-rend"))));
   ch.querySelectorAll("[data-aerdel]").forEach(b=>b.addEventListener("click", ()=>{
     const j=+b.dataset.aerdel, a=L[j];
     fita("Meio aéreo desmobilizado: "+(a.ind||a.t)+(a.ts? " ("+((Date.now()-a.ts)/3600000).toFixed(1)+" h no TO)":""));

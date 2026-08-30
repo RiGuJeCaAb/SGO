@@ -310,8 +310,18 @@ const REGRAS_DON = [
   { id:"fase", ids:["fase"], t:"Capacidade de comando e controlo face à fase do SGO", fontes:["SGO4067","DON2"],
     avaliar(x){ const v = []; const { c } = x;
       /* 6. Capacidade de comando e controlo face à fase do SGO */
-      const REF = {I:36, II:40, III:119, IV:356, V:713};
-      const lim = REF[O.meta.fase];
+      /* A referência vem da tabela única do catálogo: a sugestão a partir do dispositivo
+         e esta regra não podem discordar sobre o que é a fase III. */
+      const decl = O.meta.fase || "";
+      const sugerida = faseParaEfetivo(c.op);
+      if(!decl && c.op > 0 && ordemFase(sugerida) > 0){
+        v.push({n:"ob", id:"fase", t:"Fase do SGO por declarar",
+          s:"Estão registados "+c.op+" operacionais no TO, efetivo que corresponde à fase "+sugerida+", e não há fase declarada em Comando.",
+          f:"A fase do SGO enquadra a capacidade de comando e controlo exigida e a estrutura do posto de comando a implementar.",
+          a:"Declarar a fase em Comando. A aplicação sugere a fase "+sugerida+" a partir do efetivo registado; a declaração é do COS e fica registada com quem a determinou.",
+          r:"Despacho n.º 4067/2024, art. 39.º e Anexo I"});
+      }
+      const lim = (FASES_SGO.find(f=>f.k === decl)||{}).ate;
       if(lim && c.op > lim) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
         s:"Estão registados "+c.op+" operacionais, acima da referência de "+lim+" da fase "+O.meta.fase+" declarada em Comando.",
         f:"O COS deve garantir o reforço da organização do PCO e da capacidade de comando e controlo sempre que o número de meios humanos e materiais mobilizados ultrapasse a capacidade de comando e controlo implementada. O aumento dessa capacidade deve ser acompanhado pelo aumento da capacidade de análise e planeamento, através da ativação do núcleo de especialistas na célula de planeamento.",

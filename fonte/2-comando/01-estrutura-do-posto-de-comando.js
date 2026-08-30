@@ -146,3 +146,70 @@ const REDES  = {siresp:"SIRESP", ba:"Banda alta (ROB)", aero:"Banda aeronáutica
 /* pastas à imagem da organização dos terminais; o âmbito de cada pasta determina
    onde o canal existe. Um grupo de âmbito sub-regional ou municipal não existe fora
    da sua área e não pode ser proposto num TO de outra região. */
+
+/* ================= COMANDO · declaração da fase do SGO (art. 39.º) =================
+   A fase enquadra a capacidade de comando e controlo exigida e a estrutura do posto de
+   comando a implementar. Estava num campo do formulário que mudava em silêncio: ninguém
+   sabia quem a tinha declarado, nem quando, nem se acompanhava o dispositivo.
+
+   Passa a ser ato: a aplicação **sugere** a partir do efetivo registado, quem comanda
+   **declara**, e a declaração fica com autor e GDH. A sugestão nunca se aplica sozinha —
+   o efetivo é o que está registado na aplicação, e o que manda é o que está no terreno. */
+
+/** Declara a fase do SGO, com autor e hora. */
+function declararFase(f, quem){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de declarar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  if(ordemFase(f) < 0) return { ok:false, motivo:"Fase desconhecida." };
+  const g = String((quem&&quem.g)||"").trim() || gdhAgora();
+  if(!parseGDH(g)) return { ok:false, motivo:motivoGDH(g) };
+  const antes = O.meta.fase || "";
+  if(antes === f) return { ok:false, motivo:"A fase "+f+" já está declarada." };
+
+  O.meta.fase = f;
+  O.meta.faseG = g;
+  O.meta.fasePor = String((quem&&quem.por)||"").trim() || quemRegista();
+  const el = $("o-fase"); if(el) el.value = f;
+  O.evolucao.push({ g, tipo:"decisao",
+    txt:"Fase do SGO declarada: "+f+(antes? " (era "+antes+")" : "")
+      +(O.meta.fasePor? ", por "+O.meta.fasePor : "")+"." });
+  fita("Fase do SGO declarada: "+f+(antes? " (era "+antes+")":""));
+  return { ok:true };
+}
+
+/**
+ * A linha da fase: o que o dispositivo pede, o que está declarado, e o que falta.
+ *
+ * A comparação é com o efetivo **registado na aplicação** — se o dispositivo não estiver
+ * todo lançado, a sugestão fica curta, e isso diz-se em vez de se esconder.
+ */
+function pintarFase(){
+  const el = $("fase-info"); if(!el) return;
+  const c = (()=>{ try{ return contarDispositivo(); }catch(e){ return {op:0}; } })();
+  const decl = O.meta.fase || "";
+  const sug = faseParaEfetivo(c.op);
+  const b = $("fase-declarar");
+
+  if(!c.op && !decl){
+    el.textContent = "Sem efetivo registado: a fase declara-se à mão, e a sugestão aparece assim que houver meios atribuídos aos setores.";
+    el.style.color = ""; if(b) b.style.display = "none";
+    return;
+  }
+  /* Só há fase ultrapassada onde há fase declarada: sem ela, o que falta é declará-la,
+     e dizer que «o dispositivo ultrapassou a fase declarada» seria falar de uma coisa
+     que não existe. */
+  const atrasada = !!decl && ordemFase(sug) > ordemFase(decl);
+  el.innerHTML = (decl
+      ? "Declarada: <b>fase "+esc(decl)+"</b>"
+        + (O.meta.faseG? " a "+esc(O.meta.faseG)+(O.meta.fasePor? " por "+esc(O.meta.fasePor):"") : " (escolhida sem registo de quem a declarou)")
+      : "<b>Fase por declarar.</b>")
+    + " · Pelo efetivo registado — "+c.op+" operacionais — corresponde a <b>fase "+esc(sug)+"</b>."
+    + (atrasada? " O dispositivo já ultrapassou a fase declarada." : "");
+  el.style.color = atrasada || !decl? "var(--terra)" : "";
+  el.style.fontWeight = atrasada || !decl? "700" : "";
+  if(b){
+    b.style.display = (sug !== decl)? "" : "none";
+    b.textContent = "Declarar fase "+sug;
+    b.setAttribute("data-fase", sug);
+  }
+}

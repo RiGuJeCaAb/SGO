@@ -286,3 +286,16 @@ async function pintarCopias(){
         +". O registo do posto foi alterado ou está corrompido.");
   });
 })();
+
+/* ---- declaração da fase ---- */
+(()=>{
+  const b = $("fase-declarar");
+  if(b) b.addEventListener("click", ()=>{
+    const r = declararFase(b.getAttribute("data-fase"), {});
+    if(!r.ok){ aviso("fase-msg","err",r.motivo); return; }
+    aviso("fase-msg","ok","Fase "+b.getAttribute("data-fase")+" declarada e registada na evolução.");
+    persistir(false);
+  });
+  const sel = $("o-fase");
+  if(sel) sel.addEventListener("change", ()=>{ try{ pintarFase(); }catch(e){} });
+})();
