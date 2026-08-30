@@ -81,7 +81,7 @@ function caixaAviso(x){
       <span class="avd-r">${esc(x.r)}</span>
       ${cump? `<button type="button" class="avd-go" data-cump="${esc(x.id)}">${esc(cump.rot)}</button>`:""}
       ${feito? `<button type="button" class="avd-go" data-descump="${esc(x.id)}">Retirar o registo de ${esc(feito.g)}</button>`:""}
-      ${d? `<button type="button" class="avd-go" data-ir="${d.p}">${esc(d.l)}</button>`:""}
+      ${d? `<button type="button" class="avd-go" data-ir="${esc(d.p)}">${esc(d.l)}</button>`:""}
     </div>
   </div>`;
 }
@@ -180,7 +180,7 @@ function pintarAmpulhetas(){
       <div class="amp-m">${esc2(x.nome)}<small>${esc2(x.local)}${x.op? " · "+x.op+" op.":""}${x.aereo? " · aéreo":""}</small></div>
       <div class="amp-t" style="color:${cor}">${esc2(rTxt)}</div>
       <div class="amp-e">${esc2(x.txt)} no TO</div>
-      <div class="amp-bar" title="capacidade restante até ao limite de ${x.teto} h; aviso a ${x.teto-x.avi} h do fim">
+      <div class="amp-bar" title="capacidade restante até ao limite de ${esc(x.teto)} h; aviso a ${esc(x.teto-x.avi)} h do fim">
         <span class="amp-fill" style="width:${pct.toFixed(1)}%;background:${cor}"></span>
         <span class="amp-mk" style="left:${mkAv.toFixed(1)}%"></span>
       </div>

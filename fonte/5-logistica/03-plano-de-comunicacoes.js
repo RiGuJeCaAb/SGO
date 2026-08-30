@@ -79,7 +79,7 @@ function renderComs(){
   renderNiveis(); renderAtrib();
 
   const D = $("cm-dist");
-  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${rede}" data-niv="${niv||""}"></select><input class="cwo" hidden placeholder="designação do canal"></span>`;
+  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}"></select><input class="cwo" hidden placeholder="designação do canal"></span>`;
   const cls = duplo => "cm-f"+((duplo && N.ba)? "" : " nb");
   const cab = duplo => `<div class="${cls(duplo)} cm-fh"><span class="atr-t">Interlocutor</span><span class="atr-t">SIRESP</span>${(duplo&&N.ba)? '<span class="atr-t">Banda alta</span>':""}</div>`;
   const linha = (nome, det, s1, s2) => `<div class="${cls(!!s2)}">

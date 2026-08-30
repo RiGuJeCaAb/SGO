@@ -238,8 +238,13 @@ function renderCheck(){
   $("chk-list").innerHTML = L.map(x=>{
     const cls = x.ok? "ok" : (x.ob? "falta":"rec");
     const rot = x.ok? "COMPLETO" : (x.ob? "EM FALTA":"RECOMENDADO");
-    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" onclick="irPara('${x.p}')">Preencher</button>`}</div>`;
+    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
   }).join("") + (falta? `<p class="hint" style="margin-top:10px;color:var(--fogo)">Faltam ${falta} dados obrigatórios — o PEA não pode ser emitido sem eles.</p>`
                        : `<p class="hint" style="margin-top:10px;color:var(--madeira)">Dados obrigatórios completos — pronto para emitir.</p>`);
+  /* Sem `onclick="irPara('...')"`: o destino é interno, mas a forma é a mesma que
+     deixava executar código pelo número da ocorrência. Uma forma perigosa não se
+     mantém porque hoje o valor é de confiança — mantém-se ou não se mantém. */
+  $("chk-list").querySelectorAll("[data-ir]").forEach(b=>
+    b.addEventListener("click", ()=>irPara(b.getAttribute("data-ir"))));
 }
 

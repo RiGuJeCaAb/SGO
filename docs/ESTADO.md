@@ -4,7 +4,7 @@ Atualizado em 2026-08-29.
 
 ## Situação atual
 
-A revisão em vigor é a **r0058**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0060**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 60, das anteriores à convenção de nomes até à r0058 |
+| Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
 | Módulos em `fonte/` | 52, em sete zonas, mais o molde |
-| Testes | 318, todos a passar |
+| Testes | 326, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,64 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Robustecimento 1 de 3: o XSS fechado, na r0060
+
+Chegou uma análise clínica externa à r0051 e à r0057 (em `docs/`, com o nome com que veio).
+Aponta cinco bloqueios; verifiquei-os um a um contra o código e **três confirmam-se**. Este
+é o primeiro.
+
+### O buraco era real, e reproduzi-o
+
+`esc()` escapava `<`, `>` e `&` e deixava passar as aspas. Chega para texto entre
+etiquetas; não chega para dentro de um atributo, que é onde a aplicação também o usa —
+`value="${esc(x.cmd)}"`. Escrevi `X" onfocus="window.__mau=1" autofocus zz="` no nome de
+um comandante de setor e o `<input>` no ecrã ficou com os atributos `onfocus` e
+`autofocus` **a sério**. O mesmo valor entra por um ficheiro importado de outro posto.
+
+O pior sítio era o arquivo: `onclick="abrirOcc('${esc(x.num)}')"`. Ali o dado cai dentro
+de uma **string de JavaScript**, e o escape de HTML não protege esse contexto — o
+navegador desfaz a entidade antes de o JavaScript ver o texto. Uma plica no número da
+ocorrência, que é campo livre, era execução de código arbitrário.
+
+### O que se fez
+
+1. **`esc()` passa a escapar as cinco.** `<`, `>`, `&`, `"` e `'`. Fecha de uma vez todos
+   os atributos escapados. Verifiquei que nenhum `esc()` alimenta texto puro, onde as
+   entidades apareceriam à vista.
+2. **Nenhum manipulador de eventos em linha leva dados.** Os dois do arquivo passaram a
+   `data-occ-abrir` / `data-occ-apagar` com ouvintes; o `irPara` da lista de pendências
+   também, embora o valor fosse interno — uma forma perigosa não se mantém porque hoje o
+   valor é de confiança.
+3. **Escape em todos os atributos com dados**, incluindo os que ninguém tinha como
+   suspeitos.
+
+**O escape não dispensa tirar os dados de dentro do HTML concatenado**, que é o trabalho
+de fundo e fica para depois dos outros dois P0. O que fica fechado agora é a porta.
+
+### Dois testes que valem mais do que a correção
+
+O primeiro injeta o veneno — aspa dupla, plica e `<img onerror>` — nos campos de setor, na
+passagem de turno, no arquivo, no catálogo de elementos e **numa ocorrência inteira**, manda
+pintar e conta o que apareceu de proibido no DOM. Compara com o retrato de antes, porque a
+página tem marcação sua com `onclick`.
+
+O segundo é estático, sobre `fonte/`: recusa manipuladores em linha com dados
+interpolados, e recusa qualquer atributo com dados que não passe pelo escape. Só
+contadores de ciclo entram crus — escapar um número não custa nada, e a exceção que se
+abre hoje é a que amanhã leva um nome lá dentro.
+
+**Este segundo teste apanhou dois sítios que o meu próprio inventário falhou**: `mVal` e
+`oVal` na linha do setor. Parecem calculados, e são — mas só quando há tipologias
+atribuídas; sem elas são o que o oficial escreveu à mão.
+
+### Verificação
+
+326 testes, oito novos. Confirmado também em navegador a sério: com veneno no comandante,
+no adjunto, no contacto, no número da ocorrência e na passagem de turno, nada corre, não
+nasce um único atributo, e o texto do oficial sobrevive inteiro — aspas incluídas.
+
+Faltam os outros dois: **GDH estrito** e **aprovação do COS antes das ordens**.
 
 ## A linhagem paralela outra vez, na r0058
 

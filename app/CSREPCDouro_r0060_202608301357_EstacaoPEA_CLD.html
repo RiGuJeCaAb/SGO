@@ -1764,14 +1764,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301348_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301357_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301348_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301357_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento ================= */
@@ -2062,7 +2062,24 @@ function novoEstado(){
    não sobre o DOM. Ver tipos/estacao.d.ts. */
 /** @type {(id:string)=>any} */
 const $ = id => document.getElementById(id);
-const esc = s => String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+/**
+ * Escape de HTML, para texto **e para atributos**.
+ *
+ * Até à r0061 escapava `<`, `>` e `&` e deixava passar as aspas. Isso chega a texto entre
+ * etiquetas e não chega a nada dentro de um atributo, que é onde a aplicação também o
+ * usa: `value="${esc(x.cmd)}"`. Uma aspa no nome de um comandante de setor — escrita à
+ * mão ou vinda de um ficheiro importado — fechava o atributo e abria outro. Comprovado:
+ * `x" onfocus="..." autofocus zz="` num campo de comandante produzia um `<input>` com os
+ * atributos `onfocus` e `autofocus` a sério.
+ *
+ * Escapar as duas aspas fecha essa porta em todos os sítios de uma vez. **Não dispensa**
+ * tirar os dados de dentro do HTML concatenado, que é o trabalho de fundo — e não chega
+ * sozinho onde o dado cai dentro de uma *string de JavaScript* num atributo `onclick`,
+ * porque aí o navegador desfaz a entidade antes de o JavaScript ver o texto. Esses
+ * sítios foram convertidos para `data-` e `addEventListener`; nenhum resta.
+ */
+const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
+const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
 const MES = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
 function gdhAgora(){ const d=new Date(agora());
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }
@@ -2146,9 +2163,19 @@ function pintarArquivo(){
   el.innerHTML = Object.keys(pastas).map(p=>
     `<div class="arq-p">${esc(p)}</div>`+
     pastas[p].map(x=>`<div class="arq-i"><div><b>${esc(x.num)} — ${esc(x.local||"")}</b><p>PCO ${esc(x.pco||"—")} · ${x.peas} PEA · atualizada ${esc(x.g)}</p></div>
-      <div class="acts"><button class="btn btn-b" onclick="abrirOcc('${esc(x.num)}')">Abrir</button>
-      <button class="btn btn-r" onclick="apagarOcc('${esc(x.num)}')">Apagar</button></div></div>`).join("")
+      <div class="acts"><button class="btn btn-b" data-occ-abrir="${esc(x.num)}">Abrir</button>
+      <button class="btn btn-r" data-occ-apagar="${esc(x.num)}">Apagar</button></div></div>`).join("")
   ).join("");
+
+  /* Ouvintes em vez de `onclick="abrirOcc('...')"`. O número da ocorrência é campo
+     livre e caía dentro de uma string de JavaScript: uma plica bastava para executar o
+     que se quisesse, e o escape de HTML não o impede — o navegador desfaz a entidade
+     antes de o JavaScript ver o texto. Aqui o valor nunca é código: é o conteúdo de um
+     atributo, lido com `getAttribute`. */
+  el.querySelectorAll("[data-occ-abrir]").forEach(b=>
+    b.addEventListener("click", ()=>carregar(b.getAttribute("data-occ-abrir"))));
+  el.querySelectorAll("[data-occ-apagar]").forEach(b=>
+    b.addEventListener("click", ()=>window.apagarOcc(b.getAttribute("data-occ-apagar"))));
 }
 window.abrirOcc = num => carregar(num);
 window.apagarOcc = async num => {
@@ -3119,9 +3146,14 @@ function renderCheck(){
   $("chk-list").innerHTML = L.map(x=>{
     const cls = x.ok? "ok" : (x.ob? "falta":"rec");
     const rot = x.ok? "COMPLETO" : (x.ob? "EM FALTA":"RECOMENDADO");
-    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" onclick="irPara('${x.p}')">Preencher</button>`}</div>`;
+    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
   }).join("") + (falta? `<p class="hint" style="margin-top:10px;color:var(--fogo)">Faltam ${falta} dados obrigatórios — o PEA não pode ser emitido sem eles.</p>`
                        : `<p class="hint" style="margin-top:10px;color:var(--madeira)">Dados obrigatórios completos — pronto para emitir.</p>`);
+  /* Sem `onclick="irPara('...')"`: o destino é interno, mas a forma é a mesma que
+     deixava executar código pelo número da ocorrência. Uma forma perigosa não se
+     mantém porque hoje o valor é de confiança — mantém-se ou não se mantém. */
+  $("chk-list").querySelectorAll("[data-ir]").forEach(b=>
+    b.addEventListener("click", ()=>irPara(b.getAttribute("data-ir"))));
 }
 
 /* ================= NÚCLEO · navegação ================= */
@@ -5922,6 +5954,8 @@ function renderSetores(){
   L.innerHTML = '<div class="set-head"><span>Setor</span><span>Estado</span><span>Comandante de setor (art. 10.º)</span><span>Adjunto (n.º 4)</span><span>Contacto</span><span>Meios</span><span>Op.</span></div>' +
     e.setores.map((x,i)=>{
       const auto = (x.tip||[]).length>0, t = totSetor(x);
+      /* Sem tipologias atribuídas, `mVal` e `oVal` são o que o oficial escreveu à mão:
+         são dados de campo como qualquer outro, e passam pelo escape. */
       const mVal = auto? t.m : (x.m||""), oVal = auto? t.o : (x.o||"");
       return `<div class="set-box"><div class="set-row">
         <span class="nm">${NOMES_SETOR[i]}</span>
@@ -5929,8 +5963,8 @@ function renderSetores(){
         <input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">
         <input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">
         <input data-i="${i}" data-f="ct" value="${esc(x.ct)}" placeholder="9........." inputmode="tel">
-        <input data-i="${i}" data-f="m" value="${mVal}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
-        <input data-i="${i}" data-f="o" value="${oVal}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        <input data-i="${i}" data-f="m" value="${esc(mVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        <input data-i="${i}" data-f="o" value="${esc(oVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
       </div>
       <div class="tip-add">
         <select id="ta-t-${i}">${catOptions()}</select>
@@ -7488,7 +7522,7 @@ function renderComs(){
   renderNiveis(); renderAtrib();
 
   const D = $("cm-dist");
-  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${rede}" data-niv="${niv||""}"></select><input class="cwo" hidden placeholder="designação do canal"></span>`;
+  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}"></select><input class="cwo" hidden placeholder="designação do canal"></span>`;
   const cls = duplo => "cm-f"+((duplo && N.ba)? "" : " nb");
   const cab = duplo => `<div class="${cls(duplo)} cm-fh"><span class="atr-t">Interlocutor</span><span class="atr-t">SIRESP</span>${(duplo&&N.ba)? '<span class="atr-t">Banda alta</span>':""}</div>`;
   const linha = (nome, det, s1, s2) => `<div class="${cls(!!s2)}">
@@ -7668,7 +7702,7 @@ function caixaAviso(x){
       <span class="avd-r">${esc(x.r)}</span>
       ${cump? `<button type="button" class="avd-go" data-cump="${esc(x.id)}">${esc(cump.rot)}</button>`:""}
       ${feito? `<button type="button" class="avd-go" data-descump="${esc(x.id)}">Retirar o registo de ${esc(feito.g)}</button>`:""}
-      ${d? `<button type="button" class="avd-go" data-ir="${d.p}">${esc(d.l)}</button>`:""}
+      ${d? `<button type="button" class="avd-go" data-ir="${esc(d.p)}">${esc(d.l)}</button>`:""}
     </div>
   </div>`;
 }
@@ -7767,7 +7801,7 @@ function pintarAmpulhetas(){
       <div class="amp-m">${esc2(x.nome)}<small>${esc2(x.local)}${x.op? " · "+x.op+" op.":""}${x.aereo? " · aéreo":""}</small></div>
       <div class="amp-t" style="color:${cor}">${esc2(rTxt)}</div>
       <div class="amp-e">${esc2(x.txt)} no TO</div>
-      <div class="amp-bar" title="capacidade restante até ao limite de ${x.teto} h; aviso a ${x.teto-x.avi} h do fim">
+      <div class="amp-bar" title="capacidade restante até ao limite de ${esc(x.teto)} h; aviso a ${esc(x.teto-x.avi)} h do fim">
         <span class="amp-fill" style="width:${pct.toFixed(1)}%;background:${cor}"></span>
         <span class="amp-mk" style="left:${mkAv.toFixed(1)}%"></span>
       </div>
@@ -8101,10 +8135,10 @@ function renderTurno(){
     dec.style.borderLeftColor = h===null? "var(--line)" : (h>=LIMITE_TURNO_H? "var(--fogo)" : (h>=LIMITE_TURNO_H-2? "var(--terra)":"var(--madeira)"));
   }
   box.innerHTML = '<div class="grid g2">' + CELULAS_PCO().map(c=>`
-    <div class="sub" data-cel="${c.k}"><span class="stit">${esc(c.n)} <span class="hint" style="font-weight:400">${esc(c.r)}</span></span>
+    <div class="sub" data-cel="${esc(c.k)}"><span class="stit">${esc(c.n)} <span class="hint" style="font-weight:400">${esc(c.r)}</span></span>
       <div class="grid g2">
-        <div><label for="tn-n-${c.k}">Quem assegura</label><input id="tn-n-${c.k}" data-tn="${c.k}" data-f="n" value="${esc(t.celulas[c.k].n||"")}" placeholder="posto, nome"></div>
-        <div><label for="tn-c-${c.k}">Contacto</label><input id="tn-c-${c.k}" data-tn="${c.k}" data-f="ct" value="${esc(t.celulas[c.k].ct||"")}" placeholder="telemóvel" inputmode="tel"></div>
+        <div><label for="tn-n-${c.k}">Quem assegura</label><input id="tn-n-${c.k}" data-tn="${esc(c.k)}" data-f="n" value="${esc(t.celulas[c.k].n||"")}" placeholder="posto, nome"></div>
+        <div><label for="tn-c-${c.k}">Contacto</label><input id="tn-c-${c.k}" data-tn="${esc(c.k)}" data-f="ct" value="${esc(t.celulas[c.k].ct||"")}" placeholder="telemóvel" inputmode="tel"></div>
       </div>
     </div>`).join("") + '</div>';
   box.querySelectorAll("[data-tn]").forEach(el=>el.addEventListener("change", ()=>{
@@ -8120,16 +8154,16 @@ function renderQuadroTurno(){
   const t = turnoObj();
   q.innerHTML = CELULAS_PCO().map(c=>{
     const P = pendenciasCelula(c.k);
-    return `<div class="sub" data-cel="${c.k}">
+    return `<div class="sub" data-cel="${esc(c.k)}">
       <span class="stit">${esc(c.n)} <span class="hint" style="font-weight:400">${esc(c.r)}</span>${t.celulas[c.k].n? ' — <b>'+esc(t.celulas[c.k].n)+'</b>':''}</span>
       <dl class="tn-l">${P.map(x=>`<dt>${esc(x.t)}</dt><dd class="${x.falta?"falta":""}">${Array.isArray(x.x)? "<ul>"+x.x.map(i=>`<li>${esc(i)}</li>`).join("")+"</ul>" : esc(x.x)}</dd>`).join("")}</dl>
       <div class="tn-posse">
         <span class="tn-pt">Possui ${(function(){ const R=ramosDaCelula(c.k); return R.length+" ramo"+(R.length===1?"":"s"); })()}</span>
         ${ramosDaCelula(c.k).map(r=>`<span class="tn-ramo" title="${esc(r.d)} — ${esc(r.r)}">${esc(r.p)}</span>`).join("")}
-        <button class="btn btn-g" type="button" data-expcel="${c.k}">Exportar o que esta célula possui</button>
+        <button class="btn btn-g" type="button" data-expcel="${esc(c.k)}">Exportar o que esta célula possui</button>
       </div>
       <label for="tn-nota-${c.k}">Notas da célula para quem entra</label>
-      <textarea id="tn-nota-${c.k}" data-tnota="${c.k}" rows="2" placeholder="o que a aplicação não pode saber">${esc(t.celulas[c.k].nota||"")}</textarea>
+      <textarea id="tn-nota-${c.k}" data-tnota="${esc(c.k)}" rows="2" placeholder="o que a aplicação não pode saber">${esc(t.celulas[c.k].nota||"")}</textarea>
     </div>`;
   }).join("");
   q.querySelectorAll("[data-tnota]").forEach(el=>el.addEventListener("change", ()=>{

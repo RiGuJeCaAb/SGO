@@ -203,7 +203,24 @@ function novoEstado(){
    não sobre o DOM. Ver tipos/estacao.d.ts. */
 /** @type {(id:string)=>any} */
 const $ = id => document.getElementById(id);
-const esc = s => String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+/**
+ * Escape de HTML, para texto **e para atributos**.
+ *
+ * Até à r0061 escapava `<`, `>` e `&` e deixava passar as aspas. Isso chega a texto entre
+ * etiquetas e não chega a nada dentro de um atributo, que é onde a aplicação também o
+ * usa: `value="${esc(x.cmd)}"`. Uma aspa no nome de um comandante de setor — escrita à
+ * mão ou vinda de um ficheiro importado — fechava o atributo e abria outro. Comprovado:
+ * `x" onfocus="..." autofocus zz="` num campo de comandante produzia um `<input>` com os
+ * atributos `onfocus` e `autofocus` a sério.
+ *
+ * Escapar as duas aspas fecha essa porta em todos os sítios de uma vez. **Não dispensa**
+ * tirar os dados de dentro do HTML concatenado, que é o trabalho de fundo — e não chega
+ * sozinho onde o dado cai dentro de uma *string de JavaScript* num atributo `onclick`,
+ * porque aí o navegador desfaz a entidade antes de o JavaScript ver o texto. Esses
+ * sítios foram convertidos para `data-` e `addEventListener`; nenhum resta.
+ */
+const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
+const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
 const MES = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
 function gdhAgora(){ const d=new Date(agora());
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }

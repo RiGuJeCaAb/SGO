@@ -125,6 +125,8 @@ function renderSetores(){
   L.innerHTML = '<div class="set-head"><span>Setor</span><span>Estado</span><span>Comandante de setor (art. 10.º)</span><span>Adjunto (n.º 4)</span><span>Contacto</span><span>Meios</span><span>Op.</span></div>' +
     e.setores.map((x,i)=>{
       const auto = (x.tip||[]).length>0, t = totSetor(x);
+      /* Sem tipologias atribuídas, `mVal` e `oVal` são o que o oficial escreveu à mão:
+         são dados de campo como qualquer outro, e passam pelo escape. */
       const mVal = auto? t.m : (x.m||""), oVal = auto? t.o : (x.o||"");
       return `<div class="set-box"><div class="set-row">
         <span class="nm">${NOMES_SETOR[i]}</span>
@@ -132,8 +134,8 @@ function renderSetores(){
         <input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">
         <input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">
         <input data-i="${i}" data-f="ct" value="${esc(x.ct)}" placeholder="9........." inputmode="tel">
-        <input data-i="${i}" data-f="m" value="${mVal}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
-        <input data-i="${i}" data-f="o" value="${oVal}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        <input data-i="${i}" data-f="m" value="${esc(mVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        <input data-i="${i}" data-f="o" value="${esc(oVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
       </div>
       <div class="tip-add">
         <select id="ta-t-${i}">${catOptions()}</select>

@@ -75,9 +75,19 @@ function pintarArquivo(){
   el.innerHTML = Object.keys(pastas).map(p=>
     `<div class="arq-p">${esc(p)}</div>`+
     pastas[p].map(x=>`<div class="arq-i"><div><b>${esc(x.num)} — ${esc(x.local||"")}</b><p>PCO ${esc(x.pco||"—")} · ${x.peas} PEA · atualizada ${esc(x.g)}</p></div>
-      <div class="acts"><button class="btn btn-b" onclick="abrirOcc('${esc(x.num)}')">Abrir</button>
-      <button class="btn btn-r" onclick="apagarOcc('${esc(x.num)}')">Apagar</button></div></div>`).join("")
+      <div class="acts"><button class="btn btn-b" data-occ-abrir="${esc(x.num)}">Abrir</button>
+      <button class="btn btn-r" data-occ-apagar="${esc(x.num)}">Apagar</button></div></div>`).join("")
   ).join("");
+
+  /* Ouvintes em vez de `onclick="abrirOcc('...')"`. O número da ocorrência é campo
+     livre e caía dentro de uma string de JavaScript: uma plica bastava para executar o
+     que se quisesse, e o escape de HTML não o impede — o navegador desfaz a entidade
+     antes de o JavaScript ver o texto. Aqui o valor nunca é código: é o conteúdo de um
+     atributo, lido com `getAttribute`. */
+  el.querySelectorAll("[data-occ-abrir]").forEach(b=>
+    b.addEventListener("click", ()=>carregar(b.getAttribute("data-occ-abrir"))));
+  el.querySelectorAll("[data-occ-apagar]").forEach(b=>
+    b.addEventListener("click", ()=>window.apagarOcc(b.getAttribute("data-occ-apagar"))));
 }
 window.abrirOcc = num => carregar(num);
 window.apagarOcc = async num => {
