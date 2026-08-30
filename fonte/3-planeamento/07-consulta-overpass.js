@@ -2,6 +2,23 @@
    Vários espelhos, POST em vez de GET (evita URL longos e alguns bloqueios de CORS)
    e diagnóstico legível: com o ficheiro aberto em file:// há espelhos que recusam
    o pedido, e nesse caso o que interessa é dizê-lo e passar ao seguinte. */
+/**
+ * Grava o que a deteção encontrou, com a proveniência e a hora.
+ *
+ * Guarda-se a distância e o rumo, e não a coordenada: é assim que a deteção os calcula,
+ * é assim que o oficial os lê no ecrã, e é o que basta para recolocar cada ponto no
+ * croqui a partir do ponto da ocorrência. Guardar a coordenada além disso era guardar
+ * duas verdades sobre a mesma coisa.
+ */
+function guardarDetecao(itens, origem, raioKm){
+  if(!Array.isArray(itens) || !itens.length) return null;
+  O.dados.sensDet = {
+    itens: itens.map(x=>({ nome:x.nome, tipo:x.tipo, dist:x.dist, rumo:x.rumo, sens:!!x.sens })),
+    origem, g:gdhAgora(), raioKm };
+  try{ pintarCroqui(); }catch(e){}
+  return O.dados.sensDet;
+}
+
 const OVERPASS = [
   {u:"https://overpass-api.de/api/interpreter", n:"overpass-api.de"},
   {u:"https://overpass.kumi.systems/api/interpreter", n:"kumi.systems"},
@@ -140,6 +157,10 @@ async function detetarSensiveis(){
     if(!itens.length){ $("sens-info").textContent="Sem povoações ou equipamentos OSM num raio de 3 km."; $("sens-sug").innerHTML=""; }
     else{
       window.__sensLista = itens;
+      /* A deteção fica gravada. Vivia só em `window.__sensLista`, que morre ao
+         recarregar: quem voltasse à ocorrência perdia o que já tinha sido detetado, e
+         o croqui ficava sem nada à volta do perímetro. */
+      guardarDetecao(itens, "Overpass/OSM", 3);
       $("sens-info").textContent = itens.length+" detetados — clica para adicionar (equipamentos sensíveis a vermelho):";
       $("sens-sug").innerHTML = itens.map((it,i)=>
         '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
@@ -164,6 +185,7 @@ async function detetarSensiveis(){
       }).filter(Boolean).sort((a,b)=>a.dist-b.dist).slice(0,14);
       if(!itens.length) throw "sem candidatos";
       window.__sensLista = itens;
+      guardarDetecao(itens, "Photon", 6);
       $("sens-info").textContent = itens.length+" detetados pelo Photon (Overpass indisponível) — clica para adicionar:";
       $("sens-sug").innerHTML = itens.map((it,i)=>
         '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")

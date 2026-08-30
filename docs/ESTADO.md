@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-08-29.
+Atualizado em 2026-08-30.
 
 ## Situação atual
 
-A revisão em vigor é a **r0065**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0066**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,13 +13,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 65, das anteriores à convenção de nomes até à r0065 |
-| Módulos em `fonte/` | 56, em sete zonas, mais o molde |
-| Testes | 376, todos a passar |
+| Entregas em `app/` | 66, das anteriores à convenção de nomes até à r0066 |
+| Módulos em `fonte/` | 57, em sete zonas, mais o molde |
+| Testes | 401, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 15 |
+| Versão do estado gravado | 16 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,78 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## O croqui do teatro de operações e os cartões dobráveis, na r0066
+
+Absorção do trabalho da linhagem paralela (r0061 a r0063b), com as correções que a
+verificação em navegador encontrou.
+
+### O que fica gravado
+
+Até aqui a aplicação lia o ficheiro do perímetro, calculava a área e **deitava fora o
+polígono**; a deteção de aglomerados vivia em `window.__sensLista`, que morre ao
+recarregar. Ao voltar à ocorrência não havia por onde desenhar nada, e a exportação não
+levava a forma do incêndio.
+
+Passam a ficar gravados os dois — `dados.perim` e `dados.sensDet`, versão 16 do estado,
+declarados no mapa de posse e em `tipos/estacao.d.ts`. O perímetro é **simplificado por
+Douglas-Peucker a 15 m** antes de ser gravado: um perímetro de incêndio traz por vezes
+milhares de vértices, e é a diferença entre um ficheiro de ocorrência que se manda por
+correio e um que não se manda. A tolerância fica bem abaixo da incerteza do próprio
+traçado. Numa prova com 481 vértices ficaram 220, e a forma não muda à vista.
+
+Uma ocorrência gravada antes desta versão não traz a geometria, e a migração **não a
+inventa**: quem quiser o croqui volta a carregar o ficheiro.
+
+### O croqui
+
+Desenho SVG a partir do que está gravado, **sem rede e sem bibliotecas**, em projeção
+equirrectangular local com a longitude corrigida pelo cosseno da latitude média. Traz o
+perímetro, o ponto do PCO, os aglomerados e os sensíveis recolocados por distância e rumo,
+barra de escala redonda, rosa dos ventos e a coordenada do canto. As cores vêm das
+variáveis do tema, e no papel passam a tons de impressão.
+
+**É congelado com cada PEA emitido**, pela mesma razão que o resto do instantâneo: um PEA
+emitido é documento, e o documento tem de mostrar o teatro como ele estava à hora em que
+saiu, não como está agora.
+
+O cálculo do enquadramento saiu para `enquadrarCroqui`, separado do desenho — e devolve
+também a projeção inversa (`lonDe`/`latDe`). O mapa operacional precisa exatamente da
+mesma conta para saber que mosaicos pedir e onde os colar, e duas contas iguais em dois
+sítios seriam duas contas a divergir.
+
+Um croqui não é uma carta: não substitui a M888 nem serve para navegar, e a legenda di-lo.
+
+### Os cartões dobráveis
+
+A fita do tempo e a linha de evolução crescem sem limite: ao fim de horas de ocorrência o
+painel de Operações era uma coluna de milhares de pixéis onde nada mais se encontrava.
+Passam a abrir a pedido, com o cabeçalho sempre à vista **e a contagem nele** — fechar não
+é esconder que existe. Nascem fechados, abrir um não fecha o outro, e na impressão abrem
+sempre, que um documento não tem cartões para clicar.
+
+`CARTOES_DOBRAVEIS` é registo declarado como os outros, com a célula, a norma e a razão, e
+`auditarDobraveis` acende o mesmo aviso da posse na passagem de turno: um cartão declarado
+que não dobrou fica com o corpo lá dentro e sem forma de o abrir.
+
+### O que a verificação corrigiu na absorção
+
+- **A contagem desaparecia em ecrã estreito.** A regra que esconde a etiqueta legal no
+  cabeçalho abaixo dos 820 px apanhava também a contagem da linha de evolução, que é uma
+  etiqueta reaproveitada — e o cartão ficava fechado sem dizer quantos registos tinha, que
+  é a única coisa que se vê quando está fechado.
+- **Duas linguagens para a mesma coisa.** A fita dizia «sem registos» e a evolução «0
+  registos». Ficam ambas com a primeira.
+- **Aritmética sobre cadeias.** O desenho arredondava as coordenadas antes de as somar, e
+  `(x-4)` sobre uma cadeia era concatenação onde se queria conta. As coordenadas ficam em
+  número até ao momento de as escrever.
+
+### Verificação
+
+401 testes, vinte e cinco novos em `tests/croqui.test.mjs`: a geometria que fica gravada,
+a simplificação, as quatro formas de GeoJSON, o desenho, o escape do nome vindo do OSM, a
+escala em seis ordens de grandeza, a projeção e o seu inverso, e os dobráveis. Verificado
+em navegador nos dois temas e a 380 px.
 
 ## A rendição pede-se pela ampulheta, e a fase declara-se, na r0065
 

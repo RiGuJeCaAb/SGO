@@ -121,6 +121,96 @@ function arrumarCasa(){
   Object.keys(ATALHOS_PANE).forEach(id=>{ const p = document.getElementById(id); if(p) p.classList.add("husk"); });
 }
 
+/* ================= cartões dobráveis =================
+   Os cartões que crescem sem limite abrem a pedido. O cabeçalho fica sempre à vista,
+   com a contagem: fechar não é esconder que existe, é não deixar que ocupe o painel.
+
+   Ao fim de umas horas de ocorrência a fita do tempo tem dezenas de registos e a linha
+   de evolução outras tantas, e o painel de Operações passa a ser uma coluna de milhares
+   de pixéis onde nada mais se encontra.
+
+   `contar` devolve o rótulo que aparece no cabeçalho fechado. Devolver vazio significa
+   que não há nada lá dentro, e o cabeçalho di-lo em vez de mentir com um zero. */
+const CARTOES_DOBRAVEIS = [
+  { h:"Fita do tempo", celula:"operacoes", r:"art. 2.º, al. c); art. 17.º, n.º 1, al. g)",
+    porque:"cresce a cada registo e ao fim de horas ocupa o painel inteiro",
+    contar:()=>{ const n=(O.fita||[]).length; return n? n+(n===1? " registo":" registos") : "sem registos"; } },
+  { h:"Linha de evolução", celula:"operacoes", r:"art. 17.º, n.º 1, al. a)",
+    porque:"cresce a cada ponto de situação e a cada alteração de estado de setor",
+    /* Este cartão já trazia a contagem na etiqueta do cabeçalho. Reaproveita-se a que
+       existe em vez de acrescentar uma segunda que diria o mesmo ao lado. */
+    cnt:"evo-count" }
+];
+
+/**
+ * Transforma cada cartão declarado num dobrável.
+ *
+ * Os nós são movidos, não recriados: mover preserva os ouvintes já ligados, como na
+ * arrumação por células. Correr duas vezes não duplica nada — o cartão já dobrado
+ * reconhece-se pela classe.
+ */
+function dobrarCartoes(){
+  CARTOES_DOBRAVEIS.forEach(d=>{
+    const c = cartaoPorTitulo(d.h); if(!c || c.classList.contains("dobravel")) return;
+    const h2 = c.querySelector("h2"); if(!h2) return;
+    c.classList.add("dobravel");
+    /* o conteúdo vai para um contentor próprio; o cabeçalho fica de fora e vira botão */
+    const corpo = document.createElement("div");
+    corpo.className = "cd-corpo";
+    while(h2.nextSibling) corpo.appendChild(h2.nextSibling);
+    c.appendChild(corpo);
+    h2.classList.add("cd-cab");
+    h2.setAttribute("role", "button");
+    h2.setAttribute("tabindex", "0");
+    h2.setAttribute("aria-expanded", "false");
+    /* Procura-se dentro do próprio cartão e não pelo documento: a arrumação por
+       células move os cartões, e um `getElementById` no momento errado apanha o
+       elemento antes de estar onde vai ficar — ou não o apanha, e ficam duas contagens
+       a dizer o mesmo lado a lado. */
+    const ex = d.cnt ? c.querySelector("#" + d.cnt) : null;
+    if(ex){ ex.classList.add("cd-cnt", "cd-cnt-ex"); h2.appendChild(ex); }
+    else { const cnt = document.createElement("span"); cnt.className = "cd-cnt"; h2.appendChild(cnt); }
+    const alternar = ()=>abrirCartao(c, !c.classList.contains("aberto"));
+    h2.addEventListener("click", alternar);
+    h2.addEventListener("keydown", ev=>{
+      if(ev.key===" " || ev.key==="Enter"){ ev.preventDefault(); alternar(); }
+    });
+  });
+  pintarContagens();
+}
+
+/* Abrir um não fecha os outros: não é acordeão exclusivo, que obrigaria a fechar a
+   fita para ver a evolução, e num PCO isso é trabalho a mais. */
+function abrirCartao(c, on){
+  if(!c) return;
+  c.classList.toggle("aberto", !!on);
+  const h2 = c.querySelector(":scope > h2");
+  if(h2) h2.setAttribute("aria-expanded", on? "true":"false");
+}
+
+/* A contagem no cabeçalho tem de acompanhar o que está lá dentro, aberto ou fechado:
+   é a única coisa que se vê quando o cartão está fechado. */
+function pintarContagens(){
+  CARTOES_DOBRAVEIS.forEach(d=>{
+    if(!d.contar) return;   /* a contagem é de quem a criou; não se escreve por cima */
+    const c = cartaoPorTitulo(d.h); if(!c) return;
+    const el = c.querySelector(":scope > h2 > .cd-cnt"); if(!el) return;
+    let t = ""; try{ t = d.contar() || ""; }catch(e){ t = ""; }
+    el.textContent = t;
+  });
+}
+
+/* Um cartão declarado que não exista, ou que exista e não tenha dobrado, é defeito
+   visível — e não um cartão que ninguém consegue abrir. */
+function auditarDobraveis(){
+  const semCartao = CARTOES_DOBRAVEIS.filter(d=>!cartaoPorTitulo(d.h)).map(d=>d.h);
+  const semDobrar = CARTOES_DOBRAVEIS.filter(d=>{
+    const c = cartaoPorTitulo(d.h); return c && !c.classList.contains("dobravel");
+  }).map(d=>d.h);
+  const semRazao = CARTOES_DOBRAVEIS.filter(d=>!d.r || !d.porque).map(d=>d.h);
+  return { n:CARTOES_DOBRAVEIS.length, semCartao, semDobrar, semRazao };
+}
+
 /* Um cartão que fique de fora, ou um registo que aponte para cartão inexistente, é
    defeito visível — e não um cartão que ninguém encontra. */
 function auditarArrumacao(){

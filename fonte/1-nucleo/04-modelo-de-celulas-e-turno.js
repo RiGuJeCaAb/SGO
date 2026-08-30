@@ -248,10 +248,24 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 15 -> 16 · A geometria do perímetro e a deteção de aglomerados passam a ficar
+   gravadas. Até aqui calculava-se a área e deitava-se fora o polígono, e a deteção
+   vivia em `window.__sensLista`, que morre ao recarregar: ao voltar à ocorrência não
+   havia por onde desenhar nada, e a exportação não levava a forma do incêndio.
+   Nascem vazios — uma ocorrência anterior a esta versão não traz a geometria, e
+   reconstruí-la a partir dos hectares seria inventar. Quem quiser o croqui volta a
+   carregar o ficheiro. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!("perim" in e.dados)) e.dados.perim = null;
+  if(!("sensDet" in e.dados)) e.dados.sensDet = null;
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

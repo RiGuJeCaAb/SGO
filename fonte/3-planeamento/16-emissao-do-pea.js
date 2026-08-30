@@ -32,6 +32,11 @@ async function emitirPEA(){
     modo, json:{pea:plano, ordens:null}, met:mm,
     serie:SERIE.map(p=>({d:p.d,h:p.h,t:p.t,rh:p.rh,wd:p.wd,ws:p.ws,pr:p.pr})),
     dados:JSON.parse(JSON.stringify(O.dados)), evoIdx:O.evolucao.length, meta:{...O.meta},
+    /* O croqui é congelado com o plano, pela mesma razão que o resto do instantâneo:
+       um PEA emitido é documento, e o documento tem de continuar a mostrar o teatro
+       como ele estava à hora em que foi emitido, e não como está agora. */
+    croqui:(()=>{ try{ return croquiSVG(560, 330); }catch(e){ return ""; } })(),
+    croquiLeg:(()=>{ try{ return (perimObj()||O.dados.sensDet)? croquiLegenda() : []; }catch(e){ return []; } })(),
     don:(()=>{ try{ return verificacoesDON(); }catch(e){ return []; } })(),
     /* O PEA emitido é um documento congelado, e a sua forma não muda porque o estado
        vivo mudou de arrumação: continua a levar `{funcoes, canais}`, que é o que os PEA

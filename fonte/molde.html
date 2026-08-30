@@ -552,6 +552,40 @@
   .tip-add input{width:66px;padding:7px 8px;font-size:12.5px}
   .tip-add .lbl{font-size:10.5px;color:var(--tx3);letter-spacing:.4px}
   .tip-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 64px}
+  /* croqui: as cores vêm das variáveis do tema, para funcionar nos dois e no papel */
+  .croqui{border:1px solid var(--line);border-radius:10px;background:var(--surf2);padding:6px;
+    --cq-area:var(--fogo);--cq-pco:var(--agua);--cq-sens:var(--terra);--cq-agl:var(--metal);--cq-tx:var(--tx2)}
+  .croqui svg{display:block;max-height:340px;margin:0 auto}
+
+  /* Cartão dobrável: o cabeçalho é o botão, a contagem fica sempre à vista. */
+  .card.dobravel > h2.cd-cab{cursor:pointer;user-select:none;display:flex;align-items:center;
+    gap:10px;flex-wrap:wrap;margin-bottom:0;padding-right:26px;position:relative}
+  .card.dobravel > h2.cd-cab:hover{color:var(--agua)}
+  .card.dobravel > h2.cd-cab:focus-visible{outline:2px solid var(--agua);outline-offset:3px;border-radius:6px}
+  .card.dobravel > h2.cd-cab::after{content:"";position:absolute;right:4px;top:50%;
+    width:8px;height:8px;border-right:2px solid var(--tx3);border-bottom:2px solid var(--tx3);
+    transform:translateY(-70%) rotate(45deg);transition:transform .14s}
+  .card.dobravel.aberto > h2.cd-cab::after{transform:translateY(-20%) rotate(-135deg)}
+  .card.dobravel > h2.cd-cab .cd-cnt{font-family:var(--mono);font-size:11px;font-weight:400;
+    letter-spacing:.4px;color:var(--tx3);margin-left:auto;margin-right:6px}
+  /* etiqueta reaproveitada como contagem: perde a moldura, para não se ler como
+     duas coisas diferentes lado a lado */
+  .card.dobravel > h2.cd-cab .cd-cnt-ex{border:none;padding:0;background:none}
+  /* Em ecrã estreito o cabeçalho tem título, etiqueta legal e contagem: sem isto a
+     contagem cai para linha própria e o cabeçalho fechado passa dos cem pixéis, que
+     é o oposto do que se quer. A contagem alinha à direita na linha do título. */
+  @media(max-width:820px){
+    .card.dobravel > h2.cd-cab{flex-wrap:nowrap;align-items:baseline;gap:8px}
+    /* A etiqueta legal sai; a contagem fica. A regra apanhava as duas porque a
+       contagem reaproveitada continua a ser uma `.tag` — e o cartão da evolução ficava
+       em ecrã estreito sem dizer quantos registos tinha, que é a única coisa que se vê
+       quando está fechado. */
+    .card.dobravel > h2.cd-cab .tag:not(.cd-cnt){display:none}
+    .card.dobravel > h2.cd-cab .cd-cnt{white-space:nowrap;flex:none}
+  }
+  .card.dobravel > .cd-corpo{display:none;margin-top:16px}
+  .card.dobravel.aberto > .cd-corpo{display:block}
+  .cq-leg{font-size:11px;color:var(--tx3);margin:4px 0 0}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -645,6 +679,11 @@
   .paper .obj{border:2px solid #C00000;border-radius:8px;padding:12px 14px;font-weight:600}
   .paper .alerta{color:#C00000;font-weight:700}
   .paper .nota{font-size:11px;font-style:italic;color:#666;margin-top:16px}
+  /* No papel o croqui perde as cores do tema e fica em tons de impressão. */
+  .paper .croqui-papel{border:0.75pt solid #404040!important;background:#fff!important;padding:3pt!important;
+    --cq-area:#B00000;--cq-pco:#005CA9;--cq-sens:#8A6D1F;--cq-agl:#767676;--cq-tx:#404040;--cq-fundo:#fff}
+  .paper .croqui-papel svg{max-height:78mm!important}
+  .paper .cq-leg{font-size:7.5pt!important;color:#595959!important;margin:3pt 0 0!important}
   .paper .evohist{background:#F2F6FA;border-left:3px solid #005CA9;padding:8px 12px;font-size:12px;margin-bottom:10px}
 
   /* PEA — formato oficial acordado (modelo ANEPC) */
@@ -894,6 +933,9 @@
     *{box-shadow:none !important;transform:none !important}
     body{background:#fff}header,nav,.card,footer,.no-print,.guia,.help{display:none!important}
     .pane{display:none}.pane.print-target{display:block}
+    /* um documento não tem cartões para clicar: o que estiver dobrado abre */
+    .card.dobravel > .cd-corpo{display:block!important}
+    .card.dobravel > h2.cd-cab::after{display:none!important}
     /* dentro do painel alvo só o documento se imprime; os cartões de trabalho não */
     .pane.print-target > .card, .pane.print-target > .help, .pane.print-target > .guia{display:none!important}
     .pane.print-target #pea-view{display:block!important}
@@ -1140,6 +1182,11 @@
           <div>
             <label for="d-perim">Perímetro (GeoJSON — FEB Monitorização / fogos.pt)</label>
             <input type="file" id="d-perim" accept=".json,.geojson">
+            <div id="croqui-box" style="display:none;margin:12px 0 4px">
+              <span class="stit">Croqui do teatro de operações <span class="hint" style="font-weight:400">art. 28.º — apoio à análise da ZI</span></span>
+              <div id="croqui-svg" class="croqui"></div>
+              <div id="croqui-leg" class="hint"></div>
+            </div>
             <div class="hint" id="d-perim-info">Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono.</div>
             <button type="button" class="lk" id="p-limpar">Remover perímetro carregado</button>
           </div>
@@ -1670,7 +1717,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>Linha de evolução <span class="tag" id="evo-count">0 registos</span></h2>
+      <h2>Linha de evolução <span class="tag" id="evo-count">sem registos</span></h2>
       <div class="evo" id="evo-list"><p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p></div>
     </div>
   </section>

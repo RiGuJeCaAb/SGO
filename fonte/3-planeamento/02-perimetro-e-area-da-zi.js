@@ -57,6 +57,11 @@ $("d-perim").onchange = e=>{
   rd.onload = ()=>{ try{
       const gj=JSON.parse(String(rd.result)); const ha=areaGeoJSON(gj);
       O.dados.perimNome=f.name; if(ha>0){ O.dados.area=String(ha); $("d-area").value=ha; }
+      /* A geometria fica gravada: sem ela não há croqui nem mapa, e até aqui era
+         deitada fora assim que a área saía do polígono. */
+      const gp = guardarPerimetro(gj, f.name);
+      if(gp) fita("Perímetro guardado: "+gp.vertices+" vértices"+(gp.verticesOriginais>gp.vertices? " (simplificado de "+gp.verticesOriginais+")":""));
+      try{ pintarCroqui(); }catch(e){}
       $("d-perim-info").textContent="Carregado: "+f.name+(ha>0? " · área estimada "+ha+" ha":" · sem polígono legível — introduz a área manualmente");
       fita("Perímetro carregado: "+f.name+(ha>0?" ("+ha+" ha est.)":""));
       persistir(false);
@@ -70,7 +75,7 @@ $("d-anexos").onchange = e=>{
   persistir(false);
 };
 $("b-dados").onclick = ()=>{ lerForm(); fita("Dados da ocorrência atualizados (setores/área/sensíveis)"); persistir(false); aviso("msg-dados","ok","Dados guardados — entram no próximo PEA."); };
-$("p-limpar").onclick = ()=>{ O.dados.perimNome=""; $("d-perim").value=""; $("d-perim-info").textContent="Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono."; fita("Perímetro removido"); persistir(false); };
+$("p-limpar").onclick = ()=>{ O.dados.perimNome=""; O.dados.perim=null; try{ pintarCroqui(); }catch(e){} $("d-perim").value=""; $("d-perim-info").textContent="Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono."; fita("Perímetro removido"); persistir(false); };
 $("a-limpar").onclick = ()=>{ O.dados.anexos=[]; $("d-anexos").value=""; $("d-anexos-info").textContent="Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia)."; fita("Anexos removidos"); persistir(false); };
 ["t-orient","t-declive","t-obs"].forEach(id=>$(id).addEventListener("change", ()=>{
   lerForm();

@@ -27,6 +27,8 @@ const POSSE = [
       { p:"avisos",           r:"art. 28.º",                d:"Avisos do IPMA para o distrito do TO" },
       { p:"dados.area",       r:"art. 28.º",                d:"Área da zona de intervenção" },
       { p:"dados.perimNome",  r:"art. 28.º",                d:"Perímetro carregado" },
+      { p:"dados.perim",      r:"art. 28.º",                d:"Geometria do perímetro em WGS84" },
+      { p:"dados.sensDet",    r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e sensíveis detetados, com distância e rumo" },
       { p:"dados.sensiveis",  r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e pontos sensíveis" },
       { p:"dados.anexos",     r:"art. 28.º",                d:"Anexos do quadro de informações" },
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },

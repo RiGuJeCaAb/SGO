@@ -7,7 +7,9 @@ function pintarTudo(){
   try{ pintarGuia(); }catch(e){}
   try{ pintarAvisos(); }catch(e){}
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
-  $("evo-count").textContent = O.evolucao.length+" registos";
+  /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
+     zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
+  $("evo-count").textContent = O.evolucao.length? (O.evolucao.length===1? "1 registo" : O.evolucao.length+" registos") : "sem registos";
   $("evo-list").innerHTML = O.evolucao.length? O.evolucao.slice().reverse().map(e=>
     `<div class="evo-i tipo-${esc(e.tipo)}"><div class="g">${esc(e.g)}</div><div class="tp">${esc(e.tipo)}</div><div class="t">${esc(e.txt)}</div></div>`).join("")
     : '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>';
@@ -25,6 +27,8 @@ function pintarTudo(){
   try{ pintarSessao(); }catch(e){}
   try{ pintarCopias(); }catch(e){}
   try{ pintarFase(); }catch(e){}
+  try{ pintarCroqui(); }catch(e){}
+  try{ pintarContagens(); }catch(e){}
 }
 
 function letrasV(txt){
@@ -169,6 +173,7 @@ window.verPEA = function(n){
             <p><span class="pos2">POSIT:</span> ${esc(plan.situacao||"")}</p>
             <p>Local: ${esc(p.meta.local)} · Área estimada: ${esc((p.dados&&p.dados.area)||"—")} ha${(p.dados&&p.dados.perimNome)? " · Perímetro: "+esc(p.dados.perimNome):""}</p>
           </div></div>
+          ${p.croqui? `<div class="cel-row"><div class="cel-lab">Croqui do TO</div><div class="cel-con"><div class="croqui croqui-papel">${p.croqui}</div>${(p.croquiLeg||[]).map(t=>`<p class="cq-leg">${esc(t)}</p>`).join("")}</div></div>`:""}
           <div class="cel-row"><div class="cel-lab">Análise das ZI</div><div class="cel-con"><p>${esc(plan.analise_zi||"")}</p>
             ${(p.dados&&p.dados.sensiveis)? "<p><b>Aglomerados / pontos sensíveis:</b> "+esc(p.dados.sensiveis)+"</p>":""}
           </div></div>

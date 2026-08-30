@@ -147,8 +147,29 @@ interface Logistica {
   comunicacoes: Canais;
 }
 
+/** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
+interface PerimetroGravado {
+  nome: string;
+  /** Anéis exteriores, em pares [lon, lat]. */
+  aneis: number[][][];
+  /** [minLon, minLat, maxLon, maxLat] */
+  bbox: number[];
+  g: string;
+  vertices: number; verticesOriginais: number; toleranciaM: number;
+}
+
+/** Aglomerados e equipamentos sensíveis detetados, por distância e rumo. */
+interface DetecaoSensiveis {
+  itens: { nome: string; tipo: string; dist: number; rumo: string; sens: boolean }[];
+  origem: string; g: string; raioKm: number;
+}
+
 interface DadosOcorrencia {
   area: string; perimNome: string; setores: string; sensiveis: string;
+  /** A forma do incêndio, gravada; nula enquanto não se carregar um ficheiro. */
+  perim: PerimetroGravado | null;
+  /** O que a deteção encontrou à volta; nula enquanto não se correr a deteção. */
+  sensDet: DetecaoSensiveis | null;
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */

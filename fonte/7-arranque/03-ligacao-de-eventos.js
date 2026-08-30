@@ -18,6 +18,7 @@ $("b-analisar").onclick=()=>analisarCSV(true);
 $("m-horas").addEventListener("change", ()=>{ if($("f-csv").value.trim()) analisarCSV(false); });
 try{ arrumarCasa(); }catch(e){ console.error("arrumação:", e); }
 try{ dobrarAjudas(); }catch(e){ console.error("ajudas:", e); }
+try{ dobrarCartoes(); }catch(e){ console.error("cartões dobráveis:", e); }
 $("b-gerar").onclick=emitirPEA;
 (function(){
   const eq=$("tn-eq"), ini=$("tn-ini"), fx=$("tn-fechar");
