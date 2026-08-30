@@ -81,6 +81,12 @@ function pendenciasCelula(k){
   return out;
 }
 
+/**
+ * Desenha o turno corrente: equipa, início, horas decorridas e o estado de cada célula.
+ *
+ * Não escreve por cima do campo que está a ser preenchido. Repintar debaixo da mão de
+ * quem escreve apaga o que ele ia a meio de dizer.
+ */
 function renderTurno(){
   const box = $("tn-celulas"); if(!box) return;
   const t = turnoObj();
@@ -107,6 +113,12 @@ function renderTurno(){
   renderHistTurno();
 }
 
+/**
+ * O quadro de entrega, célula a célula: quem entrega, o que fica pendente, o que exportar.
+ *
+ * Célula a célula porque é assim que um posto de comando rende — não é uma pessoa que
+ * entrega tudo, são cinco que entregam cada uma a sua matéria.
+ */
 function renderQuadroTurno(){
   const q = $("tn-quadro"); if(!q) return;
   const t = turnoObj();
@@ -162,6 +174,7 @@ function renderQuadroTurno(){
   }catch(e){}
 }
 
+/** As passagens já registadas nesta ocorrência, da mais recente para trás. */
 function renderHistTurno(){
   const el = $("tn-hist"); if(!el) return;
   const t = turnoObj(), L = t.entregas||[];
@@ -173,6 +186,12 @@ function renderHistTurno(){
   </div>`).join("");
 }
 
+/**
+ * Regista a passagem de turno: quem entrega, a quem, a que horas e com que pendências.
+ *
+ * Exige a equipa que entra e um GDH válido. Uma entrega sem destinatário não é entrega, e
+ * é dela que depende a continuidade de comando — DON n.º 2, ponto 7.d.(30).
+ */
 function fecharTurno(){
   const t = turnoObj();
   const para = ($("tn-eq2")? $("tn-eq2").value.trim() : "");

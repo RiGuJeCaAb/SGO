@@ -25,6 +25,17 @@ const OVERPASS = [
   {u:"https://overpass.private.coffee/api/interpreter", n:"private.coffee"},
   {u:"https://overpass.osm.jp/api/interpreter", n:"osm.jp"}
 ];
+/**
+ * Uma consulta ao Overpass, por espelhos em cadeia até um responder.
+ *
+ * Vários espelhos porque, com o ficheiro aberto em `file://`, há servidores que recusam o
+ * pedido — e nesse caso o que interessa é dizê-lo e passar ao seguinte. Quando falham
+ * todos, o erro traz o que cada um respondeu: um diagnóstico legível vale mais do que
+ * «indisponível».
+ *
+ * @param {string} q a consulta, na linguagem do Overpass
+ * @param {(t:string)=>void} [aviso] para ir dizendo por onde vai
+ */
 async function overpass(q, aviso){
   const falhas = [];
   for(let i=0;i<OVERPASS.length;i++){
@@ -70,6 +81,13 @@ const TIPO_PT = {fire_station:"quartel", parking:"parque de estacionamento", fue
   rest_area:"área de repouso", services:"área de serviço", pitch:"campo de jogos",
   sports_centre:"complexo desportivo", stadium:"estádio", industrial:"zona industrial",
   village:"aldeia", town:"vila", hamlet:"lugar"};
+/**
+ * Procura candidatos a ponto de trânsito na carta, entre 1,5 e 8 km da ocorrência.
+ *
+ * Quartéis primeiro, depois espaços amplos — parques e postos de combustível —, porque é
+ * essa a ordem em que se procura no terreno. **Sugere, não adota**: o ponto de trânsito é
+ * decisão da logística.
+ */
 async function sugerirPT(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("pt-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
@@ -140,6 +158,13 @@ window.adotarPT = i => {
   fita("Ponto de trânsito definido: "+it.nome+" a "+it.dist.toFixed(1)+" km "+it.rumo);
   aviso("msg-pt","ok","Ponto de trânsito adotado. Falta indicar o responsável e o contacto.");
 };
+/**
+ * Procura aglomerados e equipamentos sensíveis num raio de 3 km.
+ *
+ * Escolas, creches, hospitais e lares a vermelho: são os que obrigam a defesa perimétrica
+ * e, se for caso, a evacuação — art. 27.º, n.º 1, al. b). Cada um vem com a distância e o
+ * rumo, que é como se transmitem e como o croqui os recoloca.
+ */
 async function detetarSensiveis(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("sens-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }

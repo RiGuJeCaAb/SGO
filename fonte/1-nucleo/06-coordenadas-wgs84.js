@@ -1,10 +1,17 @@
 /* ================= NÚCLEO · coordenadas WGS84 ================= */
 function fmtDec(lat,lon){ return (+lat).toFixed(5)+", "+(+lon).toFixed(5); }
+/**
+ * Graus e minutos decimais — o formato que se lê ao rádio e se passa aos meios aéreos.
+ *
+ * @param {number} v o valor, com sinal
+ * @param {boolean} isLat latitude (dois dígitos de grau) ou longitude (três)
+ */
 function fmtGMD(v,isLat){
   const h = isLat ? (v>=0?"N":"S") : (v>=0?"E":"W");
   const a=Math.abs(v), d=Math.floor(a), m=(a-d)*60;
   return String(d).padStart(isLat?2:3,"0")+"\u00B0 "+m.toFixed(3).padStart(6,"0")+"' "+h;
 }
+/** Graus, minutos e segundos — o formato que vai no PEA e se lê sobre a carta. */
 function fmtGMS(v,isLat){
   const h = isLat ? (v>=0?"N":"S") : (v>=0?"E":"W");
   const a=Math.abs(v), d=Math.floor(a), mF=(a-d)*60, m=Math.floor(mF), sec=(mF-m)*60;
@@ -36,6 +43,12 @@ function pintarOrigemCoord(){
   el.textContent = !ha? ""
     : (f? "Origem: "+f : "Origem não registada — coordenadas anteriores à revisão que passou a guardá-la.");
 }
+/**
+ * Mostra a coordenada nos três formatos ao mesmo tempo.
+ *
+ * Os três, e não um à escolha: cada interlocutor usa o seu, e converter de cabeça no meio
+ * de uma ocorrência é como se enganam coordenadas.
+ */
 function renderFormats(){
   const lat=parseFloat($("o-lat").value.replace(",",".")), lon=parseFloat($("o-lon").value.replace(",","."));
   const el=$("coord-formats");
@@ -46,6 +59,20 @@ function renderFormats(){
     <div class="cfmt"><span class="lab">Graus e minutos (GMD)</span><span class="val">${fmtGMD(lat,true)} &nbsp; ${fmtGMD(lon,false)}</span><span class="uso">comunicacao radio · meios aereos</span></div>
     <div class="cfmt"><span class="lab">Graus, minutos e segundos</span><span class="val">${fmtGMS(lat,true)} &nbsp; ${fmtGMS(lon,false)}</span><span class="uso">documento PEA · cartas</span></div>`;
 }
+/**
+ * Lê uma coordenada colada em qualquer formato corrente.
+ *
+ * Decimal, graus e minutos, graus-minutos-segundos, com o hemisfério à frente ou atrás, com
+ * vírgula ou espaço a separar, com `O` de Oeste ou `W` de West. Aceita-se tudo isto porque
+ * é tudo isto que chega — de uma mensagem, de uma carta, de outra aplicação — e obrigar a
+ * converter à mão antes de colar é convidar ao erro.
+ *
+ * @param {string} txt
+ * @returns {null|{lat:number, lon:number, nota:string}} nulo quando não se reconhece, nunca
+ *   um palpite. `nota` traz a reserva a mostrar — uma coordenada fora dos limites de
+ *   Portugal lê-se na mesma, e avisa-se, porque pode ser um erro de digitação ou uma
+ *   ocorrência mesmo fora; recusá-la seria decidir qual dos dois é.
+ */
 function parseCoordAny(txt){
   // devolve {lat,lon} ou null — aceita decimal, GMD e GMS, com N/S/E/W/O
   let t = txt.toUpperCase().replace(/[\u00B0\u2019\u2032\u2033"']+/g," ").replace(/,/g," , ").trim();

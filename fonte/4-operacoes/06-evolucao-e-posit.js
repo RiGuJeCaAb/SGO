@@ -13,6 +13,12 @@ function addEvo(){
   try{ pintarDON(); }catch(e){}
   persistir(false);
 }
+/**
+ * Os registos posteriores ao último PEA.
+ *
+ * A marca é o índice guardado no plano, e não uma comparação de horas: dois registos com
+ * o mesmo GDH acontecem, e a hora não diz qual deles o plano já viu.
+ */
 function evoDesdeUltimoPEA(){
   const marca = O.peas.length? O.peas[O.peas.length-1].evoIdx : 0;
   return O.evolucao.slice(marca);

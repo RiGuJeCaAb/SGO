@@ -6,25 +6,40 @@ const NIVEL_ROT = {
   aereo  :{t:"Aéreo",   d:"ligação terra/ar/terra com os meios aéreos empenhados"}
 };
 const NIVEL_ORD = ["comando","tatico","manobra","aereo"];
+/** Os níveis de manobra em uso, com omissão segura. `tocado` diz se alguém já mexeu. */
 function nivObj(){
   if(!canaisObj().niveis || typeof canaisObj().niveis!=="object")
     canaisObj().niveis = {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
   return canaisObj().niveis;
 }
+/** Quantos meios aéreos estão no TO. Zero quando o dispositivo ainda não existe. */
 function nAereos(){ try{ return aerLista().length; }catch(e){ return 0; } }
+/**
+ * Que níveis o dispositivo pede: comando sempre, tático e manobra havendo setores, aéreo
+ * havendo aeronaves.
+ */
 function niveisSugeridos(){
   const ns = (estObj().setores||[]).length;
   return {comando:true, tatico:ns>0, manobra:ns>0, aereo:nAereos()>0};
 }
+/**
+ * Os níveis em vigor — sugeridos enquanto ninguém os tocar, escolhidos a partir daí.
+ *
+ * A sugestão acompanha o dispositivo, e é isso que se quer no princípio; mas assim que o
+ * oficial decide, a aplicação deixa de decidir por ele. Um plano de comunicações que se
+ * altera sozinho debaixo de quem o fez é pior do que um que não sugere nada.
+ */
 function autoNiveis(){
   const N = nivObj();
   if(!N.tocado){ const g = niveisSugeridos(); NIVEL_ORD.forEach(k=>N[k]=!!g[k]); }
   return N;
 }
+/** Em que nível fala cada função nomeada, pelo grupo a que pertence. */
 function nivelDaFuncao(f){
   const g = pcoDef(f).g;
   return g==="Meios aéreos"? "aereo" : (g==="Meios especiais"? "tatico" : "comando");
 }
+/** Desenha a escolha dos níveis, dizendo ao lado o que no dispositivo justifica cada um. */
 function renderNiveis(){
   const el = $("cm-niveis"); if(!el) return;
   const N = autoNiveis(), P = pcoObj(), g = niveisSugeridos();
@@ -50,6 +65,7 @@ function renderNiveis(){
     renderComs(); pintarDON(); persistir(false);
   }));
 }
+/** A grelha de teclas dos canais dos níveis em uso, com os atribuídos marcados. */
 function renderAtrib(){
   const el = $("cm-atrib"); if(!el) return;
   const A = atribSet(), N = nivObj();
@@ -74,6 +90,7 @@ function renderAtrib(){
     renderComs(); pintarDON(); persistir(false);
   }));
 }
+/** Desenha o plano de comunicações inteiro: níveis, atribuição e a distribuição por função. */
 function renderComs(){
   const P = pcoObj(), e = estObj(), N = autoNiveis();
   renderNiveis(); renderAtrib();

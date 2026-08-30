@@ -22,6 +22,12 @@ function pacoteOcorrencia(){
     ficheiro:FICHEIRO_APP, g:gdhAgora(), sha:resumoEstado(O), estado:O};
 }
 
+/**
+ * Escreve a ocorrência num ficheiro que não depende deste dispositivo.
+ *
+ * É a única cópia que sobrevive ao disco, e é por isso que a mensagem manda guardá-lo
+ * fora daqui. O nome leva número, GDH e versão do estado; o pacote leva o carimbo.
+ */
 function exportarOcorrencia(){
   const pacote = pacoteOcorrencia();
   descarregar(nomeExportacao(), JSON.stringify(pacote, null, 1));
@@ -50,6 +56,13 @@ function lerPacoteOcorrencia(texto){
   return migrado;
 }
 
+/**
+ * Repõe uma ocorrência a partir de um ficheiro exportado.
+ *
+ * Confere o carimbo e **avisa sem recusar**: um pacote que não bate pode ser um ficheiro
+ * corrompido ou um estado mexido à mão, e recusá-lo deixaria o oficial sem a ocorrência
+ * em vez de o deixar decidir. O que não se pode é entrar em silêncio.
+ */
 async function importarOcorrencia(texto){
   let estado;
   try{ estado = lerPacoteOcorrencia(texto); }

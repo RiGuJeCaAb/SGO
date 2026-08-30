@@ -32,6 +32,7 @@ function pintarTudo(){
   try{ pintarContagens(); }catch(e){}
 }
 
+/** Texto letra a letra na vertical, para a barra lateral das células no documento. */
 function letrasV(txt){
   return txt.toUpperCase().split("").map(c=>c===" "? '<span style="height:7px"></span>' : c).join("<br>");
 }

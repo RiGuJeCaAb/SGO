@@ -20,12 +20,14 @@ let ELEMENTOS = [];
 /* Identificador do registo em correção. Vazio, guardar cria ou funde pelo nome;
    preenchido, guardar substitui aquele registo — e só assim se pode corrigir o nome. */
 let EL_EDICAO = "";
+/** Larga a edição em curso e devolve o formulário ao modo de acrescentar. */
 function sairDaEdicaoElemento(){
   EL_EDICAO = "";
   const g = $("el-add"); if(g) g.textContent = "Guardar no catálogo";
   const cx = $("el-cancelar"); if(cx) cx.style.display = "none";
 }
 
+/** Um elemento por preencher — a forma que o catálogo do posto guarda. */
 function novoElemento(){ return { id:"", nome:"", entidade:"", ct:"", funcao:"", nota:"", g:"" }; }
 
 /** Chave de identidade: nome e entidade. Duas pessoas com o mesmo nome em corpos
@@ -34,6 +36,12 @@ function chaveElemento(x){
   return (String(x.nome||"").trim()+"|"+String(x.entidade||"").trim()).toLowerCase();
 }
 
+/**
+ * Lê o catálogo de elementos deste dispositivo.
+ *
+ * Normaliza contra a forma corrente e deita fora o que não tem nome: um elemento sem nome
+ * não serve para nomear ninguém, e ficaria a ocupar a lista.
+ */
 async function carregarElementos(){
   try{ const r = await ARMAZEM.get(ELEM_CHAVE); ELEMENTOS = JSON.parse(r.value) || []; }
   catch(e){ ELEMENTOS = []; }
@@ -41,6 +49,7 @@ async function carregarElementos(){
   ELEMENTOS = ELEMENTOS.map(x=>Object.assign(novoElemento(), x)).filter(x=>x.nome);
   return ELEMENTOS;
 }
+/** Grava o catálogo. Devolve se conseguiu — quem chama decide o que dizer ao operador. */
 async function gravarElementos(){
   try{ await ARMAZEM.set(ELEM_CHAVE, JSON.stringify(ELEMENTOS)); return true; }
   catch(e){ return false; }
@@ -80,6 +89,7 @@ async function guardarElemento(dados){
   return { ok:true, novo: i < 0 };
 }
 
+/** Retira um elemento do catálogo. Falso quando não havia nada com esse identificador. */
 async function apagarElemento(id){
   const antes = ELEMENTOS.length;
   ELEMENTOS = ELEMENTOS.filter(x=>x.id !== id);

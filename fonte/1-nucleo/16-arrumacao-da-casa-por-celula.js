@@ -66,7 +66,14 @@ const ATALHOS_PANE = {
   "p-fita":   { pane:"p-operacoes",   h:"Fita do tempo" }
 };
 
+/**
+ * O título de um cartão: o primeiro nó de texto do `h2`, sem a etiqueta legal ao lado.
+ *
+ * É por ele que os registos encontram os cartões. Um título que mude sem o registo
+ * acompanhar parte a auditoria — de propósito.
+ */
 function tituloCartao(c){ const h = c.querySelector("h2"); return h? h.childNodes[0].textContent.trim() : ""; }
+/** O cartão com este título, ou nada. */
 function cartaoPorTitulo(h){
   return [...document.querySelectorAll(".card")].find(c=>tituloCartao(c) === h) || null;
 }
@@ -241,6 +248,12 @@ window.irPara = pid => {
   if(a && a.h){ const c = cartaoPorTitulo(a.h); if(c) try{ c.scrollIntoView({block:"start",behavior:"smooth"}); }catch(e){} }
 };
 const NOMES_PANE = {"p-occ":"Comando · identificação","p-fontes":"Planeamento · dados da ocorrência","p-pco":"Comando · estrutura do PCO","p-evo":"Operações · evolução","p-meteo":"Planeamento · meteorologia","p-pea":"Planeamento · PEA","p-avisos":"Comando · avisos","p-turno":"Passagem de turno"};
+/**
+ * Acende, em cada separador, quantos dados obrigatórios lhe faltam.
+ *
+ * Um PEA não sai sem os obrigatórios, e descobri-lo só no momento de o emitir é descobri-lo
+ * tarde. O que falta aparece onde se preenche.
+ */
 function pintarGuia(){
   const L = pendencias();
   // estado por separador
@@ -287,6 +300,7 @@ function dobrarAjudas(){
     h.appendChild(b); h.appendChild(corpo);
   });
 }
+/** Abre ou fecha um bloco de ajuda, e acerta o que o botão diz. */
 function abrirAjuda(h, on){
   h.classList.toggle("aberta", !!on);
   const b = h.querySelector(":scope > .hb");
@@ -300,6 +314,11 @@ function todasAsAjudas(on){
   document.querySelectorAll(".help").forEach(h=>abrirAjuda(h, on));
 }
 
+/**
+ * Liga e desliga a ajuda no ecrã, e guarda a escolha no dispositivo.
+ *
+ * @param {boolean} on mostrar a ajuda
+ */
 async function alternarAjuda(on){
   document.documentElement.classList.toggle("ajuda", on);
   /* Dobrados **sempre fechados** ao ligar a ajuda. O guião que trouxe os dobráveis
@@ -324,6 +343,7 @@ setInterval(()=>{ try{ pintarDON(); renderVigor(); }catch(e){} }, 30000);
   const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ pintarGuia(); renderCheck(); }catch(e){} });
 });
 ["o-lat","o-lon"].forEach(id=>{ const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ atualizarDistrito(); }catch(e){} }); });
+/** Desenha a lista de verificação dos dados da ocorrência, com o atalho para preencher. */
 function renderCheck(){
   const L = pendencias();
   const falta = L.filter(x=>!x.ok&&x.ob).length;

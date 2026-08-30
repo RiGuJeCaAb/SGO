@@ -35,6 +35,7 @@ function preencher(alvo, molde){
   return alvo;
 }
 
+/** O ponto de trânsito, na ZCR — art. 32.º, n.º 1, al. b). */
 function ptObj(){ return logisticaObj().pontoTransito; }
 /** @returns {Dispositivo} */
 function estObj(){
@@ -74,5 +75,7 @@ function encObj(){
 }
 /** A ocorrência está encerrada quando tem GDH de encerramento, e só então. */
 function encerrada(){ return !!encObj().g; }
+/** A reserva tática — art. 32.º, n.º 1, al. b), e art. 33.º. */
 function reservaObj(){ return logisticaObj().reserva; }
+/** A zona de apoio. Também é área da ZCR, e não dispositivo de Operações. */
 function zaObj(){ return logisticaObj().zonaApoio; }

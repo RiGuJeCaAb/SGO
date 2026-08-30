@@ -18,6 +18,12 @@ const LLM = (()=>{
     rot:"Determinística",
     nota:"Ficheiro aberto de file:// — sem acesso a modelo. O PEA é elaborado por regras determinísticas, sem redação assistida."};
 })();
+/**
+ * Pergunta ao modelo de linguagem, quando há relé configurado.
+ *
+ * Em `file://` não há, e lança — é o modo normal no posto de comando, e a redação
+ * determinística assume. A assistência é conveniência; o plano não depende dela.
+ */
 async function llm(prompt){
   if(LLM.modo==="manual") throw "modo manual (file://): sem relé de modelo configurado";
   const r = await fetchT(LLM.url,{method:"POST",headers:{"Content-Type":"application/json"},
@@ -27,12 +33,19 @@ async function llm(prompt){
   const t=(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").replace(/```json|```/g,"").trim();
   return JSON.parse(t);
 }
+/** Diz em que modo a proposta vai ser redigida, e porquê. Nunca fica implícito. */
 function pintarModoLLM(){
   const e=document.getElementById("llm-modo"); if(!e) return;
   e.className = "msg " + (LLM.modo==="manual" ? "err" : "ok");
   e.style.display = "block";
   e.textContent = "Modo de redação: " + LLM.rot + ". " + LLM.nota;
 }
+/**
+ * O que o modelo precisa de saber para propor: a ocorrência, o dispositivo, o que mudou.
+ *
+ * Monta-se aqui e não se dispersa, porque é preciso poder ler de uma vez **o que sai
+ * daqui para fora** — e o que não sai.
+ */
 function contexto(n, novas, anterior){
   return `OCORRÊNCIA: n.º ${O.meta.num}, ${O.meta.local}; PCO ${O.meta.pco}; fase SGO ${O.meta.fase}; área ${O.dados.area||"?"} ha${O.dados.perimNome? " (perímetro: "+O.dados.perimNome+")":""}.
 SETORES E MEIOS (app PCO):

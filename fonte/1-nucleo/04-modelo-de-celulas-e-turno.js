@@ -9,6 +9,7 @@ function CELULAS_PCO(){
     {k:"logistica",   n:"Logística e Finanças", r:"arts. 31.º a 35.º"}
   ];
 }
+/** Um turno vazio, com uma entrada por célula do posto — a forma que a entrega espera. */
 function novoTurno(){
   const c = {};
   CELULAS_PCO().forEach(x=>{ c[x.k] = {n:"", ct:"", nota:""}; });
@@ -142,6 +143,17 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/**
+ * Sobe um estado gravado até à versão que esta revisão lê, degrau a degrau.
+ *
+ * Lança quando o estado veio de uma revisão **posterior**, e o erro leva `futuro` com a
+ * versão que encontrou: descer de versão exigiria desfazer migrações que não têm inversa,
+ * e adivinhar o que fazer com campos que não conhece seria pior do que recusar. Quem
+ * apanha o erro diz ao oficial para abrir a ocorrência na revisão mais recente.
+ *
+ * @param {any} guardado o objeto tal como saiu do armazenamento
+ * @returns {any} o mesmo estado, na versão corrente
+ */
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
@@ -280,6 +292,13 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/**
+ * O estado de uma ocorrência por começar.
+ *
+ * É a **referência da forma**: o que aqui não estiver não existe, e a primeira migração
+ * usa-o para normalizar o que vem de fora. Cada ramo está na célula a quem a lei atribui
+ * a matéria — ver `POSSE`, que é auditado contra isto.
+ */
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -330,8 +349,10 @@ const $ = id => document.getElementById(id);
 const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
 const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
 const MES = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+/** O GDH doutrinário do instante corrente: DDHHMM, mês em três letras, ano em duas. */
 function gdhAgora(){ const d=new Date(agora());
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }
+/** O mesmo, para um instante qualquer. Toda a hora escrita passa por aqui. */
 function gdhDe(ts){ const d=new Date(ts);
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }
 

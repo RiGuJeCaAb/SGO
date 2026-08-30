@@ -163,6 +163,7 @@ const ENC_LIVRES = [
   { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" }
 ];
 
+/** Inerta tudo o que escreve nesta ocorrência, poupando o que está declarado acima. */
 function aplicarFechoDeEscrita(){
   const fechada = encerrada();
   document.documentElement.classList.toggle("encerrada", fechada);
@@ -184,6 +185,13 @@ function auditarFechoDeEscrita(){
   return { n:ENC_LIVRES.length, semControlo, semRazao };
 }
 
+/**
+ * Diz em que estado está o registo: encerrado por quem e quando, ou o que falta para o
+ * poder ser.
+ *
+ * Com o registo fechado, confere o carimbo contra o estado em memória e **diz quando não
+ * bate** — um registo alterado depois de encerrado é facto que tem de aparecer.
+ */
 function pintarEncerramento(){
   const cx = $("enc-estado"); if(!cx) return;
   /* Quem está ao teclado é quem se propõe: escreve-se sozinho, e corrige-se se for outro

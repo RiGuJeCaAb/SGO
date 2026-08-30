@@ -1929,14 +1929,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608302347_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608310004_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608302347_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608310004_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2157,6 +2157,7 @@ function CELULAS_PCO(){
     {k:"logistica",   n:"Logística e Finanças", r:"arts. 31.º a 35.º"}
   ];
 }
+/** Um turno vazio, com uma entrada por célula do posto — a forma que a entrega espera. */
 function novoTurno(){
   const c = {};
   CELULAS_PCO().forEach(x=>{ c[x.k] = {n:"", ct:"", nota:""}; });
@@ -2290,6 +2291,17 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/**
+ * Sobe um estado gravado até à versão que esta revisão lê, degrau a degrau.
+ *
+ * Lança quando o estado veio de uma revisão **posterior**, e o erro leva `futuro` com a
+ * versão que encontrou: descer de versão exigiria desfazer migrações que não têm inversa,
+ * e adivinhar o que fazer com campos que não conhece seria pior do que recusar. Quem
+ * apanha o erro diz ao oficial para abrir a ocorrência na revisão mais recente.
+ *
+ * @param {any} guardado o objeto tal como saiu do armazenamento
+ * @returns {any} o mesmo estado, na versão corrente
+ */
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
@@ -2428,6 +2440,13 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/**
+ * O estado de uma ocorrência por começar.
+ *
+ * É a **referência da forma**: o que aqui não estiver não existe, e a primeira migração
+ * usa-o para normalizar o que vem de fora. Cada ramo está na célula a quem a lei atribui
+ * a matéria — ver `POSSE`, que é auditado contra isto.
+ */
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -2478,13 +2497,27 @@ const $ = id => document.getElementById(id);
 const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
 const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
 const MES = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+/** O GDH doutrinário do instante corrente: DDHHMM, mês em três letras, ano em duas. */
 function gdhAgora(){ const d=new Date(agora());
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }
+/** O mesmo, para um instante qualquer. Toda a hora escrita passa por aqui. */
 function gdhDe(ts){ const d=new Date(ts);
   return String(d.getDate()).padStart(2,"0")+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+MES[d.getMonth()]+String(d.getFullYear()).slice(2); }
 
 /* ================= NÚCLEO · persistência ================= */
 function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
+/**
+ * Grava a ocorrência e o índice do arquivo, e repinta.
+ *
+ * Lê o formulário antes de gravar: o que está no ecrã e não foi confirmado com um botão
+ * é dado do mesmo modo, e perdê-lo por isso seria perder trabalho de campo.
+ *
+ * **Nunca lança.** Um erro de armazenamento aparece como aviso e a aplicação continua —
+ * num PCO, parar por não se conseguir gravar é pior do que continuar a saber-se que não
+ * se gravou.
+ *
+ * @param {boolean} [nota] mostrar a confirmação no ecrã
+ */
 async function persistir(nota){
   lerForm();
   try{
@@ -2504,6 +2537,15 @@ async function persistir(nota){
   try{ await copiaSeDevida(); }catch(e){}
   pintarTudo();
 }
+/**
+ * Repõe uma ocorrência do arquivo deste dispositivo.
+ *
+ * Sem número, repõe a última que esteve aberta. Distingue os dois modos de falhar: não
+ * haver nada gravado, e haver algo gravado por uma revisão posterior — que se diz com
+ * todas as letras, porque a saída é abrir noutra revisão e não insistir nesta.
+ *
+ * @param {string} [num] número da ocorrência; vazio para a última
+ */
 async function carregar(num){
   try{
     if(!num){ const u=await ARMAZEM.get("peaapp:ultima"); num=u?u.value:null; }
@@ -2531,7 +2573,15 @@ function escreverCaminho(raiz, caminho, valor){
   }
   alvo[partes[partes.length-1]] = valor;
 }
+/** Leva um campo do formulário ao caminho que ele declara em `data-campo`. */
 function lerCampo(el){ escreverCaminho(O, el.dataset.campo, String(el.value==null? "" : el.value).trim()); }
+/**
+ * Traz o formulário todo para o estado.
+ *
+ * Percorre `data-campo`, e nada mais: um campo novo declara o seu caminho no HTML e passa
+ * a ser lido sem se escrever uma linha aqui. Foi esta a correção 4.2 — antes o estado era
+ * reconstruído campo a campo, e um campo esquecido perdia-se em silêncio.
+ */
 function lerForm(){
   document.querySelectorAll("[data-campo]").forEach(lerCampo);
   /* Única exceção: os setores em texto livre só valem com o modo livre ligado.
@@ -2543,6 +2593,14 @@ function lerForm(){
   const el = ev2.target && ev2.target.closest ? ev2.target.closest("[data-campo]") : null;
   if(el) lerCampo(el);
 }, true));
+/**
+ * O caminho inverso: põe o estado no ecrã.
+ *
+ * Não é simétrico de `lerForm` de propósito. Além dos campos, há o que só se sabe pintar
+ * — os formatos da coordenada, a lista de setores, o quadro do relevo — e é aqui que se
+ * chama, cada um dentro do seu `try`: um render que falhe não pode impedir os outros de
+ * mostrar a ocorrência que se acabou de repor.
+ */
 function escreverForm(){
   const m=O.meta; $("o-num").value=m.num; $("o-local").value=m.local; $("o-pco").value=m.pco; $("o-fase").value=m.fase; $("o-lat").value=m.lat; $("o-lon").value=m.lon; $("o-pasta").value=m.pasta||""; $("o-inicio").value=m.inicio||""; $("o-nivel").value=m.nivel||""; try{ renderFormats(); }catch(e){}
   const d=O.dados; $("d-area").value=d.area||""; $("d-sensiveis").value=d.sensiveis||"";
@@ -2552,6 +2610,13 @@ function escreverForm(){
   $("d-perim-info").textContent = d.perimNome? "Carregado: "+d.perimNome+(d.area? " · área estimada "+d.area+" ha":"") : "Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono.";
   $("d-anexos-info").textContent = d.anexos.length? "Anexos: "+d.anexos.join(", ") : "Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia).";
 }
+/**
+ * Mostra uma mensagem numa caixa do ecrã.
+ *
+ * @param {string} id caixa de destino
+ * @param {"ok"|"err"|"av"} cls peso da mensagem, que decide a cor
+ * @param {string} txt o que se diz
+ */
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
 /* A fita vive dentro da ocorrência; o diário do posto vive fora dela e sobrevive-lhe.
    Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
@@ -2571,6 +2636,7 @@ const PROV_ROT = {
     + " com o carimbo de integridade a não conferir ("+resumoCurto(p.sha)+"), por decisão de quem a importou."
     + " O conteúdo pode ter sido alterado depois de exportado.",
 };
+/** Diz de onde veio a ocorrência aberta, quando não nasceu aqui. Ver `integridade`. */
 function pintarProveniencia(){
   const el = $("occ-proveniencia"); if(!el) return;
   const p = (O && O.integridade) || { estado:"", g:"", sha:"", app:"", ficheiro:"" };
@@ -2581,7 +2647,9 @@ function pintarProveniencia(){
 }
 
 let INDEX = [];
+/** Lê o índice do arquivo. Falhar deixa-o vazio: sem índice trabalha-se, sem estado não. */
 async function carregarIndex(){ try{ const r=await ARMAZEM.get("peaapp:index"); INDEX=JSON.parse(r.value)||[]; }catch(e){ INDEX=[]; } }
+/** Desenha o arquivo deste dispositivo, agrupado pela pasta de localização. */
 function pintarArquivo(){
   const el=$("arq-list");
   if(!INDEX.length){ el.innerHTML='<p class="hint">Sem ocorrências guardadas neste dispositivo.</p>'; return; }
@@ -2620,11 +2688,18 @@ window.apagarOcc = async num => {
 
 /* ================= NÚCLEO · coordenadas WGS84 ================= */
 function fmtDec(lat,lon){ return (+lat).toFixed(5)+", "+(+lon).toFixed(5); }
+/**
+ * Graus e minutos decimais — o formato que se lê ao rádio e se passa aos meios aéreos.
+ *
+ * @param {number} v o valor, com sinal
+ * @param {boolean} isLat latitude (dois dígitos de grau) ou longitude (três)
+ */
 function fmtGMD(v,isLat){
   const h = isLat ? (v>=0?"N":"S") : (v>=0?"E":"W");
   const a=Math.abs(v), d=Math.floor(a), m=(a-d)*60;
   return String(d).padStart(isLat?2:3,"0")+"\u00B0 "+m.toFixed(3).padStart(6,"0")+"' "+h;
 }
+/** Graus, minutos e segundos — o formato que vai no PEA e se lê sobre a carta. */
 function fmtGMS(v,isLat){
   const h = isLat ? (v>=0?"N":"S") : (v>=0?"E":"W");
   const a=Math.abs(v), d=Math.floor(a), mF=(a-d)*60, m=Math.floor(mF), sec=(mF-m)*60;
@@ -2656,6 +2731,12 @@ function pintarOrigemCoord(){
   el.textContent = !ha? ""
     : (f? "Origem: "+f : "Origem não registada — coordenadas anteriores à revisão que passou a guardá-la.");
 }
+/**
+ * Mostra a coordenada nos três formatos ao mesmo tempo.
+ *
+ * Os três, e não um à escolha: cada interlocutor usa o seu, e converter de cabeça no meio
+ * de uma ocorrência é como se enganam coordenadas.
+ */
 function renderFormats(){
   const lat=parseFloat($("o-lat").value.replace(",",".")), lon=parseFloat($("o-lon").value.replace(",","."));
   const el=$("coord-formats");
@@ -2666,6 +2747,20 @@ function renderFormats(){
     <div class="cfmt"><span class="lab">Graus e minutos (GMD)</span><span class="val">${fmtGMD(lat,true)} &nbsp; ${fmtGMD(lon,false)}</span><span class="uso">comunicacao radio · meios aereos</span></div>
     <div class="cfmt"><span class="lab">Graus, minutos e segundos</span><span class="val">${fmtGMS(lat,true)} &nbsp; ${fmtGMS(lon,false)}</span><span class="uso">documento PEA · cartas</span></div>`;
 }
+/**
+ * Lê uma coordenada colada em qualquer formato corrente.
+ *
+ * Decimal, graus e minutos, graus-minutos-segundos, com o hemisfério à frente ou atrás, com
+ * vírgula ou espaço a separar, com `O` de Oeste ou `W` de West. Aceita-se tudo isto porque
+ * é tudo isto que chega — de uma mensagem, de uma carta, de outra aplicação — e obrigar a
+ * converter à mão antes de colar é convidar ao erro.
+ *
+ * @param {string} txt
+ * @returns {null|{lat:number, lon:number, nota:string}} nulo quando não se reconhece, nunca
+ *   um palpite. `nota` traz a reserva a mostrar — uma coordenada fora dos limites de
+ *   Portugal lê-se na mesma, e avisa-se, porque pode ser um erro de digitação ou uma
+ *   ocorrência mesmo fora; recusá-la seria decidir qual dos dois é.
+ */
 function parseCoordAny(txt){
   // devolve {lat,lon} ou null — aceita decimal, GMD e GMS, com N/S/E/W/O
   let t = txt.toUpperCase().replace(/[\u00B0\u2019\u2032\u2033"']+/g," ").replace(/,/g," , ").trim();
@@ -2741,6 +2836,13 @@ const NOMES_SETOR = ["Alfa","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","H
 const ESTADOS_SETOR = ["Em curso (ativo)","Em resolução (dominado)","Em conclusão (extinto)","Vigilância ativa e consolidação de rescaldo","Reativação"];
 /* Migração de estados antigos para a nomenclatura oficial da DON n.º 2 / DECIR 2026, ponto 7.f */
 const MAPA_ESTADOS = {"Frente ativa":"Em curso (ativo)","Em consolidação":"Em resolução (dominado)","Rescaldo":"Em conclusão (extinto)","Vigilância ativa":"Vigilância ativa e consolidação de rescaldo"};
+/**
+ * Traduz um estado de setor antigo para o vocabulário em vigor.
+ *
+ * O que não estiver no mapa nem no vocabulário volta ao primeiro estado — não se inventa
+ * um estado a partir de texto que não se reconhece, e ficar em branco seria pior: um setor
+ * sem estado não conta para a fase nem para as regras de conformidade.
+ */
 function migrarEstado(v){ return MAPA_ESTADOS[v] || (ESTADOS_SETOR.includes(v)? v : ESTADOS_SETOR[0]); }
 
 /**
@@ -2844,6 +2946,7 @@ const CATALOGO = [
   {g:"Viaturas isoladas", t:"Trator agrícola/florestal", mu:1, ou:1},
   {g:"Outro", t:"Outro", mu:1, ou:1}
 ];
+/** As tipologias do catálogo em opções, agrupadas como no Anexo 1, com a nota em título. */
 function catOptions(){
   const grupos = [...new Set(CATALOGO.map(c=>c.g))];
   return grupos.map(g=>'<optgroup label="'+g+'">'+CATALOGO.filter(c=>c.g===g).map(c=>'<option value="'+c.t+'"'+(c.c? ' title="'+esc(c.c)+'"':'')+'>'+c.t+(c.v?' (variável)':'')+'</option>').join("")+'</optgroup>').join("");
@@ -2892,6 +2995,7 @@ function preencher(alvo, molde){
   return alvo;
 }
 
+/** O ponto de trânsito, na ZCR — art. 32.º, n.º 1, al. b). */
 function ptObj(){ return logisticaObj().pontoTransito; }
 /** @returns {Dispositivo} */
 function estObj(){
@@ -2931,7 +3035,9 @@ function encObj(){
 }
 /** A ocorrência está encerrada quando tem GDH de encerramento, e só então. */
 function encerrada(){ return !!encObj().g; }
+/** A reserva tática — art. 32.º, n.º 1, al. b), e art. 33.º. */
 function reservaObj(){ return logisticaObj().reserva; }
+/** A zona de apoio. Também é área da ZCR, e não dispositivo de Operações. */
 function zaObj(){ return logisticaObj().zonaApoio; }
 /* ================= posse do estado por célula =================
    Cada ramo do estado tem exatamente um dono, e o dono é a célula a quem a lei
@@ -3006,7 +3112,9 @@ function donoDoRamo(caminho){
   }));
   return melhor;
 }
+/** A célula que tem esta chave, ou nada. */
 function celulaPorChave(k){ return POSSE.find(c=>c.k===k) || null; }
+/** Os ramos do estado que pertencem a uma célula. Vazio para chave desconhecida. */
 function ramosDaCelula(k){ const c = celulaPorChave(k); return c? c.ramos : []; }
 
 /* Lê um caminho pontuado sem rebentar em ramo ausente. */
@@ -3063,6 +3171,13 @@ function pacoteCelula(k){
     ramos: instantaneoCelula(k),
     posse: c.ramos.map(r=>({ caminho:r.p, base:r.r, materia:r.d })) };
 }
+/**
+ * Escreve num ficheiro só o que é da célula pedida.
+ *
+ * Serve a entrega de turno célula a célula: quem rende a logística não precisa do
+ * meteograma, e mandar a ocorrência inteira para entregar um ramo é mandar o que não se
+ * pediu. O recorte é o registo de posse, e não uma escolha de quem exporta.
+ */
 function exportarCelula(k){
   try{
     const c = celulaPorChave(k); if(!c) return;
@@ -3101,6 +3216,7 @@ function motivoRede(err){
   return "falha de rede";
 }
 
+/** O navegador diz que está sem rede? Só isso — estar em linha não garante que responda. */
 function semRede(){ return typeof navigator!=="undefined" && navigator.onLine===false; }
 
 /* Devolve a resposta tal como o fetch a daria: quem chama continua a verificar r.ok. */
@@ -3139,6 +3255,14 @@ async function fetchT(url, opts={}, ms){
   if(guardavel) REDE.cache.set(url, {ts:inicio, p});
   return (await p).clone();
 }
+/**
+ * Formas alternativas de procurar um local, da mais completa para a mais curta.
+ *
+ * Um local de ocorrência vem escrito como o operador o ditou — «Vila Chã de Caria —
+ * Moimenta da Beira» —, e nenhum serviço de geocodificação o reconhece inteiro. Parte-se
+ * pelos separadores e vai-se encurtando: uma coordenada aproximada do lugar certo vale
+ * mais do que nenhuma coordenada.
+ */
 function variantes(local){
   // "Vila Chã de Caria - Moimenta da Beira" -> segmentos e reduções do primeiro
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
@@ -3152,6 +3276,7 @@ function variantes(local){
   segs.slice(1).forEach(x=>v.push(x));
   return [...new Set(v.filter(x=>x.length>2))];
 }
+/** Geocodificação pelo Open-Meteo, limitada a Portugal. Tenta cada variante do local. */
 async function geoOpenMeteo(local){
   for(const q of variantes(local)){
     try{
@@ -3164,6 +3289,7 @@ async function geoOpenMeteo(local){
   }
   throw "sem resultados";
 }
+/** Geocodificação pelo Photon, sobre dados do OpenStreetMap. */
 async function geoPhoton(local){
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
   const q = segs.join(", ");
@@ -3175,6 +3301,7 @@ async function geoPhoton(local){
   return res.map(f=>({lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0],
     nome:[f.properties.name, f.properties.city||f.properties.county, f.properties.state].filter(Boolean).join(", ")}));
 }
+/** Geocodificação pelo Nominatim, o serviço do próprio OpenStreetMap. */
 async function geoNominatim(local){
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
   const r = await fetchT("https://nominatim.openstreetmap.org/search?q="+encodeURIComponent(segs.join(", ")+", Portugal")+"&format=json&limit=5&countrycodes=pt",
@@ -3184,11 +3311,25 @@ async function geoNominatim(local){
   if(!d.length) throw "sem resultados";
   return d.map(x=>({lat:x.lat, lon:x.lon, nome:x.display_name.split(",").slice(0,3).join(",")}));
 }
+/**
+ * Último recurso: perguntar ao modelo de linguagem.
+ *
+ * Marcado como **aproximado** no nome que devolve, e é para ficar à vista: isto não é
+ * geocodificação, é uma estimativa a partir do que o modelo leu. Serve para não ficar sem
+ * ponto nenhum num sítio que os serviços não conhecem, e é para confirmar sobre a carta.
+ */
 async function geoModelo(q){
   const j = await llm(`Indica as coordenadas geográficas aproximadas (WGS84, graus decimais) da localidade portuguesa "${q}". Responde APENAS JSON válido: {"lat":41.0,"lon":-7.0,"nome":"nome normalizado"}. Se não conheceres a localidade com confiança razoável, responde {"erro":"desconhecida"}.`);
   if(j.erro || typeof j.lat!=="number") throw "modelo sem resposta fiável";
   return [{lat:j.lat, lon:j.lon, nome:j.nome+" — aproximadas"}];
 }
+/**
+ * Acha a coordenada do local escrito, por serviços em cadeia.
+ *
+ * Vários serviços porque nenhum chega: o mesmo lugar tem nomes diferentes em cada um, e a
+ * ligação de um PCO cai. Com um resultado só, fixa; com vários, **pergunta** — escolher o
+ * primeiro seria decidir por quem comanda onde é a ocorrência.
+ */
 async function geocodificar(){
   const q0 = $("o-local").value.trim();
   if(!q0){ $("geo-info").textContent = "Escreve primeiro o local."; return; }
@@ -3214,6 +3355,7 @@ async function geocodificar(){
    Determinado a partir das coordenadas do TO; qualifica o pacote de canais aplicável,
    já que os grupos de conversação são de âmbito distrital, sob gestão e direção do comando. */
 const DISTRITOS_PT = ["Aveiro","Beja","Braga","Bragança","Castelo Branco","Coimbra","Évora","Faro","Guarda","Leiria","Lisboa","Portalegre","Porto","Santarém","Setúbal","Viana do Castelo","Vila Real","Viseu","Angra do Heroísmo","Horta","Ponta Delgada","Funchal"];
+/** Reduz o que um serviço devolve ao nome do distrito como a lista oficial o escreve. */
 function normalizarDistrito(txt){
   if(!txt) return "";
   const t = String(txt).replace(/^distrito\s+d[eoa]s?\s+/i,"").trim();
@@ -3221,6 +3363,12 @@ function normalizarDistrito(txt){
     || DISTRITOS_PT.find(d=>t.toLowerCase().indexOf(d.toLowerCase())>=0);
   return achado || t;
 }
+/**
+ * Geocodificação inversa: de onde é este ponto.
+ *
+ * O distrito decide a pasta sub-regional e entra nos canais; é por isso que se procura, e
+ * não para enfeitar. Devolve também de que serviço veio, para se saber quanto vale.
+ */
 async function distritoPorCoords(lat, lon){
   try{
     const r = await fetchT("https://photon.komoot.io/reverse?lat="+lat+"&lon="+lon+"&lang=default&limit=1");
@@ -3243,6 +3391,14 @@ async function distritoPorCoords(lat, lon){
   }catch(e){}
   return null;
 }
+/**
+ * Acerta o distrito e o concelho quando a coordenada muda.
+ *
+ * Guarda a coordenada que serviu — `distritoChave` — e não repete o pedido enquanto ela
+ * não mudar: um PCO não tem ligação para gastar a perguntar a mesma coisa.
+ *
+ * @param {boolean} [forcar] perguntar mesmo que a coordenada não tenha mudado
+ */
 async function atualizarDistrito(forcar){
   const lat = parseFloat(String($("o-lat").value).replace(",",".")),
         lon = parseFloat(String($("o-lon").value).replace(",","."));
@@ -3259,6 +3415,7 @@ async function atualizarDistrito(forcar){
   persistir(false);
 }
 $("b-geo").onclick = geocodificar;
+/** Geocodifica sozinho ao sair do campo do local, e só se ainda não houver coordenada. */
 function autoGeo(){ if($("o-local").value.trim() && !$("o-lat").value.trim() && !$("o-lon").value.trim()) geocodificar(); }
 $("o-local").addEventListener("blur", autoGeo);
 $("o-local").addEventListener("change", autoGeo);
@@ -3272,7 +3429,14 @@ $("o-local").addEventListener("change", autoGeo);
    operacional: não podem ficar por testar. */
 function agora(){ return Date.now(); }
 
+/**
+ * Minutos entre uma data e um instante. Nulo quando não há data.
+ *
+ * **Recebe o instante, não o lê do relógio.** É o que permite às regras de prazo serem
+ * verificáveis: um teste passa a hora que quer e a regra responde sempre o mesmo.
+ */
 function minutosDesde(d, ts){ return d? Math.round(((ts==null? agora() : ts)-d.getTime())/60000) : null; }
+/** Quando foi o último ponto de situação, para as regras que contam a partir dele. */
 function ultimoPOSIT(){
   for(let i=O.evolucao.length-1;i>=0;i--){ if(O.evolucao[i].tipo==="posit") return parseGDH(O.evolucao[i].g); }
   return null;
@@ -3442,6 +3606,7 @@ function descarregar(nome, texto, tipo){
     setTimeout(()=>{ URL.revokeObjectURL(u); a.remove(); }, 500);
   }catch(e){ aviso("msg-occ","err","Não foi possível exportar ("+e+")."); }
 }
+/** O instante no formato do nome dos ficheiros: AAAAMMDDHHMM, como manda a convenção. */
 function carimboFich(){ const d=new Date(agora()), p=n=>String(n).padStart(2,"0");
   return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+p(d.getHours())+p(d.getMinutes()); }
 
@@ -3534,7 +3699,14 @@ const ATALHOS_PANE = {
   "p-fita":   { pane:"p-operacoes",   h:"Fita do tempo" }
 };
 
+/**
+ * O título de um cartão: o primeiro nó de texto do `h2`, sem a etiqueta legal ao lado.
+ *
+ * É por ele que os registos encontram os cartões. Um título que mude sem o registo
+ * acompanhar parte a auditoria — de propósito.
+ */
 function tituloCartao(c){ const h = c.querySelector("h2"); return h? h.childNodes[0].textContent.trim() : ""; }
+/** O cartão com este título, ou nada. */
 function cartaoPorTitulo(h){
   return [...document.querySelectorAll(".card")].find(c=>tituloCartao(c) === h) || null;
 }
@@ -3709,6 +3881,12 @@ window.irPara = pid => {
   if(a && a.h){ const c = cartaoPorTitulo(a.h); if(c) try{ c.scrollIntoView({block:"start",behavior:"smooth"}); }catch(e){} }
 };
 const NOMES_PANE = {"p-occ":"Comando · identificação","p-fontes":"Planeamento · dados da ocorrência","p-pco":"Comando · estrutura do PCO","p-evo":"Operações · evolução","p-meteo":"Planeamento · meteorologia","p-pea":"Planeamento · PEA","p-avisos":"Comando · avisos","p-turno":"Passagem de turno"};
+/**
+ * Acende, em cada separador, quantos dados obrigatórios lhe faltam.
+ *
+ * Um PEA não sai sem os obrigatórios, e descobri-lo só no momento de o emitir é descobri-lo
+ * tarde. O que falta aparece onde se preenche.
+ */
 function pintarGuia(){
   const L = pendencias();
   // estado por separador
@@ -3755,6 +3933,7 @@ function dobrarAjudas(){
     h.appendChild(b); h.appendChild(corpo);
   });
 }
+/** Abre ou fecha um bloco de ajuda, e acerta o que o botão diz. */
 function abrirAjuda(h, on){
   h.classList.toggle("aberta", !!on);
   const b = h.querySelector(":scope > .hb");
@@ -3768,6 +3947,11 @@ function todasAsAjudas(on){
   document.querySelectorAll(".help").forEach(h=>abrirAjuda(h, on));
 }
 
+/**
+ * Liga e desliga a ajuda no ecrã, e guarda a escolha no dispositivo.
+ *
+ * @param {boolean} on mostrar a ajuda
+ */
 async function alternarAjuda(on){
   document.documentElement.classList.toggle("ajuda", on);
   /* Dobrados **sempre fechados** ao ligar a ajuda. O guião que trouxe os dobráveis
@@ -3792,6 +3976,7 @@ setInterval(()=>{ try{ pintarDON(); renderVigor(); }catch(e){} }, 30000);
   const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ pintarGuia(); renderCheck(); }catch(e){} });
 });
 ["o-lat","o-lon"].forEach(id=>{ const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ atualizarDistrito(); }catch(e){} }); });
+/** Desenha a lista de verificação dos dados da ocorrência, com o atalho para preencher. */
 function renderCheck(){
   const L = pendencias();
   const falta = L.filter(x=>!x.ok&&x.ob).length;
@@ -3854,12 +4039,14 @@ let ELEMENTOS = [];
 /* Identificador do registo em correção. Vazio, guardar cria ou funde pelo nome;
    preenchido, guardar substitui aquele registo — e só assim se pode corrigir o nome. */
 let EL_EDICAO = "";
+/** Larga a edição em curso e devolve o formulário ao modo de acrescentar. */
 function sairDaEdicaoElemento(){
   EL_EDICAO = "";
   const g = $("el-add"); if(g) g.textContent = "Guardar no catálogo";
   const cx = $("el-cancelar"); if(cx) cx.style.display = "none";
 }
 
+/** Um elemento por preencher — a forma que o catálogo do posto guarda. */
 function novoElemento(){ return { id:"", nome:"", entidade:"", ct:"", funcao:"", nota:"", g:"" }; }
 
 /** Chave de identidade: nome e entidade. Duas pessoas com o mesmo nome em corpos
@@ -3868,6 +4055,12 @@ function chaveElemento(x){
   return (String(x.nome||"").trim()+"|"+String(x.entidade||"").trim()).toLowerCase();
 }
 
+/**
+ * Lê o catálogo de elementos deste dispositivo.
+ *
+ * Normaliza contra a forma corrente e deita fora o que não tem nome: um elemento sem nome
+ * não serve para nomear ninguém, e ficaria a ocupar a lista.
+ */
 async function carregarElementos(){
   try{ const r = await ARMAZEM.get(ELEM_CHAVE); ELEMENTOS = JSON.parse(r.value) || []; }
   catch(e){ ELEMENTOS = []; }
@@ -3875,6 +4068,7 @@ async function carregarElementos(){
   ELEMENTOS = ELEMENTOS.map(x=>Object.assign(novoElemento(), x)).filter(x=>x.nome);
   return ELEMENTOS;
 }
+/** Grava o catálogo. Devolve se conseguiu — quem chama decide o que dizer ao operador. */
 async function gravarElementos(){
   try{ await ARMAZEM.set(ELEM_CHAVE, JSON.stringify(ELEMENTOS)); return true; }
   catch(e){ return false; }
@@ -3914,6 +4108,7 @@ async function guardarElemento(dados){
   return { ok:true, novo: i < 0 };
 }
 
+/** Retira um elemento do catálogo. Falso quando não havia nada com esse identificador. */
 async function apagarElemento(id){
   const antes = ELEMENTOS.length;
   ELEMENTOS = ELEMENTOS.filter(x=>x.id !== id);
@@ -4192,7 +4387,9 @@ const PERFIL_DEF = "operador";
 /** @type {{nome:string, posto:string, perfil:string, desde:string, id:string}} */
 let SESSAO = { nome:"", posto:"", perfil:"", desde:"", id:"" };
 
+/** Uma sessão sem ninguém ao teclado. */
 function novaSessao(){ return { nome:"", posto:"", perfil:"", desde:"", id:"" }; }
+/** O perfil com esta chave, ou o de omissão. Nunca devolve nada: sem perfil não há guarda. */
 function perfilDe(k){ return PERFIS.find(p=>p.k === k) || PERFIS.find(p=>p.k === PERFIL_DEF); }
 
 /** Há alguém declarado ao teclado? */
@@ -4228,12 +4425,19 @@ function motivoPerfil(cap){
     + "na célula de Comando.";
 }
 
+/**
+ * Repõe quem estava ao teclado neste dispositivo.
+ *
+ * Um perfil que já não exista cai no de omissão — o mais restrito. Herdar um perfil
+ * desconhecido como se fosse amplo seria dar acesso por engano.
+ */
 async function carregarSessao(){
   try{ const r = await ARMAZEM.get(SESSAO_CHAVE); SESSAO = Object.assign(novaSessao(), JSON.parse(r.value)||{}); }
   catch(e){ SESSAO = novaSessao(); }
   if(!perfilDe(SESSAO.perfil) || !SESSAO.perfil) SESSAO.perfil = PERFIL_DEF;
   return SESSAO;
 }
+/** Guarda quem está ao teclado. É definição do posto, e não da ocorrência. */
 async function gravarSessao(){
   try{ await ARMAZEM.set(SESSAO_CHAVE, JSON.stringify(SESSAO)); return true; }
   catch(e){ return false; }
@@ -4491,6 +4695,7 @@ function pcoObj(){
 /* O recurso leva `f` vazio de propósito: quem chama distingue por ele a função
    conhecida da improvisada. */
 function pcoDef(f){ return FUNCOES_PCO.find(x=>x.f===f) || {f:"", r:"—", g:"—"}; }
+/** A nomeação cujo cargo começa por este prefixo, ou nada. */
 function nomeado(fPrefixo){
   return pcoObj().funcoes.find(x=>x.f.indexOf(fPrefixo)===0) || null;
 }
@@ -4515,6 +4720,14 @@ const FUNCOES_REPETIVEIS = ["Oficial de ligação de entidade","Outra função"]
 const PRIO_ROT = {e:{t:"Essencial — exigível agora", c:"var(--fogo)"},
                   r:{t:"Recomendada — próxima fase ou limiar próximo", c:"var(--terra)"},
                   m:{t:"De menor importância neste momento", c:"var(--madeira)"}};
+/**
+ * Que peso tem esta função no dispositivo que está no terreno.
+ *
+ * `e` exigível pela fase declarada, `r` recomendada pelo que já lá está — meios aéreos a
+ * pedir COPAR, um efetivo a caminho da fase seguinte —, `m` matéria de escolha. Decide a
+ * ordem por que as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei
+ * exige, e não a lista por ordem alfabética.
+ */
 function prioridadeFuncao(x, exigiveis){
   const ex = exigiveis || funcoesExigiveis();
   if(ex.some(y=>y.f===x.f)) return "e";
@@ -4527,6 +4740,12 @@ function prioridadeFuncao(x, exigiveis){
   if(x.cond==="opesp"  && c.mr>2) return "r";
   return "m";
 }
+/**
+ * As funções por nomear, as exigíveis à frente.
+ *
+ * Deixa de fora as que já estão ocupadas, salvo as que a lei admite repetir — há mais do
+ * que um comandante de setor.
+ */
 function pcoOptions(){
   const ex = funcoesExigiveis();
   const ocupadas = pcoObj().funcoes.map(y=>y.f);
@@ -4557,6 +4776,12 @@ function pintarCampoSolicitacao(){
     lab.title = "Solicitação do COS a " + d.ext + " — " + d.r;
   }
 }
+/**
+ * Desenha a estrutura do posto de comando: quem está nomeado e o que falta nomear.
+ *
+ * Preserva a função escolhida na caixa antes de a reconstruir. Repintar debaixo da mão de
+ * quem estava a preencher perde o que ele já tinha escolhido.
+ */
 function renderPCO(){
   const sel = $("pc-f"); if(!sel) return;
   const escolhida = sel.value;
@@ -5232,11 +5457,13 @@ function verificacoesDON(ts){
   }
   return v;
 }
+/** O GDH de daqui a tantos minutos — o prazo escrito na forma em que se transmite. */
 function gdhMais(d, min){
   if(!d) return "—";
   const x = new Date(d.getTime()+min*60000);
   return String(x.getDate()).padStart(2,"0")+String(x.getHours()).padStart(2,"0")+String(x.getMinutes()).padStart(2,"0")+MES[x.getMonth()]+String(x.getFullYear()).slice(2);
 }
+/** Só as horas e os minutos, para quando o dia já está dito à volta. */
 function hhmm(d){ return d? String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0") : "—"; }
 
 /* ================= COMANDO · exportação e importação da ocorrência ================= */
@@ -5263,6 +5490,12 @@ function pacoteOcorrencia(){
     ficheiro:FICHEIRO_APP, g:gdhAgora(), sha:resumoEstado(O), estado:O};
 }
 
+/**
+ * Escreve a ocorrência num ficheiro que não depende deste dispositivo.
+ *
+ * É a única cópia que sobrevive ao disco, e é por isso que a mensagem manda guardá-lo
+ * fora daqui. O nome leva número, GDH e versão do estado; o pacote leva o carimbo.
+ */
 function exportarOcorrencia(){
   const pacote = pacoteOcorrencia();
   descarregar(nomeExportacao(), JSON.stringify(pacote, null, 1));
@@ -5291,6 +5524,13 @@ function lerPacoteOcorrencia(texto){
   return migrado;
 }
 
+/**
+ * Repõe uma ocorrência a partir de um ficheiro exportado.
+ *
+ * Confere o carimbo e **avisa sem recusar**: um pacote que não bate pode ser um ficheiro
+ * corrompido ou um estado mexido à mão, e recusá-lo deixaria o oficial sem a ocorrência
+ * em vez de o deixar decidir. O que não se pode é entrar em silêncio.
+ */
 async function importarOcorrencia(texto){
   let estado;
   try{ estado = lerPacoteOcorrencia(texto); }
@@ -5550,6 +5790,7 @@ const ENC_LIVRES = [
   { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" }
 ];
 
+/** Inerta tudo o que escreve nesta ocorrência, poupando o que está declarado acima. */
 function aplicarFechoDeEscrita(){
   const fechada = encerrada();
   document.documentElement.classList.toggle("encerrada", fechada);
@@ -5571,6 +5812,13 @@ function auditarFechoDeEscrita(){
   return { n:ENC_LIVRES.length, semControlo, semRazao };
 }
 
+/**
+ * Diz em que estado está o registo: encerrado por quem e quando, ou o que falta para o
+ * poder ser.
+ *
+ * Com o registo fechado, confere o carimbo contra o estado em memória e **diz quando não
+ * bate** — um registo alterado depois de encerrado é facto que tem de aparecer.
+ */
 function pintarEncerramento(){
   const cx = $("enc-estado"); if(!cx) return;
   /* Quem está ao teclado é quem se propõe: escreve-se sozinho, e corrige-se se for outro
@@ -5616,6 +5864,13 @@ function fixarCoords(lat, lon, nome, fonte){
   persistir(false);
   setTimeout(()=>{ try{ atualizarDistrito(true); }catch(e){} }, 0);
 }
+/**
+ * Com um resultado, fixa-o; com vários, **pergunta**.
+ *
+ * Escolher o primeiro seria decidir por quem comanda onde é a ocorrência, e o primeiro
+ * resultado de um serviço de geocodificação não é o mais provável — é o que o índice pôs
+ * à frente.
+ */
 function mostrarCandidatos(lista, fonte){
   if(lista.length===1){ const c=lista[0]; fixarCoords(c.lat, c.lon, c.nome, fonte); return; }
   $("geo-info").textContent = "Vários resultados — escolhe o correto:";
@@ -6884,20 +7139,34 @@ const TIPO_OSM = {village:"aldeia", hamlet:"lugar", town:"vila", suburb:"bairro"
    operacionais e não apenas desenhado. */
 const RUMOS16 = [["N",0],["NNE",22.5],["NE",45],["ENE",67.5],["E",90],["ESE",112.5],["SE",135],["SSE",157.5],
   ["S",180],["SSO",202.5],["SO",225],["OSO",247.5],["O",270],["ONO",292.5],["NO",315],["NNO",337.5]];
+/** `n` pontos igualmente espaçados entre dois extremos, para amostrar o terreno. */
 function pontosDoEixo(latA, lonA, latB, lonB, n){
   const P = [];
   for(let i=0;i<n;i++){ const t=i/(n-1);
     P.push({lat: latA+(latB-latA)*t, lon: lonA+(lonB-lonA)*t}); }
   return P;
 }
+/** Distância em quilómetros, planar com correção de latitude — chega a esta escala. */
 function distKm(latA, lonA, latB, lonB){
   const dx=(lonB-lonA)*111320*Math.cos((latA+latB)/2*Math.PI/180), dy=(latB-latA)*111320;
   return Math.sqrt(dx*dx+dy*dy)/1000;
 }
+/**
+ * Lê um par de coordenadas escrito à mão, com vírgula, ponto e vírgula ou espaço.
+ *
+ * Recusa o que não couber nos limites de latitude e longitude, em vez de devolver números
+ * que passariam por coordenadas.
+ */
 function parPar(txt){
   const m = String(txt||"").split(/[,;\s]+/).map(x=>parseFloat(x.replace(",","."))).filter(x=>isFinite(x));
   return (m.length>=2 && Math.abs(m[0])<=90 && Math.abs(m[1])<=180)? {lat:m[0], lon:m[1]} : null;
 }
+/**
+ * Traça o perfil do terreno ao longo de um eixo, por amostragem de altimetria.
+ *
+ * O eixo dá-se por rumo e distância, ou por um segundo ponto. Serve à análise da ZI: uma
+ * encosta alinhada com o vento previsto lê-se aqui antes de se ver no terreno.
+ */
 async function tracarPerfil(){
   const info = $("pf-info");
   const base = parPar($("pf-a").value) || (()=>{ const p=parPar($("o-lat").value+","+$("o-lon").value); return p; })();
@@ -6933,6 +7202,7 @@ async function tracarPerfil(){
   }catch(err){ info.textContent = "Perfil do terreno indisponível: "+motivoRede(err)+" — tenta novamente quando houver ligação."; }
   btn.disabled=false; btn.textContent=rb;
 }
+/** Desenha o perfil gravado em SVG, com a escala vertical e a leitura por baixo. */
 function pintarPerfil(){
   const S = $("pf-svg"), L = $("pf-leitura"); if(!S) return;
   const p = O.dados.perfil;
@@ -7031,6 +7301,17 @@ const OVERPASS = [
   {u:"https://overpass.private.coffee/api/interpreter", n:"private.coffee"},
   {u:"https://overpass.osm.jp/api/interpreter", n:"osm.jp"}
 ];
+/**
+ * Uma consulta ao Overpass, por espelhos em cadeia até um responder.
+ *
+ * Vários espelhos porque, com o ficheiro aberto em `file://`, há servidores que recusam o
+ * pedido — e nesse caso o que interessa é dizê-lo e passar ao seguinte. Quando falham
+ * todos, o erro traz o que cada um respondeu: um diagnóstico legível vale mais do que
+ * «indisponível».
+ *
+ * @param {string} q a consulta, na linguagem do Overpass
+ * @param {(t:string)=>void} [aviso] para ir dizendo por onde vai
+ */
 async function overpass(q, aviso){
   const falhas = [];
   for(let i=0;i<OVERPASS.length;i++){
@@ -7076,6 +7357,13 @@ const TIPO_PT = {fire_station:"quartel", parking:"parque de estacionamento", fue
   rest_area:"área de repouso", services:"área de serviço", pitch:"campo de jogos",
   sports_centre:"complexo desportivo", stadium:"estádio", industrial:"zona industrial",
   village:"aldeia", town:"vila", hamlet:"lugar"};
+/**
+ * Procura candidatos a ponto de trânsito na carta, entre 1,5 e 8 km da ocorrência.
+ *
+ * Quartéis primeiro, depois espaços amplos — parques e postos de combustível —, porque é
+ * essa a ordem em que se procura no terreno. **Sugere, não adota**: o ponto de trânsito é
+ * decisão da logística.
+ */
 async function sugerirPT(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("pt-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
@@ -7146,6 +7434,13 @@ window.adotarPT = i => {
   fita("Ponto de trânsito definido: "+it.nome+" a "+it.dist.toFixed(1)+" km "+it.rumo);
   aviso("msg-pt","ok","Ponto de trânsito adotado. Falta indicar o responsável e o contacto.");
 };
+/**
+ * Procura aglomerados e equipamentos sensíveis num raio de 3 km.
+ *
+ * Escolas, creches, hospitais e lares a vermelho: são os que obrigam a defesa perimétrica
+ * e, se for caso, a evacuação — art. 27.º, n.º 1, al. b). Cada um vem com a distância e o
+ * rumo, que é como se transmitem e como o croqui os recoloca.
+ */
 async function detetarSensiveis(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("sens-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
@@ -7386,6 +7681,15 @@ const LIMIARES_METEO = {
   rhJanela: 50,
 };
 
+/**
+ * Lê a série meteorológica colada, seja qual for o separador e a ordem das colunas.
+ *
+ * Ponto e vírgula, tabulação ou vírgula; cabeçalhos achados pelo nome e não pela posição.
+ * O que chega é o que o SpotWX ou o Open-Meteo escreveram, e não um formato nosso.
+ *
+ * Recusa menos de três horas: uma série curta não sustenta janela nem rotação, e analisá-la
+ * daria conclusões com a mesma cara das boas.
+ */
 function parseCSV(txt){
   const L = txt.trim().split(/\r?\n/).filter(l=>l.trim());
   if(L.length<4) throw "Poucos dados: são precisas pelo menos 3 horas.";
@@ -7409,6 +7713,13 @@ function parseCSV(txt){
   if(out.length<3) throw "Não interpretei as colunas — confirma o formato.";
   return out;
 }
+/**
+ * Lê a série e devolve o que dela interessa ao plano.
+ *
+ * Janelas de consolidação (humidade acima do limiar), rotações do vento, assinatura
+ * convectiva e os extremos. Os limiares vêm de `LIMIARES_METEO`, declarados: uma rotação
+ * de 50° com vento de 3 km/h é ruído, e sem chão a análise apontava ruído como facto.
+ */
 function analisar(S){
   const L = LIMIARES_METEO;
   const jans=[]; let cur=null;
@@ -7432,6 +7743,7 @@ function analisar(S){
   const jan = uteis.length ? uteis.reduce((a,b)=>(b.f.h-b.i.h)>(a.f.h-a.i.h)?b:a) : null;
   return {jan,rot,rhMin,rhMax,tMax,tMin,conv,crit};
 }
+/** O que dizer de uma hora da série, em texto — o que a torna notável, se for. */
 function leitura(p,a){
   const L = LIMIARES_METEO;
   if(p.pr>=L.convPrecip) return "Assinatura convectiva — rajadas erráticas possíveis";
@@ -7442,6 +7754,7 @@ function leitura(p,a){
   if(p.rh>=L.rhJanela) return "Janela — ataque direto favorável";
   if(p.rh>=30) return "Transição"; return "";
 }
+/** Junta horas seguidas num intervalo: «14h–17h, 21h» em vez de sete horas soltas. */
 function resumoHoras(hs){
   if(!hs.length) return "";
   const n=hs.map(h=>parseInt(h)); const out=[]; let a=n[0],b=n[0];
@@ -7449,6 +7762,13 @@ function resumoHoras(hs){
     else { out.push(a===b? hh(a) : hh(a)+"–"+hh(b)); if(i<n.length){a=n[i];b=n[i];} } }
   return out.join(", ");
 }
+/**
+ * Os números da meteorologia como o PEA os cita.
+ *
+ * **Sem série carregada devolve traços, e não falha.** Uma proposta ainda é possível com a
+ * parte meteorológica assinalada em falta; impedir a emissão por não haver previsão seria
+ * impedir de planear quem está sem rede.
+ */
 function metricas(){
   const a=ANALISE;
   /* sem série meteorológica carregada a proposta ainda é possível, com a parte
@@ -7578,6 +7898,7 @@ function svgMeteo(S, a){
   return o.join("");
 }
 
+/** Desenha o meteograma e o quadro de métricas a partir da série analisada. */
 function pintarAnalise(){
   const a=ANALISE, S=SERIE;
   $("strip").innerHTML = svgMeteo(S, a);
@@ -7594,6 +7915,12 @@ function pintarAnalise(){
   $("c-analise").querySelector("h2 .tag").textContent = "núcleo de antecipação (art. 29.º) — próximas "+SERIE.length+" h, calculada por código";
   $("c-analise").style.display="block";
 }
+/**
+ * Analisa o que está no campo do CSV e guarda a série na ocorrência.
+ *
+ * @param {boolean} [log] deixar rasto na fita do tempo; falso ao repor uma ocorrência,
+ *   que não é facto operacional novo
+ */
 function analisarCSV(log=true){
   try{
     const bruto = parseCSV($("f-csv").value);
@@ -7670,6 +7997,13 @@ function marcarMeteo(fonte, modelo, lat, lon, horas){
   try{ pintarMeteoIdade(); }catch(e){}
 }
 
+/**
+ * Vai buscar a previsão para o ponto da ocorrência, e regista de onde veio.
+ *
+ * A proveniência fica gravada — serviço, modelo, hora, ponto — porque uma previsão sem
+ * origem nem idade é um número que ninguém pode pesar. Com ela, a aplicação diz quando a
+ * previsão está velha de mais para sustentar o plano.
+ */
 async function meteoAutomatica(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){
@@ -7737,7 +8071,14 @@ $("f-csvfile").addEventListener("change", e=>{
 /* ================= PLANEAMENTO · avisos IPMA (art. 28.º) ================= */
 let DISTRITOS_IPMA = null;
 const NIVEL_AVISO = {yellow:{c:"am",n:"AMARELO"}, orange:{c:"lr",n:"LARANJA"}, red:{c:"vm",n:"VERMELHO"}};
+/** O instante de um aviso na forma curta que cabe no chip: «30/08 18h». */
 function fmtAvisoT(iso){ const d=new Date(iso); return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+"h"; }
+/**
+ * Traz os avisos do IPMA em vigor para o distrito do teatro.
+ *
+ * @param {boolean} [silencioso] não dizer nada quando falta coordenada; é o modo em que
+ *   corre junto com a previsão, sem interromper quem está a fazer outra coisa
+ */
 async function obterAvisos(silencioso){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   const el = $("avisos-ipma");
@@ -7768,6 +8109,7 @@ async function obterAvisos(silencioso){
     if(!silencioso) el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Indisponíveis ('+esc(String(e).slice(0,50))+') — consultar ipma.pt.</span></div>';
   }
 }
+/** Mostra os avisos guardados, ou o convite a consultá-los quando ainda não há nenhum. */
 function pintarAvisos(){
   const el = $("avisos-ipma"); if(!el) return;
   const A = O.avisos;
@@ -7799,6 +8141,12 @@ const LLM = (()=>{
     rot:"Determinística",
     nota:"Ficheiro aberto de file:// — sem acesso a modelo. O PEA é elaborado por regras determinísticas, sem redação assistida."};
 })();
+/**
+ * Pergunta ao modelo de linguagem, quando há relé configurado.
+ *
+ * Em `file://` não há, e lança — é o modo normal no posto de comando, e a redação
+ * determinística assume. A assistência é conveniência; o plano não depende dela.
+ */
 async function llm(prompt){
   if(LLM.modo==="manual") throw "modo manual (file://): sem relé de modelo configurado";
   const r = await fetchT(LLM.url,{method:"POST",headers:{"Content-Type":"application/json"},
@@ -7808,12 +8156,19 @@ async function llm(prompt){
   const t=(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").replace(/```json|```/g,"").trim();
   return JSON.parse(t);
 }
+/** Diz em que modo a proposta vai ser redigida, e porquê. Nunca fica implícito. */
 function pintarModoLLM(){
   const e=document.getElementById("llm-modo"); if(!e) return;
   e.className = "msg " + (LLM.modo==="manual" ? "err" : "ok");
   e.style.display = "block";
   e.textContent = "Modo de redação: " + LLM.rot + ". " + LLM.nota;
 }
+/**
+ * O que o modelo precisa de saber para propor: a ocorrência, o dispositivo, o que mudou.
+ *
+ * Monta-se aqui e não se dispersa, porque é preciso poder ler de uma vez **o que sai
+ * daqui para fora** — e o que não sai.
+ */
 function contexto(n, novas, anterior){
   return `OCORRÊNCIA: n.º ${O.meta.num}, ${O.meta.local}; PCO ${O.meta.pco}; fase SGO ${O.meta.fase}; área ${O.dados.area||"?"} ha${O.dados.perimNome? " (perímetro: "+O.dados.perimNome+")":""}.
 SETORES E MEIOS (app PCO):
@@ -7886,6 +8241,7 @@ function retratoOperacional(){
     excedidas:R.filter(x=>x.nivel==="r"), aviso:R.filter(x=>x.nivel==="a"),
     aereos:aerLista().length };
 }
+/** O dispositivo numa frase: quantos setores, em que estados, com que meios. */
 function resumoRetrato(r){
   const p = [];
   p.push(r.setores.length+(r.setores.length===1? " setor":" setores"));
@@ -7931,6 +8287,13 @@ const VERD_ROT = {
   rever:{t:"Revisão devida", d:"a divergência acumulada já altera a base de planeamento"},
   caducado:{t:"Caducado — revisão obrigatória", d:"esgotou-se a validade fixada na proposta"}
 };
+/**
+ * A hora escrita — «18», «18h» — no próximo instante em que ela acontece.
+ *
+ * Passada de hoje passa a ser de amanhã: quem escreve uma hora de validade às 22h a
+ * pensar nas 6h está a falar de amanhã, e interpretá-la como já passada daria uma
+ * validade expirada à nascença.
+ */
 function instanteDaHora(txt){
   const h = parseInt(String(txt||"").replace(/\D/g,""),10);
   if(!isFinite(h) || h>23) return null;
@@ -7947,6 +8310,12 @@ function horizonteValidade(m){
   /* um plano não nasce a expirar: mínimo de uma hora de vigência */
   return Math.max(ts, agora + 3600000);
 }
+/**
+ * O retrato do dispositivo no momento em que o plano foi aprovado.
+ *
+ * É contra isto que se mede a divergência. Sem uma fotografia do que era, «o dispositivo
+ * mudou» não tem como ser afirmado.
+ */
 function baseVigor(){
   const r = retratoOperacional();
   return { fase:O.meta.fase||"", nivel:O.meta.nivel||"",
@@ -7955,6 +8324,7 @@ function baseVigor(){
     pt:ptObj().des||"", cmd:canaisObj().cmd||"", tat:canaisObj().tat||"",
     evoIdx:O.evolucao.length };
 }
+/** As missões e propostas do plano, em itens de controlo por cumprir. */
 function controloMissoes(ops){
   const out = [];
   (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
@@ -8041,6 +8411,13 @@ function aprovarPEA(n, quem){
   return { ok:true, pea:p };
 }
 
+/**
+ * O que mudou desde que o plano em vigor foi aprovado, e quanto pesa.
+ *
+ * Cada item traz a norma que o torna relevante, porque a conclusão a tirar — rever o
+ * plano, ou não — é do COS, e uma lista de diferenças sem fundamento não o ajuda a
+ * decidir.
+ */
 function divergencia(p){
   if(!p || !p.base) return null;
   const b = p.base, r = retratoOperacional(), it = [];
@@ -8085,6 +8462,7 @@ function divergencia(p){
     total: p.validoTs && p.ts? p.validoTs-p.ts : null};
 }
 const MS_EST = [{r:"por iniciar",c:""},{r:"em execução",c:"exec"},{r:"cumprida",c:"feita"}];
+/** Mostra o veredicto sobre o plano em vigor, e regista quando ele muda. */
 function renderVigor(){
   const C = $("pea-vigor"); if(!C) return;
   const p = peaVigor();
@@ -8141,6 +8519,12 @@ function renderVigor(){
     renderVigor(); pintarDON(); persistir(false);
   }));
 }
+/**
+ * A situação, redigida a partir do que está registado — sem modelo de linguagem.
+ *
+ * Incorpora os registos de evolução posteriores ao plano anterior, o dispositivo à data e
+ * o que mudou desde então. É composição, não redação: cada frase sai de um facto gravado.
+ */
 function detSituacao(novas, anterior){
   const m=metricas(), dif=diferencasDesde(anterior);
   return {
@@ -8158,6 +8542,7 @@ function detSituacao(novas, anterior){
     previsao:`HR mínima ${m.hr_min.v} % às ${m.hr_min.h} (${m.hr_min.d}); recuperação até ${m.hr_max.v} % às ${m.hr_max.h}. T máxima ${m.t_max.v} °C às ${m.t_max.h} (${m.t_max.d}). Rotações: ${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join("; ")||"sem rotações relevantes"}. ${m.convectivo.length? "Assinatura convectiva às "+m.convectivo.map(c=>c.h).join(" e ")+" — risco de rajadas erráticas.":"Sem precipitação prevista."} Nota: ${m.nota}.`
   };
 }
+/** A decisão e as missões, compostas do mesmo modo — do dispositivo e da janela. */
 function detDecisao(novas, anterior){
   const m=metricas(), jan=m.janela, r=retratoOperacional(), dif=diferencasDesde(anterior);
   const nomes = a => a.map(x=>x.n).join(", ");
@@ -8496,6 +8881,15 @@ function medidorTempo(it, aereo, alvo){
 
 /** O resumo em texto: «2× ECIN, 1× VFCI». */
 function resumoTip(tip){ return agruparTip(tip).map(g=>g.n+"× "+g.t).join(", "); }
+/**
+ * Desenha a setorização: um bloco por setor, com quem comanda, o que lá está e o relógio
+ * de cada unidade.
+ *
+ * Cria os setores em falta e corta os que sobram quando o número muda, e migra o estado
+ * de cada um para o vocabulário em vigor. Com meios atribuídos, os campos de contagem
+ * ficam só de leitura: a soma sai das tipologias, e escrevê-la à mão por cima faria dois
+ * números para a mesma coisa.
+ */
 function renderSetores(){
   const e = estObj();
   $("s-n").value = String(e.n||0);
@@ -8599,6 +8993,12 @@ function renderSetores(){
   });
   comporSetores();
 }
+/**
+ * Compõe o texto da setorização, que é o que entra no PEA e no ponto de situação.
+ *
+ * Em modo de texto livre, respeita o que o oficial escreveu e não compõe nada — é para
+ * isso que o modo existe.
+ */
 function comporSetores(){
   const e = estObj();
   if(e.livre){ O.dados.setores = $("d-setores").value.trim(); $("s-tot").textContent=""; return; }
@@ -8732,6 +9132,12 @@ function aerLista(){
   e.aer = String(e.aerL.length||"");
   return e.aerL;
 }
+/**
+ * Desenha os meios aéreos no TO, um por indicativo.
+ *
+ * Cada aeronave tem o seu relógio, com o limiar aéreo: também tem tempo de empenhamento,
+ * e ficara de fora do quadro de rendições.
+ */
 function renderAereos(){
   const box = $("s-aer-box"); if(!box) return;
   const e = estObj(), L = aerLista();
@@ -8810,6 +9216,7 @@ const GP_INDICATIVOS = {
   FIRE:["HERAC"], ALFA:["AVBM"], BRAVO:["AVBP"], OSCAR:["AVRAC"]
 };
 
+/** Um erro de importação, para se distinguir do que rebenta por outra razão. */
 function erroGP(texto){ return new Error(texto); }
 
 /**
@@ -9321,6 +9728,7 @@ let GP_PENDENTE = null;
    acontecer, e aplicá-lo seria sobrepor às cegas — que é o que a regra 6 proíbe. */
 let GP_ASSINATURA = null;
 
+/** Diz como correu a importação, na caixa do próprio cartão. */
 function gpDizer(cls, texto){
   const m = $("gp-msg"); if(!m) return;
   m.className = "msg "+cls; m.textContent = texto; m.style.display = "block";
@@ -9562,6 +9970,12 @@ function inserirEvo(txt){
   ta.value = atual + (atual && !atual.endsWith(" ") && !atual.endsWith(": ")? " ":"") + txt;
   ta.focus();
 }
+/**
+ * Põe os setores como atalhos por cima do campo de evolução.
+ *
+ * Quem regista a evolução está a olhar para o terreno, não para a aplicação: o setor, o
+ * estado e os meios ao alcance de um toque poupam-lhe escrever o que a aplicação já sabe.
+ */
 function pintarEvoCtx(){
   const e = O.dados && O.dados.est;
   const el = $("evo-ctx"); if(!el) return;
@@ -9729,6 +10143,12 @@ function addEvo(){
   try{ pintarDON(); }catch(e){}
   persistir(false);
 }
+/**
+ * Os registos posteriores ao último PEA.
+ *
+ * A marca é o índice guardado no plano, e não uma comparação de horas: dois registos com
+ * o mesmo GDH acontecem, e a hora não diz qual deles o plano já viu.
+ */
 function evoDesdeUltimoPEA(){
   const marca = O.peas.length? O.peas[O.peas.length-1].evoIdx : 0;
   return O.evolucao.slice(marca);
@@ -9753,6 +10173,7 @@ const PASTAS = {
    sub-regionais deixam de ser aplicáveis e a aplicação di-lo, em vez de os oferecer como
    se servissem. Ver `docs/ESTADO.md`, pontos por confirmar em fonte. */
 const SUBREGIAO_PACOTE = "Douro Op";
+/** Texto sem acentos e em minúsculas, para comparar áreas escritas de maneiras diferentes. */
 function semAcento(t){ return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
 /* um canal é aplicável se não tiver área própria ou se a área bater com o TO */
 /** Sub-região declarada para o teatro de operações. Vazia enquanto não for indicada. */
@@ -9796,6 +10217,12 @@ function fundirPacote(){
   CANAIS.pv = PACOTE_V; guardarCanais();
   return n;
 }
+/**
+ * Lê o catálogo de canais deste dispositivo, e migra o que vier de versões anteriores.
+ *
+ * Deita fora entradas sem designação ou de rede desconhecida: um canal que ninguém sabe o
+ * que é aparecia na lista e podia ser atribuído.
+ */
 async function carregarCanais(){
   try{ const r = await ARMAZEM.get("peaapp:canais"); const c = JSON.parse(r.value);
     if(c && Array.isArray(c.ent)){
@@ -9812,14 +10239,22 @@ async function carregarCanais(){
     }
   }catch(e){}
 }
+/** Grava o catálogo. Falhar não interrompe: o canal em uso já está no estado. */
 async function guardarCanais(){ try{ await ARMAZEM.set("peaapp:canais", JSON.stringify(CANAIS)); }catch(e){} }
+/** Ordena por rede e depois por designação, com os números na ordem certa. */
 function ordenarCanais(){
   const r = Object.keys(REDES);
   CANAIS.ent.sort((a,b)=> a.rede===b.rede
     ? String(a.des).localeCompare(String(b.des),"pt",{numeric:true,sensitivity:"base"})
     : r.indexOf(a.rede)-r.indexOf(b.rede));
 }
+/** Já há um canal com esta designação nesta rede? A comparação ignora maiúsculas. */
 function canalExiste(rede,des){ return CANAIS.ent.some(x=>x.rede===rede && String(x.des).toUpperCase()===String(des).toUpperCase()); }
+/**
+ * Acrescenta um canal ao catálogo do dispositivo.
+ *
+ * @returns {boolean} falso se ficar sem designação, a rede não existir, ou já lá estar
+ */
 function canalAdd(rede,des,niv,nota,pasta,area){
   des = String(des||"").trim().replace(/\s+/g," ");
   if(!des || !REDES[rede] || canalExiste(rede,des)) return false;
@@ -9827,7 +10262,15 @@ function canalAdd(rede,des,niv,nota,pasta,area){
     pasta:pasta||"local", area:String(area||"").trim()});
   ordenarCanais(); guardarCanais(); return true;
 }
+/** Os canais já atribuídos nesta ocorrência, em maiúsculas, para comparar depressa. */
 function atribSet(){ try{ return new Set((canaisObj().atrib||[]).map(x=>String(x).toUpperCase())); }catch(e){ return new Set(); } }
+/**
+ * As opções de uma caixa de canais, com os já atribuídos no grupo à frente.
+ *
+ * À frente porque num plano de comunicações o que já está atribuído é o que se repete: o
+ * canal de comando aparece em várias funções, e ir procurá-lo à lista toda de cada vez é
+ * tempo perdido.
+ */
 function optsCanal(rede, niv, val){
   const lista = CANAIS.ent.filter(x=>x.rede===rede && canalAplicavel(x)), V = String(val||"").toUpperCase(), A = atribSet();
   const op = x => '<option value="'+esc(x.des)+'" title="'+esc(x.nota||"")+'"'+(V===String(x.des).toUpperCase()? " selected":"")+'>'+esc(x.des)+'</option>';
@@ -9847,12 +10290,14 @@ function optsCanal(rede, niv, val){
   h += '<option value="__novo__">outro — acrescentar ao pacote…</option>';
   return h;
 }
+/** Reconstrói uma caixa de canais preservando o que estava escolhido. */
 function pintarSel(el, val){
   if(!el) return;
   const v = (val!==undefined? val : el.value) || "";
   el.innerHTML = optsCanal(el.dataset.rede||"siresp", el.dataset.niv||"", v);
   el.value = v;
 }
+/** O mesmo, para todas — depois de o catálogo ou a sub-região mudarem. */
 function pintarSelTodos(){ document.querySelectorAll("select.cs").forEach(el=>pintarSel(el)); }
 /* escolher "outro" abre o campo de texto; o valor escrito entra no catálogo */
 document.addEventListener("change", ev=>{
@@ -9864,6 +10309,7 @@ document.addEventListener("change", ev=>{
     el.hidden = true; inp.hidden = false; inp.value = ""; inp.focus();
   }
 }, true);
+/** Fecha o campo de canal novo; se ficou escrito, entra no catálogo e é adotado. */
 function fecharNovoCanal(inp){
   const w = inp.parentElement, sel = w? w.querySelector("select.cs") : null;
   if(!sel) return;
@@ -9906,6 +10352,13 @@ function resumoPacote(){
   });
   return out;
 }
+/**
+ * Desenha o catálogo de canais, separando o pacote da sub-região do que foi acrescentado
+ * no posto.
+ *
+ * A separação importa: o pacote tem fonte documental, e o que se acrescentou à mão é
+ * conhecimento local que ninguém verificou.
+ */
 function renderCatalogo(){
   const L = $("cat-lista"); if(!L) return;
   const pk = CANAIS.ent.filter(x=>x.pk), ex = CANAIS.ent.filter(x=>!x.pk);
@@ -10021,25 +10474,40 @@ const NIVEL_ROT = {
   aereo  :{t:"Aéreo",   d:"ligação terra/ar/terra com os meios aéreos empenhados"}
 };
 const NIVEL_ORD = ["comando","tatico","manobra","aereo"];
+/** Os níveis de manobra em uso, com omissão segura. `tocado` diz se alguém já mexeu. */
 function nivObj(){
   if(!canaisObj().niveis || typeof canaisObj().niveis!=="object")
     canaisObj().niveis = {comando:false,tatico:false,manobra:false,aereo:false,ba:false,tocado:false};
   return canaisObj().niveis;
 }
+/** Quantos meios aéreos estão no TO. Zero quando o dispositivo ainda não existe. */
 function nAereos(){ try{ return aerLista().length; }catch(e){ return 0; } }
+/**
+ * Que níveis o dispositivo pede: comando sempre, tático e manobra havendo setores, aéreo
+ * havendo aeronaves.
+ */
 function niveisSugeridos(){
   const ns = (estObj().setores||[]).length;
   return {comando:true, tatico:ns>0, manobra:ns>0, aereo:nAereos()>0};
 }
+/**
+ * Os níveis em vigor — sugeridos enquanto ninguém os tocar, escolhidos a partir daí.
+ *
+ * A sugestão acompanha o dispositivo, e é isso que se quer no princípio; mas assim que o
+ * oficial decide, a aplicação deixa de decidir por ele. Um plano de comunicações que se
+ * altera sozinho debaixo de quem o fez é pior do que um que não sugere nada.
+ */
 function autoNiveis(){
   const N = nivObj();
   if(!N.tocado){ const g = niveisSugeridos(); NIVEL_ORD.forEach(k=>N[k]=!!g[k]); }
   return N;
 }
+/** Em que nível fala cada função nomeada, pelo grupo a que pertence. */
 function nivelDaFuncao(f){
   const g = pcoDef(f).g;
   return g==="Meios aéreos"? "aereo" : (g==="Meios especiais"? "tatico" : "comando");
 }
+/** Desenha a escolha dos níveis, dizendo ao lado o que no dispositivo justifica cada um. */
 function renderNiveis(){
   const el = $("cm-niveis"); if(!el) return;
   const N = autoNiveis(), P = pcoObj(), g = niveisSugeridos();
@@ -10065,6 +10533,7 @@ function renderNiveis(){
     renderComs(); pintarDON(); persistir(false);
   }));
 }
+/** A grelha de teclas dos canais dos níveis em uso, com os atribuídos marcados. */
 function renderAtrib(){
   const el = $("cm-atrib"); if(!el) return;
   const A = atribSet(), N = nivObj();
@@ -10089,6 +10558,7 @@ function renderAtrib(){
     renderComs(); pintarDON(); persistir(false);
   }));
 }
+/** Desenha o plano de comunicações inteiro: níveis, atribuição e a distribuição por função. */
 function renderComs(){
   const P = pcoObj(), e = estObj(), N = autoNiveis();
   renderNiveis(); renderAtrib();
@@ -10196,6 +10666,15 @@ function limiares(){
   const n = (id,d)=>{ const el=$(id); const x = el? parseFloat(el.value) : NaN; return isNaN(x)? d : x; };
   return { av:n("r-av",8), lim:n("r-lim",12), aer:n("r-aer",6) };
 }
+/**
+ * O tempo no TO de cada unidade, e quanto lhe falta para o limite.
+ *
+ * **Recebe o instante**, como todas as regras de prazo: sem isso não se conseguiria pôr
+ * um teste a perguntar «e às seis da manhã?». Aéreos e terrestres têm limiares
+ * diferentes — art. 33.º e DON n.º 2, ponto 7.e.
+ *
+ * @param {number} [ts] o instante a considerar; omitido, o agora
+ */
 function rendicoes(ts){
   const e = estObj(), L = limiares(), out = [];
   const instante = (ts==null? agora() : ts);
@@ -10237,6 +10716,7 @@ function descreverAer(L){
   const grupos = Object.keys(anon).map(t=> anon[t]+"× "+t);
   return nomeadas.concat(grupos).join(", ");
 }
+/** Horas decimais em «4 h 30 min», que é como se diz o empenhamento. */
 function fmtH(h){ const t=Math.round(h*60); return Math.floor(t/60)+" h "+String(t%60).padStart(2,"0")+" min"; }
 
 /* Os destinos continuam a ser os identificadores antigos: a tabela de atalhos
@@ -10256,6 +10736,13 @@ const AV_DESTINO = {
   placom:{p:"p-logistica", l:"Atribuir canais em Logística e Finanças"},
   reparticao:{p:"p-fontes", l:"Ver o dispositivo em Operações"}
 };
+/**
+ * Uma verificação de conformidade em caixa, com a fonte e o atalho para a resolver.
+ *
+ * Só as obrigações que são **ato externo** — uma notificação, uma proposta a outra
+ * entidade — ganham o botão de dar por cumprido, e só enquanto o estiverem. O que a
+ * aplicação consegue observar cumpre-se fazendo a coisa, não declarando que se fez.
+ */
 function caixaAviso(x){
   const rot = x.n==="ob"? "Obrigação legal" : (x.n==="av"? "Antecipação" : "Conformidade verificada");
   const d = AV_DESTINO[x.id];
@@ -10285,6 +10772,12 @@ function quemConfirma(){
   return (n && n.nome) || "";
 }
 
+/**
+ * Liga os botões das caixas: ir ao sítio onde se resolve, e dar por cumprido.
+ *
+ * Dar por cumprido pergunta quem confirma e fica na evolução e na fita. Uma obrigação
+ * legal que se apaga sem deixar quem a deu por cumprida não serve de prova nenhuma.
+ */
 function ligarIr(el){
   if(!el) return;
   el.querySelectorAll("[data-cump]").forEach(b=>b.addEventListener("click", async ()=>{
@@ -10305,6 +10798,7 @@ function ligarIr(el){
   }));
   el.querySelectorAll("[data-ir]").forEach(b=>b.addEventListener("click", ()=>{ window.irPara(b.dataset.ir); window.scrollTo({top:0,behavior:"smooth"}); }));
 }
+/** Desenha as verificações de conformidade: o que falta, o que se antecipa, o que está. */
 function pintarDON(){
   try{ if(typeof renderVigor==="function" && !window.__emVigor){ window.__emVigor=1; renderVigor(); window.__emVigor=0; } }catch(e){ window.__emVigor=0; }
   try{ O.meta.inicio = $("o-inicio").value.trim(); O.meta.fase = $("o-fase").value.trim(); }catch(err){}
@@ -10344,6 +10838,10 @@ function pintarDON(){
 
   pintarAmpulhetas();
 }
+/**
+ * Desenha o quadro de rendições: quem está perto do limite, quem já passou, e quem passou
+ * **sem pedido nenhum** — que é a leitura que interessa a quem comanda.
+ */
 function pintarAmpulhetas(){
   const alvos = [$("amp-quadro"), $("amp-quadro-2")].filter(Boolean);
   if(!alvos.length) return;
@@ -10925,6 +11423,12 @@ function pendenciasCelula(k){
   return out;
 }
 
+/**
+ * Desenha o turno corrente: equipa, início, horas decorridas e o estado de cada célula.
+ *
+ * Não escreve por cima do campo que está a ser preenchido. Repintar debaixo da mão de
+ * quem escreve apaga o que ele ia a meio de dizer.
+ */
 function renderTurno(){
   const box = $("tn-celulas"); if(!box) return;
   const t = turnoObj();
@@ -10951,6 +11455,12 @@ function renderTurno(){
   renderHistTurno();
 }
 
+/**
+ * O quadro de entrega, célula a célula: quem entrega, o que fica pendente, o que exportar.
+ *
+ * Célula a célula porque é assim que um posto de comando rende — não é uma pessoa que
+ * entrega tudo, são cinco que entregam cada uma a sua matéria.
+ */
 function renderQuadroTurno(){
   const q = $("tn-quadro"); if(!q) return;
   const t = turnoObj();
@@ -11006,6 +11516,7 @@ function renderQuadroTurno(){
   }catch(e){}
 }
 
+/** As passagens já registadas nesta ocorrência, da mais recente para trás. */
 function renderHistTurno(){
   const el = $("tn-hist"); if(!el) return;
   const t = turnoObj(), L = t.entregas||[];
@@ -11017,6 +11528,12 @@ function renderHistTurno(){
   </div>`).join("");
 }
 
+/**
+ * Regista a passagem de turno: quem entrega, a quem, a que horas e com que pendências.
+ *
+ * Exige a equipa que entra e um GDH válido. Uma entrega sem destinatário não é entrega, e
+ * é dela que depende a continuidade de comando — DON n.º 2, ponto 7.d.(30).
+ */
 function fecharTurno(){
   const t = turnoObj();
   const para = ($("tn-eq2")? $("tn-eq2").value.trim() : "");
@@ -11081,6 +11598,7 @@ function pintarTudo(){
   try{ pintarContagens(); }catch(e){}
 }
 
+/** Texto letra a letra na vertical, para a barra lateral das células no documento. */
 function letrasV(txt){
   return txt.toUpperCase().split("").map(c=>c===" "? '<span style="height:7px"></span>' : c).join("<br>");
 }
@@ -11292,6 +11810,12 @@ window.verPEA = function(n){
 
 /* ================= ARRANQUE · ligação de eventos ================= */
 $("b-guardar").onclick=()=>{ fita("Identificação da ocorrência guardada"); persistir(true); };
+/**
+ * O botão de guardar do cabeçalho: grava e confirma no próprio botão.
+ *
+ * A confirmação fica no botão, e não numa caixa de mensagem, porque o botão está sempre à
+ * vista e a caixa está no separador onde se calhar não se está.
+ */
 async function guardarGlobal(){
   const b=$("b-save"); const rot=b.textContent;
   await persistir(false);

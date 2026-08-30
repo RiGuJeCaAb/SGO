@@ -25,6 +25,7 @@ function motivoRede(err){
   return "falha de rede";
 }
 
+/** O navegador diz que está sem rede? Só isso — estar em linha não garante que responda. */
 function semRede(){ return typeof navigator!=="undefined" && navigator.onLine===false; }
 
 /* Devolve a resposta tal como o fetch a daria: quem chama continua a verificar r.ok. */
@@ -63,6 +64,14 @@ async function fetchT(url, opts={}, ms){
   if(guardavel) REDE.cache.set(url, {ts:inicio, p});
   return (await p).clone();
 }
+/**
+ * Formas alternativas de procurar um local, da mais completa para a mais curta.
+ *
+ * Um local de ocorrência vem escrito como o operador o ditou — «Vila Chã de Caria —
+ * Moimenta da Beira» —, e nenhum serviço de geocodificação o reconhece inteiro. Parte-se
+ * pelos separadores e vai-se encurtando: uma coordenada aproximada do lugar certo vale
+ * mais do que nenhuma coordenada.
+ */
 function variantes(local){
   // "Vila Chã de Caria - Moimenta da Beira" -> segmentos e reduções do primeiro
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
@@ -76,6 +85,7 @@ function variantes(local){
   segs.slice(1).forEach(x=>v.push(x));
   return [...new Set(v.filter(x=>x.length>2))];
 }
+/** Geocodificação pelo Open-Meteo, limitada a Portugal. Tenta cada variante do local. */
 async function geoOpenMeteo(local){
   for(const q of variantes(local)){
     try{
@@ -88,6 +98,7 @@ async function geoOpenMeteo(local){
   }
   throw "sem resultados";
 }
+/** Geocodificação pelo Photon, sobre dados do OpenStreetMap. */
 async function geoPhoton(local){
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
   const q = segs.join(", ");
@@ -99,6 +110,7 @@ async function geoPhoton(local){
   return res.map(f=>({lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0],
     nome:[f.properties.name, f.properties.city||f.properties.county, f.properties.state].filter(Boolean).join(", ")}));
 }
+/** Geocodificação pelo Nominatim, o serviço do próprio OpenStreetMap. */
 async function geoNominatim(local){
   const segs = local.split(/[\u2014\u2013,\-/]+/).map(x=>x.trim()).filter(Boolean);
   const r = await fetchT("https://nominatim.openstreetmap.org/search?q="+encodeURIComponent(segs.join(", ")+", Portugal")+"&format=json&limit=5&countrycodes=pt",
@@ -108,11 +120,25 @@ async function geoNominatim(local){
   if(!d.length) throw "sem resultados";
   return d.map(x=>({lat:x.lat, lon:x.lon, nome:x.display_name.split(",").slice(0,3).join(",")}));
 }
+/**
+ * Último recurso: perguntar ao modelo de linguagem.
+ *
+ * Marcado como **aproximado** no nome que devolve, e é para ficar à vista: isto não é
+ * geocodificação, é uma estimativa a partir do que o modelo leu. Serve para não ficar sem
+ * ponto nenhum num sítio que os serviços não conhecem, e é para confirmar sobre a carta.
+ */
 async function geoModelo(q){
   const j = await llm(`Indica as coordenadas geográficas aproximadas (WGS84, graus decimais) da localidade portuguesa "${q}". Responde APENAS JSON válido: {"lat":41.0,"lon":-7.0,"nome":"nome normalizado"}. Se não conheceres a localidade com confiança razoável, responde {"erro":"desconhecida"}.`);
   if(j.erro || typeof j.lat!=="number") throw "modelo sem resposta fiável";
   return [{lat:j.lat, lon:j.lon, nome:j.nome+" — aproximadas"}];
 }
+/**
+ * Acha a coordenada do local escrito, por serviços em cadeia.
+ *
+ * Vários serviços porque nenhum chega: o mesmo lugar tem nomes diferentes em cada um, e a
+ * ligação de um PCO cai. Com um resultado só, fixa; com vários, **pergunta** — escolher o
+ * primeiro seria decidir por quem comanda onde é a ocorrência.
+ */
 async function geocodificar(){
   const q0 = $("o-local").value.trim();
   if(!q0){ $("geo-info").textContent = "Escreve primeiro o local."; return; }
@@ -138,6 +164,7 @@ async function geocodificar(){
    Determinado a partir das coordenadas do TO; qualifica o pacote de canais aplicável,
    já que os grupos de conversação são de âmbito distrital, sob gestão e direção do comando. */
 const DISTRITOS_PT = ["Aveiro","Beja","Braga","Bragança","Castelo Branco","Coimbra","Évora","Faro","Guarda","Leiria","Lisboa","Portalegre","Porto","Santarém","Setúbal","Viana do Castelo","Vila Real","Viseu","Angra do Heroísmo","Horta","Ponta Delgada","Funchal"];
+/** Reduz o que um serviço devolve ao nome do distrito como a lista oficial o escreve. */
 function normalizarDistrito(txt){
   if(!txt) return "";
   const t = String(txt).replace(/^distrito\s+d[eoa]s?\s+/i,"").trim();
@@ -145,6 +172,12 @@ function normalizarDistrito(txt){
     || DISTRITOS_PT.find(d=>t.toLowerCase().indexOf(d.toLowerCase())>=0);
   return achado || t;
 }
+/**
+ * Geocodificação inversa: de onde é este ponto.
+ *
+ * O distrito decide a pasta sub-regional e entra nos canais; é por isso que se procura, e
+ * não para enfeitar. Devolve também de que serviço veio, para se saber quanto vale.
+ */
 async function distritoPorCoords(lat, lon){
   try{
     const r = await fetchT("https://photon.komoot.io/reverse?lat="+lat+"&lon="+lon+"&lang=default&limit=1");
@@ -167,6 +200,14 @@ async function distritoPorCoords(lat, lon){
   }catch(e){}
   return null;
 }
+/**
+ * Acerta o distrito e o concelho quando a coordenada muda.
+ *
+ * Guarda a coordenada que serviu — `distritoChave` — e não repete o pedido enquanto ela
+ * não mudar: um PCO não tem ligação para gastar a perguntar a mesma coisa.
+ *
+ * @param {boolean} [forcar] perguntar mesmo que a coordenada não tenha mudado
+ */
 async function atualizarDistrito(forcar){
   const lat = parseFloat(String($("o-lat").value).replace(",",".")),
         lon = parseFloat(String($("o-lon").value).replace(",","."));
@@ -183,6 +224,7 @@ async function atualizarDistrito(forcar){
   persistir(false);
 }
 $("b-geo").onclick = geocodificar;
+/** Geocodifica sozinho ao sair do campo do local, e só se ainda não houver coordenada. */
 function autoGeo(){ if($("o-local").value.trim() && !$("o-lat").value.trim() && !$("o-lon").value.trim()) geocodificar(); }
 $("o-local").addEventListener("blur", autoGeo);
 $("o-local").addEventListener("change", autoGeo);

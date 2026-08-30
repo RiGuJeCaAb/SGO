@@ -52,6 +52,13 @@ function marcarMeteo(fonte, modelo, lat, lon, horas){
   try{ pintarMeteoIdade(); }catch(e){}
 }
 
+/**
+ * Vai buscar a previsão para o ponto da ocorrência, e regista de onde veio.
+ *
+ * A proveniência fica gravada — serviço, modelo, hora, ponto — porque uma previsão sem
+ * origem nem idade é um número que ninguém pode pesar. Com ela, a aplicação diz quando a
+ * previsão está velha de mais para sustentar o plano.
+ */
 async function meteoAutomatica(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){

@@ -15,6 +15,7 @@ const PASTAS = {
    sub-regionais deixam de ser aplicáveis e a aplicação di-lo, em vez de os oferecer como
    se servissem. Ver `docs/ESTADO.md`, pontos por confirmar em fonte. */
 const SUBREGIAO_PACOTE = "Douro Op";
+/** Texto sem acentos e em minúsculas, para comparar áreas escritas de maneiras diferentes. */
 function semAcento(t){ return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
 /* um canal é aplicável se não tiver área própria ou se a área bater com o TO */
 /** Sub-região declarada para o teatro de operações. Vazia enquanto não for indicada. */
@@ -58,6 +59,12 @@ function fundirPacote(){
   CANAIS.pv = PACOTE_V; guardarCanais();
   return n;
 }
+/**
+ * Lê o catálogo de canais deste dispositivo, e migra o que vier de versões anteriores.
+ *
+ * Deita fora entradas sem designação ou de rede desconhecida: um canal que ninguém sabe o
+ * que é aparecia na lista e podia ser atribuído.
+ */
 async function carregarCanais(){
   try{ const r = await ARMAZEM.get("peaapp:canais"); const c = JSON.parse(r.value);
     if(c && Array.isArray(c.ent)){
@@ -74,14 +81,22 @@ async function carregarCanais(){
     }
   }catch(e){}
 }
+/** Grava o catálogo. Falhar não interrompe: o canal em uso já está no estado. */
 async function guardarCanais(){ try{ await ARMAZEM.set("peaapp:canais", JSON.stringify(CANAIS)); }catch(e){} }
+/** Ordena por rede e depois por designação, com os números na ordem certa. */
 function ordenarCanais(){
   const r = Object.keys(REDES);
   CANAIS.ent.sort((a,b)=> a.rede===b.rede
     ? String(a.des).localeCompare(String(b.des),"pt",{numeric:true,sensitivity:"base"})
     : r.indexOf(a.rede)-r.indexOf(b.rede));
 }
+/** Já há um canal com esta designação nesta rede? A comparação ignora maiúsculas. */
 function canalExiste(rede,des){ return CANAIS.ent.some(x=>x.rede===rede && String(x.des).toUpperCase()===String(des).toUpperCase()); }
+/**
+ * Acrescenta um canal ao catálogo do dispositivo.
+ *
+ * @returns {boolean} falso se ficar sem designação, a rede não existir, ou já lá estar
+ */
 function canalAdd(rede,des,niv,nota,pasta,area){
   des = String(des||"").trim().replace(/\s+/g," ");
   if(!des || !REDES[rede] || canalExiste(rede,des)) return false;
@@ -89,7 +104,15 @@ function canalAdd(rede,des,niv,nota,pasta,area){
     pasta:pasta||"local", area:String(area||"").trim()});
   ordenarCanais(); guardarCanais(); return true;
 }
+/** Os canais já atribuídos nesta ocorrência, em maiúsculas, para comparar depressa. */
 function atribSet(){ try{ return new Set((canaisObj().atrib||[]).map(x=>String(x).toUpperCase())); }catch(e){ return new Set(); } }
+/**
+ * As opções de uma caixa de canais, com os já atribuídos no grupo à frente.
+ *
+ * À frente porque num plano de comunicações o que já está atribuído é o que se repete: o
+ * canal de comando aparece em várias funções, e ir procurá-lo à lista toda de cada vez é
+ * tempo perdido.
+ */
 function optsCanal(rede, niv, val){
   const lista = CANAIS.ent.filter(x=>x.rede===rede && canalAplicavel(x)), V = String(val||"").toUpperCase(), A = atribSet();
   const op = x => '<option value="'+esc(x.des)+'" title="'+esc(x.nota||"")+'"'+(V===String(x.des).toUpperCase()? " selected":"")+'>'+esc(x.des)+'</option>';
@@ -109,12 +132,14 @@ function optsCanal(rede, niv, val){
   h += '<option value="__novo__">outro — acrescentar ao pacote…</option>';
   return h;
 }
+/** Reconstrói uma caixa de canais preservando o que estava escolhido. */
 function pintarSel(el, val){
   if(!el) return;
   const v = (val!==undefined? val : el.value) || "";
   el.innerHTML = optsCanal(el.dataset.rede||"siresp", el.dataset.niv||"", v);
   el.value = v;
 }
+/** O mesmo, para todas — depois de o catálogo ou a sub-região mudarem. */
 function pintarSelTodos(){ document.querySelectorAll("select.cs").forEach(el=>pintarSel(el)); }
 /* escolher "outro" abre o campo de texto; o valor escrito entra no catálogo */
 document.addEventListener("change", ev=>{
@@ -126,6 +151,7 @@ document.addEventListener("change", ev=>{
     el.hidden = true; inp.hidden = false; inp.value = ""; inp.focus();
   }
 }, true);
+/** Fecha o campo de canal novo; se ficou escrito, entra no catálogo e é adotado. */
 function fecharNovoCanal(inp){
   const w = inp.parentElement, sel = w? w.querySelector("select.cs") : null;
   if(!sel) return;
@@ -168,6 +194,13 @@ function resumoPacote(){
   });
   return out;
 }
+/**
+ * Desenha o catálogo de canais, separando o pacote da sub-região do que foi acrescentado
+ * no posto.
+ *
+ * A separação importa: o pacote tem fonte documental, e o que se acrescentou à mão é
+ * conhecimento local que ninguém verificou.
+ */
 function renderCatalogo(){
   const L = $("cat-lista"); if(!L) return;
   const pk = CANAIS.ent.filter(x=>x.pk), ex = CANAIS.ent.filter(x=>!x.pk);

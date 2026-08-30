@@ -38,7 +38,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 |---|---|
 | `fonte/` | A fonte: `molde.html` e uma pasta por célula do PCO, com um módulo por subsistema. **É aqui que se altera** |
 | `app/` | As entregas, um ficheiro HTML por revisão. **Geradas: não editar à mão** |
-| `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, código morto, auditoria visual e validação de exportações |
+| `ferramentas/` | Montagem, extração do script, sintaxe, análise estática, tipos, código morto, cobertura de documentação, auditoria visual e validação de exportações |
 | `ferramentas/historico/` | Guiões que produziram revisões antigas. Arquivados: não usar nem atualizar |
 | `tipos/` | Formas do estado em `.d.ts` e linha de base do verificador. Não vai para o navegador |
 | `tests/` | Testes, mantidos entre sessões. Ver `tests/README.md` |
@@ -62,7 +62,12 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
   `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
-  estática, tipos e código morto. Acrescentar um teste que exercite o caminho alterado.
+  estática, tipos, código morto e cobertura de documentação. Acrescentar um teste que
+  exercite o caminho alterado.
+- **Toda a função de topo diz o que promete**, numa linha imediatamente antes dela, e
+  `npm run documentar` recusa que a cobertura desça de 100 %. Comenta-se o *porquê* —
+  a razão da escolha, o defeito que a motivou, o que se recusou fazer. Um comentário
+  que repete o nome da função ocupa o lugar do que faria falta.
 - `npm run morto` relata o que está escrito e ninguém usa: identificadores procurados
   que o HTML não tem, identificadores e classes que ninguém usa, funções nunca chamadas.
   **Lê-se, não se aplica.** O que a análise não consegue ver — uma classe composta em

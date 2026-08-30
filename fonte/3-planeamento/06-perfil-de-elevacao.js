@@ -5,20 +5,34 @@
    operacionais e não apenas desenhado. */
 const RUMOS16 = [["N",0],["NNE",22.5],["NE",45],["ENE",67.5],["E",90],["ESE",112.5],["SE",135],["SSE",157.5],
   ["S",180],["SSO",202.5],["SO",225],["OSO",247.5],["O",270],["ONO",292.5],["NO",315],["NNO",337.5]];
+/** `n` pontos igualmente espaçados entre dois extremos, para amostrar o terreno. */
 function pontosDoEixo(latA, lonA, latB, lonB, n){
   const P = [];
   for(let i=0;i<n;i++){ const t=i/(n-1);
     P.push({lat: latA+(latB-latA)*t, lon: lonA+(lonB-lonA)*t}); }
   return P;
 }
+/** Distância em quilómetros, planar com correção de latitude — chega a esta escala. */
 function distKm(latA, lonA, latB, lonB){
   const dx=(lonB-lonA)*111320*Math.cos((latA+latB)/2*Math.PI/180), dy=(latB-latA)*111320;
   return Math.sqrt(dx*dx+dy*dy)/1000;
 }
+/**
+ * Lê um par de coordenadas escrito à mão, com vírgula, ponto e vírgula ou espaço.
+ *
+ * Recusa o que não couber nos limites de latitude e longitude, em vez de devolver números
+ * que passariam por coordenadas.
+ */
 function parPar(txt){
   const m = String(txt||"").split(/[,;\s]+/).map(x=>parseFloat(x.replace(",","."))).filter(x=>isFinite(x));
   return (m.length>=2 && Math.abs(m[0])<=90 && Math.abs(m[1])<=180)? {lat:m[0], lon:m[1]} : null;
 }
+/**
+ * Traça o perfil do terreno ao longo de um eixo, por amostragem de altimetria.
+ *
+ * O eixo dá-se por rumo e distância, ou por um segundo ponto. Serve à análise da ZI: uma
+ * encosta alinhada com o vento previsto lê-se aqui antes de se ver no terreno.
+ */
 async function tracarPerfil(){
   const info = $("pf-info");
   const base = parPar($("pf-a").value) || (()=>{ const p=parPar($("o-lat").value+","+$("o-lon").value); return p; })();
@@ -54,6 +68,7 @@ async function tracarPerfil(){
   }catch(err){ info.textContent = "Perfil do terreno indisponível: "+motivoRede(err)+" — tenta novamente quando houver ligação."; }
   btn.disabled=false; btn.textContent=rb;
 }
+/** Desenha o perfil gravado em SVG, com a escala vertical e a leitura por baixo. */
 function pintarPerfil(){
   const S = $("pf-svg"), L = $("pf-leitura"); if(!S) return;
   const p = O.dados.perfil;

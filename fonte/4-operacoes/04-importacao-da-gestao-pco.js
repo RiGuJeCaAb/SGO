@@ -50,6 +50,7 @@ const GP_INDICATIVOS = {
   FIRE:["HERAC"], ALFA:["AVBM"], BRAVO:["AVBP"], OSCAR:["AVRAC"]
 };
 
+/** Um erro de importação, para se distinguir do que rebenta por outra razão. */
 function erroGP(texto){ return new Error(texto); }
 
 /**
@@ -561,6 +562,7 @@ let GP_PENDENTE = null;
    acontecer, e aplicá-lo seria sobrepor às cegas — que é o que a regra 6 proíbe. */
 let GP_ASSINATURA = null;
 
+/** Diz como correu a importação, na caixa do próprio cartão. */
 function gpDizer(cls, texto){
   const m = $("gp-msg"); if(!m) return;
   m.className = "msg "+cls; m.textContent = texto; m.style.display = "block";

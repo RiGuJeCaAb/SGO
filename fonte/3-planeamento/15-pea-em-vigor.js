@@ -8,6 +8,13 @@ const VERD_ROT = {
   rever:{t:"Revisão devida", d:"a divergência acumulada já altera a base de planeamento"},
   caducado:{t:"Caducado — revisão obrigatória", d:"esgotou-se a validade fixada na proposta"}
 };
+/**
+ * A hora escrita — «18», «18h» — no próximo instante em que ela acontece.
+ *
+ * Passada de hoje passa a ser de amanhã: quem escreve uma hora de validade às 22h a
+ * pensar nas 6h está a falar de amanhã, e interpretá-la como já passada daria uma
+ * validade expirada à nascença.
+ */
 function instanteDaHora(txt){
   const h = parseInt(String(txt||"").replace(/\D/g,""),10);
   if(!isFinite(h) || h>23) return null;
@@ -24,6 +31,12 @@ function horizonteValidade(m){
   /* um plano não nasce a expirar: mínimo de uma hora de vigência */
   return Math.max(ts, agora + 3600000);
 }
+/**
+ * O retrato do dispositivo no momento em que o plano foi aprovado.
+ *
+ * É contra isto que se mede a divergência. Sem uma fotografia do que era, «o dispositivo
+ * mudou» não tem como ser afirmado.
+ */
 function baseVigor(){
   const r = retratoOperacional();
   return { fase:O.meta.fase||"", nivel:O.meta.nivel||"",
@@ -32,6 +45,7 @@ function baseVigor(){
     pt:ptObj().des||"", cmd:canaisObj().cmd||"", tat:canaisObj().tat||"",
     evoIdx:O.evolucao.length };
 }
+/** As missões e propostas do plano, em itens de controlo por cumprir. */
 function controloMissoes(ops){
   const out = [];
   (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
@@ -118,6 +132,13 @@ function aprovarPEA(n, quem){
   return { ok:true, pea:p };
 }
 
+/**
+ * O que mudou desde que o plano em vigor foi aprovado, e quanto pesa.
+ *
+ * Cada item traz a norma que o torna relevante, porque a conclusão a tirar — rever o
+ * plano, ou não — é do COS, e uma lista de diferenças sem fundamento não o ajuda a
+ * decidir.
+ */
 function divergencia(p){
   if(!p || !p.base) return null;
   const b = p.base, r = retratoOperacional(), it = [];
@@ -162,6 +183,7 @@ function divergencia(p){
     total: p.validoTs && p.ts? p.validoTs-p.ts : null};
 }
 const MS_EST = [{r:"por iniciar",c:""},{r:"em execução",c:"exec"},{r:"cumprida",c:"feita"}];
+/** Mostra o veredicto sobre o plano em vigor, e regista quando ele muda. */
 function renderVigor(){
   const C = $("pea-vigor"); if(!C) return;
   const p = peaVigor();
@@ -218,6 +240,12 @@ function renderVigor(){
     renderVigor(); pintarDON(); persistir(false);
   }));
 }
+/**
+ * A situação, redigida a partir do que está registado — sem modelo de linguagem.
+ *
+ * Incorpora os registos de evolução posteriores ao plano anterior, o dispositivo à data e
+ * o que mudou desde então. É composição, não redação: cada frase sai de um facto gravado.
+ */
 function detSituacao(novas, anterior){
   const m=metricas(), dif=diferencasDesde(anterior);
   return {
@@ -235,6 +263,7 @@ function detSituacao(novas, anterior){
     previsao:`HR mínima ${m.hr_min.v} % às ${m.hr_min.h} (${m.hr_min.d}); recuperação até ${m.hr_max.v} % às ${m.hr_max.h}. T máxima ${m.t_max.v} °C às ${m.t_max.h} (${m.t_max.d}). Rotações: ${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join("; ")||"sem rotações relevantes"}. ${m.convectivo.length? "Assinatura convectiva às "+m.convectivo.map(c=>c.h).join(" e ")+" — risco de rajadas erráticas.":"Sem precipitação prevista."} Nota: ${m.nota}.`
   };
 }
+/** A decisão e as missões, compostas do mesmo modo — do dispositivo e da janela. */
 function detDecisao(novas, anterior){
   const m=metricas(), jan=m.janela, r=retratoOperacional(), dif=diferencasDesde(anterior);
   const nomes = a => a.map(x=>x.n).join(", ");

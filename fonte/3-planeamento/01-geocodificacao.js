@@ -13,6 +13,13 @@ function fixarCoords(lat, lon, nome, fonte){
   persistir(false);
   setTimeout(()=>{ try{ atualizarDistrito(true); }catch(e){} }, 0);
 }
+/**
+ * Com um resultado, fixa-o; com vários, **pergunta**.
+ *
+ * Escolher o primeiro seria decidir por quem comanda onde é a ocorrência, e o primeiro
+ * resultado de um serviço de geocodificação não é o mais provável — é o que o índice pôs
+ * à frente.
+ */
 function mostrarCandidatos(lista, fonte){
   if(lista.length===1){ const c=lista[0]; fixarCoords(c.lat, c.lon, c.nome, fonte); return; }
   $("geo-info").textContent = "Vários resultados — escolhe o correto:";

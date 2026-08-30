@@ -1,5 +1,17 @@
 /* ================= NÚCLEO · persistência ================= */
 function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
+/**
+ * Grava a ocorrência e o índice do arquivo, e repinta.
+ *
+ * Lê o formulário antes de gravar: o que está no ecrã e não foi confirmado com um botão
+ * é dado do mesmo modo, e perdê-lo por isso seria perder trabalho de campo.
+ *
+ * **Nunca lança.** Um erro de armazenamento aparece como aviso e a aplicação continua —
+ * num PCO, parar por não se conseguir gravar é pior do que continuar a saber-se que não
+ * se gravou.
+ *
+ * @param {boolean} [nota] mostrar a confirmação no ecrã
+ */
 async function persistir(nota){
   lerForm();
   try{
@@ -19,6 +31,15 @@ async function persistir(nota){
   try{ await copiaSeDevida(); }catch(e){}
   pintarTudo();
 }
+/**
+ * Repõe uma ocorrência do arquivo deste dispositivo.
+ *
+ * Sem número, repõe a última que esteve aberta. Distingue os dois modos de falhar: não
+ * haver nada gravado, e haver algo gravado por uma revisão posterior — que se diz com
+ * todas as letras, porque a saída é abrir noutra revisão e não insistir nesta.
+ *
+ * @param {string} [num] número da ocorrência; vazio para a última
+ */
 async function carregar(num){
   try{
     if(!num){ const u=await ARMAZEM.get("peaapp:ultima"); num=u?u.value:null; }
@@ -46,7 +67,15 @@ function escreverCaminho(raiz, caminho, valor){
   }
   alvo[partes[partes.length-1]] = valor;
 }
+/** Leva um campo do formulário ao caminho que ele declara em `data-campo`. */
 function lerCampo(el){ escreverCaminho(O, el.dataset.campo, String(el.value==null? "" : el.value).trim()); }
+/**
+ * Traz o formulário todo para o estado.
+ *
+ * Percorre `data-campo`, e nada mais: um campo novo declara o seu caminho no HTML e passa
+ * a ser lido sem se escrever uma linha aqui. Foi esta a correção 4.2 — antes o estado era
+ * reconstruído campo a campo, e um campo esquecido perdia-se em silêncio.
+ */
 function lerForm(){
   document.querySelectorAll("[data-campo]").forEach(lerCampo);
   /* Única exceção: os setores em texto livre só valem com o modo livre ligado.
@@ -58,6 +87,14 @@ function lerForm(){
   const el = ev2.target && ev2.target.closest ? ev2.target.closest("[data-campo]") : null;
   if(el) lerCampo(el);
 }, true));
+/**
+ * O caminho inverso: põe o estado no ecrã.
+ *
+ * Não é simétrico de `lerForm` de propósito. Além dos campos, há o que só se sabe pintar
+ * — os formatos da coordenada, a lista de setores, o quadro do relevo — e é aqui que se
+ * chama, cada um dentro do seu `try`: um render que falhe não pode impedir os outros de
+ * mostrar a ocorrência que se acabou de repor.
+ */
 function escreverForm(){
   const m=O.meta; $("o-num").value=m.num; $("o-local").value=m.local; $("o-pco").value=m.pco; $("o-fase").value=m.fase; $("o-lat").value=m.lat; $("o-lon").value=m.lon; $("o-pasta").value=m.pasta||""; $("o-inicio").value=m.inicio||""; $("o-nivel").value=m.nivel||""; try{ renderFormats(); }catch(e){}
   const d=O.dados; $("d-area").value=d.area||""; $("d-sensiveis").value=d.sensiveis||"";
@@ -67,6 +104,13 @@ function escreverForm(){
   $("d-perim-info").textContent = d.perimNome? "Carregado: "+d.perimNome+(d.area? " · área estimada "+d.area+" ha":"") : "Nenhum perímetro carregado. Sem ficheiro, a área preenche-se à mão; com ficheiro, é calculada do polígono.";
   $("d-anexos-info").textContent = d.anexos.length? "Anexos: "+d.anexos.join(", ") : "Anexadas por nome ao PEA (leitura automática do relevo: Fase 3 — agente de topografia).";
 }
+/**
+ * Mostra uma mensagem numa caixa do ecrã.
+ *
+ * @param {string} id caixa de destino
+ * @param {"ok"|"err"|"av"} cls peso da mensagem, que decide a cor
+ * @param {string} txt o que se diz
+ */
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
 /* A fita vive dentro da ocorrência; o diário do posto vive fora dela e sobrevive-lhe.
    Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
@@ -86,6 +130,7 @@ const PROV_ROT = {
     + " com o carimbo de integridade a não conferir ("+resumoCurto(p.sha)+"), por decisão de quem a importou."
     + " O conteúdo pode ter sido alterado depois de exportado.",
 };
+/** Diz de onde veio a ocorrência aberta, quando não nasceu aqui. Ver `integridade`. */
 function pintarProveniencia(){
   const el = $("occ-proveniencia"); if(!el) return;
   const p = (O && O.integridade) || { estado:"", g:"", sha:"", app:"", ficheiro:"" };
@@ -96,7 +141,9 @@ function pintarProveniencia(){
 }
 
 let INDEX = [];
+/** Lê o índice do arquivo. Falhar deixa-o vazio: sem índice trabalha-se, sem estado não. */
 async function carregarIndex(){ try{ const r=await ARMAZEM.get("peaapp:index"); INDEX=JSON.parse(r.value)||[]; }catch(e){ INDEX=[]; } }
+/** Desenha o arquivo deste dispositivo, agrupado pela pasta de localização. */
 function pintarArquivo(){
   const el=$("arq-list");
   if(!INDEX.length){ el.innerHTML='<p class="hint">Sem ocorrências guardadas neste dispositivo.</p>'; return; }

@@ -71,7 +71,9 @@ function donoDoRamo(caminho){
   }));
   return melhor;
 }
+/** A célula que tem esta chave, ou nada. */
 function celulaPorChave(k){ return POSSE.find(c=>c.k===k) || null; }
+/** Os ramos do estado que pertencem a uma célula. Vazio para chave desconhecida. */
 function ramosDaCelula(k){ const c = celulaPorChave(k); return c? c.ramos : []; }
 
 /* Lê um caminho pontuado sem rebentar em ramo ausente. */
@@ -128,6 +130,13 @@ function pacoteCelula(k){
     ramos: instantaneoCelula(k),
     posse: c.ramos.map(r=>({ caminho:r.p, base:r.r, materia:r.d })) };
 }
+/**
+ * Escreve num ficheiro só o que é da célula pedida.
+ *
+ * Serve a entrega de turno célula a célula: quem rende a logística não precisa do
+ * meteograma, e mandar a ocorrência inteira para entregar um ramo é mandar o que não se
+ * pediu. O recorte é o registo de posse, e não uma escolha de quem exporta.
+ */
 function exportarCelula(k){
   try{
     const c = celulaPorChave(k); if(!c) return;

@@ -76,6 +76,7 @@ const CATALOGO = [
   {g:"Viaturas isoladas", t:"Trator agrícola/florestal", mu:1, ou:1},
   {g:"Outro", t:"Outro", mu:1, ou:1}
 ];
+/** As tipologias do catálogo em opções, agrupadas como no Anexo 1, com a nota em título. */
 function catOptions(){
   const grupos = [...new Set(CATALOGO.map(c=>c.g))];
   return grupos.map(g=>'<optgroup label="'+g+'">'+CATALOGO.filter(c=>c.g===g).map(c=>'<option value="'+c.t+'"'+(c.c? ' title="'+esc(c.c)+'"':'')+'>'+c.t+(c.v?' (variável)':'')+'</option>').join("")+'</optgroup>').join("");

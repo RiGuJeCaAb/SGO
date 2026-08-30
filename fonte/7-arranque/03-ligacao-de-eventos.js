@@ -1,5 +1,11 @@
 /* ================= ARRANQUE · ligação de eventos ================= */
 $("b-guardar").onclick=()=>{ fita("Identificação da ocorrência guardada"); persistir(true); };
+/**
+ * O botão de guardar do cabeçalho: grava e confirma no próprio botão.
+ *
+ * A confirmação fica no botão, e não numa caixa de mensagem, porque o botão está sempre à
+ * vista e a caixa está no separador onde se calhar não se está.
+ */
 async function guardarGlobal(){
   const b=$("b-save"); const rot=b.textContent;
   await persistir(false);

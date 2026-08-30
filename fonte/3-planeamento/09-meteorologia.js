@@ -32,6 +32,15 @@ const LIMIARES_METEO = {
   rhJanela: 50,
 };
 
+/**
+ * Lê a série meteorológica colada, seja qual for o separador e a ordem das colunas.
+ *
+ * Ponto e vírgula, tabulação ou vírgula; cabeçalhos achados pelo nome e não pela posição.
+ * O que chega é o que o SpotWX ou o Open-Meteo escreveram, e não um formato nosso.
+ *
+ * Recusa menos de três horas: uma série curta não sustenta janela nem rotação, e analisá-la
+ * daria conclusões com a mesma cara das boas.
+ */
 function parseCSV(txt){
   const L = txt.trim().split(/\r?\n/).filter(l=>l.trim());
   if(L.length<4) throw "Poucos dados: são precisas pelo menos 3 horas.";
@@ -55,6 +64,13 @@ function parseCSV(txt){
   if(out.length<3) throw "Não interpretei as colunas — confirma o formato.";
   return out;
 }
+/**
+ * Lê a série e devolve o que dela interessa ao plano.
+ *
+ * Janelas de consolidação (humidade acima do limiar), rotações do vento, assinatura
+ * convectiva e os extremos. Os limiares vêm de `LIMIARES_METEO`, declarados: uma rotação
+ * de 50° com vento de 3 km/h é ruído, e sem chão a análise apontava ruído como facto.
+ */
 function analisar(S){
   const L = LIMIARES_METEO;
   const jans=[]; let cur=null;
@@ -78,6 +94,7 @@ function analisar(S){
   const jan = uteis.length ? uteis.reduce((a,b)=>(b.f.h-b.i.h)>(a.f.h-a.i.h)?b:a) : null;
   return {jan,rot,rhMin,rhMax,tMax,tMin,conv,crit};
 }
+/** O que dizer de uma hora da série, em texto — o que a torna notável, se for. */
 function leitura(p,a){
   const L = LIMIARES_METEO;
   if(p.pr>=L.convPrecip) return "Assinatura convectiva — rajadas erráticas possíveis";
@@ -88,6 +105,7 @@ function leitura(p,a){
   if(p.rh>=L.rhJanela) return "Janela — ataque direto favorável";
   if(p.rh>=30) return "Transição"; return "";
 }
+/** Junta horas seguidas num intervalo: «14h–17h, 21h» em vez de sete horas soltas. */
 function resumoHoras(hs){
   if(!hs.length) return "";
   const n=hs.map(h=>parseInt(h)); const out=[]; let a=n[0],b=n[0];
@@ -95,6 +113,13 @@ function resumoHoras(hs){
     else { out.push(a===b? hh(a) : hh(a)+"–"+hh(b)); if(i<n.length){a=n[i];b=n[i];} } }
   return out.join(", ");
 }
+/**
+ * Os números da meteorologia como o PEA os cita.
+ *
+ * **Sem série carregada devolve traços, e não falha.** Uma proposta ainda é possível com a
+ * parte meteorológica assinalada em falta; impedir a emissão por não haver previsão seria
+ * impedir de planear quem está sem rede.
+ */
 function metricas(){
   const a=ANALISE;
   /* sem série meteorológica carregada a proposta ainda é possível, com a parte

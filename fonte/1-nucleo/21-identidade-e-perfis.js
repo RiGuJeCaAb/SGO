@@ -40,7 +40,9 @@ const PERFIL_DEF = "operador";
 /** @type {{nome:string, posto:string, perfil:string, desde:string, id:string}} */
 let SESSAO = { nome:"", posto:"", perfil:"", desde:"", id:"" };
 
+/** Uma sessão sem ninguém ao teclado. */
 function novaSessao(){ return { nome:"", posto:"", perfil:"", desde:"", id:"" }; }
+/** O perfil com esta chave, ou o de omissão. Nunca devolve nada: sem perfil não há guarda. */
 function perfilDe(k){ return PERFIS.find(p=>p.k === k) || PERFIS.find(p=>p.k === PERFIL_DEF); }
 
 /** Há alguém declarado ao teclado? */
@@ -76,12 +78,19 @@ function motivoPerfil(cap){
     + "na célula de Comando.";
 }
 
+/**
+ * Repõe quem estava ao teclado neste dispositivo.
+ *
+ * Um perfil que já não exista cai no de omissão — o mais restrito. Herdar um perfil
+ * desconhecido como se fosse amplo seria dar acesso por engano.
+ */
 async function carregarSessao(){
   try{ const r = await ARMAZEM.get(SESSAO_CHAVE); SESSAO = Object.assign(novaSessao(), JSON.parse(r.value)||{}); }
   catch(e){ SESSAO = novaSessao(); }
   if(!perfilDe(SESSAO.perfil) || !SESSAO.perfil) SESSAO.perfil = PERFIL_DEF;
   return SESSAO;
 }
+/** Guarda quem está ao teclado. É definição do posto, e não da ocorrência. */
 async function gravarSessao(){
   try{ await ARMAZEM.set(SESSAO_CHAVE, JSON.stringify(SESSAO)); return true; }
   catch(e){ return false; }

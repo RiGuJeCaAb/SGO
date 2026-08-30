@@ -1,7 +1,14 @@
 /* ================= PLANEAMENTO · avisos IPMA (art. 28.º) ================= */
 let DISTRITOS_IPMA = null;
 const NIVEL_AVISO = {yellow:{c:"am",n:"AMARELO"}, orange:{c:"lr",n:"LARANJA"}, red:{c:"vm",n:"VERMELHO"}};
+/** O instante de um aviso na forma curta que cabe no chip: «30/08 18h». */
 function fmtAvisoT(iso){ const d=new Date(iso); return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+"h"; }
+/**
+ * Traz os avisos do IPMA em vigor para o distrito do teatro.
+ *
+ * @param {boolean} [silencioso] não dizer nada quando falta coordenada; é o modo em que
+ *   corre junto com a previsão, sem interromper quem está a fazer outra coisa
+ */
 async function obterAvisos(silencioso){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   const el = $("avisos-ipma");
@@ -32,6 +39,7 @@ async function obterAvisos(silencioso){
     if(!silencioso) el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Indisponíveis ('+esc(String(e).slice(0,50))+') — consultar ipma.pt.</span></div>';
   }
 }
+/** Mostra os avisos guardados, ou o convite a consultá-los quando ainda não há nenhum. */
 function pintarAvisos(){
   const el = $("avisos-ipma"); if(!el) return;
   const A = O.avisos;

@@ -16,6 +16,7 @@ function retratoOperacional(){
     excedidas:R.filter(x=>x.nivel==="r"), aviso:R.filter(x=>x.nivel==="a"),
     aereos:aerLista().length };
 }
+/** O dispositivo numa frase: quantos setores, em que estados, com que meios. */
 function resumoRetrato(r){
   const p = [];
   p.push(r.setores.length+(r.setores.length===1? " setor":" setores"));

@@ -3,6 +3,13 @@ const NOMES_SETOR = ["Alfa","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","H
 const ESTADOS_SETOR = ["Em curso (ativo)","Em resolução (dominado)","Em conclusão (extinto)","Vigilância ativa e consolidação de rescaldo","Reativação"];
 /* Migração de estados antigos para a nomenclatura oficial da DON n.º 2 / DECIR 2026, ponto 7.f */
 const MAPA_ESTADOS = {"Frente ativa":"Em curso (ativo)","Em consolidação":"Em resolução (dominado)","Rescaldo":"Em conclusão (extinto)","Vigilância ativa":"Vigilância ativa e consolidação de rescaldo"};
+/**
+ * Traduz um estado de setor antigo para o vocabulário em vigor.
+ *
+ * O que não estiver no mapa nem no vocabulário volta ao primeiro estado — não se inventa
+ * um estado a partir de texto que não se reconhece, e ficar em branco seria pior: um setor
+ * sem estado não conta para a fase nem para as regras de conformidade.
+ */
 function migrarEstado(v){ return MAPA_ESTADOS[v] || (ESTADOS_SETOR.includes(v)? v : ESTADOS_SETOR[0]); }
 
 /**

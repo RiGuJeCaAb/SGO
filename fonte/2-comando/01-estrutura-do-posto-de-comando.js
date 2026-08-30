@@ -37,6 +37,7 @@ function pcoObj(){
 /* O recurso leva `f` vazio de propósito: quem chama distingue por ele a função
    conhecida da improvisada. */
 function pcoDef(f){ return FUNCOES_PCO.find(x=>x.f===f) || {f:"", r:"—", g:"—"}; }
+/** A nomeação cujo cargo começa por este prefixo, ou nada. */
 function nomeado(fPrefixo){
   return pcoObj().funcoes.find(x=>x.f.indexOf(fPrefixo)===0) || null;
 }
@@ -61,6 +62,14 @@ const FUNCOES_REPETIVEIS = ["Oficial de ligação de entidade","Outra função"]
 const PRIO_ROT = {e:{t:"Essencial — exigível agora", c:"var(--fogo)"},
                   r:{t:"Recomendada — próxima fase ou limiar próximo", c:"var(--terra)"},
                   m:{t:"De menor importância neste momento", c:"var(--madeira)"}};
+/**
+ * Que peso tem esta função no dispositivo que está no terreno.
+ *
+ * `e` exigível pela fase declarada, `r` recomendada pelo que já lá está — meios aéreos a
+ * pedir COPAR, um efetivo a caminho da fase seguinte —, `m` matéria de escolha. Decide a
+ * ordem por que as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei
+ * exige, e não a lista por ordem alfabética.
+ */
 function prioridadeFuncao(x, exigiveis){
   const ex = exigiveis || funcoesExigiveis();
   if(ex.some(y=>y.f===x.f)) return "e";
@@ -73,6 +82,12 @@ function prioridadeFuncao(x, exigiveis){
   if(x.cond==="opesp"  && c.mr>2) return "r";
   return "m";
 }
+/**
+ * As funções por nomear, as exigíveis à frente.
+ *
+ * Deixa de fora as que já estão ocupadas, salvo as que a lei admite repetir — há mais do
+ * que um comandante de setor.
+ */
 function pcoOptions(){
   const ex = funcoesExigiveis();
   const ocupadas = pcoObj().funcoes.map(y=>y.f);
@@ -103,6 +118,12 @@ function pintarCampoSolicitacao(){
     lab.title = "Solicitação do COS a " + d.ext + " — " + d.r;
   }
 }
+/**
+ * Desenha a estrutura do posto de comando: quem está nomeado e o que falta nomear.
+ *
+ * Preserva a função escolhida na caixa antes de a reconstruir. Repintar debaixo da mão de
+ * quem estava a preencher perde o que ele já tinha escolhido.
+ */
 function renderPCO(){
   const sel = $("pc-f"); if(!sel) return;
   const escolhida = sel.value;

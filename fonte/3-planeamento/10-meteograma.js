@@ -88,6 +88,7 @@ function svgMeteo(S, a){
   return o.join("");
 }
 
+/** Desenha o meteograma e o quadro de métricas a partir da série analisada. */
 function pintarAnalise(){
   const a=ANALISE, S=SERIE;
   $("strip").innerHTML = svgMeteo(S, a);
@@ -104,6 +105,12 @@ function pintarAnalise(){
   $("c-analise").querySelector("h2 .tag").textContent = "núcleo de antecipação (art. 29.º) — próximas "+SERIE.length+" h, calculada por código";
   $("c-analise").style.display="block";
 }
+/**
+ * Analisa o que está no campo do CSV e guarda a série na ocorrência.
+ *
+ * @param {boolean} [log] deixar rasto na fita do tempo; falso ao repor uma ocorrência,
+ *   que não é facto operacional novo
+ */
 function analisarCSV(log=true){
   try{
     const bruto = parseCSV($("f-csv").value);

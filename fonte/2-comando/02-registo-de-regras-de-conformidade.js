@@ -563,10 +563,12 @@ function verificacoesDON(ts){
   }
   return v;
 }
+/** O GDH de daqui a tantos minutos — o prazo escrito na forma em que se transmite. */
 function gdhMais(d, min){
   if(!d) return "—";
   const x = new Date(d.getTime()+min*60000);
   return String(x.getDate()).padStart(2,"0")+String(x.getHours()).padStart(2,"0")+String(x.getMinutes()).padStart(2,"0")+MES[x.getMonth()]+String(x.getFullYear()).slice(2);
 }
+/** Só as horas e os minutos, para quando o dia já está dito à volta. */
 function hhmm(d){ return d? String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0") : "—"; }
 

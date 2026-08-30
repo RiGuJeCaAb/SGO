@@ -68,6 +68,37 @@ Por ordem em que foram tomadas.
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
 
+## Dizer o que cada função promete, na r0066
+
+**Cento e trinta e cinco das 379 funções de topo não tinham uma linha antes delas** —
+`persistir`, `lerForm`, `renderPCO`, `geocodificar`. Quem as lia tinha de reconstruir a
+intenção a partir do corpo, e é assim que se muda uma função julgando que ela faz outra
+coisa.
+
+O critério não foi comentar tudo. O projeto já comenta densamente, e comenta **porquê**:
+a razão da escolha, o defeito que a motivou, o que se recusou fazer. Um comentário que
+repete o nome da função ocupa o lugar do que faria falta. O que se escreveu foi isso — o
+que a função promete, e o que nela não é óbvio:
+
+- que `migrarGravado` recusa um estado vindo de uma revisão posterior, e porquê;
+- que `mostrarCandidatos` pergunta em vez de escolher o primeiro, porque o primeiro
+  resultado de um serviço de geocodificação não é o mais provável;
+- que `metricas` devolve traços sem previsão em vez de falhar, para não impedir de planear
+  quem está sem rede;
+- que `autoNiveis` deixa de sugerir assim que o oficial decide;
+- que `rendicoes` recebe o instante e não o lê do relógio;
+- que `evoDesdeUltimoPEA` usa o índice e não a hora, porque dois registos com o mesmo GDH
+  acontecem.
+
+**O verificador de tipos apanhou dois erros meus na própria documentação**: um `@param`
+com nome de parâmetro que não existe, e um `@returns` que omitia o campo `nota` de
+`parseCoordAny` — e essa omissão estreitava o tipo e partia seis usos a jusante. Documentar
+mal tem consequências, e foi bom que se visse.
+
+Fica `ferramentas/documentar.mjs`, no `npm run tudo`, com **limiar em zero**: uma revisão
+pode acrescentar funções, não pode deixar cair a cobertura. Foi por nada medir que 135
+ficaram por documentar sem ninguém dar por isso.
+
 ## Arrumar a casa e apagar o que ninguém usa, na r0066
 
 ### A raiz

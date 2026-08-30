@@ -116,6 +116,15 @@ function medidorTempo(it, aereo, alvo){
 
 /** O resumo em texto: «2× ECIN, 1× VFCI». */
 function resumoTip(tip){ return agruparTip(tip).map(g=>g.n+"× "+g.t).join(", "); }
+/**
+ * Desenha a setorização: um bloco por setor, com quem comanda, o que lá está e o relógio
+ * de cada unidade.
+ *
+ * Cria os setores em falta e corta os que sobram quando o número muda, e migra o estado
+ * de cada um para o vocabulário em vigor. Com meios atribuídos, os campos de contagem
+ * ficam só de leitura: a soma sai das tipologias, e escrevê-la à mão por cima faria dois
+ * números para a mesma coisa.
+ */
 function renderSetores(){
   const e = estObj();
   $("s-n").value = String(e.n||0);
@@ -219,6 +228,12 @@ function renderSetores(){
   });
   comporSetores();
 }
+/**
+ * Compõe o texto da setorização, que é o que entra no PEA e no ponto de situação.
+ *
+ * Em modo de texto livre, respeita o que o oficial escreveu e não compõe nada — é para
+ * isso que o modo existe.
+ */
 function comporSetores(){
   const e = estObj();
   if(e.livre){ O.dados.setores = $("d-setores").value.trim(); $("s-tot").textContent=""; return; }

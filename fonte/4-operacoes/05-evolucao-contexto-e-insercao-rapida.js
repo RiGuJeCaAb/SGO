@@ -5,6 +5,12 @@ function inserirEvo(txt){
   ta.value = atual + (atual && !atual.endsWith(" ") && !atual.endsWith(": ")? " ":"") + txt;
   ta.focus();
 }
+/**
+ * Põe os setores como atalhos por cima do campo de evolução.
+ *
+ * Quem regista a evolução está a olhar para o terreno, não para a aplicação: o setor, o
+ * estado e os meios ao alcance de um toque poupam-lhe escrever o que a aplicação já sabe.
+ */
 function pintarEvoCtx(){
   const e = O.dados && O.dados.est;
   const el = $("evo-ctx"); if(!el) return;

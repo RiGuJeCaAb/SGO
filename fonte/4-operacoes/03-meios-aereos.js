@@ -10,6 +10,12 @@ function aerLista(){
   e.aer = String(e.aerL.length||"");
   return e.aerL;
 }
+/**
+ * Desenha os meios aéreos no TO, um por indicativo.
+ *
+ * Cada aeronave tem o seu relógio, com o limiar aéreo: também tem tempo de empenhamento,
+ * e ficara de fora do quadro de rendições.
+ */
 function renderAereos(){
   const box = $("s-aer-box"); if(!box) return;
   const e = estObj(), L = aerLista();

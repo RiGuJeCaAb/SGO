@@ -3,6 +3,15 @@ function limiares(){
   const n = (id,d)=>{ const el=$(id); const x = el? parseFloat(el.value) : NaN; return isNaN(x)? d : x; };
   return { av:n("r-av",8), lim:n("r-lim",12), aer:n("r-aer",6) };
 }
+/**
+ * O tempo no TO de cada unidade, e quanto lhe falta para o limite.
+ *
+ * **Recebe o instante**, como todas as regras de prazo: sem isso não se conseguiria pôr
+ * um teste a perguntar «e às seis da manhã?». Aéreos e terrestres têm limiares
+ * diferentes — art. 33.º e DON n.º 2, ponto 7.e.
+ *
+ * @param {number} [ts] o instante a considerar; omitido, o agora
+ */
 function rendicoes(ts){
   const e = estObj(), L = limiares(), out = [];
   const instante = (ts==null? agora() : ts);
@@ -44,6 +53,7 @@ function descreverAer(L){
   const grupos = Object.keys(anon).map(t=> anon[t]+"× "+t);
   return nomeadas.concat(grupos).join(", ");
 }
+/** Horas decimais em «4 h 30 min», que é como se diz o empenhamento. */
 function fmtH(h){ const t=Math.round(h*60); return Math.floor(t/60)+" h "+String(t%60).padStart(2,"0")+" min"; }
 
 /* Os destinos continuam a ser os identificadores antigos: a tabela de atalhos
@@ -63,6 +73,13 @@ const AV_DESTINO = {
   placom:{p:"p-logistica", l:"Atribuir canais em Logística e Finanças"},
   reparticao:{p:"p-fontes", l:"Ver o dispositivo em Operações"}
 };
+/**
+ * Uma verificação de conformidade em caixa, com a fonte e o atalho para a resolver.
+ *
+ * Só as obrigações que são **ato externo** — uma notificação, uma proposta a outra
+ * entidade — ganham o botão de dar por cumprido, e só enquanto o estiverem. O que a
+ * aplicação consegue observar cumpre-se fazendo a coisa, não declarando que se fez.
+ */
 function caixaAviso(x){
   const rot = x.n==="ob"? "Obrigação legal" : (x.n==="av"? "Antecipação" : "Conformidade verificada");
   const d = AV_DESTINO[x.id];
@@ -92,6 +109,12 @@ function quemConfirma(){
   return (n && n.nome) || "";
 }
 
+/**
+ * Liga os botões das caixas: ir ao sítio onde se resolve, e dar por cumprido.
+ *
+ * Dar por cumprido pergunta quem confirma e fica na evolução e na fita. Uma obrigação
+ * legal que se apaga sem deixar quem a deu por cumprida não serve de prova nenhuma.
+ */
 function ligarIr(el){
   if(!el) return;
   el.querySelectorAll("[data-cump]").forEach(b=>b.addEventListener("click", async ()=>{
@@ -112,6 +135,7 @@ function ligarIr(el){
   }));
   el.querySelectorAll("[data-ir]").forEach(b=>b.addEventListener("click", ()=>{ window.irPara(b.dataset.ir); window.scrollTo({top:0,behavior:"smooth"}); }));
 }
+/** Desenha as verificações de conformidade: o que falta, o que se antecipa, o que está. */
 function pintarDON(){
   try{ if(typeof renderVigor==="function" && !window.__emVigor){ window.__emVigor=1; renderVigor(); window.__emVigor=0; } }catch(e){ window.__emVigor=0; }
   try{ O.meta.inicio = $("o-inicio").value.trim(); O.meta.fase = $("o-fase").value.trim(); }catch(err){}
@@ -151,6 +175,10 @@ function pintarDON(){
 
   pintarAmpulhetas();
 }
+/**
+ * Desenha o quadro de rendições: quem está perto do limite, quem já passou, e quem passou
+ * **sem pedido nenhum** — que é a leitura que interessa a quem comanda.
+ */
 function pintarAmpulhetas(){
   const alvos = [$("amp-quadro"), $("amp-quadro-2")].filter(Boolean);
   if(!alvos.length) return;
