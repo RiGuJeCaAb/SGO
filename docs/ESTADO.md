@@ -14,12 +14,12 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 | | |
 |---|---|
 | Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
-| Módulos em `fonte/` | 52, em sete zonas, mais o molde |
-| Testes | 340, todos a passar |
+| Módulos em `fonte/` | 53, em sete zonas, mais o molde |
+| Testes | 345, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 12 |
+| Versão do estado gravado | 13 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,45 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## E o que vinha a seguir: o ficheiro que entra, na r0060
+
+Dois dos três pontos que a análise punha logo a seguir aos P0.
+
+### Um carimbo que não confere passa a exigir decisão
+
+Continua a não haver recusa automática — num PCO pode ser preferível recuperar um ficheiro
+suspeito do que ficar sem nada —, mas a decisão passa a ser de quem está ao teclado, e não
+da aplicação. E há uma coisa que a análise apanhou bem: **o aviso do ecrã apaga-se ao fim
+de cinco segundos e meio.** O que fica é o ramo `integridade`: `valida`, `legado` (ficheiro
+de uma revisão anterior à do carimbo) ou `falhou`. Fica escrito por baixo da identificação
+enquanto a ocorrência existir, a vermelho e a negrito no caso do não verificado, e
+**acompanha-a nas exportações seguintes** — quem receber o ficheiro a seguir vê de onde ele
+veio.
+
+### A forma da ocorrência importada
+
+Um pacote era aceite com três perguntas: é JSON, é objeto, tem `meta`. Tudo o resto entrava
+como viesse — um `evolucao` que não fosse lista, um `txt` que fosse um objeto, chegavam
+assim aos construtores de HTML.
+
+`FORMA_OCORRENCIA` declara o tipo de cada ramo e os campos obrigatórios das três listas que
+importam. **Não recusa**: corrige, retira o que não tem forma de registo, e **conta o que
+corrigiu** — na fita, na evolução e no aviso. Num posto de comando um ficheiro com um campo
+estragado ainda é a ocorrência; recusá-lo inteiro é que podia ser a diferença entre ter o
+registo e não ter nada.
+
+Um ramo **em falta** não é acusado: isso é idade do ficheiro, e a escada de migrações é que
+trata dela. A forma confere-se depois da migração, precisamente por isso.
+
+### Verificação
+
+345 testes, cinco novos: a marca de verificado, o ficheiro legado, a recusa da decisão a
+cancelar a importação inteira, a marca a acompanhar a exportação seguinte, e a forma
+corrigida com a linha boa preservada.
+
+**Fica por fazer**, do que a análise listou: reter a última previsão meteorológica para
+que uma perda de rede não deixe o meteograma vazio.
 
 ## Robustecimento 3 de 3: a aprovação do COS existe, na r0060
 

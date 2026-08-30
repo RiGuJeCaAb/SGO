@@ -65,6 +65,26 @@ function escreverForm(){
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
 function fita(evento){ O.fita.push({g:gdhAgora(), e:evento}); }
 
+/* A proveniência de uma ocorrência que entrou por ficheiro. Fica à vista enquanto a
+   ocorrência existir — ao contrário do aviso, que se apaga ao fim de cinco segundos. */
+const PROV_ROT = {
+  valida: p => "Importada de ficheiro a "+p.g+" — carimbo de integridade confere ("+resumoCurto(p.sha)+")"
+    + (p.app? ", exportada pela "+p.app : "")+".",
+  legado: p => "Importada de ficheiro a "+p.g+" — o ficheiro não trazia carimbo de integridade,"
+    + " por ser de uma revisão anterior à que passou a carimbar.",
+  falhou: p => "ATENÇÃO: conteúdo não verificado. Importada de ficheiro a "+p.g
+    + " com o carimbo de integridade a não conferir ("+resumoCurto(p.sha)+"), por decisão de quem a importou."
+    + " O conteúdo pode ter sido alterado depois de exportado.",
+};
+function pintarProveniencia(){
+  const el = $("occ-proveniencia"); if(!el) return;
+  const p = (O && O.integridade) || { estado:"", g:"", sha:"", app:"", ficheiro:"" };
+  const f = PROV_ROT[p.estado];
+  el.textContent = f? f(p) : "";
+  el.style.color = p.estado === "falhou"? "var(--fogo)" : "";
+  el.style.fontWeight = p.estado === "falhou"? "700" : "";
+}
+
 let INDEX = [];
 async function carregarIndex(){ try{ const r=await ARMAZEM.get("peaapp:index"); INDEX=JSON.parse(r.value)||[]; }catch(e){ INDEX=[]; } }
 function pintarArquivo(){

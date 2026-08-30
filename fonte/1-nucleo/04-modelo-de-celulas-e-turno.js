@@ -198,6 +198,21 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 12 -> 13. A proveniência de uma ocorrência importada.
+   Uma ocorrência que entrou por ficheiro com o carimbo a não conferir não pode ficar
+   indistinguível de uma que nasceu aqui — e o aviso do ecrã desaparece ao fim de cinco
+   segundos e meio. O que fica não desaparece. Vazio, em tudo o que já existe: não se
+   sabe de onde veio, e inventar seria pior. */
+MIGRACOES.push(e => {
+  if(!e.integridade || typeof e.integridade !== "object"){
+    e.integridade = { estado:"", g:"", sha:"", app:"", ficheiro:"" };
+  }
+  ["estado","g","sha","app","ficheiro"].forEach(k=>{
+    if(typeof e.integridade[k] !== "string") e.integridade[k] = "";
+  });
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -215,6 +230,8 @@ function novoEstado(){
     pco:{funcoes:[]},
     /* Encerramento do registo da ocorrência nesta Estação. Vazio enquanto aberta. */
     encerramento:{ g:"", por:"", nota:"", sha:"" },
+    /* De onde veio este estado, quando veio de fora. Vazio significa que nasceu aqui. */
+    integridade:{ estado:"", g:"", sha:"", app:"", ficheiro:"" },
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},

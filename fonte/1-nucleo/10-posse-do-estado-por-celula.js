@@ -15,7 +15,8 @@ const POSSE = [
       { p:"pco.funcoes", r:"art. 14.º, n.os 1 a 5",     d:"Composição do posto de comando e nomeações" },
       { p:"turno",       r:"art. 15.º, n.º 3, al. c); DON 2, 7.d.(30)", d:"Continuidade em espelho e rotatividade de funções" },
       { p:"encerramento", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Encerramento do registo da ocorrência" },
-      { p:"cumprimentos", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Obrigações dadas por cumpridas, com GDH e quem" }
+      { p:"cumprimentos", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Obrigações dadas por cumpridas, com GDH e quem" },
+      { p:"integridade", r:"art. 2.º, al. c) — registo temporal explícito e completo", d:"Proveniência do registo importado e estado do seu carimbo de integridade" }
     ] },
   { k:"planeamento", n:"Planeamento", r:"Despacho n.º 4067/2024, arts. 26.º a 30.º",
     nota:"Elabora o plano estratégico de ação e assegura a sua permanente atualização.",

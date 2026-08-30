@@ -179,6 +179,14 @@ interface Estado {
     sha: string;
   };
   /**
+   * De onde veio este estado, quando veio de fora.
+   *
+   * `estado` é `"valida"` (o carimbo conferiu), `"legado"` (ficheiro sem carimbo) ou
+   * `"falhou"` (o carimbo não conferia e importou-se por decisão expressa de quem
+   * estava ao teclado). Vazio significa que a ocorrência nasceu neste posto.
+   */
+  integridade: { estado: string; g: string; sha: string; app: string; ficheiro: string };
+  /**
    * Obrigações dadas por cumpridas: id da regra para `{g, por, nota}`. Só as que são ato
    * externo — ver `CUMPRIVEIS`. O que a aplicação consegue observar no estado cumpre-se
    * fazendo a coisa, não declarando que se fez.

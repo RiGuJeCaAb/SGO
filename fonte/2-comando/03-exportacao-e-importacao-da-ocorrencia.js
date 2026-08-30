@@ -43,7 +43,11 @@ function lerPacoteOcorrencia(texto){
   if(!estado || typeof estado!=="object" || !estado.meta || typeof estado.meta!=="object"){
     throw new Error("o ficheiro não contém uma ocorrência");
   }
-  return migrarGravado(estado);
+  const migrado = migrarGravado(estado);
+  /* A forma confere-se **depois** da migração: antes dela um estado antigo tem
+     legitimamente ramos que ainda não existiam, e acusá-los seria acusar a idade. */
+  migrado.__forma = conferirForma(migrado);
+  return migrado;
 }
 
 async function importarOcorrencia(texto){
@@ -63,15 +67,45 @@ async function importarOcorrencia(texto){
      à frente, e a fita a escrever teria de ser a do estado novo. */
   const q = conferirCarimbo(texto);
 
+  /* Um carimbo que não confere passa a exigir decisão expressa. Continua a não haver
+     recusa automática — num PCO pode ser preferível recuperar um ficheiro suspeito do
+     que ficar sem nada —, mas a decisão é de quem está ao teclado, e não da aplicação.
+     E o aviso do ecrã apaga-se ao fim de cinco segundos e meio: o que fica é o ramo da
+     proveniência, que acompanha a ocorrência e sai nas exportações seguintes. */
+  if(q.bate === false && !window.confirm(
+      "O carimbo de integridade deste ficheiro não confere.\n\n"
+      + "O conteúdo foi alterado depois de exportado, ou o ficheiro está truncado.\n\n"
+      + "Importar como CONTEÚDO NÃO VERIFICADO? A ocorrência fica marcada como tal, e a "
+      + "marca acompanha-a nas exportações seguintes.")){
+    aviso("msg-occ","err","Importação cancelada: o carimbo não confere e não foi autorizada a importação de conteúdo não verificado.");
+    return false;
+  }
+
+  const problemas = estado.__forma || [];
+  delete estado.__forma;
   O = estado;
+  const pacote = (()=>{ try{ return JSON.parse(texto); }catch(e){ return {}; } })();
+  O.integridade = {
+    estado: q.bate === true? "valida" : (q.bate === false? "falhou" : "legado"),
+    g: gdhAgora(),
+    sha: String(pacote.sha || ""),
+    app: String(pacote.app || ""),
+    ficheiro: String(pacote.ficheiro || ""),
+  };
   escreverForm(); pintarTudo();
   if(O.csv){ $("f-csv").value=O.csv; try{ analisarCSV(false); }catch(e){} }
   fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":""));
   await persistir(false);
   if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(JSON.parse(texto).sha));
   else if(q.bate === false) fita("ATENÇÃO: o carimbo de integridade do ficheiro importado não confere");
-  aviso("msg-occ", q.bate===false? "av" : "ok",
-    "Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos). "+q.nota);
+  if(problemas.length){
+    fita("Forma corrigida na importação: "+problemas.join("; "));
+    O.evolucao.push({g:gdhAgora(), tipo:"posit",
+      txt:"Ocorrência importada com correções de forma: "+problemas.join("; ")+"."});
+  }
+  aviso("msg-occ", (q.bate===false || problemas.length)? "av" : "ok",
+    "Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos). "+q.nota
+    + (problemas.length? " Forma corrigida em "+problemas.length+(problemas.length===1? " ponto: ":" pontos: ")+problemas.join("; ")+"." : ""));
   return true;
 }
 

@@ -1085,6 +1085,7 @@
         <button class="btn btn-b" type="button" id="b-importar-b" title="Repor uma ocorrência a partir de um ficheiro exportado">Importar de ficheiro</button>
         <input type="file" id="b-importar" accept=".json,application/json" hidden>
       </div>
+      <div class="mono-sm" id="occ-proveniencia" style="margin-top:10px"></div>
       <div class="msg" id="msg-occ"></div>
       <p class="hint" id="occ-armazem">O estado (identificação, evolução, meteograma e todos os PEA emitidos) fica guardado neste dispositivo e é reposto ao reabrir a app. A exportação para ficheiro não depende do dispositivo: serve de cópia de segurança e permite passar a ocorrência a outro posto.</p>
     </div>
@@ -1775,14 +1776,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301430_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301436_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301430_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301436_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento ================= */
@@ -1813,7 +1814,7 @@ const ARMAZEM = (()=>{
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 12;
+const VERSAO_ESTADO = 13;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2068,6 +2069,21 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 12 -> 13. A proveniência de uma ocorrência importada.
+   Uma ocorrência que entrou por ficheiro com o carimbo a não conferir não pode ficar
+   indistinguível de uma que nasceu aqui — e o aviso do ecrã desaparece ao fim de cinco
+   segundos e meio. O que fica não desaparece. Vazio, em tudo o que já existe: não se
+   sabe de onde veio, e inventar seria pior. */
+MIGRACOES.push(e => {
+  if(!e.integridade || typeof e.integridade !== "object"){
+    e.integridade = { estado:"", g:"", sha:"", app:"", ficheiro:"" };
+  }
+  ["estado","g","sha","app","ficheiro"].forEach(k=>{
+    if(typeof e.integridade[k] !== "string") e.integridade[k] = "";
+  });
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -2085,6 +2101,8 @@ function novoEstado(){
     pco:{funcoes:[]},
     /* Encerramento do registo da ocorrência nesta Estação. Vazio enquanto aberta. */
     encerramento:{ g:"", por:"", nota:"", sha:"" },
+    /* De onde veio este estado, quando veio de fora. Vazio significa que nasceu aqui. */
+    integridade:{ estado:"", g:"", sha:"", app:"", ficheiro:"" },
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},
@@ -2184,6 +2202,26 @@ function escreverForm(){
 }
 function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
 function fita(evento){ O.fita.push({g:gdhAgora(), e:evento}); }
+
+/* A proveniência de uma ocorrência que entrou por ficheiro. Fica à vista enquanto a
+   ocorrência existir — ao contrário do aviso, que se apaga ao fim de cinco segundos. */
+const PROV_ROT = {
+  valida: p => "Importada de ficheiro a "+p.g+" — carimbo de integridade confere ("+resumoCurto(p.sha)+")"
+    + (p.app? ", exportada pela "+p.app : "")+".",
+  legado: p => "Importada de ficheiro a "+p.g+" — o ficheiro não trazia carimbo de integridade,"
+    + " por ser de uma revisão anterior à que passou a carimbar.",
+  falhou: p => "ATENÇÃO: conteúdo não verificado. Importada de ficheiro a "+p.g
+    + " com o carimbo de integridade a não conferir ("+resumoCurto(p.sha)+"), por decisão de quem a importou."
+    + " O conteúdo pode ter sido alterado depois de exportado.",
+};
+function pintarProveniencia(){
+  const el = $("occ-proveniencia"); if(!el) return;
+  const p = (O && O.integridade) || { estado:"", g:"", sha:"", app:"", ficheiro:"" };
+  const f = PROV_ROT[p.estado];
+  el.textContent = f? f(p) : "";
+  el.style.color = p.estado === "falhou"? "var(--fogo)" : "";
+  el.style.fontWeight = p.estado === "falhou"? "700" : "";
+}
 
 let INDEX = [];
 async function carregarIndex(){ try{ const r=await ARMAZEM.get("peaapp:index"); INDEX=JSON.parse(r.value)||[]; }catch(e){ INDEX=[]; } }
@@ -2527,7 +2565,8 @@ const POSSE = [
       { p:"pco.funcoes", r:"art. 14.º, n.os 1 a 5",     d:"Composição do posto de comando e nomeações" },
       { p:"turno",       r:"art. 15.º, n.º 3, al. c); DON 2, 7.d.(30)", d:"Continuidade em espelho e rotatividade de funções" },
       { p:"encerramento", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Encerramento do registo da ocorrência" },
-      { p:"cumprimentos", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Obrigações dadas por cumpridas, com GDH e quem" }
+      { p:"cumprimentos", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Obrigações dadas por cumpridas, com GDH e quem" },
+      { p:"integridade", r:"art. 2.º, al. c) — registo temporal explícito e completo", d:"Proveniência do registo importado e estado do seu carimbo de integridade" }
     ] },
   { k:"planeamento", n:"Planeamento", r:"Despacho n.º 4067/2024, arts. 26.º a 30.º",
     nota:"Elabora o plano estratégico de ação e assegura a sua permanente atualização.",
@@ -3539,6 +3578,96 @@ function resumoEstado(estado){ return sha256(canonico(estado)); }
 
 /** Os primeiros doze dígitos, que é o que se lê em voz alta ou se confere de relance. */
 function resumoCurto(sha){ return String(sha||"").slice(0,12); }
+/* ================= NÚCLEO · forma de uma ocorrência importada =================
+   Um pacote que entra por ficheiro era aceite com três perguntas: é JSON, é objeto, tem
+   `meta`. Daí seguia para as migrações e para o ecrã. Tudo o resto — tipos, listas,
+   enumerações, o que lá estivesse a mais — entrava como viesse.
+
+   O que se faz aqui **não é recusar**. Num posto de comando, um ficheiro com um campo
+   estragado ainda é a ocorrência, e recusá-lo inteiro pode ser a diferença entre ter o
+   registo e não ter nada. Corrige-se a forma, conta-se o que se corrigiu, e diz-se a
+   quem importou — que decide o que fazer com a informação.
+
+   A recusa fica para o que não é uma ocorrência de todo, e essa continua onde estava.
+
+   Isto é também redução de superfície do problema do XSS: um `evolucao` que não é lista,
+   ou um `txt` que é um objeto, chegavam aos construtores de HTML como viessem. */
+
+/**
+ * A forma esperada de cada ramo do estado.
+ *
+ * `t` é o tipo: `"texto"`, `"lista"`, `"objeto"` ou `"numero"`. `campos` descreve os
+ * campos obrigatórios dos elementos de uma lista, e `podeVazio` diz que a lista pode não
+ * existir. O que aqui não está é deixado como veio: a tabela é o chão, não a fronteira.
+ */
+const FORMA_OCORRENCIA = [
+  { p:"meta",          t:"objeto" },
+  { p:"dados",         t:"objeto" },
+  { p:"logistica",     t:"objeto" },
+  { p:"pco",           t:"objeto" },
+  { p:"turno",         t:"objeto" },
+  { p:"encerramento",  t:"objeto" },
+  { p:"integridade",   t:"objeto" },
+  { p:"cumprimentos",  t:"objeto" },
+  { p:"csv",           t:"texto"  },
+  { p:"evolucao",      t:"lista", campos:{ g:"texto", tipo:"texto", txt:"texto" } },
+  { p:"fita",          t:"lista", campos:{ g:"texto", e:"texto" } },
+  { p:"peas",          t:"lista", campos:{ n:"numero" } },
+];
+
+/** O tipo de um valor, no vocabulário da tabela. */
+function tipoDe(v){
+  if(Array.isArray(v)) return "lista";
+  if(v === null || v === undefined) return "vazio";
+  if(typeof v === "object") return "objeto";
+  if(typeof v === "number") return isFinite(v)? "numero" : "vazio";
+  return typeof v === "string"? "texto" : typeof v;
+}
+
+/** O valor por omissão de cada tipo. */
+const VAZIO_DE = { texto:"", lista:[], objeto:{}, numero:0 };
+
+/**
+ * Confere e corrige a forma de um estado importado.
+ *
+ * Devolve a lista do que teve de ser corrigido, em português e por caminho, para que
+ * quem importou saiba o que recebeu. Lista vazia significa que a forma estava certa.
+ *
+ * @param {any} e estado, corrigido no lugar
+ * @returns {string[]}
+ */
+function conferirForma(e){
+  const probs = [];
+  if(!e || typeof e !== "object" || Array.isArray(e)) return ["o ficheiro não contém uma ocorrência"];
+
+  FORMA_OCORRENCIA.forEach(f=>{
+    const t = tipoDe(e[f.p]);
+    if(t === f.t) return;
+    if(t === "vazio"){
+      /* Um ramo em falta não é defeito do ficheiro: pode ser de uma versão anterior, e a
+         escada de migrações trata disso. Repõe-se o vazio do tipo e segue. */
+      e[f.p] = JSON.parse(JSON.stringify(VAZIO_DE[f.t]));
+      return;
+    }
+    probs.push("«"+f.p+"» era "+t+" e devia ser "+f.t+"; reposto vazio");
+    e[f.p] = JSON.parse(JSON.stringify(VAZIO_DE[f.t]));
+  });
+
+  /* Elementos de lista com a forma errada saem da lista. Um registo de evolução sem
+     texto, ou cujo texto é um objeto, não é registo nenhum — e é o que chegaria ao ecrã. */
+  FORMA_OCORRENCIA.filter(f=>f.t === "lista" && f.campos).forEach(f=>{
+    const antes = e[f.p].length;
+    e[f.p] = e[f.p].filter(x=>{
+      if(!x || typeof x !== "object" || Array.isArray(x)) return false;
+      return Object.keys(f.campos).every(k=>tipoDe(x[k]) === f.campos[k]);
+    });
+    const fora = antes - e[f.p].length;
+    if(fora) probs.push(fora + (fora===1? " entrada de «" : " entradas de «") + f.p + "» sem a forma esperada; retirada"
+      + (fora===1? "" : "s"));
+  });
+
+  return probs;
+}
 /* ================= COMANDO · estrutura do posto de comando (art. 14.º) ================= */
 const FUNCOES_PCO = [
   {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", fase:3},
@@ -4294,7 +4423,11 @@ function lerPacoteOcorrencia(texto){
   if(!estado || typeof estado!=="object" || !estado.meta || typeof estado.meta!=="object"){
     throw new Error("o ficheiro não contém uma ocorrência");
   }
-  return migrarGravado(estado);
+  const migrado = migrarGravado(estado);
+  /* A forma confere-se **depois** da migração: antes dela um estado antigo tem
+     legitimamente ramos que ainda não existiam, e acusá-los seria acusar a idade. */
+  migrado.__forma = conferirForma(migrado);
+  return migrado;
 }
 
 async function importarOcorrencia(texto){
@@ -4314,15 +4447,45 @@ async function importarOcorrencia(texto){
      à frente, e a fita a escrever teria de ser a do estado novo. */
   const q = conferirCarimbo(texto);
 
+  /* Um carimbo que não confere passa a exigir decisão expressa. Continua a não haver
+     recusa automática — num PCO pode ser preferível recuperar um ficheiro suspeito do
+     que ficar sem nada —, mas a decisão é de quem está ao teclado, e não da aplicação.
+     E o aviso do ecrã apaga-se ao fim de cinco segundos e meio: o que fica é o ramo da
+     proveniência, que acompanha a ocorrência e sai nas exportações seguintes. */
+  if(q.bate === false && !window.confirm(
+      "O carimbo de integridade deste ficheiro não confere.\n\n"
+      + "O conteúdo foi alterado depois de exportado, ou o ficheiro está truncado.\n\n"
+      + "Importar como CONTEÚDO NÃO VERIFICADO? A ocorrência fica marcada como tal, e a "
+      + "marca acompanha-a nas exportações seguintes.")){
+    aviso("msg-occ","err","Importação cancelada: o carimbo não confere e não foi autorizada a importação de conteúdo não verificado.");
+    return false;
+  }
+
+  const problemas = estado.__forma || [];
+  delete estado.__forma;
   O = estado;
+  const pacote = (()=>{ try{ return JSON.parse(texto); }catch(e){ return {}; } })();
+  O.integridade = {
+    estado: q.bate === true? "valida" : (q.bate === false? "falhou" : "legado"),
+    g: gdhAgora(),
+    sha: String(pacote.sha || ""),
+    app: String(pacote.app || ""),
+    ficheiro: String(pacote.ficheiro || ""),
+  };
   escreverForm(); pintarTudo();
   if(O.csv){ $("f-csv").value=O.csv; try{ analisarCSV(false); }catch(e){} }
   fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":""));
   await persistir(false);
   if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(JSON.parse(texto).sha));
   else if(q.bate === false) fita("ATENÇÃO: o carimbo de integridade do ficheiro importado não confere");
-  aviso("msg-occ", q.bate===false? "av" : "ok",
-    "Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos). "+q.nota);
+  if(problemas.length){
+    fita("Forma corrigida na importação: "+problemas.join("; "));
+    O.evolucao.push({g:gdhAgora(), tipo:"posit",
+      txt:"Ocorrência importada com correções de forma: "+problemas.join("; ")+"."});
+  }
+  aviso("msg-occ", (q.bate===false || problemas.length)? "av" : "ok",
+    "Ocorrência "+(O.meta.num||"sem número")+" importada ("+O.peas.length+" PEA, "+O.evolucao.length+" registos). "+q.nota
+    + (problemas.length? " Forma corrigida em "+problemas.length+(problemas.length===1? " ponto: ":" pontos: ")+problemas.join("; ")+"." : ""));
   return true;
 }
 
@@ -8587,6 +8750,7 @@ function pintarTudo(){
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
   try{ pintarEncerramento(); }catch(e){}
+  try{ pintarProveniencia(); }catch(e){}
 }
 
 function letrasV(txt){
