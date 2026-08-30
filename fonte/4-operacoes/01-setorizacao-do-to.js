@@ -241,13 +241,15 @@ $("pc-add").addEventListener("click", ()=>{
   const P = pcoObj();
   const idx = P.funcoes.findIndex(x=>x.f===f && f!=="Oficial de ligação de entidade" && f!=="Outra função");
   const ant = idx>=0? P.funcoes[idx] : null;
+  const qg = gdhDoCampo("pc-g", "msg-pco"), qs = gdhDoCampo("pc-sol", "msg-pco");
+  if(!qg.ok || !qs.ok) return;
   const reg = { f, nome, entidade:$("pc-e").value.trim(), ct:$("pc-c").value.trim(),
     siresp:(ant&&ant.siresp)||"", ba:(ant&&ant.ba)||"",
     /* Dois instantes distintos nos núcleos de nomeação externa (arts. 23.º n.º 2,
        24.º n.º 2 e 25.º n.º 2): o COS solicita, a entidade nomeia. `g` fica vazio
        enquanto o pedido estiver pendente — sem nome não há nomeação. */
-    solicitado: ($("pc-sol")? $("pc-sol").value.trim() : "") || (ant&&ant.solicitado) || "",
-    g: $("pc-g").value.trim() || (nome? gdhAgora() : "") };
+    solicitado: (($("pc-sol") && $("pc-sol").value.trim())? qs.g : "") || (ant&&ant.solicitado) || "",
+    g: ($("pc-g").value.trim()? qg.g : (nome? gdhAgora() : "")) };
   if(idx>=0) P.funcoes[idx] = reg; else P.funcoes.push(reg);
   ["pc-n","pc-e","pc-c","pc-g","pc-sol"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
   fita(reg.g
@@ -261,8 +263,9 @@ $("pc-add").addEventListener("click", ()=>{
 });
 $("aer-add").addEventListener("click", ()=>{
   const t = $("aer-t").value, ind = $("aer-i").value.trim();
-  const g = $("aer-g").value.trim(), d = parseGDH(g);
-  aerLista().push({t, ind, g: g||gdhAgora(), ts: (d? d.getTime() : Date.now())});
+  const q = gdhDoCampo("aer-g", "msg-occ");
+  if(!q.ok) return;
+  aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : Date.now())});
   $("aer-i").value=""; $("aer-g").value="";
   fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")");
   renderAereos(); comporSetores(); pintarDON(); persistir(false);

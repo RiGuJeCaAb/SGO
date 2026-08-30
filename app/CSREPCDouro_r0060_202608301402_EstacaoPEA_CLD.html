@@ -415,6 +415,9 @@
   #p-logistica .campo-chave{--c-chave:var(--cel-logistica)}
   #p-turno .campo-chave{--c-chave:var(--cel-turno)}
   .mono-sm{font-family:var(--mono);font-size:11.5px;color:var(--tx2);letter-spacing:.2px}
+  /* Um GDH que não é data assinala-se enquanto se escreve: dizê-lo só ao carregar no
+     botão é dizê-lo tarde, com o oficial já noutro campo. */
+  input[aria-invalid="true"]{border-color:var(--fogo);box-shadow:var(--ranhura), 0 0 0 2px color-mix(in srgb, var(--fogo) 28%, transparent)}
 
   .btn{font-family:var(--disp);font-weight:600;font-size:15px;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .btn:hover{filter:brightness(1.12)}.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -1347,6 +1350,7 @@
           <div id="pc-sol-box" style="display:none"><label for="pc-sol">GDH da solicitação à entidade</label><input id="pc-sol" placeholder="quando o COS pediu"></div>
         </div>
         <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pc-add">Registar nomeação</button></div>
+        <div class="msg" id="msg-pco" style="display:none"></div>
         <p class="hint"><span style="color:var(--fogo);font-weight:600">Essencial</span> · <span style="color:var(--terra);font-weight:600">recomendada</span> · <span style="color:var(--madeira);font-weight:600">de menor importância</span> — a ordem da lista acompanha a fase do SGO e o dispositivo registado, e as funções já nomeadas deixam de aparecer.</p>
         <p class="hint">A nomeação regista quem ocupa a função. O canal de cada função atribui-se no plano de comunicações, a partir dos canais atribuídos ao teatro de operações, e não se perde ao corrigir a nomeação.</p>
       </div>
@@ -1764,14 +1768,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301357_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301402_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301357_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301402_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento ================= */
@@ -2818,13 +2822,64 @@ function ultimoPOSIT(){
   return null;
 }
 /* ================= NÚCLEO · leitura de GDH e nível DECIR ================= */
+/**
+ * Lê um GDH — DDHHMMMESAA — e devolve a data, ou `null` se não for uma data real.
+ *
+ * **A validação tem de ser por ida e volta.** O construtor `Date` normaliza o impossível
+ * em silêncio: `new Date(2026,1,31)` dá 3 de março, e o `isNaN` que aqui estava achava
+ * tudo bem. Media-se `311000FEV26` e a aplicação registava 3 de março às 10h00 sem uma
+ * palavra. Num sistema em que os tempos governam as rendições, os noventa minutos, a
+ * validade do PEA e a sequência documental, um erro de dedo transformado noutra data
+ * válida é pior do que uma recusa.
+ *
+ * Agora constrói-se e confere-se: se algum componente voltar diferente do que entrou, a
+ * data não existe e recusa-se. Isto apanha 31 de fevereiro, dia 32, hora 24, minuto 60 e
+ * 29 de fevereiro em ano não bissexto — e apanha também a hora que não existe no dia da
+ * mudança para a hora de verão, que é uma recusa correta ainda que rara.
+ *
+ * @param {string} s
+ * @returns {Date|null}
+ */
 function parseGDH(s){
   if(!s) return null;
   const m = String(s).trim().toUpperCase().match(/^(\d{2})(\d{2})(\d{2})([A-Z]{3})(\d{2})$/);
   if(!m) return null;
   const mes = MES.indexOf(m[4]); if(mes<0) return null;
-  const d = new Date(2000+ +m[5], mes, +m[1], +m[2], +m[3]);
-  return isNaN(d.getTime())? null : d;
+  const dia = +m[1], hora = +m[2], min = +m[3], ano = 2000 + +m[5];
+  if(dia < 1 || dia > 31 || hora > 23 || min > 59) return null;
+  const d = new Date(ano, mes, dia, hora, min, 0, 0);
+  if(isNaN(d.getTime())) return null;
+  if(d.getFullYear() !== ano || d.getMonth() !== mes || d.getDate() !== dia
+     || d.getHours() !== hora || d.getMinutes() !== min) return null;
+  return d;
+}
+
+/**
+ * Porque é que um GDH foi recusado, em português e para o oficial ler.
+ *
+ * Recusar sem dizer porquê é meio caminho para se escrever outra coisa qualquer até o
+ * campo deixar de reclamar.
+ *
+ * @param {string} s
+ * @returns {string} vazio quando o GDH é válido ou o campo está vazio
+ */
+function motivoGDH(s){
+  const t = String(s||"").trim();
+  if(!t) return "";
+  if(parseGDH(t)) return "";
+  const m = t.toUpperCase().match(/^(\d{2})(\d{2})(\d{2})([A-Z]{3})(\d{2})$/);
+  if(!m) return "Formato de GDH: dois dígitos de dia, dois de hora, dois de minuto, três letras de mês e dois de ano — por exemplo 281200AGO26.";
+  const mes = MES.indexOf(m[4]);
+  if(mes < 0) return "Mês desconhecido: use " + MES.join(", ") + ".";
+  const dia = +m[1], hora = +m[2], min = +m[3], ano = 2000 + +m[5];
+  if(dia < 1 || dia > 31) return "Dia " + m[1] + " não existe.";
+  if(hora > 23) return "Hora " + m[2] + " não existe: o dia acaba às 23h59.";
+  if(min > 59) return "Minuto " + m[3] + " não existe.";
+  const d = new Date(ano, mes, dia, hora, min);
+  if(d.getDate() !== dia || d.getMonth() !== mes){
+    return "O mês de " + m[4] + " de " + ano + " não tem dia " + dia + ".";
+  }
+  return "Essa hora não existe nesta data — é a noite da mudança para a hora de verão.";
 }
 /**
  * Os períodos do DECIR, por ano, com a fonte de cada tabela.
@@ -2873,6 +2928,55 @@ function fonteDECIR(d){
   return t? t.fonte : "";
 }
 /* contagem consolidada do dispositivo: aeronaves, máquinas de rasto, meios e operacionais */
+
+/**
+ * Lê o GDH de um campo do formulário, recusando o que não é data.
+ *
+ * Todos os campos de GDH partilham este caminho: a validação não pode viver em cada
+ * botão, senão o próximo campo nasce sem ela. Devolve `{ok, g, d}` — `g` é o texto a
+ * guardar, já validado, ou o instante corrente quando o campo está vazio e é permitido.
+ *
+ * @param {string} id campo do formulário
+ * @param {string} caixa onde escrever a recusa
+ * @param {boolean} [vazioVale] se o vazio significa «agora»
+ * @returns {{ok:boolean, g:string, d:(Date|null)}}
+ */
+function gdhDoCampo(id, caixa, vazioVale){
+  const el = $(id);
+  const t = el? String(el.value||"").trim() : "";
+  if(!t){
+    if(vazioVale === false){
+      aviso(caixa, "err", "Indica o GDH.");
+      if(el) el.setAttribute("aria-invalid", "true");
+      return { ok:false, g:"", d:null };
+    }
+    return { ok:true, g:gdhAgora(), d:new Date(agora()) };
+  }
+  const d = parseGDH(t);
+  if(!d){
+    aviso(caixa, "err", motivoGDH(t));
+    if(el){ el.setAttribute("aria-invalid", "true"); el.focus(); }
+    return { ok:false, g:"", d:null };
+  }
+  if(el) el.removeAttribute("aria-invalid");
+  return { ok:true, g:t, d };
+}
+
+/* Marca o campo enquanto se escreve. Recusar só ao carregar no botão é dizer tarde:
+   o oficial já mudou de campo e de assunto. */
+function ligarCamposGDH(){
+  ["o-inicio","e-gdh","pc-g","pc-sol","aer-g","tn-g"].forEach(id=>{
+    const el = $(id); if(!el) return;
+    const marcar = ()=>{
+      const t = String(el.value||"").trim();
+      if(t && !parseGDH(t)){ el.setAttribute("aria-invalid","true"); el.title = motivoGDH(t); }
+      else { el.removeAttribute("aria-invalid"); el.removeAttribute("title"); }
+    };
+    el.addEventListener("input", marcar);
+    el.addEventListener("change", marcar);
+    marcar();
+  });
+}
 /* ================= NÚCLEO · descarregar ficheiros ================= */
 function descarregar(nome, texto, tipo){
   try{
@@ -6070,13 +6174,15 @@ $("pc-add").addEventListener("click", ()=>{
   const P = pcoObj();
   const idx = P.funcoes.findIndex(x=>x.f===f && f!=="Oficial de ligação de entidade" && f!=="Outra função");
   const ant = idx>=0? P.funcoes[idx] : null;
+  const qg = gdhDoCampo("pc-g", "msg-pco"), qs = gdhDoCampo("pc-sol", "msg-pco");
+  if(!qg.ok || !qs.ok) return;
   const reg = { f, nome, entidade:$("pc-e").value.trim(), ct:$("pc-c").value.trim(),
     siresp:(ant&&ant.siresp)||"", ba:(ant&&ant.ba)||"",
     /* Dois instantes distintos nos núcleos de nomeação externa (arts. 23.º n.º 2,
        24.º n.º 2 e 25.º n.º 2): o COS solicita, a entidade nomeia. `g` fica vazio
        enquanto o pedido estiver pendente — sem nome não há nomeação. */
-    solicitado: ($("pc-sol")? $("pc-sol").value.trim() : "") || (ant&&ant.solicitado) || "",
-    g: $("pc-g").value.trim() || (nome? gdhAgora() : "") };
+    solicitado: (($("pc-sol") && $("pc-sol").value.trim())? qs.g : "") || (ant&&ant.solicitado) || "",
+    g: ($("pc-g").value.trim()? qg.g : (nome? gdhAgora() : "")) };
   if(idx>=0) P.funcoes[idx] = reg; else P.funcoes.push(reg);
   ["pc-n","pc-e","pc-c","pc-g","pc-sol"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
   fita(reg.g
@@ -6090,8 +6196,9 @@ $("pc-add").addEventListener("click", ()=>{
 });
 $("aer-add").addEventListener("click", ()=>{
   const t = $("aer-t").value, ind = $("aer-i").value.trim();
-  const g = $("aer-g").value.trim(), d = parseGDH(g);
-  aerLista().push({t, ind, g: g||gdhAgora(), ts: (d? d.getTime() : Date.now())});
+  const q = gdhDoCampo("aer-g", "msg-occ");
+  if(!q.ok) return;
+  aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : Date.now())});
   $("aer-i").value=""; $("aer-g").value="";
   fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")");
   renderAereos(); comporSetores(); pintarDON(); persistir(false);
@@ -7151,7 +7258,11 @@ document.querySelectorAll("#evo-frases [data-fr]").forEach(b=>b.addEventListener
 function addEvo(){
   const t=$("e-txt").value.trim(); if(!t) return;
   if(encerrada()){ aviso("msg-occ","err","O registo está encerrado. Reabrir antes de acrescentar evolução."); return; }
-  O.evolucao.push({g:$("e-gdh").value.trim()||gdhAgora(), tipo:$("e-tipo").value, txt:t});
+  /* O GDH da evolução entrava como texto, sem ninguém o ler: «ABCD» era um GDH tão
+     bom como outro qualquer, e a fita do tempo ficava com ele. */
+  const q = gdhDoCampo("e-gdh", "msg-occ");
+  if(!q.ok) return;
+  O.evolucao.push({g:q.g, tipo:$("e-tipo").value, txt:t});
   $("e-txt").value=""; $("e-gdh").value="";
   fita("Evolução registada ("+O.evolucao[O.evolucao.length-1].tipo+")");
   try{ pintarDON(); }catch(e){}
@@ -8209,7 +8320,9 @@ function fecharTurno(){
   const t = turnoObj();
   const para = ($("tn-eq2")? $("tn-eq2").value.trim() : "");
   if(!para){ aviso("msg-turno","err","Indica a equipa que entra antes de registar a passagem."); return; }
-  const g = ($("tn-g")? $("tn-g").value.trim() : "") || gdhAgora();
+  const qg = gdhDoCampo("tn-g", "msg-turno");
+  if(!qg.ok) return;
+  const g = qg.g;
   const h = horasDeTurno();
   const registo = {
     g, de: t.equipa || "—", para, horas: h,
@@ -8506,6 +8619,7 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   try{ await carregarCanais(); }catch(e){}
   try{ initCatalogo(); }catch(e){}
   try{ montarFrases(); }catch(e){}
+  try{ ligarCamposGDH(); }catch(e){}
   if(ARMAZEM.modo==="sessao"){
     fita("AVISO: armazenamento indisponivel neste ambiente — o estado perde-se ao fechar a pagina");
     /* Aviso permanente, não uma mensagem que passa: aqui a exportação deixa de ser

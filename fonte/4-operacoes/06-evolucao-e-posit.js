@@ -2,7 +2,11 @@
 function addEvo(){
   const t=$("e-txt").value.trim(); if(!t) return;
   if(encerrada()){ aviso("msg-occ","err","O registo está encerrado. Reabrir antes de acrescentar evolução."); return; }
-  O.evolucao.push({g:$("e-gdh").value.trim()||gdhAgora(), tipo:$("e-tipo").value, txt:t});
+  /* O GDH da evolução entrava como texto, sem ninguém o ler: «ABCD» era um GDH tão
+     bom como outro qualquer, e a fita do tempo ficava com ele. */
+  const q = gdhDoCampo("e-gdh", "msg-occ");
+  if(!q.ok) return;
+  O.evolucao.push({g:q.g, tipo:$("e-tipo").value, txt:t});
   $("e-txt").value=""; $("e-gdh").value="";
   fita("Evolução registada ("+O.evolucao[O.evolucao.length-1].tipo+")");
   try{ pintarDON(); }catch(e){}

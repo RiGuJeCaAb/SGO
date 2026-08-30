@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
 | Módulos em `fonte/` | 52, em sete zonas, mais o molde |
-| Testes | 326, todos a passar |
+| Testes | 335, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -67,6 +67,50 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Robustecimento 2 de 3: o GDH deixa de inventar datas, na r0060
+
+O `Date` do JavaScript normaliza o impossível em silêncio: `new Date(2026,1,31)` dá 3 de
+março. O `parseGDH` construía a data e testava `isNaN`, que achava tudo bem. **`311000FEV26`
+entrava e ficava registado como 3 de março às 10h00.** Também `321000JAN26` (dia 32),
+`292400FEV26` (hora 24) e `291000FEV25` (29 de fevereiro num ano que não é bissexto).
+
+Num sistema em que os tempos governam as rendições, os noventa minutos do ataque
+ampliado, a validade do PEA e a sequência documental, **um erro de dedo convertido noutra
+data válida é pior do que uma recusa** — porque ninguém dá por ele.
+
+### Validação por ida e volta
+
+Constrói-se a data e conferem-se os cinco componentes: se algum voltar diferente do que
+entrou, a data não existe. Apanha os quatro casos acima, os das pontas (dia zero, minuto
+60, mês inexistente) e ainda a hora que não existe na noite da mudança para a hora de
+verão — recusa correta, ainda que rara.
+
+`motivoGDH()` diz porquê, em português e para o oficial ler: «O mês de FEV de 2026 não tem
+dia 31.» Recusar sem explicar é meio caminho para se escrever outra coisa qualquer até o
+campo deixar de reclamar.
+
+### Todas as portas, e um guarda só
+
+Havia seis campos de GDH e a validação não estava em nenhum — a evolução aceitava
+`$("e-gdh").value.trim()`, o que fazia de «ABCD» um GDH tão bom como outro. Passam todos
+por `gdhDoCampo()`: recusa, marca o campo, explica e devolve o foco. A validação não pode
+viver em cada botão, senão o próximo campo nasce sem ela.
+
+E o campo assinala-se **enquanto se escreve**, com a aresta vermelha e o motivo no título.
+Dizê-lo só ao carregar no botão é dizê-lo tarde, com o oficial já noutro campo.
+
+Quando o GDH é recusado, **o texto do registo não se perde**: fica no campo, à espera da
+data certa.
+
+### Verificação
+
+335 testes, nove novos: o parser contra os cinco casos da análise e mais seis das pontas,
+cada motivo de recusa, e cada uma das quatro portas — evolução, meio aéreo, nomeação e
+passagem de turno. Confirmado em navegador: o campo marca-se ao escrever e a evolução
+recusa com «Dia 32 não existe.»
+
+Falta o terceiro: **a aprovação do COS antes das ordens de missão.**
 
 ## Robustecimento 1 de 3: o XSS fechado, na r0060
 

@@ -167,7 +167,9 @@ function fecharTurno(){
   const t = turnoObj();
   const para = ($("tn-eq2")? $("tn-eq2").value.trim() : "");
   if(!para){ aviso("msg-turno","err","Indica a equipa que entra antes de registar a passagem."); return; }
-  const g = ($("tn-g")? $("tn-g").value.trim() : "") || gdhAgora();
+  const qg = gdhDoCampo("tn-g", "msg-turno");
+  if(!qg.ok) return;
+  const g = qg.g;
   const h = horasDeTurno();
   const registo = {
     g, de: t.equipa || "—", para, horas: h,
