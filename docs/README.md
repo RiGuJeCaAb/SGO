@@ -23,6 +23,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais |
 | `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
 | `CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md` | Triagem, achado a achado e com a prova em código, da análise clínica externa ao r0050 |
+| `202608292108_AnaliseClinicaExterna.pdf` | **Documento externo**, não escrito aqui: a análise clínica à r0051 e à r0057, que abriu a fase de robustecimento. Guarda o nome com que chegou |
 
 ## `interop/` — a ligação à Gestão PCO
 

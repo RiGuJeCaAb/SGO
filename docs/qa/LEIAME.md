@@ -24,6 +24,8 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0011_202608291730_Logistica_CLD.png` | r0056 | O mesmo, no painel de Logística |
 | `CSREPCDouro_qa0012_202608291830_Comando_CLD.png` | r0057 | Comando depois das quatro correções do p0013 |
 | `CSREPCDouro_qa0012_202608291830_Logistica_CLD.png` | r0057 | Logística com um só quadro de rendições |
+| `CSREPCDouro_qa0013_202608291930_PEAImpresso_CLD.pdf` | r0058 (paralela) | O PEA impresso no formato do modelo .docx aceite |
+| `CSREPCDouro_qa0014_202608292000_PEAImpresso_CLD.pdf` | r0059 (paralela) | O mesmo, com uma folha por célula |
 
 Os `qa0011` e `qa0012` de 29 de agosto às 17h30 e 18h30 vieram da linhagem paralela e
 repetem números que esta linhagem já tinha usado nesse dia. Distinguem-se pelo carimbo de

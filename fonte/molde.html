@@ -797,9 +797,91 @@
   }
 
   @media print{
+  /* ── modelo .docx aceite: A4, margens de 20 mm, Calibri em todo o documento ──
+     Carlito tem as métricas do Calibri e é o recurso para postos que não o tenham. */
+  @page{size:A4;margin:20mm 20mm 22mm 20mm}
+  .paper, .paper *{font-family:Calibri,Carlito,"Liberation Sans",sans-serif!important}
+  .paper{font-size:10.5pt!important;line-height:1.4!important;color:#1A1A1A!important;background:#fff!important;padding:0!important}
+
+  /* título: 17 pt, azul do modelo, centrado */
+  .paper .p-tit{font-size:17pt!important;color:#005CA9!important;font-weight:700!important;text-align:center!important;margin:0 0 4pt!important;letter-spacing:0!important}
+  .paper .p-sub{font-size:10.5pt!important;color:#1A1A1A!important;font-weight:700!important;text-align:center!important;margin:0 0 2pt!important}
+  .paper .p-sub2{font-size:10.5pt!important;color:#404040!important;font-weight:400!important;text-align:center!important;margin:0 0 6pt!important}
+  .paper .p-apr{font-size:10.5pt!important;text-align:right!important;margin:0 0 6pt!important}
+
+  /* faixa: 36 células alternadas, 4 pt de altura */
+  .paper .hz{display:flex!important;height:4pt!important;margin:6pt 0!important;gap:0!important;background:none!important;break-before:avoid!important;page-break-before:avoid!important}
+  .paper .hz i{flex:1 1 0!important;background:#C00000!important;height:4pt!important;display:block!important}
+  .paper .hz i:nth-child(even){background:#fff!important}
+
+  /* tabelas de cabeçalho: bordas de 0,75 pt em #404040, rótulos sombreados */
+  .paper table{width:100%!important;border-collapse:collapse!important;margin:0 0 6pt!important;font-size:10.5pt!important}
+  .paper .p-cab td, .paper .p-pco td{border:0.75pt solid #404040!important;padding:3pt 5pt!important;vertical-align:middle!important}
+  .paper .p-cab td.l, .paper .p-pco td.cz{background:#F2F2F2!important;font-weight:700!important}
+  .paper .p-pco td.azul{background:#005CA9!important;color:#fff!important;font-weight:700!important;text-align:center!important}
+
+  /* blocos de célula: linha de título colorida, faixa vertical, rótulo e conteúdo */
+  /* Uma folha por célula. Não é só arrumação: é o que elimina a tabela cortada a
+     meio, a faixa vertical partida entre páginas e o bloco que começa com uma linha
+     no fundo da folha. Planeamento fica com o cabeçalho; as outras abrem folha nova. */
+  .paper .cel{display:grid!important;grid-template-columns:12mm 1fr!important;margin:0!important}
+  .paper .cel.op, .paper .cel.lg{break-before:page!important;page-break-before:always!important;margin-top:0!important}
+  .paper .cel + table.t-of{break-before:avoid!important;page-break-before:avoid!important;margin-top:6pt!important}
+  .paper .cel-tit{grid-column:1/-1!important;display:block!important;font-size:12pt!important;font-weight:700!important;color:#fff!important;
+    padding:3pt 6pt!important;margin:0!important;border:0.75pt solid #404040!important;border-bottom:none!important;
+    break-after:avoid-page;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .paper .cel.pl .cel-tit{background:#3AAA35!important}
+  .paper .cel.op .cel-tit{background:#005CA9!important}
+  .paper .cel.lg .cel-tit{background:#E84E0F!important}
+  .paper .cel-corpo{display:flex!important;align-items:stretch!important}
+  /* Lombada, não legenda espalhada. As letras juntam-se ao centro do bloco com
+     entrelinha fixa: numa folha inteira, esticá-las de cima a baixo transformava o
+     nome da célula em ruído. */
+  .paper .cel-v{grid-column:1!important;display:flex!important;width:auto!important;writing-mode:initial!important;
+    flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    border:0.75pt solid #404040!important;border-right:none!important;padding:6pt 0!important;
+    font-size:7.5pt!important;font-weight:700!important;letter-spacing:.4pt!important;line-height:9pt!important;
+    text-align:center!important;color:#595959!important;background:#F2F2F2!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* No modelo as letras da faixa ficam empilhadas, uma por linha. O `letrasV()`
+     separa-as por <br>: esconder o <br> achatava a coluna e o texto transbordava
+     por cima do rótulo. Os <br> ficam; o espaço entre palavras é um vão. */
+  .paper .cel-v br{display:block!important}
+  .paper .cel-v span{display:block!important;width:auto!important;height:4pt!important}
+  .paper .cel-body{grid-column:2!important;border:0.75pt solid #404040!important}
+  .paper .cel-row{display:flex!important;align-items:stretch!important;border-bottom:0.75pt solid #404040!important;break-inside:avoid;page-break-inside:avoid}
+  .paper .cel-row:last-child{border-bottom:none!important}
+  /* 32 mm: «Prioridades táticas» e «Segurança das forças» cabem numa linha. */
+  .paper .cel-lab{flex:0 0 32mm!important;background:#F2F2F2!important;font-size:9.5pt!important;font-weight:700!important;
+    padding:5pt 6pt!important;border-right:0.75pt solid #404040!important;
+    display:flex!important;align-items:center!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Sem justificação. Numa coluna desta largura ela abre rios de espaço entre
+     palavras, que no papel se vêem mais do que no ecrã. */
+  .paper .cel-con{flex:1 1 auto!important;padding:5pt 7pt!important;text-align:left!important}
+  .paper .cel-con p, .paper p{text-align:left!important;margin:0 0 4pt!important}
+  .paper .cel-con p:last-child{margin-bottom:0!important}
+  .paper .obj2{border:none!important;background:none!important;padding:0!important;color:#1A1A1A!important}
+  .paper .obj2 .al{color:#1A1A1A!important;font-weight:700!important}
+  /* tabela horária do meteograma sem dados: cabeçalho vazio não se imprime */
+  .paper table.t-of:not(:has(td)){display:none!important}
+
+  /* tabela de missões e plano logístico */
+  .paper .t-of th{background:#005CA9!important;color:#fff!important;font-size:9.5pt!important;font-weight:700!important;
+    border:0.75pt solid #404040!important;padding:3pt 5pt!important;text-align:left!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .paper .t-of td{border:0.75pt solid #404040!important;padding:3pt 5pt!important;vertical-align:top!important}
+
+  /* rodapé de página, repetido em todas as folhas, como no modelo */
+  .paper .p-rodape{position:fixed!important;bottom:0;left:0;right:0;display:flex!important;
+    justify-content:space-between!important;font-size:8.5pt!important;color:#1A1A1A!important;
+    padding-top:2pt!important}
     *{box-shadow:none !important;transform:none !important}
     body{background:#fff}header,nav,.card,footer,.no-print,.guia,.help{display:none!important}
     .pane{display:none}.pane.print-target{display:block}
+    /* dentro do painel alvo só o documento se imprime; os cartões de trabalho não */
+    .pane.print-target > .card, .pane.print-target > .help, .pane.print-target > .guia{display:none!important}
+    .pane.print-target #pea-view{display:block!important}
     .paper{border-radius:0;padding:0;font-size:12px;margin-top:0}.wrap{padding:0;max-width:none}
     #pea-view .pea-dash{display:none!important}
     #pea-view .paper{display:block!important}

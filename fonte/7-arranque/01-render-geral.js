@@ -135,9 +135,10 @@ window.verPEA = function(n){
     <div class="paper">
       <div class="p-tit">Proposta de Plano Estratégico de Ação n.º ${p.n}</div>
       <div class="p-sub">Ocorrência n.º ${esc(p.meta.num)} — Classificação 3102 (Incêndio Rural)</div>
-      <div class="p-sub2">Documento com carácter RESERVADO — SGO (Despacho n.º 4067/2024, de 15 de abril · DL n.º 90-A/2022)</div>
+      <div class="p-sub2">${esc(p.meta.local||"")}${p.meta.pco? " · "+esc(p.meta.pco):""}</div>
       <div class="p-apr">Aprovado — O COS: ____________________</div>
-      <div class="hz">${"<i></i>".repeat(28)}</div>
+      <div class="p-rodape"><span>PEA n.º ${p.n} — Ocorrência ${esc(p.meta.num||"")}${p.meta.local? " · "+esc(p.meta.local):""}</span><span>Este documento tem carácter: RESERVADO</span></div>
+      <div class="hz">${"<i></i>".repeat(36)}</div>
       <table class="p-cab">
         <tr><td class="l">Elaborado (GDH):</td><td>${esc(p.g)}</td><td class="l">Nome do COS:</td><td>____________________</td></tr>
         <tr><td class="l">Válido até (GDH):</td><td>${jan? jan.fim+" (proposta — fecho da janela; confirmação do COS)" : "____________________"}</td><td class="l">Substitui o PEA:</td><td>${p.n>1? "N.º "+(p.n-1):"N.º 0 (inicial)"}</td></tr>
@@ -150,7 +151,9 @@ window.verPEA = function(n){
         <td class="cz" style="width:8%">Local</td><td>${esc(p.meta.pco)}</td>
       </tr></table>
 
-      <div class="cel">
+      <div class="cel pl">
+      <div class="cel-tit">Célula de Planeamento</div>
+      
         <div class="cel-v vd">${letrasV("CÉLULA DE PLANEAMENTO")}</div>
         <div class="cel-body">
           <div class="cel-row"><div class="cel-lab">Situação</div><div class="cel-con">
@@ -175,7 +178,9 @@ window.verPEA = function(n){
         </div>
       </div>
 
-      <div class="cel">
+      <div class="cel op">
+      <div class="cel-tit">Célula de Operações</div>
+      
         <div class="cel-v az">${letrasV("CÉLULA DE OPERAÇÕES")}</div>
         <div class="cel-body">
           <div class="cel-row"><div class="cel-lab">Organização do TO</div><div class="cel-con">${setoresHTML}</div></div>
@@ -188,7 +193,9 @@ window.verPEA = function(n){
       ${(p.don&&p.don.filter(x=>x.n==="ob").length)? `<table class="t-of"><tr><th class="lr" style="width:26%">Verificações da DON n.º 2 / DECIR 2026</th><th class="lr">Determinação</th></tr>
         ${p.don.filter(x=>x.n==="ob").map(x=>`<tr><td><b>${esc(x.t)}</b><br><span style="font-size:9px">${esc(x.r)}</span></td><td>${esc(x.s||"")}<br><b>Determinação:</b> ${esc(x.a||"")}</td></tr>`).join("")}</table>`:""}
 
-      <div class="cel">
+      <div class="cel lg">
+      <div class="cel-tit">Célula de Logística e Finanças — Plano Logístico</div>
+      
         <div class="cel-v lr">${letrasV("LOGÍSTICA E FINANÇAS")}</div>
         <div class="cel-body">
           <div class="cel-row"><div class="cel-lab">Plano Logístico</div><div class="cel-con">
@@ -205,11 +212,15 @@ window.verPEA = function(n){
       ${p.dados&&p.dados.anexos&&p.dados.anexos.length? `<p><b>Anexos (referência documental):</b> ${p.dados.anexos.map(esc).join("; ")}</p>`:""}
 
       <p class="p-nota">Proposta gerada automaticamente (${esc(p.modo)}) a partir de métricas determinísticas, dos dados carregados e da evolução registada. Não substitui o reconhecimento do TO nem a decisão do COS — arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022. Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, com a cooperação de Claude (Anthropic).</p>
-      <div class="hz">${"<i></i>".repeat(28)}</div>
+      <div class="hz">${"<i></i>".repeat(36)}</div>
       <div class="p-res">Este documento tem carácter: <b>RESERVADO</b></div>
     </div>`;
   document.querySelectorAll(".pane").forEach(x=>x.classList.remove("print-target"));
-  $("p-pea").classList.add("print-target");
-  $("pea-view").scrollIntoView({behavior:"smooth"});
+  /* O alvo é o painel que contém a vista do PEA, não o identificador antigo:
+     depois da arrumação por células a vista vive em Planeamento. */
+  const vistaPEA = document.getElementById("pea-view");
+  const painelPEA = (vistaPEA && vistaPEA.closest(".pane")) || $("p-planeamento") || $("p-pea");
+  if(painelPEA) painelPEA.classList.add("print-target");
+  if(vistaPEA) vistaPEA.scrollIntoView({behavior:"smooth"});
 };
 
