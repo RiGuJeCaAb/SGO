@@ -213,6 +213,22 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 13 -> 14. A proveniência da previsão meteorológica.
+   O CSV já sobrevivia ao fecho da página, dentro de `csv`. O que se perdia era tudo o
+   resto: de que fonte veio, a que horas, para que ponto, e se alguém lhe mexeu depois de
+   chegar. Sem isso, uma previsão de ontem lê-se igual a uma de há dez minutos — e num TO
+   isso não é detalhe. */
+MIGRACOES.push(e => {
+  if(!e.meteo || typeof e.meteo !== "object"){
+    e.meteo = { fonte:"", modelo:"", g:"", ts:0, lat:"", lon:"", horas:0, sha:"", mexido:false };
+  }
+  ["fonte","modelo","g","lat","lon","sha"].forEach(k=>{ if(typeof e.meteo[k] !== "string") e.meteo[k] = ""; });
+  if(typeof e.meteo.ts !== "number") e.meteo.ts = 0;
+  if(typeof e.meteo.horas !== "number") e.meteo.horas = 0;
+  e.meteo.mexido = !!e.meteo.mexido;
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -232,6 +248,9 @@ function novoEstado(){
     encerramento:{ g:"", por:"", nota:"", sha:"" },
     /* De onde veio este estado, quando veio de fora. Vazio significa que nasceu aqui. */
     integridade:{ estado:"", g:"", sha:"", app:"", ficheiro:"" },
+    /* A última previsão obtida, com a sua proveniência. O CSV vive em `csv`; aqui fica
+       de onde veio, quando, para que ponto e se foi mexido à mão depois de chegar. */
+    meteo:{ fonte:"", modelo:"", g:"", ts:0, lat:"", lon:"", horas:0, sha:"", mexido:false },
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},

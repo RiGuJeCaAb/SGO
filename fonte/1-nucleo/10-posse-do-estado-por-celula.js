@@ -21,6 +21,7 @@ const POSSE = [
   { k:"planeamento", n:"Planeamento", r:"Despacho n.º 4067/2024, arts. 26.º a 30.º",
     nota:"Elabora o plano estratégico de ação e assegura a sua permanente atualização.",
     ramos:[
+      { p:"meteo",       r:"art. 29.º — núcleo de antecipação", d:"Proveniência e idade da última previsão obtida" },
       { p:"peas",             r:"art. 27.º, n.º 1, al. a)", d:"Planos estratégicos de ação emitidos" },
       { p:"csv",              r:"art. 29.º",                d:"Série meteorológica — núcleo de antecipação" },
       { p:"avisos",           r:"art. 28.º",                d:"Avisos do IPMA para o distrito do TO" },

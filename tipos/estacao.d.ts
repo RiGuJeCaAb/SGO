@@ -187,6 +187,12 @@ interface Estado {
    */
   integridade: { estado: string; g: string; sha: string; app: string; ficheiro: string };
   /**
+   * Proveniência da última previsão obtida — art. 29.º. O CSV vive em `csv`; aqui fica
+   * de onde veio, quando, para que ponto, e se foi mexido à mão depois de chegar.
+   */
+  meteo: { fonte: string; modelo: string; g: string; ts: number; lat: string; lon: string;
+    horas: number; sha: string; mexido: boolean };
+  /**
    * Obrigações dadas por cumpridas: id da regra para `{g, por, nota}`. Só as que são ato
    * externo — ver `CUMPRIVEIS`. O que a aplicação consegue observar no estado cumpre-se
    * fazendo a coisa, não declarando que se fez.

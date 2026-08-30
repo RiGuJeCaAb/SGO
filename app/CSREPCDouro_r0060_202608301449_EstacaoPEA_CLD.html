@@ -1307,7 +1307,7 @@
         <div class="kv"><b>Cálculo (código, sem IA):</b> janela de consolidação (horas contíguas HR ≥ 50 %), rotações de vento ≥ 50° com rumo de/para, HR mín/máx e T mín/máx com GDH, horas críticas HR ≤ 20 %, assinatura convectiva (precipitação &gt; 0 com rotação).</div>
         <div class="kv"><b>Entra no PEA em:</b> Previsão, tabela horária, GDH-limite do Objetivo, fundamentos de P1/P3/P5 e gatilhos de validade.</div>
         <div class="kv"><b>Fonte hoje, alternativa:</b> chamada automática ao <code>api.open-meteo.com/v1/forecast</code> pelas coordenadas registadas em Comando, e avisos do <code>api.ipma.pt</code> pelo distrito do TO. O colar de CSV mantém-se para quando não há rede.</div>
-        <div class="kv"><b>Próximo passo:</b> reter a última previsão obtida, para que uma perda de rede não deixe o meteograma vazio.</div>
+        <div class="kv"><b>Sem rede:</b> mantém-se a última previsão obtida, e a aplicação diz a idade dela. Uma previsão velha serve para decidir desde que se saiba que é velha; passadas 3 h, avisa. A proveniência — fonte, modelo, ponto, instante — fica guardada com a ocorrência, e uma série alterada à mão depois de obtida é assinalada como tal.</div>
       </div></div>
 
       <div class="src"><div class="st ok"></div><div style="flex:1">
@@ -1651,6 +1651,7 @@
         <button class="btn btn-o" id="b-auto">Obter previsão automática (coordenadas da ocorrência)</button>
         <span class="xtr"><span class="hint" style="margin:0">ou carregar ficheiro CSV</span><input type="file" id="f-csvfile" accept=".csv,.txt" style="width:auto"></span>
       </div>
+      <div class="mono-sm" id="meteo-idade" style="margin-bottom:8px"></div>
       <div class="hint" id="meteo-info" style="margin-bottom:10px">Automática: Open-Meteo (síntese dos modelos ECMWF/ICON/GFS) no ponto exato da ocorrência, 36 horas. O CSV fica visível abaixo — editável antes de analisar. Avisos IPMA: consultar em paralelo (integração prevista).</div>
       <div id="avisos-ipma" style="margin-bottom:12px"></div>
       <textarea id="f-csv" rows="7" placeholder="Colar aqui o CSV do SpotWX (cabeçalho HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP) ou uma série no formato data;hora;T;HR;WD;WS;precip"></textarea>
@@ -1776,14 +1777,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301436_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0060</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0060_202608301449_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301436_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0060", FICHEIRO_APP = "CSREPCDouro_r0060_202608301449_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento ================= */
@@ -1814,7 +1815,7 @@ const ARMAZEM = (()=>{
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 13;
+const VERSAO_ESTADO = 14;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2084,6 +2085,22 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 13 -> 14. A proveniência da previsão meteorológica.
+   O CSV já sobrevivia ao fecho da página, dentro de `csv`. O que se perdia era tudo o
+   resto: de que fonte veio, a que horas, para que ponto, e se alguém lhe mexeu depois de
+   chegar. Sem isso, uma previsão de ontem lê-se igual a uma de há dez minutos — e num TO
+   isso não é detalhe. */
+MIGRACOES.push(e => {
+  if(!e.meteo || typeof e.meteo !== "object"){
+    e.meteo = { fonte:"", modelo:"", g:"", ts:0, lat:"", lon:"", horas:0, sha:"", mexido:false };
+  }
+  ["fonte","modelo","g","lat","lon","sha"].forEach(k=>{ if(typeof e.meteo[k] !== "string") e.meteo[k] = ""; });
+  if(typeof e.meteo.ts !== "number") e.meteo.ts = 0;
+  if(typeof e.meteo.horas !== "number") e.meteo.horas = 0;
+  e.meteo.mexido = !!e.meteo.mexido;
+  return e;
+});
+
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
@@ -2103,6 +2120,9 @@ function novoEstado(){
     encerramento:{ g:"", por:"", nota:"", sha:"" },
     /* De onde veio este estado, quando veio de fora. Vazio significa que nasceu aqui. */
     integridade:{ estado:"", g:"", sha:"", app:"", ficheiro:"" },
+    /* A última previsão obtida, com a sua proveniência. O CSV vive em `csv`; aqui fica
+       de onde veio, quando, para que ponto e se foi mexido à mão depois de chegar. */
+    meteo:{ fonte:"", modelo:"", g:"", ts:0, lat:"", lon:"", horas:0, sha:"", mexido:false },
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},
@@ -2571,6 +2591,7 @@ const POSSE = [
   { k:"planeamento", n:"Planeamento", r:"Despacho n.º 4067/2024, arts. 26.º a 30.º",
     nota:"Elabora o plano estratégico de ação e assegura a sua permanente atualização.",
     ramos:[
+      { p:"meteo",       r:"art. 29.º — núcleo de antecipação", d:"Proveniência e idade da última previsão obtida" },
       { p:"peas",             r:"art. 27.º, n.º 1, al. a)", d:"Planos estratégicos de ação emitidos" },
       { p:"csv",              r:"art. 29.º",                d:"Série meteorológica — núcleo de antecipação" },
       { p:"avisos",           r:"art. 28.º",                d:"Avisos do IPMA para o distrito do TO" },
@@ -3609,6 +3630,7 @@ const FORMA_OCORRENCIA = [
   { p:"encerramento",  t:"objeto" },
   { p:"integridade",   t:"objeto" },
   { p:"cumprimentos",  t:"objeto" },
+  { p:"meteo",         t:"objeto" },
   { p:"csv",           t:"texto"  },
   { p:"evolucao",      t:"lista", campos:{ g:"texto", tipo:"texto", txt:"texto" } },
   { p:"fita",          t:"lista", campos:{ g:"texto", e:"texto" } },
@@ -5622,12 +5644,77 @@ function analisarCSV(log=true){
     const bruto = parseCSV($("f-csv").value);
     const N = +($("m-horas").value||24);
     SERIE = bruto.slice(0, N); ANALISE = analisar(SERIE);
-    O.csv=$("f-csv").value; pintarAnalise(); $("msg-csv").style.display="none";
+    O.csv=$("f-csv").value;
+    /* O CSV é editável antes de analisar, e isso é para se poder corrigir um erro de
+       importação. Mas uma série alterada à mão não é a que a fonte deu, e a análise que
+       sai dela também não: fica dito, aqui e na linha da proveniência. */
+    try{
+      const M = meteoObj();
+      if(M.sha && !M.mexido && sha256(O.csv) !== M.sha){
+        M.mexido = true;
+        fita("Série meteorológica alterada à mão depois de obtida ("+M.fonte+", "+M.g+")");
+      }
+      pintarMeteoIdade();
+    }catch(e){}
+    pintarAnalise(); $("msg-csv").style.display="none";
     if(log){ fita("Meteograma analisado ("+SERIE.length+" h; janela "+(ANALISE.jan?hh(ANALISE.jan.i.h)+"–"+hh(ANALISE.jan.f.h+1):"inexistente")+")"); persistir(false); }
   }catch(e){ $("msg-csv").className="msg err"; $("msg-csv").textContent="Não foi possível analisar: "+e; $("msg-csv").style.display="block"; }
 }
 
 /* ================= PLANEAMENTO · meteorologia automática ================= */
+
+/** Horas a partir das quais uma previsão deixa de servir para decidir. */
+const METEO_VALIDADE_H = 3;
+
+/** O ramo da proveniência da previsão, com omissão segura. */
+function meteoObj(){
+  if(!O.meteo || typeof O.meteo !== "object") O.meteo = /** @type {Estado["meteo"]} */ ({});
+  return preencher(O.meteo, { fonte:"", modelo:"", g:"", ts:0, lat:"", lon:"", horas:0, sha:"", mexido:false });
+}
+
+/**
+ * A idade da previsão em vigor, e o que ela vale.
+ *
+ * Uma previsão de ontem lê-se igual a uma de há dez minutos se ninguém disser a idade —
+ * e num teatro de operações isso não é detalhe: a janela de consolidação, as horas
+ * críticas e as rotações de vento decidem-se sobre ela.
+ */
+function idadeMeteo(){
+  const M = meteoObj();
+  if(!M.ts) return null;
+  const h = (Date.now() - M.ts)/3600000;
+  return { h, velha: h >= METEO_VALIDADE_H, rot: fmtH(h) };
+}
+
+/** Escreve a linha da proveniência por baixo dos botões. Sem previsão, cala-se. */
+function pintarMeteoIdade(){
+  const el = $("meteo-idade"); if(!el) return;
+  const M = meteoObj(), i = idadeMeteo();
+  if(!i){ el.textContent = ""; return; }
+  el.textContent = "Última previsão: " + (M.fonte||"origem por indicar")
+    + (M.modelo? " ("+M.modelo+")" : "")
+    + ", obtida há " + i.rot + " — " + M.g
+    + (M.lat? " · ponto "+M.lat+", "+M.lon : "")
+    + (M.horas? " · "+M.horas+" h" : "")
+    + (M.mexido? " · SÉRIE ALTERADA À MÃO depois de obtida" : "")
+    + (i.velha? " · DESATUALIZADA: passaram mais de "+METEO_VALIDADE_H+" h" : "");
+  el.style.color = (i.velha || M.mexido)? "var(--terra)" : "";
+  el.style.fontWeight = (i.velha || M.mexido)? "700" : "";
+}
+
+/** Regista de onde veio a série que está no ecrã. */
+function marcarMeteo(fonte, modelo, lat, lon, horas){
+  const M = meteoObj();
+  M.fonte = fonte; M.modelo = modelo || "";
+  M.g = gdhAgora(); M.ts = Date.now();
+  M.lat = lat==null? "" : String(lat); M.lon = lon==null? "" : String(lon);
+  M.horas = horas || 0; M.mexido = false;
+  /* O resumo da série como chegou. É com ele que se sabe, mais tarde, se alguém lhe
+     mexeu à mão antes de a analisar — sem guardar uma segunda cópia do CSV. */
+  M.sha = sha256($("f-csv").value);
+  try{ pintarMeteoIdade(); }catch(e){}
+}
+
 async function meteoAutomatica(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
   if(Number.isNaN(lat)||Number.isNaN(lon)){
@@ -5658,11 +5745,26 @@ async function meteoAutomatica(){
     $("f-csv").value = linhas.join("\n");
     $("meteo-info").textContent = "Previsão obtida: Open-Meteo, ponto "+lat.toFixed(4)+", "+lon.toFixed(4)+", "+n+" horas ("+gdhAgora()+"). Análise executada.";
     fita("Meteograma automático obtido (Open-Meteo, "+n+" h, ponto "+lat.toFixed(4)+", "+lon.toFixed(4)+")");
+    marcarMeteo("Open-Meteo", "síntese ECMWF/ICON/GFS", lat.toFixed(4), lon.toFixed(4), n);
     analisarCSV(true);
     obterAvisos(true);
   }catch(e){
-    $("meteo-info").textContent = "Previsão automática indisponível: "+motivoRede(e)+" — usa o ficheiro CSV ou cola do SpotWX.";
+    /* Sem rede, a previsão que já cá está continua a servir — e o que interessa dizer é
+       a idade dela, não que a rede falhou. Um meteograma vazio num TO é pior do que um
+       meteograma velho, desde que se saiba que é velho. */
+    const i = idadeMeteo();
+    $("meteo-info").textContent = "Previsão automática indisponível: "+motivoRede(e)
+      + (i? " — mantém-se a última obtida, de há "+i.rot+" ("+meteoObj().g+")."
+             + (i.velha? " ATENÇÃO: passaram mais de "+METEO_VALIDADE_H+" h; confirma antes de decidir sobre ela." : "")
+          : " — usa o ficheiro CSV ou cola do SpotWX.");
+    if(i){
+      fita("Previsão automática indisponível ("+motivoRede(e)+"); mantida a de "+meteoObj().g+", com "+i.rot);
+      /* A série pode ter-se perdido do ecrã sem se ter perdido do estado. */
+      if(!$("f-csv").value.trim() && O.csv){ $("f-csv").value = O.csv; }
+      try{ analisarCSV(false); }catch(err){}
+    }
   }
+  try{ pintarMeteoIdade(); }catch(err){}
   btn.disabled=false; btn.textContent=rot;
 }
 $("b-auto").addEventListener("click", meteoAutomatica);
@@ -5672,6 +5774,7 @@ $("f-csvfile").addEventListener("change", e=>{
   rd.onload=()=>{ $("f-csv").value=String(rd.result).trim();
     $("meteo-info").textContent="Ficheiro carregado: "+f.name+". Análise executada.";
     fita("Meteograma carregado de ficheiro: "+f.name);
+    marcarMeteo("ficheiro "+f.name, "", $("o-lat").value, $("o-lon").value, 0);
     analisarCSV(true); };
   rd.readAsText(f);
 });
@@ -8751,6 +8854,7 @@ function pintarTudo(){
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
   try{ pintarEncerramento(); }catch(e){}
   try{ pintarProveniencia(); }catch(e){}
+  try{ pintarMeteoIdade(); }catch(e){}
 }
 
 function letrasV(txt){

@@ -109,7 +109,19 @@ function analisarCSV(log=true){
     const bruto = parseCSV($("f-csv").value);
     const N = +($("m-horas").value||24);
     SERIE = bruto.slice(0, N); ANALISE = analisar(SERIE);
-    O.csv=$("f-csv").value; pintarAnalise(); $("msg-csv").style.display="none";
+    O.csv=$("f-csv").value;
+    /* O CSV é editável antes de analisar, e isso é para se poder corrigir um erro de
+       importação. Mas uma série alterada à mão não é a que a fonte deu, e a análise que
+       sai dela também não: fica dito, aqui e na linha da proveniência. */
+    try{
+      const M = meteoObj();
+      if(M.sha && !M.mexido && sha256(O.csv) !== M.sha){
+        M.mexido = true;
+        fita("Série meteorológica alterada à mão depois de obtida ("+M.fonte+", "+M.g+")");
+      }
+      pintarMeteoIdade();
+    }catch(e){}
+    pintarAnalise(); $("msg-csv").style.display="none";
     if(log){ fita("Meteograma analisado ("+SERIE.length+" h; janela "+(ANALISE.jan?hh(ANALISE.jan.i.h)+"–"+hh(ANALISE.jan.f.h+1):"inexistente")+")"); persistir(false); }
   }catch(e){ $("msg-csv").className="msg err"; $("msg-csv").textContent="Não foi possível analisar: "+e; $("msg-csv").style.display="block"; }
 }

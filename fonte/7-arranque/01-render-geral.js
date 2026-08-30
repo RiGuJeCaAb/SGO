@@ -21,6 +21,7 @@ function pintarTudo(){
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
   try{ pintarEncerramento(); }catch(e){}
   try{ pintarProveniencia(); }catch(e){}
+  try{ pintarMeteoIdade(); }catch(e){}
 }
 
 function letrasV(txt){

@@ -15,11 +15,11 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 63, das anteriores à convenção de nomes até à r0060 |
 | Módulos em `fonte/` | 53, em sete zonas, mais o molde |
-| Testes | 345, todos a passar |
+| Testes | 349, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 13 |
+| Versão do estado gravado | 14 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -67,6 +67,38 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## A previsão que fica, na r0060
+
+O último ponto da lista da análise. A série já sobrevivia ao fecho da página, dentro de
+`csv`; o que se perdia era tudo o resto — de que fonte veio, a que horas, para que ponto,
+e se alguém lhe mexeu depois de chegar. **Uma previsão de ontem lê-se igual a uma de há dez
+minutos quando ninguém diz a idade**, e é sobre ela que se decidem a janela de consolidação,
+as horas críticas e as rotações de vento.
+
+O ramo `meteo` guarda a proveniência. A linha por cima do meteograma diz sempre: «Última
+previsão: Open-Meteo (síntese ECMWF/ICON/GFS), obtida há 2 h 00 min — 301151AGO26 · ponto
+41.2029, -7.2149 · 36 h». Passadas **3 h** avisa que está desatualizada, a âmbar e a negrito.
+
+**Sem rede, mantém-se o que há.** Antes, uma falha de rede deixava a mensagem de erro e o
+meteograma como estivesse. Agora repõe-se a série retida no ecrã, refaz-se a análise, e
+diz-se a idade: *«Previsão automática indisponível: falha de rede — mantém-se a última
+obtida, de há 2 h 00 min.»* Um meteograma velho serve para decidir; um meteograma vazio
+não serve para nada. O que não pode é o oficial não saber qual dos dois tem à frente.
+
+### E a série alterada à mão
+
+O CSV é editável antes de analisar, e deve continuar a ser — é assim que se corrige um erro
+de importação. Mas a série alterada não é a que a fonte deu, e a análise que sai dela também
+não. Guarda-se o **resumo SHA-256 da série como chegou**, e não uma segunda cópia dela: se o
+que se analisa não bate com o que se recebeu, fica assinalado na linha da proveniência e na
+fita do tempo. Era outro dos pontos da análise, e sai barato por o carimbo já existir.
+
+### Verificação
+
+349 testes, quatro novos. Confirmado em navegador com a rede cortada ao servidor da
+Open-Meteo: a série retida volta ao ecrã, a análise refaz-se, e as duas linhas dizem a
+idade e a proveniência.
 
 ## E o que vinha a seguir: o ficheiro que entra, na r0060
 

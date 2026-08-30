@@ -1307,7 +1307,7 @@
         <div class="kv"><b>Cálculo (código, sem IA):</b> janela de consolidação (horas contíguas HR ≥ 50 %), rotações de vento ≥ 50° com rumo de/para, HR mín/máx e T mín/máx com GDH, horas críticas HR ≤ 20 %, assinatura convectiva (precipitação &gt; 0 com rotação).</div>
         <div class="kv"><b>Entra no PEA em:</b> Previsão, tabela horária, GDH-limite do Objetivo, fundamentos de P1/P3/P5 e gatilhos de validade.</div>
         <div class="kv"><b>Fonte hoje, alternativa:</b> chamada automática ao <code>api.open-meteo.com/v1/forecast</code> pelas coordenadas registadas em Comando, e avisos do <code>api.ipma.pt</code> pelo distrito do TO. O colar de CSV mantém-se para quando não há rede.</div>
-        <div class="kv"><b>Próximo passo:</b> reter a última previsão obtida, para que uma perda de rede não deixe o meteograma vazio.</div>
+        <div class="kv"><b>Sem rede:</b> mantém-se a última previsão obtida, e a aplicação diz a idade dela. Uma previsão velha serve para decidir desde que se saiba que é velha; passadas 3 h, avisa. A proveniência — fonte, modelo, ponto, instante — fica guardada com a ocorrência, e uma série alterada à mão depois de obtida é assinalada como tal.</div>
       </div></div>
 
       <div class="src"><div class="st ok"></div><div style="flex:1">
@@ -1651,6 +1651,7 @@
         <button class="btn btn-o" id="b-auto">Obter previsão automática (coordenadas da ocorrência)</button>
         <span class="xtr"><span class="hint" style="margin:0">ou carregar ficheiro CSV</span><input type="file" id="f-csvfile" accept=".csv,.txt" style="width:auto"></span>
       </div>
+      <div class="mono-sm" id="meteo-idade" style="margin-bottom:8px"></div>
       <div class="hint" id="meteo-info" style="margin-bottom:10px">Automática: Open-Meteo (síntese dos modelos ECMWF/ICON/GFS) no ponto exato da ocorrência, 36 horas. O CSV fica visível abaixo — editável antes de analisar. Avisos IPMA: consultar em paralelo (integração prevista).</div>
       <div id="avisos-ipma" style="margin-bottom:12px"></div>
       <textarea id="f-csv" rows="7" placeholder="Colar aqui o CSV do SpotWX (cabeçalho HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP) ou uma série no formato data;hora;T;HR;WD;WS;precip"></textarea>

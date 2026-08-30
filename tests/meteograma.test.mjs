@@ -98,3 +98,65 @@ test('uma hora isolada acima dos 50 % não é janela de consolidação', semApli
   assert.equal(util.jan.i.rh, 55);
   assert.equal(util.jan.f.rh, 60);
 });
+
+/* ---- a última previsão fica, e diz a idade ---- */
+
+const doc = () => janela.document;
+const est = () => avaliar(janela, 'O');
+
+test('a previsão obtida guarda de onde veio, e para que ponto', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  doc().getElementById('f-csv').value = CSV_ENSAIO;
+  janela.marcarMeteo('Open-Meteo', 'síntese ECMWF/ICON/GFS', '41.2029', '-7.2149', 36);
+  const M = est().meteo;
+  assert.equal(M.fonte, 'Open-Meteo');
+  assert.equal(M.modelo, 'síntese ECMWF/ICON/GFS');
+  assert.equal(M.lat, '41.2029');
+  assert.equal(M.horas, 36);
+  assert.ok(M.ts > 0 && M.g, 'sem instante não há idade');
+  assert.match(M.sha, /^[0-9a-f]{64}$/, 'o resumo da série é o que denuncia a alteração à mão');
+  assert.equal(M.mexido, false);
+});
+
+test('a idade lê-se, e passadas três horas avisa', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  const M = janela.meteoObj();
+  assert.equal(janela.idadeMeteo(), null, 'sem previsão não há idade nenhuma');
+
+  M.fonte = 'Open-Meteo'; M.g = '301200AGO26';
+  M.ts = janela.agora() - 1.5 * 3600000;
+  assert.equal(janela.idadeMeteo().velha, false);
+  janela.pintarMeteoIdade();
+  assert.match(doc().getElementById('meteo-idade').textContent, /obtida há 1 h 30 min/);
+
+  M.ts = janela.agora() - 5 * 3600000;
+  assert.equal(janela.idadeMeteo().velha, true);
+  janela.pintarMeteoIdade();
+  const linha = doc().getElementById('meteo-idade');
+  assert.match(linha.textContent, /DESATUALIZADA/);
+  assert.equal(linha.style.fontWeight, '700', 'uma previsão velha não pode ler-se como uma fresca');
+});
+
+test('uma série mexida à mão depois de obtida é assinalada', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  doc().getElementById('f-csv').value = CSV_ENSAIO;
+  janela.marcarMeteo('Open-Meteo', '', '41.2', '-7.2', 36);
+  janela.analisarCSV(false);
+  assert.equal(est().meteo.mexido, false, 'analisar o que veio não é mexer');
+
+  // o oficial corrige uma linha antes de analisar — é para isso que o campo é editável
+  doc().getElementById('f-csv').value = CSV_ENSAIO.replace(',30,25,', ',30,45,');
+  janela.analisarCSV(false);
+  assert.equal(est().meteo.mexido, true);
+  assert.ok(est().fita.some((x) => /alterada à mão/.test(x.e)), 'a alteração tem de ficar na fita');
+
+  janela.pintarMeteoIdade();
+  assert.match(doc().getElementById('meteo-idade').textContent, /SÉRIE ALTERADA À MÃO/);
+});
+
+test('a previsão atravessa a migração com a proveniência vazia', semAplicacao, () => {
+  const m = janela.migrarGravado({ versao: 13, meta: { num: '1' }, csv: 'x' });
+  assert.equal(m.meteo.fonte, '', 'não se inventa de onde veio');
+  assert.equal(m.meteo.ts, 0);
+  assert.equal(m.meteo.mexido, false);
+});

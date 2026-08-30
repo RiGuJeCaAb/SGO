@@ -29,6 +29,7 @@ const FORMA_OCORRENCIA = [
   { p:"encerramento",  t:"objeto" },
   { p:"integridade",   t:"objeto" },
   { p:"cumprimentos",  t:"objeto" },
+  { p:"meteo",         t:"objeto" },
   { p:"csv",           t:"texto"  },
   { p:"evolucao",      t:"lista", campos:{ g:"texto", tipo:"texto", txt:"texto" } },
   { p:"fita",          t:"lista", campos:{ g:"texto", e:"texto" } },
