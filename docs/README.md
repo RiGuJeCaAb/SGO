@@ -40,6 +40,13 @@ validar uma exportação.
 | `CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md` | Arquivado. Escrito a analisar um esboço anterior; o seu autor corrigiu-se. Dele vieram os três acréscimos da v1.2 |
 | `exemplos/` | Um ficheiro por envelope que o importador lê, e o validador que os confere |
 
+## `cartografia/` — o alvo do mapa
+
+Cartas de uma ocorrência real, anotadas no posto de comando: carta militar, relevo e
+satélite do mesmo teatro. Não são doutrina nem prova de verificação — são o que o mapa
+operacional tem de conseguir dizer, e a leitura do que ainda lhe falta está em
+`cartografia/LEIAME.md`.
+
 ## `qa/` — provas de verificação
 
 Capturas de ecrã que acompanham uma revisão e mostram o que ela mudou. Ver `qa/LEIAME.md`.
@@ -59,4 +66,5 @@ se usa.
 - Uma decisão sobre a ligação à Gestão PCO → `interop/`.
 - Uma proposta técnica ou um desenho → raiz de `docs/`, com nome pela convenção.
 - Uma captura que prove o que uma revisão mudou → `qa/`, e uma linha em `qa/LEIAME.md`.
+- Uma carta anotada de uma ocorrência real → `cartografia/`, e uma linha em `cartografia/LEIAME.md`.
 - O que mudou nesta sessão → `ESTADO.md`, sempre.

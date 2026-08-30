@@ -46,6 +46,7 @@ Abre como ficheiro local, sem servidor, sem instalação, sem passo de compilaç
 | `docs/interop/` | A ligação à Gestão PCO: esquemas, contrato e exemplos de referência |
 | `docs/fontes/` | Documentos doutrinários externos, citados em `docs/FONTES.md` |
 | `docs/qa/` | Provas de verificação em imagem, uma por revisão que as trouxe |
+| `docs/cartografia/` | Cartas de uma ocorrência real, anotadas no PCO. É o alvo do mapa operacional |
 
 Os dois que se leem primeiro, em qualquer sessão: `docs/ESTADO.md`, para saber onde se está,
 e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificação completa.
