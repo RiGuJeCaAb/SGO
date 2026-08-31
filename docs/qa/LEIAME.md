@@ -38,3 +38,43 @@ data e ficam como vieram: renumerá-los partiria a referência dos documentos qu
 Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exceções às
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o
 que está no ecrã é o que se queria.
+
+## qa0022 — r0070, frentes com direção e leitura da evolução
+
+`qa0022_r0070_FrentesComDirecao_CLD.png` — duas frentes traçadas sobre a grelha portuguesa,
+sem carta de fundo: uma cabeça a 175° e um flanco a 53°, cada uma com a sua seta de
+progressão, o limite do setor Bravo a tracejado e os pontos marcados. Os rótulos ficam
+atrás da frente, do lado que já ardeu: a primeira versão punha-os no vértice inicial e duas
+frentes que começassem perto punham dois rótulos em cima um do outro.
+
+`qa0022_r0070_LeituraDaEvolucao_CLD.png` — a mesma ocorrência, lida por escrito. Diz para
+onde cada frente progride e de onde veio o rumo, assinala a divergência de 144° entre o
+rumo declarado e o que a composição de declive e vento dá, lista o que está no corredor por
+distância, dá a intensidade e o que ela decide na manobra, e fecha com o que a leitura
+**não** afirma.
+
+## qa0023 — r0072, meios posicionados
+
+`qa0023_r0072_MeiosPosicionados_CLD.png` — o GRIR Guarda e o BRIR BSE desenhados onde estão,
+com as frentes, as duas linhas e o limite do setor Bravo.
+
+`qa0023_r0072_LeituraComMeios_CLD.png` — a leitura da mesma ocorrência. A frase que faltava
+está na primeira alínea, a negrito: **«No corredor de progressão desta frente: GRIR Guarda a
+1,1 km; BRIR BSE a 2,2 km.»** E no fim, a ressalva que a torna honesta: dos 3 meios do
+dispositivo, 2 têm posição — o que a leitura diz sobre meios no caminho vale só para esses.
+
+## qa0024 — r0072, a dívida cartográfica saldada
+
+`qa0024_r0072_CartaCompleta_CLD.png` — as sete linhas da tabela de `docs/cartografia/`, na
+mesma carta: limite do setor Bravo, cabeça e flanco com seta de progressão, linha de
+contenção por abrir e linha de apoio, GRIR Guarda e BRIR BSE onde estão, pontos notáveis, e
+as três notas escritas por cima do sítio a que dizem respeito. O aviso a negrito, as outras
+não.
+
+`qa0024_r0072_LeituraCompleta_CLD.png` — a leitura da mesma ocorrência.
+
+## qa0025 — r0072, focos de calor
+
+Cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
+**por baixo** de tudo o que o posto desenhou à mão: são observação de satélite, e o que o
+posto traçou tem precedência de leitura sobre o que a máquina viu.

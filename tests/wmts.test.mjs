@@ -223,3 +223,137 @@ test('mas uma carta {z}/{x}/{y} continua a preencher os seus', semAplicacao, asy
   assert.equal(el('carta-zmax').value, '17');
   await janela.retirarCarta();
 });
+
+/* ---- os requisitos do §17 do relatório de cartografia ---- */
+
+test('a versão lê-se pelo nome da raiz, e um WMS colado por engano di-lo', semAplicacao, () => {
+  /* O engano provável: quem tem os dois endereços à mão cola o de WMS. Responder «raiz
+     WMT_MS_Capabilities» é verdade e não diz o que fazer a seguir. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMS_Capabilities version="1.3.0"><Service/></WMS_Capabilities>'), /WMS 1\.3\.0.*não um WMTS/s);
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMT_MS_Capabilities version="1.1.1"><Service/></WMT_MS_Capabilities>'), /WMS 1\.1\.1/);
+  /* e o atributo `version` não manda: aqui diz 1.3.0 e a raiz diz 1.1.1 */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMT_MS_Capabilities version="1.3.0"/>'), /WMS 1\.1\.1/, 'julgou pelo atributo em vez da raiz');
+});
+
+test('um documento com entidades próprias não é interpretado', semAplicacao, () => {
+  /* Entidades que se expandem uma na outra esgotam a memória antes de o documento acabar.
+     O navegador não resolve entidades externas, mas expande as internas. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<!DOCTYPE x [<!ENTITY a "aaaa"><!ENTITY b "&a;&a;&a;">]><Capabilities>&b;</Capabilities>'),
+    /entidades próprias/);
+});
+
+test('mas o DOCTYPE do WMS 1.1.1 é norma, e não se confunde com um ataque', semAplicacao, () => {
+  /* A primeira versão desta guarda recusava qualquer DOCTYPE. As nove capturas de WMS
+     1.1.1 trazem-no todas, por norma, e recebiam a mensagem errada. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://x/wms.dtd"><WMT_MS_Capabilities/>'),
+    /WMS 1\.1\.1/, 'a guarda de entidades comeu o reconhecimento do protocolo');
+});
+
+test('o formato sai da lista da aplicação, não da que o serviço anuncia', semAplicacao, () => {
+  const c = daqui(cap());
+  const cam = c.camadas.find((x) => x.id === 'ortos');
+  cam.formatos = ['application/vnd.mapbox-vector-tile', 'image/tiff'];
+  const r = janela.wmtsCarta(c, 'ortos');
+  assert.equal(r.ok, false, 'adotou uma camada que não sabe desenhar');
+  assert.match(r.motivo, /mapbox-vector-tile/, 'devia dizer o que o serviço oferecia: ' + r.motivo);
+
+  /* e escolhe pela ordem de preferência declarada, não pela ordem do serviço */
+  cam.formatos = ['image/jpeg', 'image/png'];
+  assert.equal(janela.wmtsCarta(c, 'ortos').carta.formato, 'image/png', 'PNG antes de JPEG, para carta');
+});
+
+test('uma camada com um eixo temporal serve-se, com a data à vista', semAplicacao, () => {
+  /* Até à r0072 era recusada por completo — a recusa estava certa e o resultado era inútil,
+     porque recusava exatamente as camadas por que se olhava para o serviço. Agora lê-se o
+     eixo, indica-se o valor no pedido, e a data fica escrita por baixo do mapa. */
+  const c = daqui(cap());
+  const cam = c.camadas.find((x) => x.id === 'ortos');
+  cam.dimensoes = [{ id: 'Time', uom: 'ISO8601', omissao: '2026-08-30',
+    valores: ['2026-08-01/2026-08-30/P1D'] }];
+  const r = janela.wmtsCarta(c, 'ortos');
+  assert.ok(r.ok, r.motivo);
+  assert.equal(r.carta.dim.id, 'Time');
+  assert.equal(r.carta.dim.valor, '2026-08-30', 'devia tomar o valor por omissão do serviço');
+  /* e o valor entra no pedido, tanto no modelo RESTful como no KVP */
+  cam.recursos = [{ modelo: 'https://x/{Layer}/{Style}/{Time}/{TileMatrix}/{TileRow}/{TileCol}.png', formato: 'image/png' }];
+  const u = janela.wmtsEndereco(janela.wmtsCarta(c, 'ortos').carta, 14, 7835, 6135);
+  assert.match(u, /\/2026-08-30\//);
+  assert.ok(!/\{/.test(u), 'ficou marcador por preencher: ' + u);
+});
+
+test('dois eixos além do espaço são recusados, porque o mapa só sabe indicar um', semAplicacao, () => {
+  /* Servir com um só era escolher o outro em silêncio, que é o que esta regra existe para
+     impedir. */
+  const c = daqui(cap());
+  c.camadas.find((x) => x.id === 'ortos').dimensoes = [
+    { id: 'Time', valores: [] }, { id: 'Elevation', valores: [] }];
+  const r = janela.wmtsCarta(c, 'ortos');
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /2 eixos além do espaço \(Time, Elevation\)/);
+});
+
+test('uma data que o serviço não declara é recusada, e diz-se o que isso quer dizer', semAplicacao, () => {
+  /* «Não há dados desse dia» é diferente de «não houve deteções nesse dia», e a segunda a
+     aplicação não a pode saber de todo. Um mosaico vazio e um mosaico que não existe são
+     coisas diferentes. */
+  const c = daqui(cap());
+  c.camadas.find((x) => x.id === 'ortos').dimensoes = [{ id: 'Time', omissao: '2026-08-30',
+    valores: ['2026-08-01/2026-08-10/P1D', '2026-08-20/2026-08-30/P1D'] }];
+  janela.eval('CARTA = null');
+  const r = janela.wmtsCarta(c, 'ortos');
+  janela.eval('CARTA = ' + JSON.stringify(daqui(r.carta)));
+  assert.equal(janela.mudarDimensaoDaCarta('2026-08-15').ok, false, 'aceitou uma data do buraco');
+  assert.match(janela.mudarDimensaoDaCarta('2026-08-15').motivo, /não haver deteções/i);
+  assert.equal(janela.mudarDimensaoDaCarta('2026-08-05').ok, true);
+  assert.equal(avaliar(janela, 'CARTA').dim.valor, '2026-08-05');
+  assert.equal(janela.mudarDimensaoDaCarta('').ok, false);
+});
+
+test('um passo que não é de dias inteiros não se dá por sabido', semAplicacao, () => {
+  /* Responder «essa data não existe» quando não se sabe é tão errado como responder que
+     existe. Aqui a aplicação abstém-se, e di-lo. */
+  const dim = { id: 'Time', valores: ['2026-08-01/2026-08-30/PT6H'] };
+  assert.equal(janela.dataNaDimensao(dim, '2026-08-15'), null, 'devia abster-se');
+  assert.equal(janela.dataNaDimensao(dim, '2027-01-01'), false, 'fora do intervalo é fora');
+});
+
+test('um passo de mais de um dia salta os dias que não existem', semAplicacao, () => {
+  const dim = { id: 'Time', valores: ['2026-08-01/2026-08-31/P8D'] };
+  assert.equal(janela.dataNaDimensao(dim, '2026-08-09'), true);
+  assert.equal(janela.dataNaDimensao(dim, '2026-08-10'), false);
+});
+
+test('os parâmetros do pedido fundem-se com os do endereço, sem os repetir', semAplicacao, () => {
+  /* O MapServer publica `...?map=/caminho/servico.map&`. Colar os nossos a seguir deixava
+     o pedido com o parâmetro repetido, e qual vale é escolha do servidor. */
+  const u = janela.kvpFundido('http://s/cgi-bin/mapserv?map=/d/o.map', { SERVICE: 'WMTS', TILEROW: '3' });
+  assert.match(u, /map=/, 'perdeu o parâmetro que o serviço declarou');
+  assert.match(u, /SERVICE=WMTS/);
+  assert.equal(u.split('TILEROW=').length - 1, 1);
+
+  /* de igual nome, o nosso manda — e a chave KVP não distingue maiúsculas */
+  const v = janela.kvpFundido('http://s/w?service=WMS&x=1', { SERVICE: 'WMTS' });
+  assert.equal(v.split(/service=/i).length - 1, 1, 'ficou com SERVICE duas vezes: ' + v);
+  assert.match(v, /SERVICE=WMTS/);
+  assert.match(v, /x=1/, 'deitou fora um parâmetro do serviço');
+});
+
+test('o endereço da DGT sobrevive à fusão tal como o serviço o publica', semAplicacao, () => {
+  const u = janela.kvpFundido('http://cartografia.dgterritorio.gov.pt/ortos2018/service?', { SERVICE: 'WMTS' });
+  assert.equal(u, 'http://cartografia.dgterritorio.gov.pt/ortos2018/service?SERVICE=WMTS');
+});
+
+test('em file:// o http do serviço fica como está', semAplicacao, () => {
+  /* O relatório pedia promoção a HTTPS sempre. A DGT publica só em http, e promover às
+     cegas trocava um serviço que responde por um que não existe. Numa página segura o
+     navegador recusaria o http de qualquer modo, e aí promover é a única hipótese. */
+  assert.equal(janela.location.protocol, 'file:', 'este teste pressupõe file://');
+  assert.equal(janela.httpsSeForPreciso('http://cartografia.dgterritorio.gov.pt/x'),
+    'http://cartografia.dgterritorio.gov.pt/x');
+  assert.equal(janela.httpsSeForPreciso('https://x/y'), 'https://x/y');
+});

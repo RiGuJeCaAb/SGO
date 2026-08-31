@@ -135,7 +135,7 @@ function renderSetores(){
   $("s-livre").checked = !!e.livre;
   $("d-setores").style.display = e.livre? "":"none";
   $("s-lista").style.display = e.livre? "none":"";
-  while(e.setores.length < e.n) e.setores.push({estado:ESTADOS_SETOR[0],cmd:"",ct:"",adj:"",m:"",o:"",lat:"",lon:"",tip:[]});
+  while(e.setores.length < e.n) e.setores.push({estado:ESTADOS_SETOR[0],cmd:"",ct:"",adj:"",m:"",o:"",lat:"",lon:"",limite:[],tip:[]});
   e.setores.length = e.n;
   e.setores.forEach(x=>{ x.tip = x.tip||[]; x.estado = migrarEstado(x.estado); });
   const L = $("s-lista");
@@ -195,7 +195,11 @@ function renderSetores(){
       /* A quantidade é comodidade de escrita, não forma do estado: cria n unidades
          independentes, cada uma com o seu relógio e a sua origem daí para a frente. */
       for(let k=0;k<Math.max(1,Math.round(q));k++){
-        e.setores[i].tip.push({t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent});
+        /* Cada unidade leva identificador próprio desde que nasce. É por ele que a
+           posição no mapa lhe fica presa: a posição na lista muda quando alguém move uma
+           unidade de setor, e a coordenada passaria para a unidade errada. */
+        e.setores[i].tip.push({ id:"u"+(ts+k).toString(36)+Math.random().toString(36).slice(2,6),
+          t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent, lat:null, lon:null, posG:"", posPor:"" });
       }
       fita("Atribuído "+q+"× "+t+(ent? " ("+ent+")":"")+" ao Setor "+NOMES_SETOR[i]);
       renderSetores(); pintarDON(); persistir(false);

@@ -33,6 +33,19 @@ const WMTS_ESCALA_0 = 559082264.0287178;
 /** O canto superior esquerdo do Web Mercator, em metros. */
 const WMTS_TOPO_3857 = 20037508.342789244;
 
+/**
+ * Os formatos de mosaico que esta aplicação sabe desenhar.
+ *
+ * **Lista da aplicação, não a lista anunciada pelo serviço.** Um serviço pode oferecer
+ * mosaicos vetoriais, GeoTIFF ou KML; adotar a camada por o serviço a anunciar e só
+ * descobrir na hora que a imagem não desenha é descobrir tarde — num posto de comando, com
+ * a carta a faltar. O que não estiver aqui não se adota, e diz-se qual era o formato.
+ *
+ * A ordem é a de preferência: PNG para carta, que tem linhas e texto e não gosta de
+ * artefactos; JPEG para ortofoto, que é fotografia e comprime melhor assim.
+ */
+const WMTS_FORMATOS = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"];
+
 /* ---- leitura do XML ----
    Percorre-se por `localName`, e não por nome qualificado. Um WMTS mistura os espaços de
    nomes `wmts` e `ows`, e cada serviço escolhe os seus prefixos: procurar por `wmts:Layer`
@@ -47,9 +60,40 @@ function wmtsTexto(el, nome){
   const c = wmtsFilhos(el, nome)[0];
   return c? c.textContent.trim() : "";
 }
-/** Todos os descendentes com este nome local, a qualquer profundidade. */
+/**
+ * Todos os descendentes com este nome local, a qualquer profundidade.
+ *
+ * **Caminha-se a árvore à mão, de propósito.** A primeira versão fazia
+ * `[...el.getElementsByTagName("*")].filter(...)`, que é a forma óbvia e é a forma lenta:
+ * a coleção devolvida é *viva*, e espalhá-la faz o motor voltar a percorrer a árvore a
+ * cada passo do iterador. No `GetCapabilities` do NASA GIBS — 5,8 MB, 62 034 elementos,
+ * 1 315 camadas — isso não terminou em cinco minutos. A caminhada por
+ * `firstElementChild`/`nextElementSibling` percorre os mesmos 62 034 em 38 ms.
+ *
+ * Pela mesma razão nunca se escreve `for(...; i < col.length; i++)` sobre uma coleção
+ * viva: o comprimento é recalculado a cada volta.
+ */
 function wmtsTodos(el, nome){
-  return el? [...el.getElementsByTagName("*")].filter(x=>x.localName === nome) : [];
+  const out = [];
+  if(!el) return out;
+  (function anda(e){
+    for(let c = e.firstElementChild; c; c = c.nextElementSibling){
+      if(c.localName === nome) out.push(c);
+      anda(c);
+    }
+  })(el);
+  return out;
+}
+
+/** O primeiro descendente com este nome local, sem percorrer o resto da árvore. */
+function wmtsPrimeiro(el, nome){
+  if(!el) return null;
+  for(let c = el.firstElementChild; c; c = c.nextElementSibling){
+    if(c.localName === nome) return c;
+    const f = wmtsPrimeiro(c, nome);
+    if(f) return f;
+  }
+  return null;
 }
 
 /**
@@ -95,6 +139,25 @@ function wmtsCRS(txt){
  */
 function lerCapacidadesWMTS(xml){
   const texto = String(xml||"");
+
+  /* **Um WMTS não traz declaração de tipo de documento.** Uma que apareça ou é outro
+     protocolo, ou vem a tentar alguma coisa — entidades que se expandem uma na outra até
+     esgotar a memória, ou uma entidade externa a apontar para um ficheiro local. O
+     `DOMParser` do navegador não resolve entidades externas, mas expande as internas, e
+     este ficheiro pode ter chegado por correio a quem o abre.
+
+     A primeira versão desta guarda recusava qualquer DOCTYPE, e recusava mal: **o WMS
+     1.1.1 declara um por norma** — as nove capturas de 1.1.1 em `tests/fixtures/` trazem
+     todas `<!DOCTYPE WMT_MS_Capabilities SYSTEM ...>`. Quem colasse um endereço de WMS
+     recebia «declara entidades próprias» em vez de saber que tinha o protocolo errado.
+     Por isso lê-se o **nome** da declaração: os nomes conhecidos seguem para a mensagem
+     que explica o que aquilo é, e só o resto é recusado aqui. */
+  const dt = /<!DOCTYPE\s+([A-Za-z_][\w.:-]*)/i.exec(texto.slice(0, 4000));
+  const nomeConhecido = dt && /^(html|WMT_MS_Capabilities|WMS_Capabilities|Capabilities)$/i.test(dt[1]);
+  if((dt && !nomeConhecido) || /<!ENTITY/i.test(texto))
+    throw new Error("O documento declara entidades próprias ou um tipo de documento que não"
+      + " é de nenhum serviço de cartografia conhecido. Não foi interpretado.");
+
   const doc = new DOMParser().parseFromString(texto, "text/xml");
   const raiz = doc.documentElement;
 
@@ -104,19 +167,27 @@ function lerCapacidadesWMTS(xml){
      `ows:ExceptionReport` do GeoServer. Julgar pelo código de estado dava-as por boas; e
      recusá-las com «a raiz não é Capabilities» esconderia o que o servidor explicou.
      Diz-se o que ele disse. */
-  const excecao = doc.getElementsByTagName("*");
-  for(let i=0;i<excecao.length;i++){
-    if(excecao[i].localName === "ExceptionText" || excecao[i].localName === "ServiceException"){
-      /* O código está ora no elemento do texto, ora no `ows:Exception` que o embrulha —
-         e é `parentElement`, não `parentNode`: o pai de um elemento de topo é o documento,
-         que não tem atributos. */
-      const pai = excecao[i].parentElement;
-      const cod = excecao[i].getAttribute("exceptionCode")
-        || (pai && pai.getAttribute("exceptionCode"))
-        || excecao[i].getAttribute("code") || "";
-      throw new Error("O serviço recusou o pedido"+(cod? " ("+cod+")" : "")+": "
-        + excecao[i].textContent.trim().slice(0, 160));
-    }
+  /* Decide-se **pela raiz**, e não à procura por toda a árvore. Um relatório de exceção da
+     OGC é um documento inteiro, não um elemento escondido dentro de umas capacidades: a
+     raiz é `ExceptionReport` ou `ServiceExceptionReport`. Procurar por todo o lado custava
+     uma travessia dos 62 034 elementos de um serviço grande para não encontrar nada, em
+     todos os documentos bons. */
+  const RAIZ_ERRO = /^(ExceptionReport|ServiceExceptionReport|ExceptionText|ServiceException)$/;
+  const erro = raiz && RAIZ_ERRO.test(raiz.localName)
+    ? (raiz.localName === "ExceptionText" || raiz.localName === "ServiceException"
+        ? raiz
+        : (wmtsPrimeiro(raiz, "ExceptionText") || wmtsPrimeiro(raiz, "ServiceException") || raiz))
+    : null;
+  if(erro){
+    /* O código está ora no elemento do texto, ora no `ows:Exception` que o embrulha —
+       e é `parentElement`, não `parentNode`: o pai de um elemento de topo é o documento,
+       que não tem atributos. */
+    const pai = erro.parentElement;
+    const cod = erro.getAttribute("exceptionCode")
+      || (pai && pai.getAttribute("exceptionCode"))
+      || erro.getAttribute("code") || "";
+    throw new Error("O serviço recusou o pedido"+(cod? " ("+cod+")" : "")+": "
+      + erro.textContent.trim().slice(0, 160));
   }
   /* O `ortosat2023` devolve os cabeçalhos HTTP **repetidos dentro do corpo**, antes do
      HTML — de modo que o documento nem sequer começa por `<`. Salta-se o que vier antes
@@ -133,6 +204,22 @@ function lerCapacidadesWMTS(xml){
 
   const malformado = doc.getElementsByTagName("parsererror")[0];
   if(malformado) throw new Error("O documento não é XML válido.");
+
+  /* **A versão lê-se pelo nome do elemento raiz.** Não pelo atributo `version`, que o
+     serviço preenche como quer, nem pelo parâmetro que se pediu — pedir `VERSION=1.3.0` e
+     receber 1.1.1 é comum, e quem julgar pelo pedido lê o documento errado.
+
+     Os nomes de raiz de WMS estão aqui de propósito. Das vinte e três capturas em
+     `tests/fixtures/capacidades/`, dezoito são WMS: é o engano provável de quem tem os
+     dois endereços à mão, e responder «raiz WMT_MS_Capabilities» a quem colou um WMS não
+     lhe diz o que fazer a seguir. */
+  const WMS = { WMS_Capabilities:"1.3.0", WMT_MS_Capabilities:"1.1.1" };
+  const versaoWMS = (raiz && WMS[raiz.localName]) || (dt && WMS[dt[1]]) || "";
+  if(versaoWMS)
+    throw new Error("Isto é um serviço WMS "+versaoWMS+", não um WMTS. O WMS"
+      + " desenha uma imagem à medida do pedido; o mapa desta aplicação trabalha por"
+      + " mosaicos. Procura o endereço WMTS do mesmo serviço.");
+
   if(!raiz || raiz.localName !== "Capabilities")
     throw new Error("Não é um GetCapabilities de WMTS (raiz «"+(raiz? raiz.localName : "vazia")+"»).");
 
@@ -154,7 +241,7 @@ function lerCapacidadesWMTS(xml){
     wmtsTodos(op, "Get").forEach(g=>{
       const href = g.getAttribute("xlink:href") || g.getAttribute("href") || "";
       const cod = wmtsTodos(g, "Value").map(v=>v.textContent.trim().toUpperCase());
-      if(href && (!cod.length || cod.includes("KVP"))) kvp = kvp || href;
+      if(href && (!cod.length || cod.includes("KVP"))) kvp = kvp || httpsSeForPreciso(href);
     });
   });
 
@@ -198,9 +285,29 @@ function lerCapacidadesWMTS(xml){
         id: wmtsTexto(s, "Identifier"), omissao: s.getAttribute("isDefault") === "true"
       })).filter(s=>s.id),
       conjuntos: wmtsTodos(lx, "TileMatrixSetLink").map(l=>wmtsTexto(l, "TileMatrixSet")).filter(Boolean),
+      /* **As dimensões.** Uma camada pode ter um eixo além do espaço — o tempo, quase
+         sempre: uma série de ortofotos por ano, um índice diário. O pedido tem de o
+         indicar, e quem o omite recebe o valor por omissão que o serviço escolheu.
+
+         Não é hipótese: nas capturas de WMS do EFFIS, em `tests/fixtures/capacidades/`,
+         as camadas declaram `<Dimension name="time" default="2019-01-01">`. Um mapa que
+         omitisse o tempo mostrava 2019 a quem estava a decidir sobre hoje, e mostrava-o
+         sem dizer nada. Num incêndio ativo isso é pior do que não ter carta.
+
+         O construtor de endereços desta aplicação não preenche dimensões. Enquanto não
+         preencher, uma camada que declare uma é **recusada** — não servida por omissão. */
+      dimensoes: wmtsTodos(lx, "Dimension").map(d=>({
+        id: wmtsTexto(d, "Identifier") || d.getAttribute("name") || "dimensão sem nome",
+        uom: wmtsTexto(d, "UOM"),
+        omissao: wmtsTexto(d, "Default"),
+        /* Os valores declarados. No GIBS são intervalos `início/fim/passo`, e **têm
+           buracos**: entre 2024-03-19 e 2024-03-25 não há nada. É essa lista que permite
+           dizer «não há dados nesse dia» em vez de pedir um mosaico que não existe. */
+        valores: wmtsFilhos(d, "Value").map(v=>v.textContent.trim()).filter(Boolean)
+      })).filter(d=>d.id),
       recursos: wmtsTodos(lx, "ResourceURL")
         .filter(r=>r.getAttribute("resourceType") === "tile")
-        .map(r=>({ modelo: r.getAttribute("template") || "", formato: r.getAttribute("format") || "" }))
+        .map(r=>({ modelo: httpsSeForPreciso(r.getAttribute("template") || ""), formato: r.getAttribute("format") || "" }))
         .filter(r=>r.modelo),
       bbox: bbox? { inf: canto(wmtsTexto(bbox, "LowerCorner")), sup: canto(wmtsTexto(bbox, "UpperCorner")) } : null
     };
@@ -285,19 +392,128 @@ function wmtsEndereco(c, z, x, y){
       .replace(/\{TileRow\}/gi, String(y))
       .replace(/\{TileCol\}/gi, String(x))
       .replace(/\{Style\}/gi, c.estilo || "default")
-      .replace(/\{Layer\}/gi, c.camada);
+      .replace(/\{Layer\}/gi, c.camada)
+      /* O modelo do GIBS traz `{Time}` — o nome do marcador é o identificador da dimensão,
+         e compara-se sem distinguir maiúsculas porque cada serviço o escreve à sua maneira. */
+      .replace(new RegExp("\\{" + (c.dim? c.dim.id : "\u0000") + "\\}", "gi"), c.dim? c.dim.valor : "");
   }
   if(!c.kvp) return "";
-  const sep = c.kvp.includes("?") ? (c.kvp.endsWith("?") || c.kvp.endsWith("&") ? "" : "&") : "?";
-  return c.kvp + sep + [
-    "SERVICE=WMTS", "VERSION=1.0.0", "REQUEST=GetTile",
-    "LAYER=" + encodeURIComponent(c.camada),
-    "STYLE=" + encodeURIComponent(c.estilo || "default"),
-    "TILEMATRIXSET=" + encodeURIComponent(c.conjunto),
-    "TILEMATRIX=" + encodeURIComponent(matriz),
-    "TILEROW=" + y, "TILECOL=" + x,
-    "FORMAT=" + encodeURIComponent(c.formato || "image/png")
-  ].join("&");
+  /* **Os parâmetros fundem-se, não se colam.** O endereço declarado pelo serviço pode já
+     trazer os seus — o MapServer publica `...?map=/caminho/servico.map&`, e há quem
+     publique já com `SERVICE=WMTS` lá dentro. Colar os nossos a seguir com `&` deixava o
+     pedido com o parâmetro repetido, e qual dos dois vale é escolha do servidor. Aqui os
+     do serviço ficam e os nossos mandam sobre os de igual nome. */
+  return kvpFundido(c.kvp, {
+    SERVICE:"WMTS", VERSION:"1.0.0", REQUEST:"GetTile",
+    LAYER:c.camada, STYLE:c.estilo || "default",
+    TILEMATRIXSET:c.conjunto, TILEMATRIX:matriz,
+    TILEROW:String(y), TILECOL:String(x),
+    FORMAT:c.formato || "image/png"
+  }, c.dim? { [c.dim.id.toUpperCase()]: c.dim.valor } : null);
+}
+
+/**
+ * Funde parâmetros num endereço que já pode trazer os seus, sem os repetir.
+ *
+ * Os do endereço ficam; os passados aqui mandam sobre os de igual nome, comparado sem
+ * distinguir maiúsculas — a norma diz que a chave KVP é insensível a elas, e um serviço
+ * que publique `service=WMTS` no seu endereço não deve receber `SERVICE=WMTS` a seguir.
+ *
+ * @param {string} base o endereço declarado pelo serviço
+ * @param {Object<string,string>} pars os parâmetros a impor
+ * @param {Object<string,string>|null} [extra] mais parâmetros, como o valor de uma dimensão
+ * @returns {string} o endereço completo
+ */
+function kvpFundido(base, pars, extra){
+  const corte = String(base).indexOf("?");
+  const raiz = corte < 0 ? String(base) : String(base).slice(0, corte);
+  const q = new URLSearchParams(corte < 0 ? "" : String(base).slice(corte + 1));
+  const todos = Object.assign({}, pars, extra || {});
+  Object.keys(todos).forEach(k=>{
+    [...q.keys()].forEach(j=>{ if(j.toUpperCase() === k.toUpperCase()) q.delete(j); });
+    q.set(k, todos[k]);
+  });
+  return raiz + "?" + q.toString();
+}
+
+/**
+ * Promove um endereço a HTTPS, mas só onde isso é ganho e não perda.
+ *
+ * O relatório de cartografia pede promoção sempre. **Não se fez sempre, e a razão está nas
+ * capturas:** a Direção-Geral do Território publica o serviço em `http://` e só em
+ * `http://`. Promover às cegas trocava um serviço que responde por um que não existe.
+ *
+ * A regra fica pela consequência real. Numa página servida por HTTPS, o navegador recusa
+ * conteúdo em claro de qualquer modo: aí promover é a única hipótese de a carta aparecer, e
+ * não se perde nada por tentar. Num ficheiro aberto de `file://`, que é como esta aplicação
+ * se usa no posto, o `http://` funciona — e é o que a DGT tem.
+ */
+function httpsSeForPreciso(u){
+  const url = String(u||"");
+  const paginaSegura = typeof location !== "undefined" && location.protocol === "https:";
+  return (paginaSegura && /^http:\/\//i.test(url)) ? url.replace(/^http:/i, "https:") : url;
+}
+
+/**
+ * Os intervalos de uma dimensão, já em números.
+ *
+ * Um valor `2020-01-01/2020-03-17/P1D` é um intervalo com passo; um valor solto é uma data
+ * única. O passo lê-se em dias — `P1D`, `P8D` — e um passo que não seja de dias inteiros não
+ * se converte: fica declarado como desconhecido, e a verificação de disponibilidade
+ * abstém-se em vez de responder mal.
+ *
+ * @returns {{de:number, ate:number, passoDias:number|null, texto:string}[]}
+ */
+function intervalosDaDimensao(dim){
+  if(!dim || !Array.isArray(dim.valores)) return [];
+  return dim.valores.map(v=>{
+    const p = String(v).split("/");
+    const de = Date.parse(p[0]);
+    if(!Number.isFinite(de)) return null;
+    if(p.length === 1) return { de, ate:de, passoDias:1, texto:v };
+    const ate = Date.parse(p[1]);
+    if(!Number.isFinite(ate)) return null;
+    const m = p[2] ? /^P(\d+)D$/i.exec(p[2].trim()) : null;
+    return { de, ate, passoDias: p[2] ? (m ? +m[1] : null) : 1, texto:v };
+  }).filter(Boolean).sort((a,b)=>a.de - b.de);
+}
+
+/**
+ * Esta data está declarada pela dimensão?
+ *
+ * Responde `true`, `false` ou `null` — e o `null` é o que interessa: quando o passo não é de
+ * dias inteiros a aplicação **não sabe** se aquela data existe, e dizer que não existe seria
+ * tão errado como dizer que existe.
+ *
+ * Note-se o que isto **não** responde: se há ou não deteções naquele dia. Um mosaico vazio e
+ * um mosaico que não existe são coisas diferentes, e só a segunda se pode saber daqui.
+ *
+ * @returns {boolean|null}
+ */
+function dataNaDimensao(dim, data){
+  const t = Date.parse(String(data||""));
+  if(!Number.isFinite(t)) return false;
+  const iv = intervalosDaDimensao(dim);
+  if(!iv.length) return null;
+  let incerto = false;
+  for(const i of iv){
+    if(t < i.de || t > i.ate) continue;
+    if(i.passoDias === null){ incerto = true; continue; }
+    /* Dentro do intervalo, só os múltiplos do passo a partir do início existem. Uma data que
+       caia entre dois passos **não existe** — não é incerta: o passo é conhecido, e a conta
+       fecha. Confundir uma coisa com a outra fazia a aplicação abster-se de dizer o que
+       sabia. */
+    const d = Math.round((t - i.de) / 86400000);
+    if(d % i.passoDias === 0) return true;
+  }
+  return incerto ? null : false;
+}
+
+/** A última data que a dimensão declara, que é a mais recente que se pode pedir. */
+function ultimaDataDaDimensao(dim){
+  const iv = intervalosDaDimensao(dim);
+  if(!iv.length) return "";
+  return new Date(iv[iv.length-1].ate).toISOString().slice(0, 10);
 }
 
 /**
@@ -312,6 +528,14 @@ function wmtsCarta(cap, camadaId, conjuntoId){
   const cam = cap.camadas.find(c=>c.id === camadaId);
   if(!cam) return { ok:false, motivo:"Camada não encontrada no serviço." };
 
+  /* **Uma dimensão serve-se; duas não.** A aplicação tem um campo para indicar um valor, e
+     uma camada com eixo temporal *e* eixo de altitude precisaria de dois — servi-la com um
+     só era escolher o outro em silêncio, que é o que esta regra existe para impedir. */
+  const dims = cam.dimensoes || [];
+  if(dims.length > 1)
+    return { ok:false, motivo:"a camada tem "+dims.length+" eixos além do espaço ("
+      + dims.map(d=>d.id).join(", ")+") e o mapa só sabe indicar um" };
+
   const candidatos = conjuntoId? [conjuntoId] : cam.conjuntos;
   let escolhido = null, comp = null, motivos = [];
   for(const id of candidatos){
@@ -324,17 +548,31 @@ function wmtsCarta(cap, camadaId, conjuntoId){
   if(!escolhido)
     return { ok:false, motivo:"Nenhum conjunto de matrizes desta camada serve. "+motivos.join("; ")+"." };
 
-  /* O formato: prefere-se PNG, que é o que a carta costuma ser; JPEG serve para ortofoto. */
-  const fmt = cam.formatos.find(f=>/png/i.test(f)) || cam.formatos.find(f=>/jpe?g/i.test(f)) || cam.formatos[0] || "image/png";
-  const rec = cam.recursos.find(r=>r.formato === fmt) || cam.recursos[0] || null;
+  /* O formato sai de `WMTS_FORMATOS`, pela ordem de preferência que lá está declarada, e
+     **não do primeiro que o serviço anuncie**. Sem nenhum em comum, recusa-se e diz-se o
+     que o serviço oferecia: é informação para quem procura outra camada, e a alternativa
+     era adotar a carta e só falhar ao desenhar. */
+  const oferecidos = cam.formatos.map(f=>f.trim().toLowerCase());
+  const fmt = WMTS_FORMATOS.find(f=>oferecidos.includes(f));
+  if(!fmt)
+    return { ok:false, motivo:"nenhum formato desenhável: o serviço oferece "
+      + (cam.formatos.join(", ") || "nenhum") + " e o mapa desenha " + WMTS_FORMATOS.join(", ") };
+  const rec = cam.recursos.find(r=>r.formato.trim().toLowerCase() === fmt)
+    || cam.recursos.find(r=>oferecidos.includes(r.formato.trim().toLowerCase())) || null;
   const estilo = (cam.estilos.find(s=>s.omissao) || cam.estilos[0] || {}).id || "default";
 
   if(!rec && !cap.kvp)
     return { ok:false, motivo:"O serviço não declara nem modelo de endereço nem ponto de acesso KVP para os mosaicos." };
 
+  /* O valor da dimensão: o que o serviço declara por omissão, que no GIBS acompanha a
+     última data disponível. Guarda-se também a lista de intervalos, porque é a única
+     maneira de mais tarde dizer que uma data pedida não existe. */
+  const dim = dims[0] || null;
   return { ok:true, carta:{
     tipo:"wmts",
     camada:cam.id, camadaTitulo:cam.titulo,
+    dim: dim? { id:dim.id, uom:dim.uom, valor:dim.omissao || ultimaDataDaDimensao(dim),
+      omissao:dim.omissao, valores:dim.valores } : null,
     conjunto:escolhido.id, estilo, formato:fmt, grelha:comp.grelha,
     modelo: rec? rec.modelo : "", kvp: cap.kvp,
     niveis: comp.niveis, zMin: comp.zMin, zMax: comp.zMax,
@@ -359,4 +597,28 @@ function wmtsInventario(cap){
       zMin:r.ok? r.carta.zMin : null, zMax:r.ok? r.carta.zMax : null,
       formatos:cam.formatos };
   });
+}
+
+/**
+ * Muda a data — ou o valor da dimensão — da carta em uso.
+ *
+ * Recusa o que o serviço não declara. Pedir um mosaico de um dia que não existe devolve
+ * erro ou, pior, um quadrado vazio que se lê como «não houve nada ali»: **um mosaico vazio
+ * e um mosaico que não existe são coisas diferentes**, e só a segunda se sabe daqui.
+ *
+ * @returns {{ok:boolean, motivo?:string, valor?:string, incerto?:boolean}}
+ */
+function mudarDimensaoDaCarta(valor){
+  if(!CARTA || !CARTA.dim) return { ok:false, motivo:"A carta em uso não tem eixo nenhum além do espaço." };
+  const v = String(valor||"").trim();
+  if(!v) return { ok:false, motivo:"Indica o valor do eixo «"+CARTA.dim.id+"»." };
+  const ha = dataNaDimensao(CARTA.dim, v);
+  if(ha === false)
+    return { ok:false, motivo:"O serviço não declara «"+v+"» para o eixo "+CARTA.dim.id
+      + ". A última data declarada é "+(ultimaDataDaDimensao(CARTA.dim) || "nenhuma")+"."
+      + " Não há dados desse dia — o que é diferente de não haver deteções nesse dia, e essa"
+      + " a aplicação não a pode saber." };
+  CARTA.dim.valor = v;
+  fita("Carta em "+CARTA.dim.id+" = "+v);
+  return { ok:true, valor:v, incerto: ha === null };
 }

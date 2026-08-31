@@ -46,12 +46,17 @@ test('não há capturas por registar nem registos sem captura', async () => {
 
 /* ---- o que as capturas provam ---- */
 
-test('das cinco capturas de WMTS, uma só é um WMTS', semAplicacao, async () => {
+test('dos cinco endereços nacionais de WMTS, um só é um WMTS', semAplicacao, async () => {
   /* O ponto de partida do trabalho de cartografia era que havia vários serviços WMTS
      oficiais para escolher. Havia um. Os outros quatro respondem erro — e respondem-no com
-     HTTP 200, que é a razão de o interpretador não poder confiar no código de estado. */
+     HTTP 200, que é a razão de o interpretador não poder confiar no código de estado.
+
+     O sexto ficheiro desta pasta é o do NASA GIBS, capturado depois e por outra razão: é
+     internacional, e entrou como teste de esforço. Conta-se à parte para a proporção
+     nacional continuar a dizer o que dizia. */
   const lidos = [], recusados = [];
   for (const f of (await readdir(new URL('wmts/', RAIZ))).sort()) {
+    if (/gibs/.test(f)) continue;
     try { janela.lerCapacidadesWMTS(await ler('wmts/' + f)); lidos.push(f); }
     catch (e) { recusados.push([f, e.message]); }
   }
@@ -185,7 +190,7 @@ test('adotar a camada leva a grelha consigo, e o mapa passa a trabalhar nela', s
   await janela.retirarCarta();
 });
 
-test('a DGT abre o CORS e o ICNF não, que é o que decide o que é utilizável', async () => {
+test('a DGT e a NASA abrem o CORS; o ICNF não, e é isso que decide o que é utilizável', async () => {
   /* Uma página em `file://` tem origem opaca: sem `Access-Control-Allow-Origin` o navegador
      recusa a resposta antes de o código a ver. O manifesto dizia, ao princípio, que todos
      os anfitriões o abriam — não abrem. Os seis dos serviços do ICNF não trazem cabeçalho
@@ -197,7 +202,7 @@ test('a DGT abre o CORS e o ICNF não, que é o que decide o que é utilizável'
     if (!h.trim()) { vazios.push(f); continue; }
     (/Access-Control-Allow-Origin:\s*\*/i.test(h) ? comCORS : semCORS).push(f);
   }
-  assert.equal(comCORS.length, 17, 'os serviços da DGT abriam todos o CORS');
+  assert.equal(comCORS.length, 18, 'os serviços da DGT e o GIBS abriam todos o CORS');
   assert.deepEqual(semCORS, [
     'headers_icnf_areas_ardidas_130.txt',
     'headers_icnf_bdg_111.txt',
@@ -207,4 +212,98 @@ test('a DGT abre o CORS e o ICNF não, que é o que decide o que é utilizável'
   ], 'mudou quem abre o CORS: rever o que a aplicação pode ler');
   /* uma das capturas ficou sem cabeçalhos nenhuns, e fica registado que ficou */
   assert.deepEqual(vazios, ['headers_icnf_areas_ardidas_111.txt']);
+});
+
+/* ---- o documento grande ---- */
+
+test('o maior GetCapabilities conhecido lê-se em tempo de posto de comando', semAplicacao, async () => {
+  /* O NASA GIBS publica 5,8 MB, 62 034 elementos e 1 315 camadas. É o teste de esforço do
+     interpretador, e apanhou um defeito que nenhum documento pequeno apanhava: a travessia
+     fazia `[...el.getElementsByTagName("*")]`, e espalhar uma coleção *viva* faz o motor
+     voltar a percorrer a árvore a cada passo do iterador. Não terminava em cinco minutos.
+
+     Com a caminhada por `firstElementChild` lê-se em cerca de dois segundos. O limite aqui
+     é generoso de propósito — a máquina de um posto é mais lenta do que esta, e o que se
+     quer travar é a regressão para tempo quadrático, não afinar milissegundos. */
+  const xml = await ler('wmts/wmts_gibs_3857.xml');
+  const t0 = Date.now();
+  const c = janela.lerCapacidadesWMTS(xml);
+  const lido = Date.now() - t0;
+  assert.ok(lido < 20000, 'leu em ' + lido + ' ms: alguma travessia voltou a ser quadrática');
+  assert.equal(c.camadas.length, 1315);
+  assert.equal(Object.keys(c.conjuntos).length, 7);
+  assert.equal(c.atribuicao, 'National Aeronautics and Space Administration');
+
+  /* e o inventário das 1 315 camadas não pode ser mais caro do que a leitura */
+  const t1 = Date.now();
+  const L = janela.wmtsInventario(c);
+  assert.ok(Date.now() - t1 < 5000, 'o inventário demorou ' + (Date.now() - t1) + ' ms');
+  assert.equal(L.length, 1315);
+});
+
+test('o GIBS é todo Web Mercator, e por isso a grelha portuguesa não o serve', semAplicacao, async () => {
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  Object.values(c.conjuntos).forEach((cj) => assert.equal(cj.crs, 'EPSG:3857', cj.id));
+  /* O `SupportedCRS` vem em URN longo com versão de autoridade — `urn:ogc:def:crs:EPSG:6.18:3:3857`
+     — e é aí que o leitor de códigos tem de acertar no último segmento. */
+  const comp = janela.wmtsCompativel(c.conjuntos.GoogleMapsCompatible_Level8);
+  assert.equal(comp.ok, true, comp.motivo);
+  assert.equal(comp.grelha, 'mercator');
+  assert.equal(comp.zMax, 8, 'as anomalias térmicas param no nível 8, a 611 m por pixel');
+});
+
+test('o eixo temporal deixou de ser motivo de recusa, e o GIBS abre', semAplicacao, async () => {
+  /* Antes da r0072 uma camada com dimensão era recusada por completo: 1 210 das 1 315 do
+     GIBS ficavam de fora. Com a dimensão lida e indicada no pedido, a maior parte serve. */
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const L = janela.wmtsInventario(c);
+  assert.ok(L.filter((x) => x.serve).length > 1000, 'servem ' + L.filter((x) => x.serve).length);
+  const tc = L.find((x) => x.id === 'VIIRS_NOAA20_CorrectedReflectance_TrueColor');
+  assert.equal(tc.serve, true, tc.motivo);
+});
+
+test('as anomalias térmicas continuam de fora — e não é pelo tempo, é pelo formato', semAplicacao, async () => {
+  /* **Correção ao que se esperava.** O relatório de fontes internacionais e o registo desta
+     linhagem davam a entender que ler o eixo `Time` traria o fogo ativo do GIBS para dentro
+     do mapa. Não traz: as dezoito camadas de anomalias térmicas são servidas **só** em
+     `application/vnd.mapbox-vector-tile`, que não é imagem e que este mapa não desenha.
+
+     A conclusão do §4 do relatório fica reforçada, e é ela que vale: a via para focos de
+     calor é a API de pontos do FIRMS, não o mosaico do GIBS. */
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const term = janela.wmtsInventario(c).filter((x) => /Thermal_Anomalies/.test(x.id));
+  assert.equal(term.length, 18);
+  term.forEach((x) => {
+    assert.equal(x.serve, false, x.id);
+    assert.match(x.motivo, /nenhum formato desenhável/, x.id);
+    assert.match(x.motivo, /mapbox-vector-tile/, x.id);
+    assert.ok(!/eixo/.test(x.motivo), 'ainda recusada pelo tempo: ' + x.id);
+  });
+});
+
+test('o pedido leva a data, e a linha continua antes da coluna', semAplicacao, async () => {
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const r = await janela.wmtsCarta(c, 'VIIRS_NOAA20_CorrectedReflectance_TrueColor');
+  assert.ok(r.ok, r.motivo);
+  assert.equal(r.carta.dim.id, 'Time');
+  assert.equal(r.carta.dim.valor, '2026-08-31', 'o valor por omissão do serviço');
+  const u = janela.wmtsEndereco(r.carta, 7, 61, 48);
+  assert.match(u, /\/2026-08-31\//, 'o {Time} do modelo não foi preenchido: ' + u);
+  assert.ok(u.endsWith('/48/61.jpeg'), 'a linha tem de vir antes da coluna: ' + u);
+  assert.ok(!/\{/.test(u), 'ficou um marcador por preencher: ' + u);
+});
+
+test('os buracos declarados pelo GIBS são buracos, e a aplicação vê-os', semAplicacao, async () => {
+  /* Os intervalos das anomalias térmicas têm falhas — entre 2024-03-19 e 2024-03-25 não há
+     nada. Um mapa que não distinga «não há dados nesse dia» de «não há deteções» induz em
+     erro por omissão, e a segunda coisa a aplicação não a pode saber de todo. */
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const cam = c.camadas.find((x) => x.id === 'VIIRS_NOAA20_Thermal_Anomalies_375m_All');
+  const dim = cam.dimensoes[0];
+  assert.equal(dim.id, 'Time');
+  assert.equal(janela.dataNaDimensao(dim, '2024-03-18'), true, 'dentro do intervalo');
+  assert.equal(janela.dataNaDimensao(dim, '2024-03-22'), false, 'está no buraco declarado');
+  assert.equal(janela.dataNaDimensao(dim, '2019-06-01'), false, 'antes do primeiro intervalo');
+  assert.equal(janela.dataNaDimensao(dim, 'ontem'), false, 'uma data que não é data');
+  assert.equal(janela.ultimaDataDaDimensao(dim), '2026-08-31');
 });

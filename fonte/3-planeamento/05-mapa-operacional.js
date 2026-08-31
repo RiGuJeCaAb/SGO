@@ -44,6 +44,48 @@
 let CARTA = null;
 const CARTA_CHAVE = "peaapp:carta";
 
+/**
+ * A carta pré-descarregada que está no arquivo deste dispositivo.
+ *
+ * Não é um serviço: é uma árvore de mosaicos que alguém pôs cá dentro de propósito. Mas
+ * precisa de duas coisas que um serviço declara e ela não: **em que projeção está** e
+ * **de quem é**.
+ *
+ * A projeção não é detalhe. Uma árvore do esquema `{z}/{x}/{y}` é Web Mercator; o conjunto
+ * `PTTM_06` da Direção-Geral do Território é PT-TM06 e numera os quadrados exatamente do
+ * mesmo modo. Sem a declaração, `grelhaAtual` devolvia a portuguesa sempre que não houvesse
+ * serviço — e uma árvore do OpenStreetMap era desenhada com a aritmética errada: carta no
+ * ecrã, tudo fora do sítio, e nada a assinalá-lo.
+ *
+ * @type {null|{grelha:string, atrib:string, por:string, g:string}}
+ */
+let CARTA_LOCAL = null;
+const CARTA_LOCAL_CHAVE = "peaapp:cartalocal";
+
+/** Lê a declaração da carta pré-descarregada deste dispositivo. */
+async function carregarCartaLocal(){
+  try{
+    const r = await ARMAZEM.get(CARTA_LOCAL_CHAVE);
+    const c = JSON.parse(r.value);
+    if(c && GRELHAS[c.grelha]) CARTA_LOCAL = c;
+  }catch(e){ CARTA_LOCAL = null; }
+  return CARTA_LOCAL;
+}
+
+/** Declara a projeção e a origem da carta pré-descarregada. */
+async function declararCartaLocal(grelha, atrib){
+  if(!GRELHAS[grelha]) return null;
+  CARTA_LOCAL = { grelha, atrib:String(atrib||"").trim(), por:quemRegista(), g:gdhAgora() };
+  try{ await ARMAZEM.set(CARTA_LOCAL_CHAVE, JSON.stringify(CARTA_LOCAL)); }catch(e){}
+  return CARTA_LOCAL;
+}
+
+/** Esquece a declaração, quando se esquecem os quadrados a que dizia respeito. */
+async function esquecerCartaLocal(){
+  CARTA_LOCAL = null;
+  try{ await ARMAZEM.del(CARTA_LOCAL_CHAVE); }catch(e){}
+}
+
 /** Lê o serviço configurado neste dispositivo. */
 async function carregarCarta(){
   try{
@@ -172,6 +214,14 @@ const GRELHAS = {
 const WMTS_PIXEL_OGC = 0.00028;
 
 /**
+ * Quantas camadas de um serviço se pintam de uma vez.
+ *
+ * Vinte cabem num ecrã de posto sem obrigar a percorrer a página. Acima disso aparece o
+ * campo de procura, e diz-se quantas ficaram de fora — que é diferente de não as ter.
+ */
+const WMTS_LISTA_MAX = 20;
+
+/**
  * A grelha em que o mapa está a trabalhar.
  *
  * Decide-a a carta: um serviço `{z}/{x}/{y}` é Web Mercator por definição, um WMTS traz a
@@ -181,6 +231,10 @@ const WMTS_PIXEL_OGC = 0.00028;
 function grelhaAtual(){
   if(CARTA && CARTA.grelha && GRELHAS[CARTA.grelha]) return GRELHAS[CARTA.grelha];
   if(CARTA && CARTA.tipo === "xyz") return GRELHAS.mercator;
+  /* Sem serviço, quem manda é a carta que está no arquivo — se houver alguma e se a sua
+     projeção tiver sido declarada. É o único sítio onde essa informação existe: os
+     ficheiros não a trazem e a numeração dos quadrados é igual nas duas grelhas. */
+  if(CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]) return GRELHAS[CARTA_LOCAL.grelha];
   return GRELHAS.pttm06;
 }
 
@@ -211,8 +265,46 @@ let MAPA_URLS = [];
  * @returns {boolean} se houve por onde enquadrar
  */
 function enquadrarMapa(larg, altMax){
-  const Q = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
-  if(!Q) return false;
+  /* A caixa do croqui é o ponto de partida — é lá que está a regra da extensão mínima —,
+     mas **não chega**: o croqui não desenha frentes nem limites de setor, e o mapa desenha.
+     Uma frente traçada fora daquela caixa ficava fora do ecrã, e o cartão do mapa nem
+     abria numa ocorrência que só tivesse frentes traçadas. Alarga-se aqui, num sítio só. */
+  const Q0 = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
+  const Q = Q0 || { minLat:Infinity, maxLat:-Infinity, minLon:Infinity, maxLon:-Infinity };
+  const juntar = (la, lo)=>{
+    if(!Number.isFinite(la) || !Number.isFinite(lo)) return;
+    if(la < Q.minLat) Q.minLat = la; if(la > Q.maxLat) Q.maxLat = la;
+    if(lo < Q.minLon) Q.minLon = lo; if(lo > Q.maxLon) Q.maxLon = lo;
+  };
+  frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
+  notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
+  /* Os focos **não** entram no enquadramento: um foco a duzentos quilómetros — e o serviço
+     devolve o que a caixa pedida contiver — afastava o mapa até o teatro ser um ponto. */
+  (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
+  /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
+     propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
+     a pena mostrar —, mas o mapa não é para ver: é para **desenhar**. Enquanto não abria com
+     o ponto sozinho havia uma armadilha fechada sobre si mesma: para traçar uma frente era
+     preciso o mapa aberto, e para o mapa abrir era preciso já haver uma frente traçada. */
+  const laO = parseFloat(String(O.meta.lat).replace(",", ".")),
+        loO = parseFloat(String(O.meta.lon).replace(",", "."));
+  juntar(laO, loO);
+  if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
+  /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
+     frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
+  if(!Q0){
+    const MIN = 2000, mLat = 111320, mLon = 111320*Math.cos((Q.minLat+Q.maxLat)/2*Math.PI/180);
+    const abrir = (min, max, mPorGrau)=>{
+      const falta = MIN - (max-min)*mPorGrau;
+      if(falta <= 0) return [min, max];
+      const meio = (min+max)/2, meia = MIN/2/mPorGrau;
+      return [meio-meia, meio+meia];
+    };
+    [Q.minLat, Q.maxLat] = abrir(Q.minLat, Q.maxLat, mLat);
+    [Q.minLon, Q.maxLon] = abrir(Q.minLon, Q.maxLon, mLon);
+  }
   MAPA.larg = larg || MAPA.larg || 640;
   /* A altura segue a proporção do teatro, e não uma proporção fixa. Um incêndio quase
      quadrado numa tela deitada obrigava a afastar até caber na altura, e metade do mapa
@@ -334,22 +426,27 @@ async function guardarMosaico(z, x, y, b){
  * as ferramentas de exportação as escrevem.
  *
  * @param {FileList|File[]} ficheiros
- * @returns {Promise<{n:number, ignorados:number, semArquivo:number, niveis:number[]}>}
+ * @returns {Promise<{n:number, ignorados:number, semArquivo:number, exemplo:string, niveis:number[]}>}
  */
 async function carregarMosaicosLocais(ficheiros){
   const L = Array.from(ficheiros||[]);
-  let n = 0, semArvore = 0, semArquivo = 0;
+  let n = 0, semArvore = 0, semArquivo = 0, exemplo = "";
   const niveis = new Set();
   for(const f of L){
-    const t = mosaicoDoCaminho(f.webkitRelativePath || f.name);
-    if(!t){ semArvore++; continue; }
+    const c = f.webkitRelativePath || f.name;
+    const t = mosaicoDoCaminho(c);
+    /* Guarda-se um caminho recusado para o poder mostrar. Uma mensagem que diz «nenhum
+       ficheiro seguia a árvore» sem dizer o que leu obriga quem está ao teclado a adivinhar;
+       com o exemplo à vista vê-se num segundo se falta um nível, se a extensão é outra, ou
+       se o caminho veio vazio por não ser uma pasta. */
+    if(!t){ semArvore++; if(!exemplo) exemplo = c; continue; }
     if(!IDB){ semArquivo++; continue; }
     try{
       await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaico(t.z, t.x, t.y)));
       niveis.add(t.z); n++;
     }catch(e){ semArquivo++; }
   }
-  return { n, ignorados:semArvore, semArquivo, niveis:[...niveis].sort((a,b)=>a-b) };
+  return { n, ignorados:semArvore, semArquivo, exemplo, niveis:[...niveis].sort((a,b)=>a-b) };
 }
 
 /**
@@ -432,9 +529,16 @@ function marcarPonto(tipo, lat, lon, nome){
   const p = { id:"p"+Date.now().toString(36), tipo:d.k, nome:String(nome||d.n),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6), g:gdhAgora(), por:quemRegista(), nota:"" };
   pontosLista().push(p);
+  /* Se houver limites traçados, diz-se em que setor o ponto caiu. É a pergunta que se faz
+     a seguir a marcar — «isso é de quem?» — e a resposta está na geometria que já existe.
+     Sem limites traçados não se diz nada, em vez de dizer «setor desconhecido», que daria
+     a entender que havia setores e o ponto não caiu em nenhum. */
+  const iS = setorDoPonto(p.lat, p.lon);
+  const noSetor = iS >= 0 ? ", no setor "+NOMES_SETOR[iS] : "";
+  p.setor = iS >= 0 ? NOMES_SETOR[iS] : "";
   O.evolucao.push({ g:p.g, tipo:"posit",
-    txt:d.n+" marcado no mapa"+(nome? " ("+nome+")":"")+": "+fmtDec(p.lat, p.lon)+"." });
-  fita(d.n+" marcado: "+fmtDec(p.lat, p.lon));
+    txt:d.n+" marcado no mapa"+(nome? " ("+nome+")":"")+": "+fmtDec(p.lat, p.lon)+noSetor+"." });
+  fita(d.n+" marcado: "+fmtDec(p.lat, p.lon)+noSetor);
   return { ok:true, ponto:p };
 }
 
@@ -491,12 +595,90 @@ function camadaMapa(){
     g += rotulo(x0+7, y0+3.5, x.nome, 9);
   });
 
+  /* As linhas de contenção e de apoio. Traço diferente por espécie, como na carta anotada:
+     a de contenção a cheio quando está aberta e a tracejado enquanto está por abrir — que é
+     a diferença entre o que está no terreno e o que está no plano. */
+  linhasLista().forEach(l=>{
+    if(!Array.isArray(l.linha) || l.linha.length < 2) return;
+    const d = defLinha(l.tipo);
+    const q = l.linha.map(c=>pxy(c[1], c[0]));
+    g += '<path d="'+q.map((p,k)=>(k?"L":"M")+n(p.x)+","+n(p.y)).join(" ")
+       + '" fill="none" stroke="'+d.cor+'" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"'
+       + (l.aberta? "" : ' stroke-dasharray="9 5"')+'/>';
+    const meio = q[Math.floor(q.length/2)];
+    g += rotulo(meio.x + 8, meio.y - 6,
+      (d.obra? "Contenção" : "Apoio") + (l.larguraM? " "+String(l.larguraM).replace(".", ",")+" m" : "")
+      + (d.obra && !l.aberta? " (por abrir)" : ""), 9.5);
+  });
+
+  /* As frentes de fogo, por cima dos limites e por baixo dos pontos: são a informação
+     mais viva do mapa e não podem ficar escondidas, mas também não devem tapar uma marca. */
+  frentesLista().forEach(f=>{
+    if(!Array.isArray(f.linha) || f.linha.length < 2) return;
+    const d = defFrente(f.tipo);
+    const q = f.linha.map(c=>pxy(c[1], c[0]));
+    g += '<path d="'+q.map((p,k)=>(k?"L":"M")+n(p.x)+","+n(p.y)).join(" ")
+       + '" fill="none" stroke="'+d.cor+'" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+    /* A seta de progressão sai do meio da linha, na direção do rumo. Uma seta por frente e
+       não uma por segmento: o rumo é da frente inteira, e uma seta em cada vértice daria a
+       entender que cada troço progride para o seu lado. */
+    if(f.rumo !== null && isFinite(f.rumo) && d.avanca){
+      const meio = q[Math.floor(q.length/2)];
+      const a = (f.rumo - 90) * Math.PI/180;
+      const ux = Math.cos(a), uy = Math.sin(a), L = 26;
+      const x1 = meio.x + ux*L, y1 = meio.y + uy*L;
+      g += '<path d="M'+n(meio.x)+','+n(meio.y)+' L'+n(x1)+','+n(y1)+'" stroke="'+d.cor+'" stroke-width="2.4"/>';
+      /* A ponta, com as duas hastes a 150° do sentido de marcha. */
+      [150, -150].forEach(ang=>{
+        const b = a + ang*Math.PI/180;
+        g += '<path d="M'+n(x1)+','+n(y1)+' L'+n(x1 + Math.cos(b)*9)+','+n(y1 + Math.sin(b)*9)
+           + '" stroke="'+d.cor+'" stroke-width="2.4" stroke-linecap="round"/>';
+      });
+    }
+    /* O rótulo vai para **trás** da frente, do lado que já ardeu, e não para o vértice
+       inicial: duas frentes que comecem perto uma da outra punham dois rótulos em cima um
+       do outro, e atrás da frente não há nada para tapar. */
+    const meio0 = q[Math.floor(q.length/2)];
+    const recuo = (f.rumo !== null && Number.isFinite(f.rumo) && d.avanca)
+      ? { x:-Math.cos((f.rumo-90)*Math.PI/180)*16, y:-Math.sin((f.rumo-90)*Math.PI/180)*16 }
+      : { x:8, y:-6 };
+    g += rotulo(meio0.x + recuo.x, meio0.y + recuo.y, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
+  });
+
   /* Os pontos notáveis marcados à mão. */
   pontosLista().forEach(p=>{
     const q = pxy(p.lat, p.lon), x0 = n(q.x), y0 = n(q.y), d = defPonto(p.tipo);
     g += '<circle cx="'+x0+'" cy="'+y0+'" r="6" fill="'+d.cor+'" stroke="#fff" stroke-width="1.8"/>';
     g += rotulo(x0+9, y0+4, p.nome, 10);
   });
+
+  /* Os limites de setor, **por baixo de tudo o que se marca**: são superfície, e uma
+     superfície desenhada por cima esconde os pontos que lhe estão dentro. Por isso este
+     bloco vem antes na cadeia de desenho e o preenchimento é fraco. */
+  (estObj().setores||[]).forEach((s,i)=>{
+    const anel = limiteSetor(i); if(!anel) return;
+    const d = anel.map((c,k)=>{ const q = pxy(c[1], c[0]); return (k?"L":"M")+n(q.x)+","+n(q.y); }).join(" ")+" Z";
+    g += '<path d="'+d+'" fill="#1F4E79" fill-opacity=".10" stroke="#1F4E79" stroke-width="2.2"'
+       + ' stroke-dasharray="7 4" stroke-linejoin="round"/>';
+    /* O rótulo vai ao centróide da área, e não ao ponto do setor: o ponto é onde está o
+       comando do setor, o centróide é onde a figura se lê. */
+    const c = centroAnel(anel); if(!c) return;
+    const q = pxy(c.lat, c.lon);
+    g += '<text x="'+n(q.x)+'" y="'+n(q.y)+'" font-size="15" font-weight="700" text-anchor="middle"'
+       + ' fill="#1F4E79" stroke="#fff" stroke-width="3.5" paint-order="stroke">'
+       + esc(String(NOMES_SETOR[i]||"")) + '</text>';
+  });
+
+  /* O traçado em curso, se houver: os vértices já pousados e a linha entre eles. Não é
+     estado da ocorrência e por isso desenha-se de outra maneira — linha fina e contínua,
+     com os vértices à vista, para se distinguir de um limite fechado. */
+  if(TRACO.setor >= 0 && TRACO.pontos.length){
+    const q0 = TRACO.pontos.map(c=>pxy(c[1], c[0]));
+    if(q0.length > 1)
+      g += '<path d="'+q0.map((q,k)=>(k?"L":"M")+n(q.x)+","+n(q.y)).join(" ")
+         + '" fill="none" stroke="#B00000" stroke-width="1.8"/>';
+    q0.forEach(q=>{ g += '<circle cx="'+n(q.x)+'" cy="'+n(q.y)+'" r="3.4" fill="#B00000" stroke="#fff" stroke-width="1.4"/>'; });
+  }
 
   /* Os setores com coordenada. */
   (estObj().setores||[]).forEach((s,i)=>{
@@ -507,6 +689,39 @@ function camadaMapa(){
     g += '<text x="'+x0+'" y="'+n(y0+4)+'" font-size="11" font-weight="700" text-anchor="middle" fill="#fff">'
        + esc(String(NOMES_SETOR[i]||"").slice(0,1)) + '</text>';
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
+  });
+
+  /* Os focos de calor, por baixo de tudo o que alguém desenhou à mão: são observação de
+     satélite, e o que o posto traçou tem precedência de leitura sobre o que a máquina viu.
+     Losango, para não se confundir com um ponto notável nem com um meio; a cor diz a
+     confiança, e o tamanho não diz nada — a potência radiativa está no texto, porque um
+     símbolo maior lia-se como área maior e não é isso que o número quer dizer. */
+  focosLista().forEach(x=>{
+    const q = pxy(x.lat, x.lon), x0 = n(q.x), y0 = n(q.y);
+    const cor = x.conf.grau === "alta" ? "#B00000" : (x.conf.grau === "nominal" ? "#D2691E" : "#B08A2E");
+    g += '<path d="M'+x0+','+n(y0-5)+' L'+n(x0+5)+','+y0+' L'+x0+','+n(y0+5)+' L'+n(x0-5)+','+y0
+       + ' Z" fill="'+cor+'" fill-opacity=".85" stroke="#fff" stroke-width="1.2"/>';
+  });
+
+  /* As notas. **O texto desenha-se por inteiro**, e não um símbolo com o texto escondido
+     atrás de um clique: uma nota que precise de ser clicada para se ler não é uma nota, é um
+     ponto. É assim que estão na carta anotada, escritas por cima do sítio a que dizem
+     respeito. Passa por `rotulo`, que escapa o texto — isto é escrita livre de quem regista,
+     e vai parar dentro de um SVG. */
+  notasLista().forEach(nt=>{
+    const d = defNota(nt.tipo);
+    const q = pxy(nt.lat, nt.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<circle cx="'+x0+'" cy="'+y0+'" r="3.2" fill="'+d.cor+'" stroke="#fff" stroke-width="1.4"/>';
+    g += '<path d="M'+x0+','+y0+' L'+n(x0+10)+','+n(y0-10)+'" stroke="'+d.cor+'" stroke-width="1.2"/>';
+    g += rotulo(x0 + 13, y0 - 8, nt.txt, 10, d.alerta);
+  });
+
+  /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
+     anotada e como se dizem na rádio. */
+  meiosPosicionados().forEach(m=>{
+    const q = pxy(m.it.lat, m.it.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<rect x="'+n(x0-8)+'" y="'+n(y0-6)+'" width="16" height="12" rx="2" fill="#2F4F6F" stroke="#fff" stroke-width="1.6"/>';
+    g += rotulo(x0 + 11, y0 + 4, m.nome, 9.5);
   });
 
   if(temPonto){
@@ -610,9 +825,16 @@ function pintarEstadoMapa(vieram, total){
   const el = $("mapa-info"); if(!el) return;
   const partes = [];
   if(CARTA) partes.push(CARTA.atrib + (CARTA.termos? " — " + CARTA.termos : "")
-    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : ""));
-  else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo."
-    + " A atribuição é a de quem a forneceu — não há serviço declarado que a possa dizer aqui.");
+    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : "")
+    /* **A data do que está no ecrã, sempre à vista.** Uma carta com eixo temporal mostra o
+       dia que se lhe pedir, e sem isto escrito o operador vê imagem de outro dia sem ter
+       como saber. É a razão inteira de se ter lido o eixo. */
+    + (CARTA.dim? " · " + CARTA.dim.id + ": " + CARTA.dim.valor : ""));
+  else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo"
+    + (CARTA_LOCAL && CARTA_LOCAL.atrib? " — " + CARTA_LOCAL.atrib : "")
+    + (CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]? " · " + GRELHAS[CARTA_LOCAL.grelha].n
+        + " (" + GRELHAS[CARTA_LOCAL.grelha].crs + "), declarado por quem a carregou" : "")
+    + (CARTA_LOCAL && CARTA_LOCAL.atrib? "." : ". Sem origem declarada: carta de terceiros mostra-se com a atribuição de quem a forneceu."));
   else partes.push("Sem serviço de mosaicos configurado. A carta declara-se abaixo, ou carrega-se de ficheiro.");
 
   if(MAPA.recusados >= 3)
@@ -625,6 +847,15 @@ function pintarEstadoMapa(vieram, total){
   else if(MAPA.falhas)
     partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
 
+  /* Quanto do teatro está delimitado. Um comandante que veja «412 ha de 1 260» sabe que
+     dois terços da área não têm setor a quem pertençam, que é informação de comando e não
+     de desenho. Só aparece quando há limites: sem eles a frase não diria nada. */
+  const haSet = areaSetorizadaHa();
+  if(haSet > 0){
+    const P0 = perimObj();
+    const total = P0 ? areaGeoJSON({ type:"Polygon", coordinates:P0.aneis }) : 0;
+    partes.push("Setorizado: "+haSet+" ha"+(total > 0 ? " de "+total+" ha da ZI" : "")+".");
+  }
   partes.push("Ampliação "+MAPA.z+" · "+gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z).toFixed(2)+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
@@ -633,7 +864,9 @@ function pintarEstadoMapa(vieram, total){
 /** Mostra ou esconde o cartão do mapa consoante haja o que enquadrar. */
 function pintarMapaCartao(){
   const box = $("mapa-box"); if(!box) return;
-  const ha = !!enquadrarCroqui(640, 420);
+  /* Pergunta-se ao enquadramento do mapa, e não ao do croqui: o mapa mostra coisas que o
+     croqui não mostra, e o cartão tem de abrir para elas. */
+  const ha = !!enquadrarMapa(MAPA.larg||640, MAPA.alt||420);
   box.style.display = ha? "block" : "none";
   if(!ha){ MAPA.pronto = false; return; }
   pintarAlvos();
@@ -648,8 +881,61 @@ function pintarAlvos(){
   sel.innerHTML = '<option value="">— clicar no mapa não marca nada —</option>'
     + '<option value="occ">Ponto da ocorrência (PCO)</option>'
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
+    + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
+        +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
+    + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
+        +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
+    + TIPOS_NOTA.map(t=>'<option value="N:'+t.k+'">Nota — '+esc(t.n)+': '+esc(t.d)+'</option>').join("")
+    + '<option value="F">Frente de fogo (traçar linha)</option>'
+    + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
   if([...sel.options].some(o=>o.value === antes)) sel.value = antes;
+}
+
+/**
+ * A barra do traçado em curso: quantos vértices há e o que se pode fazer com eles.
+ *
+ * Só aparece enquanto se traça. Uma barra de botões sempre visível para uma coisa que
+ * quase nunca está a acontecer é ruído no ecrã de quem está a comandar.
+ */
+function pintarTraco(){
+  const box = $("mapa-traco"); if(!box) return;
+  const ativo = tracoEmCurso();
+  box.style.display = ativo ? "" : "none";
+  if(!ativo){ if($("frente-op")) $("frente-op").style.display = "none"; return; }
+  const n = TRACO.pontos.length, falta = faltamAoTraco();
+  const eFrente = TRACO.tipo === "frente";
+  const oQue = eFrente ? "A traçar uma frente"
+    : TRACO.tipo === "linha" ? "A traçar uma linha"
+    : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor];
+  $("mapa-traco-txt").textContent = oQue
+    + " — " + n + " vértice(s)" + (falta ? ", falta" + (falta > 1 ? "m " : " ") + falta + " para fechar" : "");
+  $("mapa-traco-fechar").disabled = falta > 0;
+  $("mapa-traco-desfazer").disabled = n < 1;
+
+  const opL = $("linha-op");
+  if(opL){
+    opL.style.display = TRACO.tipo === "linha" ? "" : "none";
+    if(TRACO.tipo === "linha" && !$("linha-tipo").options.length)
+      $("linha-tipo").innerHTML = TIPOS_LINHA.map(t=>'<option value="'+t.k+'">'+esc(t.n)+'</option>').join("");
+  }
+  const op = $("frente-op");
+  if(op){
+    op.style.display = eFrente ? "" : "none";
+    if(eFrente){
+      if(!$("frente-tipo").options.length)
+        $("frente-tipo").innerHTML = TIPOS_FRENTE.map(t=>'<option value="'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
+      /* O rumo que o comportamento do fogo prevê aparece como **proposta**, com a hora e o
+         que a sustenta. Não se escreve no campo: quem comanda é que decide se é aquele. */
+      const p = rumoPrevistoDaCabeca();
+      $("frente-previsto").textContent = p
+        ? "A composição de declive e vento dá " + Math.round(p.rumo) + "° para a cabeça"
+          + (p.hora ? " (vento mais forte da série, " + p.hora + ")" : "")
+          + (p.eps ? "" : " — sem a razão declive/vento informada, é o que a geometria dá sozinha")
+          + ". É uma proposta: o rumo que fica é o que for indicado aqui."
+        : "Sem exposição dominante ou sem série de vento não há rumo previsto. Indicar à mão, ou deixar vazio para o traçado sugerir.";
+    }
+  }
 }
 
 /** A lista do que está marcado, com o GDH e por quem, e um botão para retirar. */
@@ -657,11 +943,48 @@ function pintarPontos(){
   const el = $("mapa-pontos"); if(!el) return;
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
-  if(!L.length && !setores.length){
+  const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
+  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados(), NT = notasLista();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length && !NT.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = setores.map(({s,i})=>
+  el.innerHTML = NT.map(nt=>
+      '<div class="mp-li"><b>'+esc(nt.txt)+'</b>'
+      + '<span class="hint">'+esc(defNota(nt.tipo).n)+(nt.setor? " · setor "+esc(nt.setor):"")+'</span>'
+      + '<span class="mono">'+esc(fmtDec(nt.lat, nt.lon))+'</span>'
+      + '<span class="hint">'+esc(nt.g)+(nt.por? " · "+esc(nt.por):"")+'</span>'
+      + '<button type="button" class="lk" data-apagar-nota="'+esc(nt.id)+'">retirar</button></div>').join("")
+    + MP.map(m=>
+      '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
+      + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
+      + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
+      + '<span class="hint">'+esc(m.it.posG||"")+(m.it.posPor? " · "+esc(m.it.posPor):"")+'</span>'
+      + '<button type="button" class="lk" data-despos-meio="'+esc(m.it.id)+'">retirar a posição</button></div>').join("")
+    + LN.map(l=>
+      '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
+      + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
+      + '<span class="mono">'+l.m+' m</span>'
+      + '<span class="mono">'+(l.larguraM? String(l.larguraM).replace(".", ",")+" m larg." : "largura por indicar")+'</span>'
+      + (defLinha(l.tipo).obra
+          ? '<button type="button" class="lk" data-abrir-linha="'+esc(l.id)+'">'+(l.aberta? "dar por abrir" : "dar por aberta")+'</button>' : "")
+      + '<button type="button" class="lk" data-apagar-linha="'+esc(l.id)+'">retirar</button></div>').join("")
+    + F.map(f=>
+      '<div class="mp-li"><b>'+esc(defFrente(f.tipo).n)+'</b>'
+      + (f.setor? ' <span class="hint">setor '+esc(f.setor)+'</span>' : "")
+      + '<span class="mono">'+f.m+' m</span>'
+      + (f.rumo !== null? '<span class="mono">'+Math.round(f.rumo)+'°</span>'
+          + '<span class="hint">'+esc(f.rumoFonte)+'</span>' : '<span class="hint">sem progressão</span>')
+      + '<span class="hint">'+esc(f.g)+(f.por? " · "+esc(f.por):"")+'</span>'
+      + (defFrente(f.tipo).avanca
+          ? '<button type="button" class="lk" data-rumo-frente="'+esc(f.id)+'">corrigir o rumo</button>' : "")
+      + '<button type="button" class="lk" data-apagar-frente="'+esc(f.id)+'">retirar</button></div>').join("")
+    + limites.map(i=>
+      '<div class="mp-li"><b>Limite do setor '+esc(NOMES_SETOR[i])+'</b>'
+      + '<span class="hint">'+(limiteSetor(i).length-1)+' vértices</span>'
+      + '<span class="mono">'+areaSetorHa(i)+' ha</span>'
+      + '<button type="button" class="lk" data-apagar-limite="'+i+'">retirar o limite</button></div>').join("")
+    + setores.map(({s,i})=>
       '<div class="mp-li"><b>Setor '+esc(NOMES_SETOR[i])+'</b><span class="mono">'+esc(fmtDec(s.lat, s.lon))+'</span>'
       + '<button type="button" class="lk" data-desmarcar-setor="'+i+'">retirar a coordenada</button></div>').join("")
     + L.map(p=>
@@ -673,6 +996,48 @@ function pintarPontos(){
     const r = apagarPonto(b.dataset.apagarPonto);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     persistir(false); pintarPontos(); pintarMapa(); pintarCroqui();
+  }));
+  /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
+     não em cinco sítios diferentes. */
+  try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-apagar-nota]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarNota(b.dataset.apagarNota);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-despos-meio]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = despositionarMeio(b.dataset.desposMeio);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarAlvos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-apagar-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarLinha(b.dataset.apagarLinha);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-abrir-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const l = linhasLista().find(x=>x.id === b.dataset.abrirLinha); if(!l) return;
+    const r = abrirLinha(l.id, !l.aberta);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarFrente(b.dataset.apagarFrente);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-rumo-frente]").forEach(b=>b.addEventListener("click", ()=>{
+    const f = frentesLista().find(x=>x.id === b.dataset.rumoFrente); if(!f) return;
+    const v = prompt("Rumo de progressão em graus de norte (0 a 360):", f.rumo === null? "" : String(Math.round(f.rumo)));
+    if(v === null) return;
+    const r = rumoDaFrente(f.id, v);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-apagar-limite]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarLimite(+b.dataset.apagarLimite);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarAlvos(); pintarMapa();
   }));
   el.querySelectorAll("[data-desmarcar-setor]").forEach(b=>b.addEventListener("click", ()=>{
     const s = estObj().setores[+b.dataset.desmarcarSetor];
@@ -701,6 +1066,56 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("N:")){
+    const txt = String(($("mapa-nome")||{}).value || "").trim();
+    const r = escreverNota(alvo.slice(2), lat, lon, txt);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    if($("mapa-nome")) $("mapa-nome").value = "";
+    aviso("mapa-msg","ok",defNota(r.nota.tipo).n+" escrita em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("M:")){
+    const r = posicionarMeio(alvo.slice(2), lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    aviso("mapa-msg","ok", nomeDoMeio(r.meio)+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo === "F"){
+    /* Como o limite: pousar um vértice não grava nada. A frente entra no estado ao fechar. */
+    if(TRACO.tipo !== "frente"){
+      const r0 = iniciarTraco(-1, "frente");
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    const falta = faltamAoTraco();
+    aviso("mapa-msg","ok","Frente: "+r.n+" vértice(s). "+(falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
+    pintarTraco(); pintarMapa();
+    return;
+  } else if(alvo.startsWith("C:")){
+    if(TRACO.tipo !== "linha"){
+      const r0 = iniciarTraco(-1, "linha");
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+      if($("linha-tipo")) $("linha-tipo").value = alvo.slice(2);
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    const falta = faltamAoTraco();
+    aviso("mapa-msg","ok", defLinha(alvo.slice(2)).n+": "+r.n+" vértice(s). "
+      + (falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
+    pintarTraco(); pintarMapa();
+    return;
+  } else if(alvo.startsWith("L:")){
+    /* Traçar não é marcar: um clique pousa um vértice e não grava nada. O limite só entra
+       no estado quando se fecha, e por isso aqui não se persiste — persistir a meio
+       gravava uma figura que ainda não existe. */
+    const i = +alvo.slice(2);
+    if(TRACO.setor !== i){
+      const r0 = iniciarTraco(i);
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    aviso("mapa-msg","ok","Limite do setor "+NOMES_SETOR[i]+": "+r.n+" vértice(s). "
+      + (r.n >= 3 ? "Já dá para fechar." : "Faltam "+(3-r.n)+" para poder fechar."));
+    pintarTraco(); pintarMapa();
+    return;
   } else {
     const t = defPonto(alvo.slice(2));
     const nome = String(($("mapa-nome")||{}).value || "").trim();
@@ -743,6 +1158,31 @@ function ampliarMapa(d){
   pintarMapa();
 }
 
+$("mapa-traco-fechar").addEventListener("click", ()=>{
+  const r = fecharTraco();
+  if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+  persistir(false);
+  aviso("mapa-msg","ok", r.frente
+    ? defFrente(r.frente.tipo).n+" traçada: "+r.frente.m+" m"
+      + (r.frente.rumo !== null? ", rumo "+Math.round(r.frente.rumo)+"° ("+r.frente.rumoFonte+")" : "")+"."
+    : r.linha ? defLinha(r.linha.tipo).n+" traçada: "+r.linha.m+" m."
+    : "Limite traçado: "+r.area+" ha.");
+  if($("linha-larg")) $("linha-larg").value = "";
+  if($("frente-rumo")) $("frente-rumo").value = "";
+  pintarTraco(); pintarAlvos(); pintarPontos(); pintarMapa();
+});
+
+$("mapa-traco-desfazer").addEventListener("click", ()=>{
+  desfazerTraco(); pintarTraco(); pintarMapa();
+});
+
+$("mapa-traco-largar").addEventListener("click", ()=>{
+  largarTraco();
+  if($("mapa-alvo")) $("mapa-alvo").value = "";
+  aviso("mapa-msg","ok","Traçado largado. Nada foi gravado.");
+  pintarTraco(); pintarMapa();
+});
+
 $("mapa-carregar").addEventListener("click", async ()=>{
   medirMapa();
   if(!CARTA && !(await mosaicosGuardados()).n){
@@ -762,6 +1202,9 @@ $("mapa-menos").addEventListener("click", ()=>ampliarMapa(-1));
 $("mapa-enquadrar").addEventListener("click", ()=>{ medirMapa(); enquadrarMapa(MAPA.larg, MAPA.alt); pintarMapa(); });
 $("mapa-esquecer").addEventListener("click", async ()=>{
   const n = await esquecerMosaicos();
+  /* A declaração ia com os quadrados. Deixá-la para trás punha a grelha de uma carta que já
+     não existe a decidir como se desenha a seguinte. */
+  await esquecerCartaLocal();
   await pintarArquivoMapa();
   aviso("mapa-msg","ok", n? n+" quadrados de carta esquecidos." : "Não havia carta guardada.");
 });
@@ -811,12 +1254,29 @@ $("carta-fich").addEventListener("change", async ev=>{
   if(!IDB){ el.textContent = "Este navegador não deu base de dados local: a carta pré-descarregada não pode ficar guardada."; return; }
   el.textContent = "A guardar...";
   const r = await carregarMosaicosLocais(ev.target.files);
-  el.textContent = r.n
-    ? r.n+" quadrados guardados, ampliações "+r.niveis.join(", ")
+
+  if(r.n){
+    /* A projeção grava-se com os quadrados, não depois: são eles que ela descreve, e uma
+       declaração feita a seguir a uma carga que falhou não descreve coisa nenhuma. */
+    const g = ($("carta-loc-grelha") && $("carta-loc-grelha").value) || "mercator";
+    await declararCartaLocal(g, $("carta-loc-atrib")? $("carta-loc-atrib").value : "");
+    el.textContent = r.n+" quadrados guardados, ampliações "+r.niveis.join(", ")
+      + " · lidos como "+(GRELHAS[g]? GRELHAS[g].n : g)
       + (r.ignorados? " · "+r.ignorados+" ficheiros ignorados por não seguirem {z}/{x}/{y}" : "")
-      + " — servem sem rede."
-    : "Nenhum ficheiro seguia a árvore {z}/{x}/{y}. Nada foi guardado.";
-  if(r.n) fita("Carta pré-descarregada: "+r.n+" quadrados guardados no dispositivo");
+      + " — servem sem rede.";
+    fita("Carta pré-descarregada: "+r.n+" quadrados em "+(GRELHAS[g]? GRELHAS[g].crs : g)
+      +" guardados no dispositivo"+($("carta-loc-atrib") && $("carta-loc-atrib").value? " — "+$("carta-loc-atrib").value : ""));
+  }else{
+    /* Diagnóstico, não veredicto: mostra-se o que se leu, porque é isso que diz onde está o
+       erro. Caminho vazio é ficheiro solto em vez de pasta; caminho sem os três níveis é a
+       pasta errada; extensão diferente é outro formato. */
+    el.textContent = "Nenhum ficheiro seguia a árvore {z}/{x}/{y}. Nada foi guardado."
+      + (r.ignorados? " Foram lidos "+r.ignorados+" ficheiros." : " Não veio ficheiro nenhum.")
+      + (r.exemplo? " O primeiro que li foi «"+r.exemplo+"»." : "")
+      + (r.exemplo && r.exemplo.indexOf("/") < 0
+          ? " Não traz caminho nenhum: foram escolhidos ficheiros soltos, e é preciso escolher a pasta."
+          : " Esperava-se .../{z}/{x}/{y} com extensão .png, .jpg ou .webp, e z entre 0 e 22.");
+  }
   await pintarArquivoMapa();
   if(r.n) pintarMapa();
 });
@@ -881,21 +1341,47 @@ function pintarCamadasWMTS(){
   sv.textContent = (WMTS_LIDO.titulo || "serviço sem título")
     + (WMTS_LIDO.atribuicao? " · " + WMTS_LIDO.atribuicao : "")
     + " · " + WMTS_LIDO.camadas.length + " camadas";
+  /* **Um catálogo grande não se resolve com uma lista branca de nomes.** O relatório de
+     cartografia propunha-a, e não se seguiu: escrever aqui os nomes das camadas que se
+     acha que um serviço tem é dar por assente o que não se confirmou, e é o que este
+     projeto não faz — além de esconder, sem o dizer, camadas que o serviço realmente
+     publica.
+
+     O problema que a proposta via é real: a base de dados geográfica do ICNF declara 385
+     camadas, e uma lista de 385 linhas num posto de comando não se lê. Resolve-se por
+     ordem e por procura, não por censura: as que servem primeiro, um campo para filtrar,
+     e um limite ao que se pinta de uma vez — com a conta do que ficou de fora à vista,
+     para ninguém supor que o serviço só tem aquilo. */
   const L = wmtsInventario(WMTS_LIDO);
-  el.innerHTML = L.map(c=>'<div class="wm-c">'
+  const filtro = ($("wm-filtro") && $("wm-filtro").value || "").trim().toLowerCase();
+  const linha = $("wm-filtro-linha");
+  if(linha) linha.style.display = L.length > WMTS_LISTA_MAX ? "" : "none";
+  const casa = c => !filtro || (c.titulo+" "+c.id).toLowerCase().includes(filtro);
+  const achadas = L.filter(casa).sort((a,b)=>(b.serve?1:0)-(a.serve?1:0));
+  const mostradas = achadas.slice(0, WMTS_LISTA_MAX);
+  const escondidas = achadas.length - mostradas.length;
+  el.innerHTML = mostradas.map(c=>'<div class="wm-c">'
     + '<span class="wm-t">'+esc(c.titulo)+'</span>'
     + '<span class="wm-id">'+esc(c.id)+'</span>'
     + (c.serve
         ? '<span class="hint" style="margin:0">ampliação '+c.zMin+' a '+c.zMax+'</span>'
           + '<button type="button" class="btn btn-g" data-wm-usar="'+esc(c.id)+'">Usar esta</button>'
         : '<span class="wm-nao">não serve — '+esc(c.motivo)+'</span>')
-    + '</div>').join("");
+    + '</div>').join("")
+    + (escondidas > 0
+        ? '<p class="hint" style="margin:8px 0 0 0">Mais '+escondidas+' camada(s) neste serviço, não mostradas. '
+          + 'Escreve parte do nome para as procurar.</p>'
+        : "")
+    + (achadas.length === 0
+        ? '<p class="hint" style="margin:8px 0 0 0">Nenhuma camada com «'+esc(filtro)+'» no nome, '
+          + 'de '+L.length+' que o serviço tem.</p>'
+        : "");
   el.querySelectorAll("[data-wm-usar]").forEach(b=>b.addEventListener("click", async ()=>{
     const r = wmtsCarta(WMTS_LIDO, b.getAttribute("data-wm-usar"));
     if(!r.ok){ aviso("wm-msg","err",r.motivo); return; }
     const g = await adotarCartaWMTS(r.carta);
     if(!g.ok){ aviso("wm-msg","err",g.motivo); return; }
-    pintarCarta();
+    pintarCarta(); pintarDimensaoDaCarta();
     aviso("wm-msg","ok","Carta adotada: "+r.carta.camadaTitulo+". Carregar a carta para a ver.");
     medirMapa(); if(enquadrarMapa(MAPA.larg, MAPA.alt)) pintarMapa();
   }));
@@ -927,6 +1413,41 @@ $("wm-ler").addEventListener("click", async ()=>{
     aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
   }
 });
+
+/**
+ * Mostra o campo da data quando a carta em uso tem eixo, e esconde-o quando não tem.
+ *
+ * Um campo de data sempre visível para uma carta que não tem tempo é convite a preencher o
+ * que não existe.
+ */
+function pintarDimensaoDaCarta(){
+  const box = $("wm-dim"); if(!box) return;
+  const ha = !!(CARTA && CARTA.dim);
+  box.style.display = ha ? "" : "none";
+  if(!ha) return;
+  $("wm-dim-v").value = CARTA.dim.valor || "";
+  const ult = ultimaDataDaDimensao(CARTA.dim);
+  $("wm-dim-h").textContent = "Eixo «" + CARTA.dim.id + "»"
+    + (ult ? " · o serviço declara até " + ult : "")
+    + ". O que estiver aqui é o dia que o mapa mostra.";
+}
+
+$("wm-dim-b").addEventListener("click", async ()=>{
+  const r = mudarDimensaoDaCarta($("wm-dim-v").value);
+  if(!r.ok){ aviso("wm-msg","err",r.motivo); pintarDimensaoDaCarta(); return; }
+  await adotarCartaWMTS(CARTA);
+  /* Os mosaicos guardados são de outra data: pedir de novo é o que faz o mapa mudar. */
+  await esquecerMosaicos();
+  aviso("wm-msg","ok","Carta em "+r.valor+"."
+    + (r.incerto? " O serviço declara este intervalo com um passo que não é de dias inteiros: não se pôde confirmar que esta data exista." : "")
+    + " Carregar a carta para a ver.");
+  pintarCarta(); pintarDimensaoDaCarta(); await pintarArquivoMapa(); pintarMapa();
+});
+
+/* A procura repinta a lista à medida que se escreve. Sem `debounce`: a lista já está em
+   memória, não se pede nada a ninguém, e um serviço com 385 camadas repinta-se num
+   instante. */
+$("wm-filtro").addEventListener("input", ()=>pintarCamadasWMTS());
 
 $("wm-fich").addEventListener("change", async ev=>{
   const f = ev.target.files && ev.target.files[0]; if(!f) return;

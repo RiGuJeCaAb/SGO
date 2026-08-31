@@ -20,6 +20,7 @@
  "cabecalhos/headers_wmts_dgt_ortos2018.txt": "8e038a8cf5b2f036e0ff72f3461b950081cb7379aef83b2b07cdb083b1147687",
  "cabecalhos/headers_wmts_dgt_ortos2021.txt": "a10ea0ba6a4e64747bb638d8c2282ab71058e93b408e21dee4094e511f49fc5a",
  "cabecalhos/headers_wmts_dgt_ortosat2023.txt": "20683f35d0f0524fb73b93db4d19e0e31dc072e1f1cc88dcc0f906f5690470d3",
+ "cabecalhos/headers_wmts_gibs.txt": "0cfe68a5eea6583bd91e824f6d13d47c40cba417f7566d6d6659766c86b349c2",
  "cabecalhos/headers_wmts_icnf_bdg.txt": "c30df8dd301cb51132c833ee619a375da702cdc421f1a897a384755675943923",
  "cabecalhos/headers_wmts_icnf_gwc.txt": "204d201d8dcec17832980a3499d53fa98ca8f5fe9fe6942b6f5e8ebc25609908",
  "wms/dgt_altimetria_wms111.xml": "7fe6386abfe4c189bcc8ce135a1049e1d7b0b9760655bbfc2539d88b6460a2aa",
@@ -43,6 +44,7 @@
  "wmts/wmts_dgt_ortos2018.xml": "40b059b54e9a5db3d42aebe90ff3bdf154ae66059efbf2bf6c26ed62f9208cf8",
  "wmts/wmts_dgt_ortos2021.xml": "8126b93b40b48ab1e963c56c51cdc2c63f6677f54fcf0f2d32233907a11e781e",
  "wmts/wmts_dgt_ortosat2023.xml": "6efab83482e6a3ea3aacc3372dcc73a7c124523bb2d5a5c524b38d72b3deee4c",
+ "wmts/wmts_gibs_3857.xml": "826c71a10339d00c424480e48855d46d25f0a41ab78239056d8f327b020a9b99",
  "wmts/wmts_icnf_bdg.xml": "423496236e782a51d4a895b630e24716be001b2f00095ca63577d42fa28b1d37",
  "wmts/wmts_icnf_gwc.xml": "5aabd9943b34daae94a3b5d783b89c09e3c5b42a98f79f4153cec52674517b5d"
 }

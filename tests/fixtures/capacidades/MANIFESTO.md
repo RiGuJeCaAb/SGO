@@ -19,11 +19,12 @@ isso, fora do alcance desta aplicação — incluindo o que responde capacidades
 
 | Facto | Onde se vê |
 |---|---|
-| Um só WMTS em toda a cartografia oficial procurada | `wmts/` — quatro dos cinco não são WMTS |
+| Um só WMTS em toda a cartografia oficial **nacional** procurada | `wmts/` — quatro dos cinco endereços nacionais não são WMTS |
 | Erro servido com **HTTP 200** e corpo HTML | `wmts_dgt_ortos2021.xml`, `wmts_dgt_ortosat2023.xml` |
 | Erro servido com **HTTP 200** e `ows:ExceptionReport` | `wmts_icnf_bdg.xml`, `wmts_icnf_gwc.xml` |
 | O WMTS da DGT está em **EPSG:3763**, não em Web Mercator | `wmts_dgt_ortos2018.xml`, conjunto `PTTM_06` |
-| A DGT abre o CORS; o ICNF **não o abre em nenhum** dos seus | `cabecalhos/` |
+| A DGT e a NASA abrem o CORS; o ICNF **não o abre em nenhum** dos seus | `cabecalhos/` |
+| Fogo ativo existe em serviço aberto, mas com eixo temporal | `wmts_gibs_3857.xml` — 18 camadas de anomalias térmicas, todas com `Time` |
 
 ## WMTS
 
@@ -34,6 +35,16 @@ isso, fora do alcance desta aplicação — incluindo o que responde capacidades
 | `wmts_dgt_ortosat2023.xml` | 646 | `HTML` | 200 | text/html | `6efab83482e6a3ea…` |
 | `wmts_icnf_bdg.xml` | 521 | `ExceptionReport` | 200 | application/xml | `423496236e782a51…` |
 | `wmts_icnf_gwc.xml` | 509 | `ExceptionReport` | 200 | application/xml | `5aabd9943b34daae…` |
+| `wmts_gibs_3857.xml` | 5797572 | `Capabilities` | 200 | text/xml | `826c71a10339d00c…` |
+
+O último não é nacional nem foi capturado pela mesma razão: é o NASA GIBS, e entrou como
+**teste de esforço**. Num só documento traz o que nenhum dos outros traz junto — 5,8 MB,
+62 034 elementos, 1 315 camadas, sete conjuntos de matrizes com número de níveis diferente,
+`SupportedCRS` em URN longo com versão de autoridade, três formatos de saída incluindo
+mosaico vetorial, 10 010 `ResourceURL`, e dimensão temporal em 1 210 das 1 315 camadas.
+
+Apanhou um defeito que nenhum documento pequeno apanhava: a travessia da árvore era
+quadrática e não terminava em cinco minutos. Ver `tests/capacidades.test.mjs`.
 
 ## WMS
 

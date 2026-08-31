@@ -62,8 +62,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
   `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
-  estática, tipos, código morto e cobertura de documentação. Acrescentar um teste que
+  estática, tipos, código morto, cobertura de documentação e manual. Acrescentar um teste que
   exercite o caminho alterado.
+- **Funcionalidade nova entra no `docs/MANUAL.md`.** Os rótulos que o manual cita entre
+  «aspas angulares» são conferidos contra a entrega, e um botão renomeado faz falhar a
+  montagem. As angulares são só para rótulos do ecrã; para ênfase, aspas normais.
 - **Toda a função de topo diz o que promete**, numa linha imediatamente antes dela, e
   `npm run documentar` recusa que a cobertura desça de 100 %. Comenta-se o *porquê* —
   a razão da escolha, o defeito que a motivou, o que se recusou fazer. Um comentário
@@ -87,7 +90,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   não chegaram aqui declaram-se em `app/RESERVADAS.md`, e a montagem salta-os. Sem isso
   nasceram duas `r0058` diferentes.
 - Estado novo em `O` tem de ser declarado em `novoEstado`, e toda a mudança de forma leva
-  uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um.
+  uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um. **O fim da escada é no
+  fim de `04-modelo-de-celulas-e-turno.js`**, e não no literal de `03-versao-do-estado-gravado.js`:
+  a escada começa lá e continua por `MIGRACOES.push`. Um degrau posto no meio corre na
+  versão errada e desalinha todos os que vêm depois. O teste que o apanha é o que migra de
+  uma versão concreta e confere o campo que esse degrau introduz — não o que conta degraus.
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
   mão. Campo derivado, sem campo no formulário, não precisa de nada — nada passa por ele.
 - Migração do pacote de canais faz-se em `carregarCanais`.

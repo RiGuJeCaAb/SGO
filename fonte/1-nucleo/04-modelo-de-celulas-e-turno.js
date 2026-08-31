@@ -292,6 +292,79 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 17 -> 18 · Limite traçado do setor. Até aqui o setor tinha um ponto e mais nada, e um
+   ponto não diz onde acaba a responsabilidade de quem comanda um nem começa a do outro.
+   Campo novo, sem valor que se possa presumir: fica vazio. Um setor sem limite é um setor
+   **por delimitar** — não é um setor de área nula, e a aplicação não o desenha. */
+MIGRACOES.push(e => {
+  const est = e.dados && e.dados.est;
+  if(est && Array.isArray(est.setores))
+    est.setores.forEach(s=>{ if(s && !Array.isArray(s.limite)) s.limite = []; });
+  return e;
+});
+
+/* 18 -> 19 · As frentes de fogo do teatro. O estado do setor era uma palavra; a frente é
+   uma linha com direção, e é dela que se decide para onde vai o incêndio. Lista nova,
+   vazia no que já existe: não se inventa uma frente a partir de um estado de setor. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.frentes)) e.dados.frentes = [];
+  return e;
+});
+
+/* 19 -> 20 · A velocidade de propagação e a carga de combustível, que destrancam a
+   intensidade da frente e tudo o que ela decide na manobra. Campos novos, sem valor que se
+   possa presumir: ficam vazios. A aplicação não os estima — exigiriam um modelo de
+   combustível calibrado para a vegetação do território, e não existe. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.fogo = Object.assign({r:"", w:""}, e.dados.fogo||{});
+  return e;
+});
+
+/* 20 -> 21 · As linhas de contenção e de apoio. Lista nova, vazia no que já existe: não se
+   deduz uma linha de contenção do texto de um plano antigo. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.linhas)) e.dados.linhas = [];
+  return e;
+});
+
+/* 21 -> 22 · Identificador e posição em cada unidade do dispositivo. O identificador tem de
+   ser atribuído aqui e não à primeira vez que faça falta: sem ele, uma unidade só se poderia
+   apontar pela posição na lista, e essa muda quando alguém a move de setor — a coordenada
+   passava para a unidade errada, em silêncio. A posição fica vazia: não se deduz onde
+   estava um meio a partir do setor a que foi atribuído. */
+MIGRACOES.push(e => {
+  const est = e.dados && e.dados.est;
+  if(est && Array.isArray(est.setores)) est.setores.forEach(s=>{
+    if(!s || !Array.isArray(s.tip)) return;
+    s.tip.forEach((it, k)=>{
+      if(!it) return;
+      if(!it.id) it.id = "u" + ((it.ts||0) + k).toString(36) + Math.random().toString(36).slice(2, 6);
+      if(!("lat" in it)){ it.lat = null; it.lon = null; it.posG = ""; it.posPor = ""; }
+    });
+  });
+  return e;
+});
+
+/* 22 -> 23 · As notas escritas no mapa. Lista nova, vazia no que já existe: uma nota é o que
+   alguém viu e quis deixar dito, e não se deduz de campo nenhum. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.notas)) e.dados.notas = [];
+  return e;
+});
+
+/* 23 -> 24 · Os focos de calor detetados por satélite. Ramo novo, vazio no que já existe:
+   uma lista de focos é uma fotografia de um instante, e não se reconstrói para trás. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.focos = Object.assign({itens:[], origem:"", g:"", por:"", nota:""}, e.dados.focos||{});
+  if(!Array.isArray(e.dados.focos.itens)) e.dados.focos.itens = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -302,7 +375,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], focos:{itens:[], origem:"", g:"", por:"", nota:""}, fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

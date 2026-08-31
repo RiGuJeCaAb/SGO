@@ -29,10 +29,12 @@ const POSSE = [
       { p:"dados.perimNome",  r:"art. 28.º",                d:"Perímetro carregado" },
       { p:"dados.perim",      r:"art. 28.º",                d:"Geometria do perímetro em WGS84" },
       { p:"dados.sensDet",    r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e sensíveis detetados, com distância e rumo" },
+      { p:"dados.focos",       r:"art. 28.º",                d:"Focos de calor detetados por satélite, com a hora e a confiança de cada deteção" },
       { p:"dados.pontos",     r:"art. 28.º; art. 32.º, n.º 1",        d:"Pontos notáveis do TO, marcados no mapa" },
       { p:"dados.sensiveis",  r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e pontos sensíveis" },
       { p:"dados.anexos",     r:"art. 28.º",                d:"Anexos do quadro de informações" },
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },
+      { p:"dados.fogo",       r:"art. 28.º",                d:"Velocidade de propagação e carga de combustível, para a intensidade da frente" },
       { p:"dados.perfil",     r:"art. 28.º",                d:"Perfil de elevação do eixo" }
     ] },
   { k:"operacoes", n:"Operações", r:"Despacho n.º 4067/2024, arts. 16.º a 25.º",
@@ -44,6 +46,9 @@ const POSSE = [
       { p:"dados.est.aerL",    r:"art. 19.º",                d:"Meios aéreos no TO — núcleo de meios aéreos" },
       { p:"dados.est.livre",   r:"art. 17.º",                d:"Modo de composição do dispositivo" },
       { p:"dados.setores",     r:"art. 17.º, n.º 1, al. a)", d:"Quadro geral do dispositivo (derivado)" },
+      { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
+      { p:"dados.linhas",      r:"art. 17.º, n.º 1, als. a) e b)", d:"Linhas de contenção e de apoio traçadas, com a largura útil" },
+      { p:"dados.notas",       r:"art. 17.º, n.º 1, als. a) e g)", d:"Notas de manobra escritas no mapa, na coordenada a que dizem respeito" },
       { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
       { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
     ] },

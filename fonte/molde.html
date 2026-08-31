@@ -598,6 +598,11 @@
   .wm-c .wm-t{font-weight:600}
   .wm-c .wm-id{font-family:var(--mono);font-size:11px;color:var(--tx3)}
   .wm-c .wm-nao{color:var(--tx3);font-style:italic;flex-basis:100%;font-size:11.5px}
+  /* A leitura da evolução. O parágrafo dos limites distingue-se por cor e por regra à
+     esquerda, e não por tamanho: é para se ler, não para se saltar. */
+  .ev-f{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--fogo);padding-left:9px}
+  .ev-g{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--agua);padding-left:9px}
+  .ev-lim{margin:0;font-size:12px;line-height:1.5;color:var(--tx2);border-left:3px solid var(--line);padding-left:9px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1214,11 +1219,38 @@
         <div class="grid g2" style="margin-top:12px">
           <div><label for="mapa-alvo">Clicar no mapa marca</label>
             <select id="mapa-alvo"></select></div>
-          <div><label for="mapa-nome">Nome do ponto (opcional)</label>
-            <input id="mapa-nome" placeholder="ex.: charca de Cambres"></div>
+          <div><label for="mapa-nome">Nome do ponto, ou texto da nota</label>
+            <input id="mapa-nome" maxlength="120" placeholder="ex.: charca de Cambres · interdito a VFCI"></div>
         </div>
         <div class="msg" id="mapa-msg" style="display:none"></div>
+        <div id="frente-op" style="margin-top:10px;display:none">
+          <div class="grid g2">
+            <div><label for="frente-tipo">Secção da frente</label>
+              <select id="frente-tipo"></select></div>
+            <div><label for="frente-rumo">Rumo de progressão (graus)</label>
+              <input id="frente-rumo" inputmode="decimal" placeholder="deixar vazio: sugerido pelo traçado"></div>
+          </div>
+          <p class="hint" id="frente-previsto" style="margin:6px 0 0 0"></p>
+        </div>
+        <div id="linha-op" style="margin-top:10px;display:none">
+          <div class="grid g2">
+            <div><label for="linha-tipo">Espécie de linha</label><select id="linha-tipo"></select></div>
+            <div><label for="linha-larg">Largura útil (m)</label>
+              <input id="linha-larg" inputmode="decimal" placeholder="a faixa sem combustível, não a estrada com bermas">
+              <div class="hint" style="margin-top:4px">Com a intensidade da frente preenchida, a aplicação diz se esta
+              largura aguenta — uma vez e meia o comprimento da chama (Byram 1959).</div></div>
+          </div>
+        </div>
+        <div id="mapa-traco" style="margin-top:10px;display:none">
+          <div class="row">
+            <span class="hint" id="mapa-traco-txt" style="margin:0"></span>
+            <button class="btn btn-g" type="button" id="mapa-traco-fechar">Fechar o limite</button>
+            <button class="btn btn-b" type="button" id="mapa-traco-desfazer">Retirar o último vértice</button>
+            <button class="btn btn-b" type="button" id="mapa-traco-largar">Largar o traçado</button>
+          </div>
+        </div>
         <div id="mapa-pontos" style="margin-top:10px"></div>
+
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
           <span class="hint" id="mapa-arquivo"></span>
@@ -1255,7 +1287,19 @@
               <input type="file" id="wm-fich" accept=".xml,text/xml,application/xml"></span>
           </div>
           <div class="mono-sm" id="wm-servico" style="margin-top:10px"></div>
+          <div id="wm-filtro-linha" style="margin-top:10px;display:none">
+            <label for="wm-filtro">Procurar camada</label>
+            <input id="wm-filtro" placeholder="parte do nome ou do identificador">
+          </div>
           <div id="wm-camadas" style="margin-top:10px"></div>
+          <div id="wm-dim" style="margin-top:10px;display:none">
+            <label for="wm-dim-v">Data da carta em uso</label>
+            <div class="row" style="margin-top:4px">
+              <input id="wm-dim-v" style="max-width:200px" placeholder="AAAA-MM-DD">
+              <button class="btn btn-b" type="button" id="wm-dim-b">Mudar a data</button>
+              <span class="hint" style="margin:0" id="wm-dim-h"></span>
+            </div>
+          </div>
           <div class="msg" id="wm-msg" style="display:none"></div>
         </div>
 
@@ -1281,9 +1325,27 @@
         </div>
 
         <div class="sub" style="margin-top:12px"><span class="stit">Carta pré-descarregada</span>
-          <p class="hint" style="margin:0 0 10px 0">Uma pasta com a árvore <span class="mono-sm">{z}/{x}/{y}.png</span>.
-          Fica no dispositivo e serve sem rede.</p>
-          <input type="file" id="carta-fich" multiple accept="image/png,image/jpeg,image/webp">
+          <p class="hint" style="margin:0 0 10px 0">Escolhe a <b>pasta</b> que contém a árvore
+          <span class="mono-sm">{z}/{x}/{y}</span> — a pasta inteira, não os ficheiros um a um. Aceita
+          <span class="mono-sm">.png</span>, <span class="mono-sm">.jpg</span> e <span class="mono-sm">.webp</span>,
+          e ignora o que não seguir a árvore. Fica no dispositivo e serve sem rede.</p>
+          <p class="hint" style="margin:0 0 10px 0"><b>Um ficheiro de imagem solto não é carta.</b> Um quadrado
+          tem 256×256 pixéis e cobre exatamente o território que o seu <span class="mono-sm">z/x/y</span>
+          designa; uma captura de ecrã não cobre coisa nenhuma que a aplicação possa saber, e seria esticada
+          para dentro de um quadrado a que não corresponde. Mosaicos geram-se com ferramenta própria.</p>
+          <div class="grid g2">
+            <div><label for="carta-loc-grelha">Projeção da árvore</label>
+              <select id="carta-loc-grelha">
+                <option value="mercator">Web Mercator (EPSG:3857) — esquema {z}/{x}/{y}</option>
+                <option value="pttm06">PT-TM06 / ETRS89 (EPSG:3763) — conjunto PTTM_06 da DGT</option>
+              </select></div>
+            <div><label for="carta-loc-atrib">Origem da carta, a mostrar</label>
+              <input id="carta-loc-atrib" placeholder="ex.: Ortos 2018, Direção-Geral do Território"></div>
+          </div>
+          <p class="hint" style="margin:8px 0 10px 0">A projeção não se adivinha pelos nomes dos ficheiros: as duas
+          árvores são numeradas do mesmo modo e só a aritmética difere. Declarada errada, a carta aparece e fica
+          fora do sítio sem dizer nada — que é pior do que não aparecer.</p>
+          <input type="file" id="carta-fich" webkitdirectory directory multiple>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
         </div>
       </div>
@@ -1357,6 +1419,63 @@
           <div><label for="t-eps">Razão declive/vento (ε)</label><input id="t-eps" data-campo="dados.topo.eps" inputmode="decimal" placeholder="deixar vazio se não for conhecida">
             <div class="hint" style="margin-top:4px">Razão entre a propagação que o declive induz e a que o vento induz, na aceção de Viegas (2004). Sem ela a app não calcula o desvio da cabeça — e não o inventa.</div></div>
           <div><label for="t-obs">Observações do relevo</label><input id="t-obs" data-campo="dados.topo.obs" placeholder="linhas de água, cumeadas, obstáculos"></div>
+        </div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Comportamento do fogo — intensidade da frente</span>
+        <p class="hint" style="margin:0 0 10px 0">Dois números que a aplicação <b>não estima</b>: exigiriam um modelo
+        de combustível calibrado para a vegetação do Douro, e não existe. Dados eles, saem a intensidade da frente, o
+        comprimento da chama, a distância de segurança, a largura de contenção necessária e se o ataque direto à cabeça
+        é admissível.</p>
+        <div class="grid g2">
+          <div><label for="fg-r">Velocidade de propagação (m/h)</label>
+            <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">
+            <div class="hint" style="margin-top:4px">Observada no terreno, ou de fogo experimental em vegetação
+            comparável. Varia de 1,5 m/h a cerca de 14 km/h em floresta (Alexander 2000, via Fernandes 2003).</div></div>
+          <div><label for="fg-w">Carga de combustível consumida (t/ha)</label>
+            <input id="fg-w" data-campo="dados.fogo.w" inputmode="decimal" placeholder="ex.: 12">
+            <div class="hint" style="margin-top:4px">A que arde <b>na frente de chamas</b>, e não a carga total do
+            povoamento.</div></div>
+        </div>
+        <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Focos de calor detetados por satélite</span>
+        <p class="hint" style="margin:0 0 10px 0">Uma lista de focos em CSV, como o FIRMS da NASA a escreve. Lê-se
+        <b>pelo nome das colunas</b> — o ficheiro traz o seu próprio cabeçalho, e não há nada a adivinhar. São
+        precisas a <span class="mono-sm">latitude</span> e a <span class="mono-sm">longitude</span>; o resto é o que
+        o ficheiro trouxer.</p>
+        <p class="hint" style="margin:0 0 10px 0"><b>A aplicação não traz endereço de serviço nenhum</b>, pela mesma
+        razão por que não traz serviço de cartografia: um endereço escrito de cor já foi uma fechadura sem chave neste
+        projeto. Declara-se aqui, com a chave de acesso lá dentro, ou carrega-se o ficheiro descarregado no gabinete —
+        que é o caminho que serve sem rede.</p>
+        <div class="row">
+          <span class="xtr"><span class="hint" style="margin:0">Do ficheiro</span>
+            <input type="file" id="foc-fich" accept=".csv,text/csv,text/plain"></span>
+          <button class="btn btn-b" type="button" id="foc-limpar">Retirar os focos do mapa</button>
+        </div>
+        <div class="grid g2" style="margin-top:10px">
+          <div style="grid-column:1/-1"><label for="foc-url">Endereço do serviço, com a chave</label>
+            <input id="foc-url" placeholder="https://…/api/area/csv/CHAVE/…">
+            <div class="hint" style="margin-top:4px">Fica guardado neste dispositivo e <b>não viaja na exportação da
+            ocorrência</b>: uma chave de acesso não vai dentro de um ficheiro que se passa entre postos.</div></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-o" type="button" id="foc-ler">Obter do serviço</button>
+          <button class="btn btn-b" type="button" id="foc-esquecer">Esquecer o endereço guardado</button>
+        </div>
+        <div class="msg" id="foc-msg" style="display:none"></div>
+        <div id="foc-info" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
+        <p class="hint" style="margin:0 0 8px 0">O que se segue às frentes traçadas no mapa: para onde progridem, o
+        que apanham no caminho, e como o rumo da cabeça roda ao longo da série meteorológica. Diz também o que a
+        aplicação <b>não</b> pode afirmar, e porquê. <b>Esta secção está sempre aqui</b> — mesmo sem frentes
+        traçadas, para dizer o que lhe falta.</p>
+        <div id="evol-txt"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
         </div>
         <div class="row" style="margin:12px 0 8px">
           <button class="btn btn-b" id="b-relevo" type="button">Analisar relevo automaticamente (coordenadas da ocorrência)</button>

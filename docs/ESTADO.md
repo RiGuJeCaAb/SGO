@@ -4,7 +4,7 @@ Atualizado em 2026-08-31.
 
 ## Situação atual
 
-A revisão em vigor é a **r0069**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0072**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 69, das anteriores à convenção de nomes até à r0069 |
+| Entregas em `app/` | 71, das anteriores à convenção de nomes até à r0070 |
 | Módulos em `fonte/` | 60, em sete zonas, mais o molde |
-| Testes | 509, todos a passar |
+| Testes | 520, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -116,6 +116,299 @@ linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia nin
 Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
+
+## Focos de calor, na r0072 — e o endereço que não se inventou
+
+Os focos são pontos, e um ponto reprojeta-se para PT-TM06 com a aritmética que já está
+escrita. A r0072 lê a lista, desenha-a e escreve o que dela se pode dizer.
+
+**Três decisões, e a primeira é a que mais custou a tomar.**
+
+### Não se escreveu o endereço do serviço
+
+Conheço a forma geral da API do FIRMS. **Não a pude verificar daqui** — a política de rede
+deste ambiente não deixa —, e escrever de cor um endereço que ninguém confirmou seria repetir
+exatamente o erro que abriu todo este trabalho: o campo `{z}/{x}/{y}` foi escrito assim, não
+existia naquela forma, e ficou uma fechadura sem chave até se passar a perguntar ao serviço.
+
+O endereço declara-se, como o da cartografia. A aplicação preenche `{bbox}` e `{data}` se
+estiverem escritos, e **não reescreve mais nada**. E o ficheiro serve sem rede, que é o caso
+do posto.
+
+### A chave não sai no ficheiro da ocorrência
+
+Vive no armazém do dispositivo, como a declaração da carta local. Um ficheiro de ocorrência
+passa entre postos, vai por correio e fica arquivado; uma chave lá dentro saía de casa sem
+ninguém dar por isso. Há um teste que exporta uma ocorrência com a chave declarada e confere
+que nem a chave nem o anfitrião aparecem no ficheiro.
+
+### A confiança dos dois sensores não se converte
+
+O VIIRS escreve `l`, `n` ou `h`; o MODIS escreve 0 a 100. Guarda-se o degrau **e o texto
+original**, porque converter um no outro seria inventar equivalência onde não a há.
+
+### O que a leitura recusa deixar passar
+
+> **Um foco é uma deteção, não um incêndio confirmado**, e a ausência de focos não é ausência
+> de fogo: a passagem do satélite tem hora, o fumo espesso tapa, e a resolução do sensor é de
+> centenas de metros.
+
+Sai sempre, e há um teste que o exige. Sem isso, cinco losangos no mapa leem-se como verdade
+do terreno.
+
+### O que fica por fazer, e depende de terceiros
+
+Confirmar contra o serviço a sério: o endereço exato, se responde com CORS aberto a uma página
+em `file://`, e obter a chave. Nada disso se pôde verificar daqui.
+
+## O eixo do tempo, na r0072 — e o fogo ativo, que continua de fora
+
+A r0070 recusava por completo uma camada com dimensão. A recusa estava certa — servir pelo
+valor por omissão mostrava outra data sem o dizer — e o resultado era inútil: recusava 1 210
+das 1 315 camadas do GIBS, exatamente as que interessavam.
+
+Passa a ler-se o eixo, a indicar-se o valor no pedido e a escrever-se **a data por baixo do
+mapa**, que é a razão inteira de se ter feito isto: sem ela via-se imagem de outro dia sem
+ter como saber.
+
+Uma data que o serviço não declare é recusada com a distinção que importa: **«não há dados
+desse dia» não é «não houve deteções nesse dia»**, e a segunda a aplicação não a pode saber
+de todo — um mosaico vazio e um mosaico que não existe são coisas diferentes. Onde o passo do
+intervalo não é de dias inteiros, abstém-se e di-lo, em vez de responder mal.
+
+Das 1 315 camadas passaram a servir **1 197**, entre elas a cor verdadeira diária do VIIRS e
+do MODIS: imagem fresca da região, que nenhuma fonte nacional dá.
+
+### A correção que isto obrigou a fazer
+
+**Esperava-se que ler o eixo trouxesse o fogo ativo do GIBS para dentro do mapa. Não traz.**
+As dezoito camadas de anomalias térmicas continuam recusadas, e não pelo tempo: são servidas
+só em `application/vnd.mapbox-vector-tile`, que não é imagem e que este mapa não desenha.
+
+Ficou escrito onde estava escrito o contrário, e fica um teste que o fixa — confere que as
+dezoito são recusadas **por formato** e que a palavra «eixo» já não aparece no motivo.
+
+Isto reforça o §4 do relatório de fontes internacionais, que já era a conclusão certa: os
+focos de calor são pontos e não mosaicos. A via é a API de área do FIRMS, que devolve
+coordenada, hora de deteção, satélite, potência radiativa e confiança por foco. Um ponto
+reprojeta-se para PT-TM06 com a aritmética que já está escrita; um mosaico já desenhado não.
+
+### Um erro meu na conta dos intervalos
+
+Uma data dentro de um intervalo que não caia num múltiplo do passo **não existe** — e eu
+tinha-a a devolver «incerto». O passo é conhecido e a conta fecha; confundir uma coisa com a
+outra fazia a aplicação abster-se de dizer o que sabia.
+
+## A dívida cartográfica, saldada na r0072
+
+A carta que o Ricardo anotou à mão no PCO de Cabeça Boa abriu este trabalho: sete coisas que
+ela dizia e a Estação não sabia dizer. Estão as sete feitas.
+
+| | |
+|---|---|
+| Perímetro com as manchas por arder | Já estava |
+| Limites de setor | r0070 |
+| Frentes com direção de progressão | r0070 |
+| Linhas de contenção e de apoio | r0070 |
+| Pontos de água e de combustível | Já estava |
+| Meios no sítio onde estão | r0072 |
+| **Notas de manobra sobre o traçado** | **r0072** |
+
+### As notas, que eram a última
+
+«Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo», «não ardido». Nenhuma cabe
+num campo de formulário e nenhuma se deduz de coisa nenhuma: são o que quem esteve ali viu e
+quis deixar dito, no sítio onde é verdade.
+
+O texto desenha-se **por inteiro** sobre a carta. Uma nota que precise de ser clicada para se
+ler não é uma nota, é um ponto.
+
+As três espécies — aviso, manobra, observação — **não são doutrina, e a aplicação não finge
+que sim**. A doutrina classifica pontos de água e zonas de concentração; não classifica
+bilhetes escritos na margem de uma carta. Distinguem-se por uma razão prática e uma só: uma
+nota que restringe ou avisa tem consequência para a segurança de quem lá vai. É por isso que
+**só os avisos entram na leitura da evolução** quando caem no caminho da frente — «não
+ardido» à frente do fogo não é notícia; «incêndio subterrâneo» é.
+
+Um teste confere que nenhuma das três cita artigo, ponto ou diretiva. Se algum dia alguém lhes
+quiser dar fundamento legal, tem de o ir buscar a uma fonte e não a este ficheiro.
+
+### A superfície mais exposta que se acrescentou
+
+É texto livre, escrito à mão por quem regista, desenhado por inteiro dentro de um SVG. Fica um
+teste que sopra os três venenos conhecidos do projeto e julga o resultado **depois de o
+navegador o interpretar** — não por procura de texto: o texto escapado contém a palavra
+«onerror» como texto, e isso é inofensivo; o que não pode existir é o atributo.
+
+### O que a carta ainda tem e a aplicação não
+
+A carta de fundo. Falta a decisão institucional sobre que serviço o posto tem direito a usar.
+
+## Os meios onde estão, na r0072
+
+Na carta anotada do PCO os meios estão desenhados no sítio onde estão: GRIR Guarda, GRUATA
+BSE, CATE Viseu. No dispositivo desta aplicação já lá estavam — cada unidade com tipologia,
+entidade e hora de empenhamento — e o que lhes faltava era coordenada.
+
+**Não se criou um segundo inventário.** Dar posição a um meio é acrescentar coordenada ao que
+já está contado: um dispositivo contado em dois sítios acaba a contar dois números
+diferentes, e a fase do SGO depende dessa contagem.
+
+Cada unidade passou a nascer com identificador próprio, e a migração dá-o às que já existiam.
+Sem ele, a posição só se poderia prender ao lugar na lista — e o quadro de setorização move
+unidades de setor, o que passaria a coordenada para a unidade errada, em silêncio. Fica um
+teste que move uma unidade e confere que a coordenada não mudou de dono.
+
+### O que isto destrava
+
+A pergunta a que a carta anotada responde de relance: **quem fica do lado errado da frente.**
+A leitura da evolução destaca-a à parte do resto, porque é decisão de outra natureza — uma
+coisa é o fogo caminhar para uma charca, outra é caminhar para uma equipa:
+
+> **No corredor de progressão desta frente: GRIR Guarda a 1,1 km; BRIR BSE a 2,2 km.**
+
+E com ela vai a ressalva que a torna honesta: *dos 3 meios do dispositivo, 2 têm posição no
+mapa; o que a leitura diz sobre meios no caminho da frente vale só para esses.* Dizer que não
+há meios no caminho com três posicionados em vinte diz muito menos do que parece.
+
+### O que o verificador de tipos apanhou
+
+`String(x).toString(36)` — a `toString` de uma cadeia não leva argumentos, e o identificador
+saía em decimal em vez de base 36. Não partia nada; estava errado, e não teria sido visto.
+
+## A carta pré-descarregada, que ninguém conseguia carregar — absorvido da r0071
+
+A linhagem paralela mandou a r0071 com dois defeitos desta linhagem, e ambos são reais.
+
+**O campo não pedia uma pasta.** Sem o atributo `webkitdirectory`, o navegador não preenche
+`webkitRelativePath`, o código cai em `f.name` — que nunca traz barras — e `mosaicoDoCaminho`
+recusa **cem por cento** dos ficheiros. A funcionalidade era impossível de satisfazer por
+qualquer utilizador, por muito bem que preparasse a carta.
+
+O que interessa aqui não é o atributo: é **porque é que os testes desta linhagem não o
+apanharam**. O teste que existia construía o `webkitRelativePath` à mão, com
+`Object.defineProperty`, e assim provava que o filtro funcionava sem provar que alguém lá
+chegava. Um teste que fabrica aquilo que a interface deveria fornecer testa o código e não o
+caminho. Ficam os dois: o do filtro, e um que confere que o campo pede a pasta.
+
+**A grelha da árvore local não se declarava.** Defeito meu, e consequência direta de ter
+passado a portuguesa a grelha por omissão: uma árvore do OpenStreetMap carregada sem serviço
+declarado era desenhada com a aritmética de PT-TM06 — carta no ecrã, tudo fora do sítio, e
+nada a assinalá-lo. As duas grelhas numeram os quadrados do mesmo modo, e por isso a projeção
+**não se adivinha pelos ficheiros**: declara-se, e fica gravada com os quadrados que descreve.
+
+Acrescentou-se ainda a atribuição da carta local — o próprio código dizia que não havia onde
+a declarar — e a mensagem de falha passou a ser diagnóstica: mostra o primeiro caminho que
+leu, porque é isso que diz onde está o erro.
+
+Absorvido em `fonte/`; a r0071 fica em `app/` ao lado das outras. As 22 verificações do
+`t0017` passam contra esta fonte, e estão traduzidas para `tests/mapa.test.mjs`.
+
+## O teste de esforço, e a travessia que era quadrática
+
+O NASA GIBS publica 5,8 MB de `GetCapabilities`: 62 034 elementos, 1 315 camadas, sete
+conjuntos de matrizes. Entrou como teste de esforço, e o interpretador **não o leu** —
+passou de cinco minutos sem terminar.
+
+A causa era minha e estava em duas linhas parecidas. `wmtsTodos` fazia
+`[...el.getElementsByTagName("*")].filter(...)`, e a coleção devolvida é **viva**: espalhá-la
+faz o motor voltar a percorrer a árvore a cada passo do iterador. A busca de exceções fazia
+`for(let i=0; i < col.length; i++)` sobre outra coleção viva, e o comprimento é recalculado
+a cada volta. Ambas são a forma óbvia de escrever aquilo, e ambas são quadráticas.
+
+A caminhada por `firstElementChild`/`nextElementSibling` percorre os mesmos 62 034 elementos
+em 38 ms. A leitura completa passou a **1,8 s**, e o inventário das 1 315 camadas a 17 ms.
+A busca de exceções deixou de percorrer o que quer que seja em documento bom: um relatório
+de exceção da OGC é um documento inteiro, e decide-se pela raiz.
+
+Nenhum documento pequeno apanhava isto. Ficou teste, com limite generoso: o que se trava é
+a regressão para tempo quadrático, não milissegundos.
+
+### O que o GIBS mostrou sobre o fogo ativo
+
+| | |
+|---|---|
+| Camadas | 1 315, das quais **99 desenháveis hoje** |
+| Recusadas por eixo temporal | **1 210** |
+| Recusadas por formato | 6, em mosaico vetorial |
+| Anomalias térmicas | 18 camadas VIIRS e MODIS — **todas recusadas**, todas por `Time` |
+
+É a única fonte de fogo ativo identificada em serviço aberto, sem chave e com CORS. E está
+recusada por inteiro, pela regra que a r0070 acabou de introduzir. A regra está certa —
+servir pelo valor por omissão mostrava outra data sem o dizer — e o resultado é inútil.
+Ler o eixo `Time` passa a ser a tarefa que desbloqueia o assunto; está em
+`docs/POREXECUTAR.md`, ponto 2.
+
+Nota de escala, para não se esperar do GIBS o que ele não dá: as anomalias térmicas param no
+nível 8, **611 m por pixel**. É honesto da NASA — o sensor VIIRS tem 375 m de resolução
+nativa —, e serve para contexto regional, não para vista de setor.
+
+## Os requisitos do §17, na r0070
+
+O relatório da sessão de cartografia fecha com catorze requisitos para o interpretador,
+independentes da opção de arquitetura. Foram todos percorridos. Seis mudaram
+comportamento, cinco já estavam cumpridos, dois não se aplicam a WMTS e **um seguiu-se por
+outro caminho**, com a razão registada.
+
+| § | Requisito | O que ficou |
+|---|---|---|
+| 1 | Versão pelo nome da raiz | **Feito.** E mais do que pedia: um documento de WMS colado por engano passa a dizer «isto é um WMS 1.1.1, não um WMTS», em vez de nomear a raiz. Das vinte e três capturas, dezoito são WMS: é o engano provável |
+| 2 | Erro com HTTP 200 | Já feito na r0069 |
+| 3 | Sem DTD nem entidades externas | **Feito**, com uma correção pelo caminho — ver abaixo |
+| 4 | Travessia por `localName` | Já feito |
+| 5 | Requisitabilidade pelo `Identifier` | Já feito |
+| 6 | CRS pela cadeia de ascendentes | **Não se aplica.** É a herança de camadas do WMS; no WMTS as camadas são planas e o sistema vem do conjunto de matrizes |
+| 7 | Endereço fundido, promovido a HTTPS | **Feito o primeiro, o segundo com condição** — ver abaixo |
+| 8 | Formatos por lista da aplicação | **Feito.** `WMTS_FORMATOS` declara o que o mapa desenha. Uma camada só em mosaico vetorial ou GeoTIFF é recusada a dizer o que oferecia, em vez de ser adotada e falhar ao desenhar |
+| 9 | Escalas como números, `ScaleHint` à parte | Já feito. `ScaleHint` é do WMS e não entra aqui |
+| 10 | Dimensões temporais | **Feito.** Ver abaixo: é o requisito com risco operacional real |
+| 11 | Catálogo por lista branca | **Seguiu-se por outro caminho** — ver abaixo |
+| 12 | Conferir o CRS antes de compor pedidos | Já feito, em `wmtsCompativel` |
+| 13 | Zero camadas é erro reportável | Já feito |
+| 14 | Versão fixada por camada | **Não se aplica.** O WMTS tem uma versão só, a 1.0.0 |
+
+### O eixo do tempo, que é o que mais podia doer
+
+Uma camada pode ter um eixo além do espaço. Nas capturas de WMS do EFFIS as camadas
+declaram `<Dimension name="time" units="ISO8601" default="2019-01-01">`. Um pedido que
+omita o tempo recebe o que o serviço escolheu por omissão — e nenhum aviso.
+
+Num incêndio ativo, mostrar imagem de 2019 a quem está a decidir sobre hoje, sem o dizer,
+é pior do que não ter carta nenhuma: a carta em falta vê-se, a carta errada não. O
+construtor de endereços desta aplicação não preenche dimensões, e por isso **uma camada
+que declare uma é recusada** — com o motivo, e a dizer que data se veria se fosse servida.
+
+### O DOCTYPE, e a guarda que estava a recusar mal
+
+A guarda contra entidades recusava qualquer declaração de tipo de documento. Estava errada,
+e foram as capturas que o mostraram: **o WMS 1.1.1 declara um por norma** — as nove capturas
+de 1.1.1 trazem todas `<!DOCTYPE WMT_MS_Capabilities SYSTEM ...>`. Quem colasse um endereço
+de WMS 1.1.1 recebia «declara entidades próprias», que é obscuro e falso quanto à intenção.
+
+Lê-se agora o **nome** da declaração: os nomes conhecidos seguem para a mensagem que explica
+o protocolo, e só o resto é recusado.
+
+### Onde não se seguiu o relatório
+
+**§7, a promoção a HTTPS.** O relatório pede-a sempre. Não se fez sempre, e a razão está nas
+capturas: a DGT publica o serviço em `http://` e só em `http://`. Promover às cegas trocava
+um serviço que responde por um que não existe.
+
+A regra ficou pela consequência. Numa página servida por HTTPS o navegador recusa conteúdo
+em claro de qualquer modo, e aí promover é a única hipótese de a carta aparecer; num ficheiro
+aberto de `file://`, que é como esta aplicação se usa no posto, o `http://` funciona. É a
+diferença entre a entrega local e a pré-visualização do Netlify: na segunda, a cartografia da
+DGT não carrega, e não é defeito do código.
+
+**§11, o catálogo por lista branca.** O problema é real — a base de dados geográfica do ICNF
+declara **385 camadas**, e uma lista de 385 linhas num posto de comando não se lê. A solução
+proposta não se seguiu: escrever no código os nomes das camadas que se acha que um serviço
+tem é dar por assente o que não se confirmou, que é a restrição que este projeto tem em
+primeiro lugar — e esconde, sem o dizer, camadas que o serviço realmente publica.
+
+Resolveu-se por ordem e por procura: as camadas que servem primeiro, um campo para filtrar
+que aparece quando a lista passa de vinte, e a conta do que ficou de fora à vista. Quem
+procura encontra; quem não procura não fica a supor que o serviço só tem vinte camadas.
 
 ## Desenhar na projeção portuguesa, na r0069
 
@@ -2045,6 +2338,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0029 | 281713 | esta | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |
 | r0030 a r0033 | — | paralela | Produzidas do outro lado sobre a r0028 de 15h23, e não montadas aqui. `p0003` passagem de turno e estado na versão 4; `p0004` os dois instantes da nomeação externa; `p0005` posse do estado por célula |
 | r0032 | 281900 | paralela | A entrega que chegou em ficheiro, e a base da fusão. O rodapé lá dentro diz `r0031`: numeração do outro lado, registada como veio |
+| r0033 | 281713 | paralela | Chegou em ficheiro ao mesmo tempo que a r0032 e **ficou três dias fora de `app/`**, por lapso de arrumação e não por decisão. Arquivada agora, com as outras. O que trouxe está absorvido em `fonte/` desde a fusão da r0034 |
 | r0034 | 281800 | esta | Fusão da terceira linhagem paralela. Passagem de turno, posse do estado por célula, os dois instantes da nomeação externa no importador; correção da fusão de funções, que apagava com vazio o que estava registado |
 | r0035 | 282010 | paralela | `O.logistica` com reserva, zona de apoio e ponto de trânsito; estado na versão 5. Resolve a conflação de `dados.est` |
 | r0036 | 282100 | paralela | Interface organizada por célula: um separador por célula do PCO, registo `ARRUMACAO` e auditoria |

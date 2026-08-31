@@ -80,6 +80,12 @@ interface Setor {
   siresp?: string; ba?: string; tat?: string; tatba?: string;
   /** Coordenada do setor, marcada no mapa. Vazia enquanto não for marcada. */
   lat?: string; lon?: string;
+  /**
+   * Limite traçado do setor: anel fechado de pares `[lon, lat]`, na convenção do GeoJSON
+   * e a mesma do perímetro da zona de intervenção. Vazio enquanto não for traçado — um
+   * setor sem limite é um setor por delimitar, e não um setor de área nula.
+   */
+  limite?: number[][];
   tip?: any[];
   [outro: string]: any;
 }
@@ -154,6 +160,96 @@ interface PontoNotavel {
   id: string; tipo: string; nome: string;
   lat: number; lon: number;
   g: string; por: string; nota: string;
+  /**
+   * O setor em cujo limite o ponto caiu, pelo nome — vazio se não caiu em nenhum ou se
+   * não havia limites traçados quando foi marcado. Gravado no momento da marca, e não
+   * recalculado: é o registo de onde o ponto estava quando alguém o pôs ali, e um limite
+   * redesenhado depois não muda o que se registou.
+   */
+  setor?: string;
+}
+
+/**
+ * Uma frente de fogo: linha traçada, com a direção em que progride.
+ *
+ * A nomenclatura das secções — cabeça, flanco, retaguarda — é a de Fernandes (2003).
+ * Ver `docs/FONTES.md`, `FOGOINT`.
+ */
+interface FrenteDeFogo {
+  id: string;
+  /** `cabeca`, `flanco` ou `retaguarda`. Ver TIPOS_FRENTE. */
+  tipo: string;
+  /** A linha traçada, aberta, em pares [lon, lat]. */
+  linha: number[][];
+  /** Rumo de progressão em graus de norte; `null` na retaguarda, que não avança. */
+  rumo: number | null;
+  /**
+   * De onde veio o rumo: `indicado` por quem comanda, ou `sugerido pelo traçado`. É o que
+   * impede uma sugestão de passar por observação três turnos depois.
+   */
+  rumoFonte: string;
+  /** O setor em que a linha começa, pelo nome. Vazio se não houver limites traçados. */
+  setor: string;
+  /** Comprimento da linha, em metros. */
+  m: number;
+  g: string; por: string; nota: string;
+}
+
+/** Uma linha de contenção a abrir, ou de apoio já existente no terreno. */
+interface LinhaDeContencao {
+  id: string;
+  /** `contencao` ou `apoio`. Ver TIPOS_LINHA. */
+  tipo: string;
+  /** A linha traçada, aberta, em pares [lon, lat]. */
+  linha: number[][];
+  /**
+   * Largura **útil** em metros — a faixa sem combustível, e não a largura da estrada com as
+   * bermas por cortar. `null` enquanto não for indicada: uma linha sem largura declarada não
+   * é uma linha de largura zero.
+   */
+  larguraM: number | null;
+  /** Se já está aberta no terreno. Uma linha de apoio nasce aberta: já lá estava. */
+  aberta: boolean;
+  /** Comprimento da linha, em metros. */
+  m: number;
+  /** O setor em que a linha começa, pelo nome. */
+  setor: string;
+  g: string; por: string; nota: string;
+}
+
+/**
+ * Uma nota escrita sobre o mapa, na coordenada a que diz respeito.
+ *
+ * As espécies — aviso, manobra, observação — **não são doutrina**: são a maneira como a nota
+ * se lê no mapa. Distinguem-se porque uma nota que restringe ou avisa tem consequência para
+ * a segurança de quem lá vai.
+ */
+interface NotaNoMapa {
+  id: string;
+  /** `aviso`, `manobra` ou `obs`. Ver TIPOS_NOTA. */
+  tipo: string;
+  txt: string;
+  lat: number; lon: number;
+  /** O setor em que a nota caiu, pelo nome. Vazio se não houver limites traçados. */
+  setor: string;
+  g: string; por: string;
+}
+
+/**
+ * Um foco de calor, tal como o satélite o escreveu.
+ *
+ * A confiança guarda o degrau **e o texto original**: o VIIRS escreve `l`/`n`/`h` e o MODIS
+ * escreve 0 a 100, e converter um no outro seria inventar equivalência onde não a há.
+ */
+interface FocoDeCalor {
+  lat: number; lon: number;
+  /** Data e hora da deteção, em UTC, como vieram do ficheiro. */
+  data: string; hora: string;
+  sat: string; instr: string;
+  conf: { grau: string; txt: string };
+  /** Potência radiativa em MW, ou `null` se o ficheiro não a trouxer. */
+  frp: number | null;
+  dn: string; tb: string;
 }
 
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
@@ -181,6 +277,23 @@ interface DadosOcorrencia {
   sensDet: DetecaoSensiveis | null;
   /** Os pontos notáveis do teatro, marcados no mapa. Ver TIPOS_PONTO. */
   pontos: PontoNotavel[];
+  /** As frentes de fogo traçadas no mapa, com a direção em que progridem. */
+  frentes: FrenteDeFogo[];
+  /** As linhas de contenção e de apoio traçadas no mapa. */
+  linhas: LinhaDeContencao[];
+  /** As notas escritas sobre o mapa, na coordenada a que dizem respeito. */
+  notas: NotaNoMapa[];
+  /**
+   * Focos de calor detetados por satélite, com a origem e o instante em que foram
+   * carregados. **Substitui-se, não se acumula**: é uma fotografia de um instante.
+   */
+  focos: { itens: FocoDeCalor[]; origem: string; g: string; por: string; nota: string };
+  /**
+   * Comportamento do fogo: velocidade de propagação em m/h e carga de combustível
+   * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os
+   * estima: exigiriam um modelo de combustível calibrado para a vegetação do território.
+   */
+  fogo: { r: string; w: string };
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */

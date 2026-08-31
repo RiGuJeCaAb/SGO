@@ -15,7 +15,8 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run validar-gp -- <ficheiro>` | Corre o leitor da Gestão PCO sobre uma exportação e diz o que a Estação fará com ela |
 | `npm run morto` | Relata identificadores e funções que ninguém usa. **Lê-se, não se aplica** |
 | `npm run documentar` | Confere que toda a função de topo diz o que promete; recusa que a cobertura desça de 100 % |
-| `npm run tudo` | Sintaxe, testes, análise estática, tipos, código morto e cobertura de documentação, por esta ordem |
+| `npm run manual` | Confere que todo o rótulo que `docs/MANUAL.md` cita entre «aspas angulares» existe mesmo na entrega |
+| `npm run tudo` | Sintaxe, testes, análise estática, tipos, código morto, cobertura de documentação e manual, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.

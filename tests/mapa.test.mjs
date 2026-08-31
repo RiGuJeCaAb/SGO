@@ -10,6 +10,7 @@ const semAplicacao = { skip: janela ? false : 'sem revisão em app/' };
 after(() => janela?.close());
 
 const daqui = (x) => JSON.parse(JSON.stringify(x));
+const doc = () => janela.document;
 
 function comTeatro() {
   janela.eval('O = novoEstado()');
@@ -470,4 +471,89 @@ test('com carta do arquivo e sem serviço, di-lo em vez de dizer que não há ca
   assert.match(t, /Carta pré-descarregada/);
   assert.doesNotMatch(t, /Sem serviço de mosaicos configurado/,
     'o mapa estava a mostrar carta e a linha dizia que não havia');
+});
+
+test('o ponto da ocorrência sozinho chega para abrir o mapa', semAplicacao, () => {
+  /* Havia uma armadilha fechada sobre si mesma: o cartão do mapa só abria quando havia
+     algo para enquadrar, e o croqui recusa um ponto sozinho — de propósito, porque um
+     triângulo não é um croqui. Mas o mapa não é para ver, é para desenhar: para traçar uma
+     frente era preciso o mapa aberto, e para o mapa abrir era preciso já haver uma frente.
+     Apanhada ao varrer o que estava escondido, quando se escreveu o manual. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4711'; O.meta.lat = '41,0975'; O.meta.lon = '-7,8103';
+  assert.equal(janela.enquadrarCroqui(640, 420), null, 'o croqui continua a recusar um ponto sozinho');
+  assert.equal(janela.enquadrarMapa(640, 620), true, 'o mapa devia abrir com o ponto');
+});
+
+test('e uma frente traçada fora da caixa do croqui é enquadrada na mesma', semAplicacao, () => {
+  comTeatro();
+  const antes = avaliar(janela, 'MAPA').z;
+  janela.iniciarTraco(-1, 'frente');
+  [[41.30, -7.60], [41.31, -7.59]].forEach(([la, lo]) => janela.pontoDoTraco(la, lo));
+  const t = janela.document.getElementById('frente-tipo');
+  t.innerHTML = '<option value="cabeca"></option>';
+  t.value = 'cabeca';
+  janela.document.getElementById('frente-rumo').value = '90';
+  janela.fecharTraco();
+  janela.enquadrarMapa(640, 620);
+  assert.ok(avaliar(janela, 'MAPA').z < antes, 'não afastou para caber a frente que ficou longe');
+});
+
+/* ---- a carta pré-descarregada ----
+   Absorvido da linhagem paralela (p0017/t0017). Dois defeitos que a r0070 tinha e que os
+   testes desta linhagem não apanhavam. */
+
+test('o campo da carta pede uma PASTA, e sem isso a funcionalidade era impossível', semAplicacao, () => {
+  /* **É a causa real, e escapou por o teste construir aquilo que a interface não dava.**
+     Sem `webkitdirectory` o navegador não preenche `webkitRelativePath`, o código cai em
+     `f.name` — que nunca tem barras — e `mosaicoDoCaminho` recusa 100 % dos ficheiros.
+     Nenhum utilizador conseguia carregar uma carta, por muito bem que a preparasse.
+
+     O teste que já existia punha o `webkitRelativePath` à mão com `defineProperty`, e por
+     isso provava o filtro sem provar que alguém lá chegava. Este confere a interface. */
+  const campo = doc().getElementById('carta-fich');
+  assert.ok(campo, 'o campo da carta desapareceu');
+  assert.ok(campo.hasAttribute('webkitdirectory'),
+    'sem webkitdirectory o caminho vem vazio e nenhum ficheiro casa com {z}/{x}/{y}');
+});
+
+test('a projeção da árvore declara-se, porque não se adivinha', semAplicacao, () => {
+  /* As duas grelhas numeram os quadrados do mesmo modo e só a aritmética difere. Uma
+     árvore do OpenStreetMap desenhada com a portuguesa aparece — e fica fora do sítio sem
+     dizer nada, que é pior do que não aparecer. */
+  const sel = doc().getElementById('carta-loc-grelha');
+  assert.ok(sel, 'não há onde declarar a projeção da árvore');
+  const vals = [...sel.options].map((o) => o.value).sort();
+  assert.deepEqual(vals, ['mercator', 'pttm06']);
+  assert.ok(doc().getElementById('carta-loc-atrib'), 'não há onde declarar a origem da carta');
+});
+
+test('sem serviço, é a carta do arquivo que decide a grelha', semAplicacao, async () => {
+  await janela.retirarCarta();
+  janela.eval('CARTA_LOCAL = null');
+  assert.equal(janela.grelhaAtual().k, 'pttm06', 'sem nada declarado, fica a portuguesa');
+  await janela.declararCartaLocal('mercator', 'Ortos de exemplo');
+  assert.equal(janela.grelhaAtual().k, 'mercator', 'a árvore declarada em Mercator devia mandar');
+  await janela.esquecerCartaLocal();
+  assert.equal(janela.grelhaAtual().k, 'pttm06');
+});
+
+test('uma grelha que não existe não se declara', semAplicacao, async () => {
+  assert.equal(await janela.declararCartaLocal('inventada', 'x'), null);
+});
+
+test('a carga diz o que leu quando recusa tudo', semAplicacao, async () => {
+  /* Diagnóstico e não veredicto: «nenhum ficheiro seguia a árvore» sem dizer o que leu
+     obriga quem está ao teclado a adivinhar. */
+  const f = (caminho, comCaminho) => {
+    const x = new janela.File(['x'], caminho.split('/').pop(), { type: 'image/png' });
+    if (comCaminho) Object.defineProperty(x, 'webkitRelativePath', { value: caminho });
+    return x;
+  };
+  const r = await janela.carregarMosaicosLocais([f('captura-de-ecra.png', false)]);
+  assert.equal(r.n, 0);
+  assert.equal(r.ignorados, 1);
+  assert.equal(r.exemplo, 'captura-de-ecra.png', 'não guardou exemplo do que recusou');
+  assert.ok(r.exemplo.indexOf('/') < 0, 'é o caso do ficheiro solto, que é o que mais acontece');
 });

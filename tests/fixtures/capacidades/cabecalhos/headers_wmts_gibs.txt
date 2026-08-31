@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml; charset=UTF-8
+Content-Length: 5797572
+Connection: keep-alive
+Date: Mon, 31 Aug 2026 12:28:37 GMT
+Server: ServerTokens ProductOnly
+Cache-Control: public, max-age=1800
+Vary: Accept-Encoding
+Access-Control-Allow-Origin: *
+X-Cache-Detail: "cache miss: attempting entity save" from 172.17.0.3
+X-Request-Id: kl_i_y7PHcXfWGGP2rR20w_ZfFQA1H_r2XhMDrZ_TByizKHq1w6r0A==
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Cache: Miss from cloudfront
+Via: 1.1 e20300c032c0ee123f18c0a172b5bdfc.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: LIS50-P2
+X-Amz-Cf-Id: kl_i_y7PHcXfWGGP2rR20w_ZfFQA1H_r2XhMDrZ_TByizKHq1w6r0A==
+
