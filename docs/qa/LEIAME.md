@@ -72,3 +72,9 @@ as três notas escritas por cima do sítio a que dizem respeito. O aviso a negri
 não.
 
 `qa0024_r0072_LeituraCompleta_CLD.png` — a leitura da mesma ocorrência.
+
+## qa0025 — r0072, focos de calor
+
+Cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
+**por baixo** de tudo o que o posto desenhou à mão: são observação de satélite, e o que o
+posto traçou tem precedência de leitura sobre o que a máquina viu.

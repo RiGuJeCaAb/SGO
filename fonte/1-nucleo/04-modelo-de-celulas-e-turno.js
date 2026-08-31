@@ -356,6 +356,15 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 23 -> 24 · Os focos de calor detetados por satélite. Ramo novo, vazio no que já existe:
+   uma lista de focos é uma fotografia de um instante, e não se reconstrói para trás. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.focos = Object.assign({itens:[], origem:"", g:"", por:"", nota:""}, e.dados.focos||{});
+  if(!Array.isArray(e.dados.focos.itens)) e.dados.focos.itens = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -366,7 +375,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], focos:{itens:[], origem:"", g:"", por:"", nota:""}, fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

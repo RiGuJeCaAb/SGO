@@ -280,6 +280,8 @@ function enquadrarMapa(larg, altMax){
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
   notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
+  /* Os focos **não** entram no enquadramento: um foco a duzentos quilómetros — e o serviço
+     devolve o que a caixa pedida contiver — afastava o mapa até o teatro ser um ponto. */
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
   /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
      propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
@@ -687,6 +689,18 @@ function camadaMapa(){
     g += '<text x="'+x0+'" y="'+n(y0+4)+'" font-size="11" font-weight="700" text-anchor="middle" fill="#fff">'
        + esc(String(NOMES_SETOR[i]||"").slice(0,1)) + '</text>';
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
+  });
+
+  /* Os focos de calor, por baixo de tudo o que alguém desenhou à mão: são observação de
+     satélite, e o que o posto traçou tem precedência de leitura sobre o que a máquina viu.
+     Losango, para não se confundir com um ponto notável nem com um meio; a cor diz a
+     confiança, e o tamanho não diz nada — a potência radiativa está no texto, porque um
+     símbolo maior lia-se como área maior e não é isso que o número quer dizer. */
+  focosLista().forEach(x=>{
+    const q = pxy(x.lat, x.lon), x0 = n(q.x), y0 = n(q.y);
+    const cor = x.conf.grau === "alta" ? "#B00000" : (x.conf.grau === "nominal" ? "#D2691E" : "#B08A2E");
+    g += '<path d="M'+x0+','+n(y0-5)+' L'+n(x0+5)+','+y0+' L'+x0+','+n(y0+5)+' L'+n(x0-5)+','+y0
+       + ' Z" fill="'+cor+'" fill-opacity=".85" stroke="#fff" stroke-width="1.2"/>';
   });
 
   /* As notas. **O texto desenha-se por inteiro**, e não um símbolo com o texto escondido

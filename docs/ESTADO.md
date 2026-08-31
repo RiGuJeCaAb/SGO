@@ -117,6 +117,50 @@ Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes d
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
 
+## Focos de calor, na r0072 — e o endereço que não se inventou
+
+Os focos são pontos, e um ponto reprojeta-se para PT-TM06 com a aritmética que já está
+escrita. A r0072 lê a lista, desenha-a e escreve o que dela se pode dizer.
+
+**Três decisões, e a primeira é a que mais custou a tomar.**
+
+### Não se escreveu o endereço do serviço
+
+Conheço a forma geral da API do FIRMS. **Não a pude verificar daqui** — a política de rede
+deste ambiente não deixa —, e escrever de cor um endereço que ninguém confirmou seria repetir
+exatamente o erro que abriu todo este trabalho: o campo `{z}/{x}/{y}` foi escrito assim, não
+existia naquela forma, e ficou uma fechadura sem chave até se passar a perguntar ao serviço.
+
+O endereço declara-se, como o da cartografia. A aplicação preenche `{bbox}` e `{data}` se
+estiverem escritos, e **não reescreve mais nada**. E o ficheiro serve sem rede, que é o caso
+do posto.
+
+### A chave não sai no ficheiro da ocorrência
+
+Vive no armazém do dispositivo, como a declaração da carta local. Um ficheiro de ocorrência
+passa entre postos, vai por correio e fica arquivado; uma chave lá dentro saía de casa sem
+ninguém dar por isso. Há um teste que exporta uma ocorrência com a chave declarada e confere
+que nem a chave nem o anfitrião aparecem no ficheiro.
+
+### A confiança dos dois sensores não se converte
+
+O VIIRS escreve `l`, `n` ou `h`; o MODIS escreve 0 a 100. Guarda-se o degrau **e o texto
+original**, porque converter um no outro seria inventar equivalência onde não a há.
+
+### O que a leitura recusa deixar passar
+
+> **Um foco é uma deteção, não um incêndio confirmado**, e a ausência de focos não é ausência
+> de fogo: a passagem do satélite tem hora, o fumo espesso tapa, e a resolução do sensor é de
+> centenas de metros.
+
+Sai sempre, e há um teste que o exige. Sem isso, cinco losangos no mapa leem-se como verdade
+do terreno.
+
+### O que fica por fazer, e depende de terceiros
+
+Confirmar contra o serviço a sério: o endereço exato, se responde com CORS aberto a uma página
+em `file://`, e obter a chave. Nada disso se pôde verificar daqui.
+
 ## O eixo do tempo, na r0072 — e o fogo ativo, que continua de fora
 
 A r0070 recusava por completo uma camada com dimensão. A recusa estava certa — servir pelo

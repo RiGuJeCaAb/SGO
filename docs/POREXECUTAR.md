@@ -41,10 +41,13 @@ pelo formato.** São servidas só em `application/vnd.mapbox-vector-tile`, que n
 que este mapa não desenha. Esperava-se que ler o eixo as trouxesse; não traz.
 
 Fica reforçada a conclusão do §4 do relatório de fontes internacionais, que já era a certa:
-**os focos de calor são pontos, não mosaicos.** A via é a API de área do FIRMS, que devolve
-CSV com latitude, longitude, hora de deteção, satélite, potência radiativa e confiança por
-foco. Um ponto reprojeta-se para PT-TM06 com a aritmética que já está escrita; um mosaico já
-desenhado não. E os atributos por foco são coisa que o mosaico nunca daria.
+**os focos de calor são pontos, não mosaicos.**
+
+**Feito na r0072.** A aplicação lê CSV de focos pelo nome das colunas, do ficheiro ou de um
+endereço declarado, desenha-os no mapa e escreve a leitura. Fica por fazer o que depende de
+terceiros e de rede: **confirmar contra o serviço a sério** — o endereço exato, se responde
+com CORS aberto a uma página em `file://`, e obter a chave. Nada disso se pôde verificar
+daqui, e por isso a aplicação não traz endereço nenhum escrito.
 
 Nota de escala: as anomalias térmicas param no nível 8, **611 m por pixel**. Serve para
 contexto regional — saber se a ocorrência no Douro é isolada ou parte de uma situação

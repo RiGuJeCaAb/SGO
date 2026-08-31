@@ -235,6 +235,23 @@ interface NotaNoMapa {
   g: string; por: string;
 }
 
+/**
+ * Um foco de calor, tal como o satélite o escreveu.
+ *
+ * A confiança guarda o degrau **e o texto original**: o VIIRS escreve `l`/`n`/`h` e o MODIS
+ * escreve 0 a 100, e converter um no outro seria inventar equivalência onde não a há.
+ */
+interface FocoDeCalor {
+  lat: number; lon: number;
+  /** Data e hora da deteção, em UTC, como vieram do ficheiro. */
+  data: string; hora: string;
+  sat: string; instr: string;
+  conf: { grau: string; txt: string };
+  /** Potência radiativa em MW, ou `null` se o ficheiro não a trouxer. */
+  frp: number | null;
+  dn: string; tb: string;
+}
+
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
 interface PerimetroGravado {
   nome: string;
@@ -266,6 +283,11 @@ interface DadosOcorrencia {
   linhas: LinhaDeContencao[];
   /** As notas escritas sobre o mapa, na coordenada a que dizem respeito. */
   notas: NotaNoMapa[];
+  /**
+   * Focos de calor detetados por satélite, com a origem e o instante em que foram
+   * carregados. **Substitui-se, não se acumula**: é uma fotografia de um instante.
+   */
+  focos: { itens: FocoDeCalor[]; origem: string; g: string; por: string; nota: string };
   /**
    * Comportamento do fogo: velocidade de propagação em m/h e carga de combustível
    * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os

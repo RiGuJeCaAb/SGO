@@ -61,6 +61,7 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   try{ await carregarCarta(); pintarCarta(); await pintarArquivoMapa(); }catch(e){}
   /* A carta pré-descarregada também é definição do posto: sem esta leitura, a grelha da
      árvore guardada perdia-se ao fechar a página e o mapa voltava a desenhá-la errada. */
+  try{ await carregarFocosURL(); }catch(e){}
   try{
     await carregarCartaLocal();
     if(CARTA_LOCAL){

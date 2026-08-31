@@ -1440,6 +1440,34 @@
         <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
       </div>
 
+      <div class="sub" style="margin-top:12px"><span class="stit">Focos de calor detetados por satélite</span>
+        <p class="hint" style="margin:0 0 10px 0">Uma lista de focos em CSV, como o FIRMS da NASA a escreve. Lê-se
+        <b>pelo nome das colunas</b> — o ficheiro traz o seu próprio cabeçalho, e não há nada a adivinhar. São
+        precisas a <span class="mono-sm">latitude</span> e a <span class="mono-sm">longitude</span>; o resto é o que
+        o ficheiro trouxer.</p>
+        <p class="hint" style="margin:0 0 10px 0"><b>A aplicação não traz endereço de serviço nenhum</b>, pela mesma
+        razão por que não traz serviço de cartografia: um endereço escrito de cor já foi uma fechadura sem chave neste
+        projeto. Declara-se aqui, com a chave de acesso lá dentro, ou carrega-se o ficheiro descarregado no gabinete —
+        que é o caminho que serve sem rede.</p>
+        <div class="row">
+          <span class="xtr"><span class="hint" style="margin:0">Do ficheiro</span>
+            <input type="file" id="foc-fich" accept=".csv,text/csv,text/plain"></span>
+          <button class="btn btn-b" type="button" id="foc-limpar">Retirar os focos do mapa</button>
+        </div>
+        <div class="grid g2" style="margin-top:10px">
+          <div style="grid-column:1/-1"><label for="foc-url">Endereço do serviço, com a chave</label>
+            <input id="foc-url" placeholder="https://…/api/area/csv/CHAVE/…">
+            <div class="hint" style="margin-top:4px">Fica guardado neste dispositivo e <b>não viaja na exportação da
+            ocorrência</b>: uma chave de acesso não vai dentro de um ficheiro que se passa entre postos.</div></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-o" type="button" id="foc-ler">Obter do serviço</button>
+          <button class="btn btn-b" type="button" id="foc-esquecer">Esquecer o endereço guardado</button>
+        </div>
+        <div class="msg" id="foc-msg" style="display:none"></div>
+        <div id="foc-info" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
       <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
         <p class="hint" style="margin:0 0 8px 0">O que se segue às frentes traçadas no mapa: para onde progridem, o
         que apanham no caminho, e como o rumo da cabeça roda ao longo da série meteorológica. Diz também o que a

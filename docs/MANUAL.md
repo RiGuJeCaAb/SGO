@@ -227,6 +227,35 @@ enquanto escreve — estes dois números são de tentativa e erro.
 
 ---
 
+## Focos de calor detetados por satélite
+
+Planeamento → **Focos de calor detetados por satélite**.
+
+Uma lista de focos em CSV, como o FIRMS da NASA a escreve. Lê-se **pelo nome das colunas** —
+o ficheiro traz o seu próprio cabeçalho. São precisas a `latitude` e a `longitude`; o resto é
+o que o ficheiro trouxer, e o VIIRS e o MODIS não escrevem as mesmas colunas.
+
+Dois caminhos:
+
+- **Do ficheiro** — descarregado no gabinete e trazido no dispositivo. Serve sem rede, que é
+  o caso do posto.
+- **Do serviço** — declare o endereço com a chave de acesso lá dentro, e carregue em «Obter
+  do serviço». Se escrever `{bbox}` ou `{data}` no endereço, a aplicação preenche-os com a
+  caixa do teatro e o dia de hoje; o resto do endereço fica exatamente como o escreveu.
+
+**A aplicação não traz endereço de serviço nenhum**, pela mesma razão por que não traz
+serviço de cartografia. E **a chave não viaja na exportação da ocorrência**: fica neste
+dispositivo. Um ficheiro de ocorrência passa entre postos e fica arquivado; uma chave lá
+dentro saía de casa sem ninguém dar por isso.
+
+Carregar substitui os focos anteriores, não os acumula: uma lista de focos é a fotografia de
+um instante.
+
+No mapa os focos são losangos, com a cor a dizer a confiança. E lê-se sempre, por baixo:
+**um foco é uma deteção, não um incêndio confirmado**, e a ausência de focos não é ausência
+de fogo — a passagem do satélite tem hora, o fumo espesso tapa, e a resolução do sensor é de
+centenas de metros.
+
 ## Ler a evolução
 
 Planeamento → **Leitura da evolução das frentes**.
