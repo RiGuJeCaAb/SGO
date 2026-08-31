@@ -39,7 +39,7 @@
  * Direção-Geral do Território indicam o serviço; enquanto não indicarem, fica o croqui,
  * que não precisa de rede nem de licença de ninguém.
  *
- * @type {null|{u:string, atrib:string, termos:string, zMax:number, por:string, g:string}}
+ * @type {null|{tipo:string, atrib:string, termos:string, zMin:number, zMax:number, por:string, g:string, [outro:string]:any}}
  */
 let CARTA = null;
 const CARTA_CHAVE = "peaapp:carta";
@@ -49,7 +49,11 @@ async function carregarCarta(){
   try{
     const r = await ARMAZEM.get(CARTA_CHAVE);
     const c = JSON.parse(r.value);
-    if(c && typeof c.u === "string" && c.u.includes("{z}")) CARTA = c;
+    /* Duas espécies válidas: o modelo `{z}/{x}/{y}` escrito à mão, e o WMTS lido de um
+       GetCapabilities. Uma declaração que não seja nem uma nem outra ignora-se — vale
+       mais ficar sem carta do que pedir mosaicos a um endereço que não se percebe. */
+    if(c && c.tipo === "wmts" && c.camada && (c.modelo || c.kvp)) CARTA = c;
+    else if(c && typeof c.u === "string" && c.u.includes("{z}")) CARTA = Object.assign({tipo:"xyz", zMin:3}, c);
   }catch(e){ CARTA = null; }
   return CARTA;
 }
@@ -71,9 +75,25 @@ async function guardarCarta(u, atrib, termos, zMax){
   const t = String(termos||"").trim();
   if(!/^https:\/\//.test(t)) return { ok:false, motivo:"Indicar o endereço dos termos de uso do serviço." };
   const z = Math.max(3, Math.min(22, parseInt(String(zMax||"19"), 10) || 19));
-  CARTA = { u:url, atrib:a, termos:t, zMax:z, por:quemRegista(), g:gdhAgora() };
+  CARTA = { tipo:"xyz", u:url, atrib:a, termos:t, zMin:3, zMax:z, por:quemRegista(), g:gdhAgora() };
   try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
   fita("Serviço de mosaicos declarado: "+a);
+  return { ok:true, carta:CARTA };
+}
+
+/**
+ * Adota como carta uma camada de um serviço WMTS já lido.
+ *
+ * Não pede atribuição nem termos a quem escolhe: vêm do próprio serviço, que é quem os
+ * tem de declarar. Pedi-los à mão seria pedir a quem escolhe que copiasse o que já está
+ * escrito no documento — e copiar mal.
+ */
+async function adotarCartaWMTS(carta){
+  if(!carta || carta.tipo !== "wmts") return { ok:false, motivo:"Carta inválida." };
+  if(!carta.atrib) return { ok:false, motivo:"O serviço não declara atribuição, e carta de terceiros não se mostra sem dizer de quem é." };
+  CARTA = carta;
+  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
+  fita("Carta WMTS adotada: "+carta.camadaTitulo+" ("+carta.atrib+")");
   return { ok:true, carta:CARTA };
 }
 
@@ -148,10 +168,11 @@ function enquadrarMapa(larg, altMax){
   if(A > teto){ A = teto; L = Math.round(A/prop); }
   MAPA.larg = Math.max(280, L);
   MAPA.alt = Math.max(260, A);
-  const zMax = (CARTA && CARTA.zMax) || 19;
+  const zMax = cartaZMax();
   /* O maior nível de ampliação em que a caixa ainda cabe na tela. */
-  let z = 5;
-  for(let t=zMax; t>=3; t--){
+  let z = cartaZMin();
+  const zMin = cartaZMin();
+  for(let t=zMax; t>=zMin; t--){
     const w = merX(Q.maxLon, t) - merX(Q.minLon, t);
     const h = merY(Q.minLat, t) - merY(Q.maxLat, t);
     if(w <= MAPA.larg && h <= MAPA.alt){ z = t; break; }
@@ -162,11 +183,23 @@ function enquadrarMapa(larg, altMax){
   return true;
 }
 
-/** O endereço de um mosaico. Vazio sem serviço configurado. */
+/**
+ * O endereço de um mosaico. Vazio sem serviço configurado.
+ *
+ * Duas espécies de serviço, e a diferença não é de detalhe: no `xyz` a coluna vem antes da
+ * linha e o nível é um número; no `wmts` é ao contrário, e o nível tem o nome que o
+ * serviço lhe deu. Trocá-los desenha a carta noutro sítio do mundo.
+ */
 function mosaicoURL(z, x, y){
   if(!CARTA) return "";
+  if(CARTA.tipo === "wmts") return wmtsEndereco(CARTA, z, x, y);
   return CARTA.u.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
+
+/** O menor nível de ampliação que a carta em uso dá. */
+function cartaZMin(){ return (CARTA && isFinite(CARTA.zMin))? CARTA.zMin : 3; }
+/** O maior. Sem carta, o do esquema de mosaicos. */
+function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : 19; }
 
 /** A chave de um mosaico no arquivo local. Uma só, seja qual for a sua proveniência. */
 function chaveMosaico(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
@@ -509,7 +542,8 @@ async function pintarMapa(){
 function pintarEstadoMapa(vieram, total){
   const el = $("mapa-info"); if(!el) return;
   const partes = [];
-  if(CARTA) partes.push(CARTA.atrib + " — " + CARTA.termos);
+  if(CARTA) partes.push(CARTA.atrib + (CARTA.termos? " — " + CARTA.termos : "")
+    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : ""));
   else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo."
     + " A atribuição é a de quem a forneceu — não há serviço declarado que a possa dizer aqui.");
   else partes.push("Sem serviço de mosaicos configurado. A carta declara-se abaixo, ou carrega-se de ficheiro.");
@@ -634,7 +668,7 @@ function medirMapa(){
 
 /** Muda a ampliação mantendo o centro, dentro do que a carta dá. */
 function ampliarMapa(d){
-  const z = Math.max(3, Math.min((CARTA && CARTA.zMax)||19, MAPA.z + d));
+  const z = Math.max(cartaZMin(), Math.min(cartaZMax(), MAPA.z + d));
   if(z === MAPA.z) return;
   const lat = merLat(MAPA.cy, MAPA.z), lon = merLon(MAPA.cx, MAPA.z);
   MAPA.z = z; MAPA.cx = merX(lon, z); MAPA.cy = merY(lat, z);
@@ -670,11 +704,19 @@ $("mapa-esquecer").addEventListener("click", async ()=>{
 function pintarCarta(){
   const el = $("carta-estado"); if(!el) return;
   el.textContent = CARTA
-    ? "Serviço declarado: "+CARTA.atrib+" · até à ampliação "+CARTA.zMax
-      + (CARTA.por? " · declarado por "+CARTA.por : "") + (CARTA.g? " a "+CARTA.g : "")
+    ? (CARTA.tipo === "wmts"
+        ? "WMTS: "+CARTA.camadaTitulo+" · "+CARTA.servico+" · conjunto "+CARTA.conjunto
+          + " · ampliação "+CARTA.zMin+" a "+CARTA.zMax
+        : "Serviço declarado: "+CARTA.atrib+" · até à ampliação "+CARTA.zMax)
+      /* Sem ninguém ao teclado o «por» vem vazio, e a frase ficava «ampliação 8 a 18 a
+         310002AGO26». A hora sozinha diz-se como hora, não como continuação da frase. */
+      + (CARTA.g? (CARTA.por? " · declarada por "+CARTA.por+", "+CARTA.g : " · declarada "+CARTA.g) : "")
     : "Nenhum serviço declarado. Sem serviço e sem carta pré-descarregada, fica o croqui.";
   const b = $("carta-retirar"); if(b) b.style.display = CARTA? "" : "none";
-  if(CARTA){
+  /* Os campos abaixo são do serviço `{z}/{x}/{y}`, e só se preenchem com uma carta dessa
+     espécie. Uma carta WMTS não tem endereço com `{z}` nenhum: copiá-la para ali escrevia
+     «undefined» no campo e punha lá a atribuição de um serviço que não é aquele. */
+  if(CARTA && CARTA.tipo === "xyz"){
     if($("carta-u") && !$("carta-u").value) $("carta-u").value = CARTA.u;
     if($("carta-atrib") && !$("carta-atrib").value) $("carta-atrib").value = CARTA.atrib;
     if($("carta-termos") && !$("carta-termos").value) $("carta-termos").value = CARTA.termos;
@@ -751,3 +793,75 @@ async function pintarArquivoMapa(){
   tela.addEventListener("pointerup", largar);
   tela.addEventListener("pointercancel", ()=>{ a = null; pintarMapa(); });
 })();
+
+/* ---- ler um serviço WMTS e escolher dele uma camada ---- */
+
+/** O que o último GetCapabilities lido trouxe. Vive só enquanto se escolhe. */
+let WMTS_LIDO = null;
+
+/**
+ * Mostra o que o serviço oferece: as camadas que servem, e as que não servem com o motivo.
+ *
+ * As que não servem aparecem na mesma. Saber que a carta militar existe mas está numa
+ * projeção que o mapa não desenha é informação; escondê-la deixava quem escolhe a pensar
+ * que o serviço não a tinha.
+ */
+function pintarCamadasWMTS(){
+  const el = $("wm-camadas"), sv = $("wm-servico");
+  if(!el || !sv) return;
+  if(!WMTS_LIDO){ el.innerHTML = ""; sv.textContent = ""; return; }
+  sv.textContent = (WMTS_LIDO.titulo || "serviço sem título")
+    + (WMTS_LIDO.atribuicao? " · " + WMTS_LIDO.atribuicao : "")
+    + " · " + WMTS_LIDO.camadas.length + " camadas";
+  const L = wmtsInventario(WMTS_LIDO);
+  el.innerHTML = L.map(c=>'<div class="wm-c">'
+    + '<span class="wm-t">'+esc(c.titulo)+'</span>'
+    + '<span class="wm-id">'+esc(c.id)+'</span>'
+    + (c.serve
+        ? '<span class="hint" style="margin:0">ampliação '+c.zMin+' a '+c.zMax+'</span>'
+          + '<button type="button" class="btn btn-g" data-wm-usar="'+esc(c.id)+'">Usar esta</button>'
+        : '<span class="wm-nao">não serve — '+esc(c.motivo)+'</span>')
+    + '</div>').join("");
+  el.querySelectorAll("[data-wm-usar]").forEach(b=>b.addEventListener("click", async ()=>{
+    const r = wmtsCarta(WMTS_LIDO, b.getAttribute("data-wm-usar"));
+    if(!r.ok){ aviso("wm-msg","err",r.motivo); return; }
+    const g = await adotarCartaWMTS(r.carta);
+    if(!g.ok){ aviso("wm-msg","err",g.motivo); return; }
+    pintarCarta();
+    aviso("wm-msg","ok","Carta adotada: "+r.carta.camadaTitulo+". Carregar a carta para a ver.");
+    medirMapa(); if(enquadrarMapa(MAPA.larg, MAPA.alt)) pintarMapa();
+  }));
+}
+
+/** Lê um GetCapabilities já em texto, venha de onde vier. */
+function usarCapacidadesWMTS(xml){
+  try{ WMTS_LIDO = lerCapacidadesWMTS(xml); }
+  catch(e){ WMTS_LIDO = null; pintarCamadasWMTS(); aviso("wm-msg","err","Não foi possível ler o serviço: "+(e.message||e)); return false; }
+  pintarCamadasWMTS();
+  const serve = wmtsInventario(WMTS_LIDO).filter(c=>c.serve).length;
+  if(serve) aviso("wm-msg","ok", serve+" de "+WMTS_LIDO.camadas.length+" camadas podem ser desenhadas. Escolhe uma.");
+  else aviso("wm-msg","err","O serviço tem "+WMTS_LIDO.camadas.length+" camadas e nenhuma pode ser desenhada — ver os motivos abaixo.");
+  return true;
+}
+
+$("wm-ler").addEventListener("click", async ()=>{
+  const u = String($("wm-url").value||"").trim();
+  if(!/^https?:\/\//.test(u)){ aviso("wm-msg","err","Indica o endereço do GetCapabilities do serviço."); return; }
+  aviso("wm-msg","ok","A ler o serviço...");
+  try{
+    const r = await fetchT(u, {}, 20000);
+    if(!r.ok){ aviso("wm-msg","err","O serviço respondeu HTTP "+r.status+"."); return; }
+    usarCapacidadesWMTS(await r.text());
+  }catch(e){
+    /* Em `file://` há serviços que recusam o pedido de outra origem, e não há como
+       contornar isso do lado da aplicação. O ficheiro guardado é o caminho que resta, e é
+       o que serve num posto sem rede. */
+    aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
+  }
+});
+
+$("wm-fich").addEventListener("change", async ev=>{
+  const f = ev.target.files && ev.target.files[0]; if(!f) return;
+  try{ usarCapacidadesWMTS(await f.text()); }
+  catch(e){ aviso("wm-msg","err","Não foi possível ler o ficheiro ("+e+")."); }
+});

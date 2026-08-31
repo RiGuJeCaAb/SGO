@@ -55,7 +55,7 @@ da especificação.
 | `NEP8` | NEP n.º 8/NT/2010 | Numeração, para a banda alta de VHF. Não verificada linha a linha |
 | `NEPSIRESP` | NEP n.º 1/DIC/2026, NEP n.º 2/CNEPC/2022, NOP n.º 1701/2018 | Grupos SIRESP. A designação PC COM 1 a 5 foi deduzida por coerência; as séries CT e CM assentam em equivalência declarada, e só o CM4 tem confirmação direta |
 | `PONTOAGUA` | — | O **ponto de água** é figura corrente da manobra e entra em `TIPOS_PONTO`, no mapa operacional, sem artigo que o institua. Não se lhe atribuiu alínea do art. 32.º: aparece na interface como «fonte por confirmar» até haver documento |
-| `CARTA` | — | **Qual serviço de cartografia** o posto tem direito a consultar. A aplicação não traz nenhum: os serviços de uso comunitário exigem que a aplicação se identifique num cabeçalho próprio, e uma página aberta em `file://` não o consegue fazer. A especificação, no agente de topografia da Fase 3, nomeia EU-DEM 25 m (Copernicus), MDT 2 m da DGT, rede viária OSM, COS/DGT e perigosidade ICNF, **pré-descarregados por distrito**; falta a decisão institucional sobre o serviço e os termos |
+| `CARTA` | — | **Qual serviço de cartografia** o posto tem direito a consultar. A aplicação não traz nenhum e passou a saber ler um WMTS pelo seu `GetCapabilities`, que é o que a cartografia oficial publica — a atribuição e os termos vêm de lá e não se escrevem à mão. Falta a decisão institucional: que serviço, e com que direito de uso. A especificação, no agente de topografia da Fase 3, nomeia EU-DEM 25 m (Copernicus), MDT 2 m da DGT, rede viária OSM, COS/DGT e perigosidade ICNF, **pré-descarregados por distrito** — mas isso são dados para calcular, não carta de fundo, e é outro artefacto |
 
 ## `FOGO` — comportamento do fogo: declive e vento
 

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+              xmlns:ows="http://www.opengis.net/ows/1.1"
+              xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0.0">
+  <ows:ServiceIdentification>
+    <ows:Title>Serviço de cartografia de exemplo</ows:Title>
+    <ows:ServiceType>OGC WMTS</ows:ServiceType>
+    <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+    <ows:AccessConstraints>Utilização sujeita aos termos do fornecedor</ows:AccessConstraints>
+  </ows:ServiceIdentification>
+  <ows:ServiceProvider>
+    <ows:ProviderName>Entidade de exemplo</ows:ProviderName>
+    <ows:ProviderSite xlink:href="https://exemplo.test/termos"/>
+  </ows:ServiceProvider>
+  <ows:OperationsMetadata>
+    <ows:Operation name="GetTile">
+      <ows:DCP><ows:HTTP>
+        <ows:Get xlink:href="https://exemplo.test/wmts?">
+          <ows:Constraint name="GetEncoding">
+            <ows:AllowedValues><ows:Value>KVP</ows:Value></ows:AllowedValues>
+          </ows:Constraint>
+        </ows:Get>
+      </ows:HTTP></ows:DCP>
+    </ows:Operation>
+  </ows:OperationsMetadata>
+  <Contents>
+
+    <!-- camada em Web Mercator, com endereço RESTful -->
+    <Layer>
+      <ows:Title>Ortos definitivos</ows:Title>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>-9.6 36.9</ows:LowerCorner>
+        <ows:UpperCorner>-6.1 42.2</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+      <ows:Identifier>ortos</ows:Identifier>
+      <Style isDefault="true"><ows:Identifier>default</ows:Identifier></Style>
+      <Format>image/jpeg</Format>
+      <Format>image/png</Format>
+      <TileMatrixSetLink><TileMatrixSet>EPSG:3857</TileMatrixSet></TileMatrixSetLink>
+      <ResourceURL format="image/png" resourceType="tile"
+        template="https://exemplo.test/rest/ortos/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png"/>
+    </Layer>
+
+    <!-- camada só na quadrícula nacional: existe, mas não se pode desenhar -->
+    <Layer>
+      <ows:Title>Carta militar 1:25 000</ows:Title>
+      <ows:Identifier>cm25</ows:Identifier>
+      <Style isDefault="true"><ows:Identifier>default</ows:Identifier></Style>
+      <Format>image/png</Format>
+      <TileMatrixSetLink><TileMatrixSet>PT-TM06</TileMatrixSet></TileMatrixSetLink>
+    </Layer>
+
+    <!-- camada em Web Mercator sem RESTful: tem de sair por KVP -->
+    <Layer>
+      <ows:Title>Carta de ocupação do solo</ows:Title>
+      <ows:Identifier>cos</ows:Identifier>
+      <Style isDefault="true"><ows:Identifier>cores</ows:Identifier></Style>
+      <Format>image/png</Format>
+      <TileMatrixSetLink><TileMatrixSet>EPSG:3857</TileMatrixSet></TileMatrixSetLink>
+    </Layer>
+
+    <TileMatrixSet>
+      <ows:Identifier>EPSG:3857</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>
+      <WellKnownScaleSet>urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible</WellKnownScaleSet>
+      <TileMatrix>
+        <ows:Identifier>EPSG:3857:8</ows:Identifier>
+        <ScaleDenominator>2183915.093862179</ScaleDenominator>
+        <TopLeftCorner>-20037508.342789244 20037508.342789244</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight>
+        <MatrixWidth>256</MatrixWidth><MatrixHeight>256</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>EPSG:3857:14</ows:Identifier>
+        <ScaleDenominator>34123.751696</ScaleDenominator>
+        <TopLeftCorner>-20037508.342789244 20037508.342789244</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight>
+        <MatrixWidth>16384</MatrixWidth><MatrixHeight>16384</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>EPSG:3857:18</ows:Identifier>
+        <ScaleDenominator>2132.7344810</ScaleDenominator>
+        <TopLeftCorner>-20037508.342789244 20037508.342789244</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight>
+        <MatrixWidth>262144</MatrixWidth><MatrixHeight>262144</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+
+    <TileMatrixSet>
+      <ows:Identifier>PT-TM06</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::3763</ows:SupportedCRS>
+      <TileMatrix>
+        <ows:Identifier>0</ows:Identifier>
+        <ScaleDenominator>2000000.0</ScaleDenominator>
+        <TopLeftCorner>-120000.0 300000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight>
+        <MatrixWidth>4</MatrixWidth><MatrixHeight>6</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+
+  </Contents>
+</Capabilities>

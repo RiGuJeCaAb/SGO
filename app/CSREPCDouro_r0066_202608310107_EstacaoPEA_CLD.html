@@ -593,6 +593,11 @@
   .mp-svg{position:absolute;left:0;top:0;pointer-events:none}
   .mp-li{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
   .mp-li .mono{font-family:var(--mono);font-size:11.5px;color:var(--tx2)}
+  /* Lista das camadas de um WMTS: as que servem e, com o motivo, as que não servem. */
+  .wm-c{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .wm-c .wm-t{font-weight:600}
+  .wm-c .wm-id{font-family:var(--mono);font-size:11px;color:var(--tx3)}
+  .wm-c .wm-nao{color:var(--tx3);font-style:italic;flex-basis:100%;font-size:11.5px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1236,7 +1241,27 @@
           fontes pré-descarregadas por distrito.</p>
         </div>
 
-        <div class="sub" style="margin-top:12px"><span class="stit">Serviço de mosaicos</span>
+        <div class="sub" style="margin-top:12px"><span class="stit">Serviço WMTS — ler o que o serviço oferece</span>
+          <p class="hint" style="margin:0 0 10px 0">É assim que se consome cartografia oficial. Dá-se o endereço do
+          <span class="mono-sm">GetCapabilities</span>, ou carrega-se o XML guardado, e a aplicação lê as camadas
+          que existem, em que projeção, com que ampliações e com que atribuição. <b>Não se adivinha endereço nenhum.</b></p>
+          <div class="grid g2">
+            <div style="grid-column:1/-1"><label for="wm-url">Endereço do GetCapabilities</label>
+              <input id="wm-url" placeholder="https://…/wmts?SERVICE=WMTS&amp;REQUEST=GetCapabilities"></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn btn-o" type="button" id="wm-ler">Ler o serviço</button>
+            <span class="xtr"><span class="hint" style="margin:0">ou do ficheiro</span>
+              <input type="file" id="wm-fich" accept=".xml,text/xml,application/xml"></span>
+          </div>
+          <div class="mono-sm" id="wm-servico" style="margin-top:10px"></div>
+          <div id="wm-camadas" style="margin-top:10px"></div>
+          <div class="msg" id="wm-msg" style="display:none"></div>
+        </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Serviço de mosaicos {z}/{x}/{y}</span>
+          <p class="hint" style="margin:0 0 10px 0">A convenção do OpenStreetMap. Serve para os serviços que a
+          oferecem; a cartografia oficial normalmente não.</p>
           <div class="grid g2">
             <div style="grid-column:1/-1"><label for="carta-u">Endereço, com {z}/{x}/{y}</label>
               <input id="carta-u" placeholder="https://servico.exemplo.pt/wmts/{z}/{x}/{y}.png"></div>
@@ -1929,14 +1954,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608310004_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0066</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0066_202608310107_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608310004_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0066", FICHEIRO_APP = "CSREPCDouro_r0066_202608310107_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -6245,6 +6270,313 @@ function pintarCroqui(){
   alvo.innerHTML = svg;
   if(leg) leg.innerHTML = svg? croquiLegenda().map(t=>"<div>"+esc(t)+"</div>").join("") : "";
 }
+/* ================= PLANEAMENTO · leitura de um serviço WMTS =================
+   **O modelo `{z}/{x}/{y}` é uma convenção do OpenStreetMap, não uma norma.** A primeira
+   versão do mapa pedia um endereço nessa forma, e isso deixava de fora exatamente a
+   cartografia que interessa a um posto de comando português: a Direção-Geral do
+   Território, como as suas congéneres europeias, publica **OGC WMTS**, que é outra coisa.
+
+   Três diferenças que faziam do campo anterior uma fechadura sem chave:
+
+   1. **A ordem está trocada.** O WMTS endereça por `TileRow`/`TileCol` — a linha antes da
+      coluna, ou seja **y antes de x**. O contrário do XYZ.
+   2. **O nível não é um número.** O `TileMatrix` chama-se muitas vezes `EPSG:3857:10` ou
+      `GoogleMapsCompatible:10`, e há serviços que lhe dão nomes.
+   3. **A projeção pode não ser Mercator.** Muita cartografia oficial portuguesa vem em
+      ETRS89 / PT-TM06 (EPSG:3763). Desenhá-la com a aritmética de Mercator punha tudo no
+      sítio errado, e em silêncio — que é o pior modo de errar num mapa operacional.
+
+   A saída não é adivinhar endereços: é **perguntar ao serviço**. O documento
+   `GetCapabilities` declara, com autoridade, que camadas existem, em que conjuntos de
+   matrizes, com que formatos, por que endereços e com que atribuição. Este módulo lê-o.
+
+   Lê-se de um endereço ou de um ficheiro guardado. Do ficheiro porque um posto de comando
+   trabalha sem rede, e porque assim a escolha do serviço se prepara no gabinete. */
+
+/**
+ * O denominador de escala do nível 0 do Web Mercator, com mosaicos de 256 px.
+ *
+ * O WMTS não fala em níveis de ampliação: fala em escalas. A ponte entre os dois é o
+ * **pixel normalizado da OGC, de 0,28 mm** — multiplicando este denominador por 0,00028 dá
+ * 156 543 m por pixel, que é exatamente a resolução do nível 0 do Web Mercator no equador,
+ * a mesma constante que o mapa usa. Um teste confere que os dois mundos continuam a bater.
+ */
+const WMTS_ESCALA_0 = 559082264.0287178;
+/** O canto superior esquerdo do Web Mercator, em metros. */
+const WMTS_TOPO_3857 = 20037508.342789244;
+
+/* ---- leitura do XML ----
+   Percorre-se por `localName`, e não por nome qualificado. Um WMTS mistura os espaços de
+   nomes `wmts` e `ows`, e cada serviço escolhe os seus prefixos: procurar por `wmts:Layer`
+   funciona num e falha no seguinte. O nome local é o mesmo em todos. */
+
+/** Os filhos diretos com este nome local. */
+function wmtsFilhos(el, nome){
+  return el? [...el.children].filter(x=>x.localName === nome) : [];
+}
+/** O texto do primeiro filho com este nome local, ou vazio. */
+function wmtsTexto(el, nome){
+  const c = wmtsFilhos(el, nome)[0];
+  return c? c.textContent.trim() : "";
+}
+/** Todos os descendentes com este nome local, a qualquer profundidade. */
+function wmtsTodos(el, nome){
+  return el? [...el.getElementsByTagName("*")].filter(x=>x.localName === nome) : [];
+}
+
+/**
+ * A que nível de ampliação do Web Mercator corresponde este denominador de escala.
+ *
+ * Deriva-se da escala e **não do nome da matriz**, que pode ser `EPSG:3857:10`, `10` ou
+ * uma palavra. A escala é um número que significa sempre o mesmo; o nome é uma escolha
+ * de quem publicou o serviço.
+ *
+ * @returns {number|null} o nível, ou nada se não cair num nível inteiro
+ */
+function wmtsNivelDe(escalaDenominador){
+  const e = Number(escalaDenominador);
+  if(!isFinite(e) || e <= 0) return null;
+  const z = Math.log2(WMTS_ESCALA_0 / e);
+  const inteiro = Math.round(z);
+  return Math.abs(z - inteiro) < 0.01 && inteiro >= 0 && inteiro <= 25 ? inteiro : null;
+}
+
+/** O código do sistema de coordenadas, seja qual for a forma em que venha escrito. */
+function wmtsCRS(txt){
+  const t = String(txt||"").trim();
+  const m = /(?:^|[:/])(\d{4,6})$/.exec(t);          /* urn:ogc:def:crs:EPSG::3857, EPSG:3857 */
+  return m? "EPSG:"+m[1] : t;
+}
+
+/**
+ * Lê um documento GetCapabilities de WMTS 1.0.0.
+ *
+ * @param {string} xml o documento, tal como o serviço o devolve
+ * @returns {{titulo:string, atribuicao:string, termos:string, kvp:string,
+ *   conjuntos:Object, camadas:any[]}}
+ * @throws quando o documento não é um GetCapabilities de WMTS
+ */
+function lerCapacidadesWMTS(xml){
+  const doc = new DOMParser().parseFromString(String(xml||""), "text/xml");
+  const erro = doc.getElementsByTagName("parsererror")[0];
+  if(erro) throw new Error("O documento não é XML válido.");
+  const raiz = doc.documentElement;
+  if(!raiz || raiz.localName !== "Capabilities")
+    throw new Error("Não é um GetCapabilities de WMTS (raiz «"+(raiz? raiz.localName : "vazia")+"»).");
+
+  const ident = wmtsTodos(raiz, "ServiceIdentification")[0];
+  const prov = wmtsTodos(raiz, "ServiceProvider")[0];
+  const titulo = ident? wmtsTexto(ident, "Title") : "";
+  /* A atribuição é obrigatória de mostrar, e por isso procura-se em três sítios antes de
+     desistir: quem fornece o serviço, as restrições de acesso, e o título. */
+  const sitio = prov? wmtsFilhos(prov, "ProviderSite")[0] : null;
+  const atribuicao = (prov && wmtsTexto(prov, "ProviderName"))
+    || (ident && wmtsTexto(ident, "AccessConstraints"))
+    || titulo || "";
+  const termos = (sitio && (sitio.getAttribute("xlink:href") || sitio.getAttribute("href"))) || "";
+
+  /* O endereço do pedido KVP, quando o serviço o oferece. */
+  let kvp = "";
+  wmtsTodos(raiz, "Operation").forEach(op=>{
+    if(op.getAttribute("name") !== "GetTile") return;
+    wmtsTodos(op, "Get").forEach(g=>{
+      const href = g.getAttribute("xlink:href") || g.getAttribute("href") || "";
+      const cod = wmtsTodos(g, "Value").map(v=>v.textContent.trim().toUpperCase());
+      if(href && (!cod.length || cod.includes("KVP"))) kvp = kvp || href;
+    });
+  });
+
+  /* Os conjuntos de matrizes: é aqui que está a projeção e a geometria de cada nível. */
+  const conjuntos = {};
+  wmtsTodos(raiz, "TileMatrixSet").forEach(cx=>{
+    /* Um `TileMatrixSetLink` também se chama assim por dentro; o conjunto a sério é o que
+       traz matrizes. Sem isto, os elos de cada camada entravam como conjuntos vazios. */
+    const matrizes = wmtsFilhos(cx, "TileMatrix");
+    if(!matrizes.length) return;
+    const id = wmtsTexto(cx, "Identifier");
+    if(!id) return;
+    conjuntos[id] = {
+      id,
+      crs: wmtsCRS(wmtsTexto(cx, "SupportedCRS")),
+      escalaConhecida: wmtsTexto(cx, "WellKnownScaleSet"),
+      matrizes: matrizes.map(m=>{
+        const canto = wmtsTexto(m, "TopLeftCorner").split(/\s+/).map(Number);
+        return {
+          id: wmtsTexto(m, "Identifier"),
+          escala: Number(wmtsTexto(m, "ScaleDenominator")),
+          canto,
+          larguraMosaico: Number(wmtsTexto(m, "TileWidth")),
+          alturaMosaico: Number(wmtsTexto(m, "TileHeight")),
+          colunas: Number(wmtsTexto(m, "MatrixWidth")),
+          linhas: Number(wmtsTexto(m, "MatrixHeight"))
+        };
+      })
+    };
+  });
+
+  /* As camadas. */
+  const camadas = wmtsTodos(raiz, "Layer").map(lx=>{
+    const bbox = wmtsTodos(lx, "WGS84BoundingBox")[0];
+    const canto = b => b? b.split(/\s+/).map(Number) : null;
+    return {
+      id: wmtsTexto(lx, "Identifier"),
+      titulo: wmtsTexto(lx, "Title") || wmtsTexto(lx, "Identifier"),
+      formatos: wmtsFilhos(lx, "Format").map(f=>f.textContent.trim()),
+      estilos: wmtsTodos(lx, "Style").map(s=>({
+        id: wmtsTexto(s, "Identifier"), omissao: s.getAttribute("isDefault") === "true"
+      })).filter(s=>s.id),
+      conjuntos: wmtsTodos(lx, "TileMatrixSetLink").map(l=>wmtsTexto(l, "TileMatrixSet")).filter(Boolean),
+      recursos: wmtsTodos(lx, "ResourceURL")
+        .filter(r=>r.getAttribute("resourceType") === "tile")
+        .map(r=>({ modelo: r.getAttribute("template") || "", formato: r.getAttribute("format") || "" }))
+        .filter(r=>r.modelo),
+      bbox: bbox? { inf: canto(wmtsTexto(bbox, "LowerCorner")), sup: canto(wmtsTexto(bbox, "UpperCorner")) } : null
+    };
+  }).filter(c=>c.id);
+
+  if(!camadas.length) throw new Error("O serviço não declara nenhuma camada.");
+  return { titulo, atribuicao, termos, kvp, conjuntos, camadas };
+}
+
+/**
+ * Este conjunto de matrizes pode ser desenhado com a aritmética de Mercator do mapa?
+ *
+ * Não basta o código do sistema de coordenadas bater certo. Um conjunto em EPSG:3857 pode
+ * ter outra origem, outro tamanho de mosaico ou outra progressão de escalas, e nesse caso
+ * a conta do mapa põe a carta ao lado do sítio. Confere-se tudo, e o que não passar
+ * **diz porque não passou** — recusar com motivo é o que permite a quem lê ir procurar
+ * outro conjunto no mesmo serviço.
+ *
+ * @returns {{ok:boolean, motivo:string, niveis:Object<number,string>, zMin:number, zMax:number}}
+ */
+function wmtsCompativel(conjunto){
+  const nada = m => ({ ok:false, motivo:m, niveis:{}, zMin:0, zMax:0 });
+  if(!conjunto || !conjunto.matrizes || !conjunto.matrizes.length) return nada("sem matrizes declaradas");
+
+  const mercator = conjunto.crs === "EPSG:3857" || conjunto.crs === "EPSG:900913"
+    || /GoogleMapsCompatible/i.test(conjunto.escalaConhecida||"");
+  if(!mercator)
+    return nada("está em "+(conjunto.crs||"sistema não declarado")
+      + " — o mapa desenha em Web Mercator (EPSG:3857), e reprojetar mosaicos já desenhados não é possível");
+
+  const niveis = {};
+  let zMin = 99, zMax = -1, recusa = "";
+  conjunto.matrizes.forEach(m=>{
+    if(m.larguraMosaico !== 256 || m.alturaMosaico !== 256){
+      recusa = recusa || "mosaicos de "+m.larguraMosaico+"×"+m.alturaMosaico+" px; o mapa assume 256×256";
+      return;
+    }
+    /* A origem tem de ser o canto do mundo. Um conjunto que comece noutro sítio precisa de
+       um deslocamento que a conta do mapa não tem. */
+    const [a, b] = m.canto || [];
+    if(!isFinite(a) || !isFinite(b) || Math.abs(Math.abs(a) - WMTS_TOPO_3857) > 1
+       || Math.abs(Math.abs(b) - WMTS_TOPO_3857) > 1){
+      recusa = recusa || "a matriz «"+m.id+"» não começa no canto do mundo";
+      return;
+    }
+    const z = wmtsNivelDe(m.escala);
+    if(z === null){ recusa = recusa || "a escala da matriz «"+m.id+"» não cai num nível do Web Mercator"; return; }
+    niveis[z] = m.id;
+    if(z < zMin) zMin = z;
+    if(z > zMax) zMax = z;
+  });
+
+  if(zMax < 0) return nada(recusa || "nenhuma matriz utilizável");
+  return { ok:true, motivo:"", niveis, zMin, zMax };
+}
+
+/**
+ * O endereço de um mosaico, a partir do que o serviço declarou.
+ *
+ * Prefere-se o modelo RESTful, quando existe: é um pedido simples, guarda-se melhor e não
+ * depende de o servidor aceitar parâmetros por qualquer ordem. Sem ele, monta-se o pedido
+ * KVP. **A linha vem antes da coluna** — `TileRow` é y, `TileCol` é x —, que é o contrário
+ * da convenção do OpenStreetMap e a origem provável de qualquer erro aqui.
+ */
+function wmtsEndereco(c, z, x, y){
+  const matriz = (c.niveis && c.niveis[z]) || String(z);
+  if(c.modelo){
+    return c.modelo
+      .replace(/\{TileMatrixSet\}/gi, c.conjunto)
+      .replace(/\{TileMatrix\}/gi, matriz)
+      .replace(/\{TileRow\}/gi, String(y))
+      .replace(/\{TileCol\}/gi, String(x))
+      .replace(/\{Style\}/gi, c.estilo || "default")
+      .replace(/\{Layer\}/gi, c.camada);
+  }
+  if(!c.kvp) return "";
+  const sep = c.kvp.includes("?") ? (c.kvp.endsWith("?") || c.kvp.endsWith("&") ? "" : "&") : "?";
+  return c.kvp + sep + [
+    "SERVICE=WMTS", "VERSION=1.0.0", "REQUEST=GetTile",
+    "LAYER=" + encodeURIComponent(c.camada),
+    "STYLE=" + encodeURIComponent(c.estilo || "default"),
+    "TILEMATRIXSET=" + encodeURIComponent(c.conjunto),
+    "TILEMATRIX=" + encodeURIComponent(matriz),
+    "TILEROW=" + y, "TILECOL=" + x,
+    "FORMAT=" + encodeURIComponent(c.formato || "image/png")
+  ].join("&");
+}
+
+/**
+ * Compõe a declaração de carta a partir de uma camada escolhida de um serviço lido.
+ *
+ * @param {any} cap o que `lerCapacidadesWMTS` devolveu
+ * @param {string} camadaId a camada escolhida
+ * @param {string} [conjuntoId] o conjunto de matrizes; omitido, o primeiro compatível
+ * @returns {{ok:boolean, motivo?:string, carta?:any}}
+ */
+function wmtsCarta(cap, camadaId, conjuntoId){
+  const cam = cap.camadas.find(c=>c.id === camadaId);
+  if(!cam) return { ok:false, motivo:"Camada não encontrada no serviço." };
+
+  const candidatos = conjuntoId? [conjuntoId] : cam.conjuntos;
+  let escolhido = null, comp = null, motivos = [];
+  for(const id of candidatos){
+    const cj = cap.conjuntos[id];
+    if(!cj){ motivos.push(id+": o serviço declara o elo mas não o conjunto"); continue; }
+    const r = wmtsCompativel(cj);
+    if(r.ok){ escolhido = cj; comp = r; break; }
+    motivos.push(id+": "+r.motivo);
+  }
+  if(!escolhido)
+    return { ok:false, motivo:"Nenhum conjunto de matrizes desta camada serve. "+motivos.join("; ")+"." };
+
+  /* O formato: prefere-se PNG, que é o que a carta costuma ser; JPEG serve para ortofoto. */
+  const fmt = cam.formatos.find(f=>/png/i.test(f)) || cam.formatos.find(f=>/jpe?g/i.test(f)) || cam.formatos[0] || "image/png";
+  const rec = cam.recursos.find(r=>r.formato === fmt) || cam.recursos[0] || null;
+  const estilo = (cam.estilos.find(s=>s.omissao) || cam.estilos[0] || {}).id || "default";
+
+  if(!rec && !cap.kvp)
+    return { ok:false, motivo:"O serviço não declara nem modelo de endereço nem ponto de acesso KVP para os mosaicos." };
+
+  return { ok:true, carta:{
+    tipo:"wmts",
+    camada:cam.id, camadaTitulo:cam.titulo,
+    conjunto:escolhido.id, estilo, formato:fmt,
+    modelo: rec? rec.modelo : "", kvp: cap.kvp,
+    niveis: comp.niveis, zMin: comp.zMin, zMax: comp.zMax,
+    atrib: cap.atribuicao || cap.titulo, termos: cap.termos,
+    servico: cap.titulo,
+    por: quemRegista(), g: gdhAgora()
+  }};
+}
+
+/**
+ * O que cada camada do serviço oferece, e o que a impede de servir.
+ *
+ * É esta lista que se mostra a quem escolhe. Uma camada que não sirva aparece na mesma,
+ * com o motivo: saber que a carta militar existe mas está em PT-TM06 é informação, e
+ * escondê-la deixaria a pessoa a pensar que o serviço não a tem.
+ */
+function wmtsInventario(cap){
+  return cap.camadas.map(cam=>{
+    const r = wmtsCarta(cap, cam.id);
+    return { id:cam.id, titulo:cam.titulo, conjuntos:cam.conjuntos,
+      serve:r.ok, motivo:r.ok? "" : r.motivo,
+      zMin:r.ok? r.carta.zMin : null, zMax:r.ok? r.carta.zMax : null,
+      formatos:cam.formatos };
+  });
+}
 /* ================= PLANEAMENTO · mapa operacional do TO =================
    O croqui mostra a forma. O mapa mostra-a **sobre a carta**: onde o incêndio pega, que
    povoações tem à volta, por onde correm as estradas. É a diferença entre saber que o
@@ -6286,7 +6618,7 @@ function pintarCroqui(){
  * Direção-Geral do Território indicam o serviço; enquanto não indicarem, fica o croqui,
  * que não precisa de rede nem de licença de ninguém.
  *
- * @type {null|{u:string, atrib:string, termos:string, zMax:number, por:string, g:string}}
+ * @type {null|{tipo:string, atrib:string, termos:string, zMin:number, zMax:number, por:string, g:string, [outro:string]:any}}
  */
 let CARTA = null;
 const CARTA_CHAVE = "peaapp:carta";
@@ -6296,7 +6628,11 @@ async function carregarCarta(){
   try{
     const r = await ARMAZEM.get(CARTA_CHAVE);
     const c = JSON.parse(r.value);
-    if(c && typeof c.u === "string" && c.u.includes("{z}")) CARTA = c;
+    /* Duas espécies válidas: o modelo `{z}/{x}/{y}` escrito à mão, e o WMTS lido de um
+       GetCapabilities. Uma declaração que não seja nem uma nem outra ignora-se — vale
+       mais ficar sem carta do que pedir mosaicos a um endereço que não se percebe. */
+    if(c && c.tipo === "wmts" && c.camada && (c.modelo || c.kvp)) CARTA = c;
+    else if(c && typeof c.u === "string" && c.u.includes("{z}")) CARTA = Object.assign({tipo:"xyz", zMin:3}, c);
   }catch(e){ CARTA = null; }
   return CARTA;
 }
@@ -6318,9 +6654,25 @@ async function guardarCarta(u, atrib, termos, zMax){
   const t = String(termos||"").trim();
   if(!/^https:\/\//.test(t)) return { ok:false, motivo:"Indicar o endereço dos termos de uso do serviço." };
   const z = Math.max(3, Math.min(22, parseInt(String(zMax||"19"), 10) || 19));
-  CARTA = { u:url, atrib:a, termos:t, zMax:z, por:quemRegista(), g:gdhAgora() };
+  CARTA = { tipo:"xyz", u:url, atrib:a, termos:t, zMin:3, zMax:z, por:quemRegista(), g:gdhAgora() };
   try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
   fita("Serviço de mosaicos declarado: "+a);
+  return { ok:true, carta:CARTA };
+}
+
+/**
+ * Adota como carta uma camada de um serviço WMTS já lido.
+ *
+ * Não pede atribuição nem termos a quem escolhe: vêm do próprio serviço, que é quem os
+ * tem de declarar. Pedi-los à mão seria pedir a quem escolhe que copiasse o que já está
+ * escrito no documento — e copiar mal.
+ */
+async function adotarCartaWMTS(carta){
+  if(!carta || carta.tipo !== "wmts") return { ok:false, motivo:"Carta inválida." };
+  if(!carta.atrib) return { ok:false, motivo:"O serviço não declara atribuição, e carta de terceiros não se mostra sem dizer de quem é." };
+  CARTA = carta;
+  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
+  fita("Carta WMTS adotada: "+carta.camadaTitulo+" ("+carta.atrib+")");
   return { ok:true, carta:CARTA };
 }
 
@@ -6395,10 +6747,11 @@ function enquadrarMapa(larg, altMax){
   if(A > teto){ A = teto; L = Math.round(A/prop); }
   MAPA.larg = Math.max(280, L);
   MAPA.alt = Math.max(260, A);
-  const zMax = (CARTA && CARTA.zMax) || 19;
+  const zMax = cartaZMax();
   /* O maior nível de ampliação em que a caixa ainda cabe na tela. */
-  let z = 5;
-  for(let t=zMax; t>=3; t--){
+  let z = cartaZMin();
+  const zMin = cartaZMin();
+  for(let t=zMax; t>=zMin; t--){
     const w = merX(Q.maxLon, t) - merX(Q.minLon, t);
     const h = merY(Q.minLat, t) - merY(Q.maxLat, t);
     if(w <= MAPA.larg && h <= MAPA.alt){ z = t; break; }
@@ -6409,11 +6762,23 @@ function enquadrarMapa(larg, altMax){
   return true;
 }
 
-/** O endereço de um mosaico. Vazio sem serviço configurado. */
+/**
+ * O endereço de um mosaico. Vazio sem serviço configurado.
+ *
+ * Duas espécies de serviço, e a diferença não é de detalhe: no `xyz` a coluna vem antes da
+ * linha e o nível é um número; no `wmts` é ao contrário, e o nível tem o nome que o
+ * serviço lhe deu. Trocá-los desenha a carta noutro sítio do mundo.
+ */
 function mosaicoURL(z, x, y){
   if(!CARTA) return "";
+  if(CARTA.tipo === "wmts") return wmtsEndereco(CARTA, z, x, y);
   return CARTA.u.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
+
+/** O menor nível de ampliação que a carta em uso dá. */
+function cartaZMin(){ return (CARTA && isFinite(CARTA.zMin))? CARTA.zMin : 3; }
+/** O maior. Sem carta, o do esquema de mosaicos. */
+function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : 19; }
 
 /** A chave de um mosaico no arquivo local. Uma só, seja qual for a sua proveniência. */
 function chaveMosaico(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
@@ -6756,7 +7121,8 @@ async function pintarMapa(){
 function pintarEstadoMapa(vieram, total){
   const el = $("mapa-info"); if(!el) return;
   const partes = [];
-  if(CARTA) partes.push(CARTA.atrib + " — " + CARTA.termos);
+  if(CARTA) partes.push(CARTA.atrib + (CARTA.termos? " — " + CARTA.termos : "")
+    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : ""));
   else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo."
     + " A atribuição é a de quem a forneceu — não há serviço declarado que a possa dizer aqui.");
   else partes.push("Sem serviço de mosaicos configurado. A carta declara-se abaixo, ou carrega-se de ficheiro.");
@@ -6881,7 +7247,7 @@ function medirMapa(){
 
 /** Muda a ampliação mantendo o centro, dentro do que a carta dá. */
 function ampliarMapa(d){
-  const z = Math.max(3, Math.min((CARTA && CARTA.zMax)||19, MAPA.z + d));
+  const z = Math.max(cartaZMin(), Math.min(cartaZMax(), MAPA.z + d));
   if(z === MAPA.z) return;
   const lat = merLat(MAPA.cy, MAPA.z), lon = merLon(MAPA.cx, MAPA.z);
   MAPA.z = z; MAPA.cx = merX(lon, z); MAPA.cy = merY(lat, z);
@@ -6917,11 +7283,19 @@ $("mapa-esquecer").addEventListener("click", async ()=>{
 function pintarCarta(){
   const el = $("carta-estado"); if(!el) return;
   el.textContent = CARTA
-    ? "Serviço declarado: "+CARTA.atrib+" · até à ampliação "+CARTA.zMax
-      + (CARTA.por? " · declarado por "+CARTA.por : "") + (CARTA.g? " a "+CARTA.g : "")
+    ? (CARTA.tipo === "wmts"
+        ? "WMTS: "+CARTA.camadaTitulo+" · "+CARTA.servico+" · conjunto "+CARTA.conjunto
+          + " · ampliação "+CARTA.zMin+" a "+CARTA.zMax
+        : "Serviço declarado: "+CARTA.atrib+" · até à ampliação "+CARTA.zMax)
+      /* Sem ninguém ao teclado o «por» vem vazio, e a frase ficava «ampliação 8 a 18 a
+         310002AGO26». A hora sozinha diz-se como hora, não como continuação da frase. */
+      + (CARTA.g? (CARTA.por? " · declarada por "+CARTA.por+", "+CARTA.g : " · declarada "+CARTA.g) : "")
     : "Nenhum serviço declarado. Sem serviço e sem carta pré-descarregada, fica o croqui.";
   const b = $("carta-retirar"); if(b) b.style.display = CARTA? "" : "none";
-  if(CARTA){
+  /* Os campos abaixo são do serviço `{z}/{x}/{y}`, e só se preenchem com uma carta dessa
+     espécie. Uma carta WMTS não tem endereço com `{z}` nenhum: copiá-la para ali escrevia
+     «undefined» no campo e punha lá a atribuição de um serviço que não é aquele. */
+  if(CARTA && CARTA.tipo === "xyz"){
     if($("carta-u") && !$("carta-u").value) $("carta-u").value = CARTA.u;
     if($("carta-atrib") && !$("carta-atrib").value) $("carta-atrib").value = CARTA.atrib;
     if($("carta-termos") && !$("carta-termos").value) $("carta-termos").value = CARTA.termos;
@@ -6998,6 +7372,78 @@ async function pintarArquivoMapa(){
   tela.addEventListener("pointerup", largar);
   tela.addEventListener("pointercancel", ()=>{ a = null; pintarMapa(); });
 })();
+
+/* ---- ler um serviço WMTS e escolher dele uma camada ---- */
+
+/** O que o último GetCapabilities lido trouxe. Vive só enquanto se escolhe. */
+let WMTS_LIDO = null;
+
+/**
+ * Mostra o que o serviço oferece: as camadas que servem, e as que não servem com o motivo.
+ *
+ * As que não servem aparecem na mesma. Saber que a carta militar existe mas está numa
+ * projeção que o mapa não desenha é informação; escondê-la deixava quem escolhe a pensar
+ * que o serviço não a tinha.
+ */
+function pintarCamadasWMTS(){
+  const el = $("wm-camadas"), sv = $("wm-servico");
+  if(!el || !sv) return;
+  if(!WMTS_LIDO){ el.innerHTML = ""; sv.textContent = ""; return; }
+  sv.textContent = (WMTS_LIDO.titulo || "serviço sem título")
+    + (WMTS_LIDO.atribuicao? " · " + WMTS_LIDO.atribuicao : "")
+    + " · " + WMTS_LIDO.camadas.length + " camadas";
+  const L = wmtsInventario(WMTS_LIDO);
+  el.innerHTML = L.map(c=>'<div class="wm-c">'
+    + '<span class="wm-t">'+esc(c.titulo)+'</span>'
+    + '<span class="wm-id">'+esc(c.id)+'</span>'
+    + (c.serve
+        ? '<span class="hint" style="margin:0">ampliação '+c.zMin+' a '+c.zMax+'</span>'
+          + '<button type="button" class="btn btn-g" data-wm-usar="'+esc(c.id)+'">Usar esta</button>'
+        : '<span class="wm-nao">não serve — '+esc(c.motivo)+'</span>')
+    + '</div>').join("");
+  el.querySelectorAll("[data-wm-usar]").forEach(b=>b.addEventListener("click", async ()=>{
+    const r = wmtsCarta(WMTS_LIDO, b.getAttribute("data-wm-usar"));
+    if(!r.ok){ aviso("wm-msg","err",r.motivo); return; }
+    const g = await adotarCartaWMTS(r.carta);
+    if(!g.ok){ aviso("wm-msg","err",g.motivo); return; }
+    pintarCarta();
+    aviso("wm-msg","ok","Carta adotada: "+r.carta.camadaTitulo+". Carregar a carta para a ver.");
+    medirMapa(); if(enquadrarMapa(MAPA.larg, MAPA.alt)) pintarMapa();
+  }));
+}
+
+/** Lê um GetCapabilities já em texto, venha de onde vier. */
+function usarCapacidadesWMTS(xml){
+  try{ WMTS_LIDO = lerCapacidadesWMTS(xml); }
+  catch(e){ WMTS_LIDO = null; pintarCamadasWMTS(); aviso("wm-msg","err","Não foi possível ler o serviço: "+(e.message||e)); return false; }
+  pintarCamadasWMTS();
+  const serve = wmtsInventario(WMTS_LIDO).filter(c=>c.serve).length;
+  if(serve) aviso("wm-msg","ok", serve+" de "+WMTS_LIDO.camadas.length+" camadas podem ser desenhadas. Escolhe uma.");
+  else aviso("wm-msg","err","O serviço tem "+WMTS_LIDO.camadas.length+" camadas e nenhuma pode ser desenhada — ver os motivos abaixo.");
+  return true;
+}
+
+$("wm-ler").addEventListener("click", async ()=>{
+  const u = String($("wm-url").value||"").trim();
+  if(!/^https?:\/\//.test(u)){ aviso("wm-msg","err","Indica o endereço do GetCapabilities do serviço."); return; }
+  aviso("wm-msg","ok","A ler o serviço...");
+  try{
+    const r = await fetchT(u, {}, 20000);
+    if(!r.ok){ aviso("wm-msg","err","O serviço respondeu HTTP "+r.status+"."); return; }
+    usarCapacidadesWMTS(await r.text());
+  }catch(e){
+    /* Em `file://` há serviços que recusam o pedido de outra origem, e não há como
+       contornar isso do lado da aplicação. O ficheiro guardado é o caminho que resta, e é
+       o que serve num posto sem rede. */
+    aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
+  }
+});
+
+$("wm-fich").addEventListener("change", async ev=>{
+  const f = ev.target.files && ev.target.files[0]; if(!f) return;
+  try{ usarCapacidadesWMTS(await f.text()); }
+  catch(e){ aviso("wm-msg","err","Não foi possível ler o ficheiro ("+e+")."); }
+});
 /* ================= PLANEAMENTO · relevo e perfil de elevação (art. 28.º) ================= */
 async function analisarRelevo(){
   const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));

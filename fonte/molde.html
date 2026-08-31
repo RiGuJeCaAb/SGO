@@ -593,6 +593,11 @@
   .mp-svg{position:absolute;left:0;top:0;pointer-events:none}
   .mp-li{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
   .mp-li .mono{font-family:var(--mono);font-size:11.5px;color:var(--tx2)}
+  /* Lista das camadas de um WMTS: as que servem e, com o motivo, as que não servem. */
+  .wm-c{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .wm-c .wm-t{font-weight:600}
+  .wm-c .wm-id{font-family:var(--mono);font-size:11px;color:var(--tx3)}
+  .wm-c .wm-nao{color:var(--tx3);font-style:italic;flex-basis:100%;font-size:11.5px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1236,7 +1241,27 @@
           fontes pré-descarregadas por distrito.</p>
         </div>
 
-        <div class="sub" style="margin-top:12px"><span class="stit">Serviço de mosaicos</span>
+        <div class="sub" style="margin-top:12px"><span class="stit">Serviço WMTS — ler o que o serviço oferece</span>
+          <p class="hint" style="margin:0 0 10px 0">É assim que se consome cartografia oficial. Dá-se o endereço do
+          <span class="mono-sm">GetCapabilities</span>, ou carrega-se o XML guardado, e a aplicação lê as camadas
+          que existem, em que projeção, com que ampliações e com que atribuição. <b>Não se adivinha endereço nenhum.</b></p>
+          <div class="grid g2">
+            <div style="grid-column:1/-1"><label for="wm-url">Endereço do GetCapabilities</label>
+              <input id="wm-url" placeholder="https://…/wmts?SERVICE=WMTS&amp;REQUEST=GetCapabilities"></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn btn-o" type="button" id="wm-ler">Ler o serviço</button>
+            <span class="xtr"><span class="hint" style="margin:0">ou do ficheiro</span>
+              <input type="file" id="wm-fich" accept=".xml,text/xml,application/xml"></span>
+          </div>
+          <div class="mono-sm" id="wm-servico" style="margin-top:10px"></div>
+          <div id="wm-camadas" style="margin-top:10px"></div>
+          <div class="msg" id="wm-msg" style="display:none"></div>
+        </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Serviço de mosaicos {z}/{x}/{y}</span>
+          <p class="hint" style="margin:0 0 10px 0">A convenção do OpenStreetMap. Serve para os serviços que a
+          oferecem; a cartografia oficial normalmente não.</p>
           <div class="grid g2">
             <div style="grid-column:1/-1"><label for="carta-u">Endereço, com {z}/{x}/{y}</label>
               <input id="carta-u" placeholder="https://servico.exemplo.pt/wmts/{z}/{x}/{y}.png"></div>

@@ -14,7 +14,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 | | |
 |---|---|
 | Entregas em `app/` | 66, das anteriores à convenção de nomes até à r0066 |
-| Módulos em `fonte/` | 58, em sete zonas, mais o molde |
+| Módulos em `fonte/` | 59, em sete zonas, mais o molde |
 | Testes | 446, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
@@ -67,6 +67,55 @@ Por ordem em que foram tomadas.
 - **Auditoria visual** (`npm run visual`): transbordo horizontal e exceções, em todos os
   separadores, a quatro larguras e nos dois temas.
 - **Arrumação da documentação** por natureza, com `docs/README.md` a explicá-la.
+
+## Ler cartografia oficial: WMTS, na r0066
+
+O Ricardo foi procurar os endereços `{z}/{x}/{y}` da Direção-Geral do Território e não os
+encontrou. **Não os encontrou porque não existem nessa forma**, e o erro é do campo que eu
+fiz, não da procura dele.
+
+`{z}/{x}/{y}` é uma convenção do ecossistema OpenStreetMap. Não é norma nenhuma. As
+agências oficiais publicam **OGC WMTS**, e três diferenças faziam do campo anterior uma
+fechadura sem chave:
+
+1. **A ordem está trocada.** WMTS endereça por `TileRow`/`TileCol` — a linha antes da
+   coluna, **y antes de x**.
+2. **O nível não é um número.** O `TileMatrix` chama-se `EPSG:3857:14`, ou tem nome.
+3. **A projeção pode não ser Mercator.** Cartografia portuguesa oficial vem muitas vezes
+   em ETRS89 / PT-TM06 (EPSG:3763), e desenhá-la com a aritmética de Mercator punha tudo
+   no sítio errado — em silêncio.
+
+### Perguntar ao serviço, em vez de adivinhar
+
+`fonte/3-planeamento/04-servico-wmts.js` lê o `GetCapabilities`, que é onde o serviço
+declara com autoridade o que tem: camadas, conjuntos de matrizes, projeções, formatos,
+modelos de endereço e **a atribuição**. Lê-se de um endereço ou de um ficheiro guardado —
+do ficheiro porque um posto trabalha sem rede, e porque assim a escolha do serviço se
+prepara no gabinete.
+
+O nível deriva-se **da escala e não do nome da matriz**: o nome é uma escolha de quem
+publicou, a escala é um número que significa sempre o mesmo. A ponte entre o mundo do WMTS
+e o do mapa é o pixel normalizado de 0,28 mm da OGC, e há um teste que confere que as duas
+constantes continuam a bater uma na outra.
+
+### Recusar em vez de desenhar torto
+
+`wmtsCompativel` não se contenta com o código do sistema de coordenadas. Confere a origem
+do conjunto, o tamanho do mosaico e a progressão das escalas: um conjunto em EPSG:3857 com
+outra origem põe a carta ao lado do sítio na mesma. O que não passar **diz porque não
+passou**, e a camada aparece na lista com o motivo em vez de desaparecer — saber que a
+carta militar existe mas está em PT-TM06 é informação; escondê-la deixava quem escolhe a
+pensar que o serviço não a tinha.
+
+### O que a verificação corrigiu
+
+Uma carta WMTS estava a escrever nos campos do serviço `{z}/{x}/{y}`: o campo do endereço
+ficava com «undefined» e a atribuição de um serviço aparecia nos campos do outro. E a
+linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia ninguém ao teclado.
+
+Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
+`.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
+(`qa0021`).
 
 ## Dizer o que cada função promete, na r0066
 
