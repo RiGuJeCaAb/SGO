@@ -12,6 +12,7 @@ Uma linha por reserva, com o número mais alto conhecido e a data em que se soub
 
     r0063 · 2026-08-30 · linhagem paralela: «os r já vão na r0063»
     r0071 · 2026-08-31 · linhagem paralela: p0017, carta pré-descarregada — **chegada e absorvida**
+    r0073 · 2026-08-31 · linhagem paralela: p0019, modelos de combustível — **chegada e absorvida**
 
 A r0063b — o `b` é sufixo de trabalho da linhagem paralela, não um número novo — chegou
 com o croqui do teatro de operações e os cartões dobráveis, e está em `app/` ao lado das
@@ -21,7 +22,11 @@ outras. **Foi absorvida em `fonte/` na r0066**: o croqui vive em
 
 A r0071 chegou em ficheiro e **está absorvida em `fonte/`**: corrigiu dois defeitos da
 r0070 — o campo da carta pré-descarregada não pedia uma pasta, e a grelha da árvore local não
-se declarava. Está em `app/` ao lado das outras, e o próximo número desta linhagem é o r0072.
+se declarava. Está em `app/` ao lado das outras.
+
+A r0073 chegou com o motor de propagação — os dezoito modelos de combustível e os quadros
+do fogo controlado — e **está absorvida em `fonte/3-planeamento/21-modelos-de-combustivel.js`**.
+O número dela saiu de lá, não daqui: esta linhagem salta-o e segue para a r0074.
 
 Quando as revisões chegarem e forem absorvidas em `fonte/`, ficam em `app/` como as
 outras e a linha correspondente pode sair.

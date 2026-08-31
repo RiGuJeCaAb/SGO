@@ -308,12 +308,77 @@ Portugal com este conjunto.
 
 ### O que os três, juntos, resolvem
 
-Nada do que falta. Continua sem haver fonte para **R nos combustíveis do Douro**, e estes
-três documentos descrevem a máquina que precisaria desse número para trabalhar.
+Nada do que falta — **a leitura acima é de antes de a `FOGOPT` chegar**, e fica como estava
+porque continua verdadeira quanto a estes três: descrevem a máquina que precisaria de R
+para trabalhar, e nenhum deles o dá para os combustíveis do Douro. Quem o dá é a `FOGOPT`,
+adiante, com as reservas que lá estão escritas.
 
-O que dão é fundamento para a posição que a aplicação já tinha: a composição vetorial de
-vento e declive está validada experimentalmente **na forma da resposta**, e é isso e só
-isso que se mostra.
+O que estes três dão é fundamento para a posição que a aplicação já tinha: a composição
+vetorial de vento e declive está validada experimentalmente **na forma da resposta**, e é
+isso e só isso que se mostra.
+
+## `FOGOPT` — os quadros portugueses que dão a velocidade de propagação
+
+Chave invocada por `fonte/3-planeamento/21-modelos-de-combustivel.js`, que traz o motor de
+propagação, e pelo painel de estimativa em `19-intensidade-da-frente.js`.
+
+São dois documentos, e **o repositório não tem nenhum deles**:
+
+- FERNANDES, P.M., BOTELHO, H.S., LOUREIRO, C., 2002b. *Manual de Formação para a Técnica
+  do Fogo Controlado.* UTAD, Vila Real. Daqui vêm o Quadro 3.2.1 (humidade do combustível
+  morto fino), o 3.3.1 (vento à superfície), os 3.4.1 a 3.4.3 (propagação em matos) e os
+  7.1 e 7.2 (propagação em pinheiro bravo).
+- FERNANDES, P.M., LOUREIRO, C., 2021. Os 18 modelos de combustível para Portugal, com o
+  intervalo de carga fina de cada um.
+
+### O que está confirmado, e o que não está
+
+**Confirmada está a existência e a referência do manual de 2002b**: Fernandes (2003), que
+está em `docs/fontes/` e se lê aqui, cita-o na sua bibliografia com esta designação exata.
+Não é uma obra inventada nem uma referência aproximada.
+
+**Confirmada está a coerência interna dos quadros transcritos**, por
+`tests/propagacao.test.mjs`: a propagação cresce com o vento e decresce com a humidade em
+todas as células, os fatores de altura e declive comportam-se como fatores, o extremo
+superior fica dentro do que Alexander (2000) reconhece para floresta, e nenhuma combinação
+produz velocidade negativa.
+
+**Não está confirmada a transcrição contra o impresso.** É preciso dizê-lo sem rodeios:
+uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento do fogo
+errado com toda a confiança do mundo. Os números destes quadros chegaram por transcrição, de
+documentos que ninguém aqui abriu, e ficam a valer sob essa reserva até que os dois
+documentos entrem em `docs/fontes/` e alguém confira célula a célula.
+
+**Não está confirmada a atribuição dos modelos de 2021.** Os 18 códigos, descrições e
+cargas foram transcritos com a referência acima; a referência não foi verificada contra
+nenhum documento em mão.
+
+### A ponte para Viegas, que não é de nenhuma das fontes
+
+Os quadros de Fernandes são multiplicativos: o declive amplia a propagação que o vento já
+produziu. Viegas (2004) — ver `FOGO` — é vetorial: o declive acrescenta parcela própria. Para
+passar de um para o outro, `epsilonDosQuadros` toma como parcela de declive o acréscimo que
+o declive produz sobre a propagação sem vento, e como parcela de vento o acréscimo do vento
+sobre a mesma base.
+
+**Isto não está em Fernandes nem em Viegas.** É uma ponte declarada, escrita no módulo e
+mostrada no ecrã, precisamente para poder ser recusada por quem a leia. Quem discordar dela
+não está a discordar de nenhuma das duas fontes.
+
+### As duas recusas que estes quadros trazem
+
+1. **Acima de 25 °C** o Quadro 3.2.1 traz impresso que não é válido. A aplicação recusa em
+   vez de avisar: um aviso ignora-se às três da manhã, uma recusa obriga a ir buscar o
+   número a quem o tem — ao FWI ou a medição.
+2. **Eucaliptal, folhosas e formações herbáceas não têm motor português.** Os guias cobrem
+   matos (E1) e pinheiro bravo (E2), e mais nada. Para o resto a aplicação diz que a
+   velocidade tem de ser observada no terreno, em vez de a arbitrar por semelhança.
+
+### O que fica pedido
+
+Os dois documentos, em PDF, para `docs/fontes/`. Enquanto não chegarem, todo o número que
+sai deste motor é bom para ordem de grandeza e para comparar cenários entre si — não para
+sustentar sozinho uma decisão de ataque direto.
 
 ## Como acrescentar
 

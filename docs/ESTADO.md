@@ -2354,3 +2354,53 @@ intermédias de trabalho não saem do computador e não contam.
 | r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |
 | r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |
 | r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |
+
+## r0074 — o motor de propagação, e o número que faltava
+
+Absorvida a **r0073 da linhagem paralela** (p0019/t0019/q0019). Traz o que estava em falta
+desde o princípio da cadeia de comportamento do fogo: **a velocidade de propagação**. Até
+aqui a aplicação pedia R ao utilizador e não sabia estimá-lo, e o `docs/FONTES.md` dizia,
+com razão, que não havia fonte que o desse para os combustíveis do Douro.
+
+### O que entrou
+
+- `fonte/3-planeamento/21-modelos-de-combustivel.js` — os 18 modelos de combustível para
+  Portugal com o intervalo de carga fina de cada um, os quadros do fogo controlado
+  (humidade do combustível morto, vento à superfície, propagação em matos, propagação em
+  pinheiro bravo), e a ponte para a razão declive/vento de Viegas.
+- O painel de estimativa no separador do planeamento, logo acima da intensidade da frente,
+  com passagem direta do resultado para os campos que já lá estavam.
+- Migração 24 → 25, com `dados.fogo.est`.
+- `tests/propagacao.test.mjs` — 28 testes.
+- A chave `FOGOPT` em `docs/FONTES.md` e a secção nova no `docs/MANUAL.md`.
+
+### O que se corrigiu ao absorver
+
+- **Uma entrega apagada.** A r0072 tinha sido committed e empurrada, e foi apagada para
+  remontar o mesmo número — exatamente o que a regra proíbe. Reposta, e este trabalho saiu
+  na r0074. A r0073 é da linhagem paralela e está declarada em `app/RESERVADAS.md`.
+- **`DECLIVE_CLASSE` estava escrito e ninguém o usava** — apanhado pelo `npm run lint`. O
+  painel do relevo já declara a classe de declive e o painel da propagação obrigava a
+  escrevê-la outra vez. Passou a haver «Preencher declive do relevo», que traz o centro da
+  classe **e diz que é o centro de uma classe**: enchê-lo em silêncio faria passar por
+  medido um valor que é um intervalo inteiro.
+- O teste que conta degraus da escada de migrações continuava a esperar 24.
+
+### O que fica em aberto, e é preciso não esquecer
+
+Os quadros **foram transcritos de dois documentos que este repositório não tem** — o manual
+de fogo controlado de Fernandes, Botelho & Loureiro (2002b) e os modelos de Fernandes &
+Loureiro (2021). A existência e a referência do primeiro estão confirmadas: Fernandes
+(2003), que está em `docs/fontes/`, cita-o na bibliografia. A coerência interna dos quadros
+está verificada por teste — monotonia no vento e na humidade em todas as células, domínios
+respeitados, nenhuma velocidade negativa, extremo superior dentro do que Alexander (2000)
+reconhece.
+
+**O que não está verificado é a transcrição contra o impresso.** Uma tabela mal copiada
+passa em qualquer teste de coerência e devolve comportamento do fogo errado com toda a
+confiança do mundo. Pedem-se os dois documentos em PDF para `docs/fontes/`.
+
+## Pasta de entrada
+
+Criada `entrada/`, para se largar lá o que chegar de fora antes de estar arrumado. O
+`entrada/README.md` diz para onde vai cada tipo de ficheiro. Não é arquivo: esvazia-se.

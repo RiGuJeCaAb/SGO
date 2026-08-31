@@ -213,17 +213,57 @@ apontar de hora a hora.
 
 Planeamento → **Comportamento do fogo — intensidade da frente**.
 
-Dois números, e a aplicação **não os estima**: exigiriam um modelo de combustível calibrado
-para a vegetação do Douro, e não existe.
+Dois números comandam tudo o que vem a seguir:
 
 | Campo | O que é |
 |---|---|
-| Velocidade de propagação (m/h) | Observada no terreno, ou de fogo experimental em vegetação comparável |
+| Velocidade de propagação (m/h) | Observada no terreno, de fogo experimental em vegetação comparável, ou estimada pelo painel da secção seguinte |
 | Carga de combustível consumida (t/ha) | A que arde **na frente de chamas**, não a carga total do povoamento |
 
 Dados eles, sai a intensidade da frente, o comprimento da chama, a distância de segurança, a
 largura de contenção necessária e se o ataque direto à cabeça é admissível. A leitura muda
 enquanto escreve — estes dois números são de tentativa e erro.
+
+### Estimar a velocidade de propagação
+
+Logo abaixo, no mesmo separador: «Estimativa da velocidade de propagação (guias de fogo
+controlado)».
+
+É aqui que se obtém o primeiro dos dois números quando não há observação de terreno. Preenche-se
+por esta ordem:
+
+1. «Modelo de combustível» — dezoito modelos publicados para Portugal. A descrição e o
+   intervalo de carga aparecem por baixo assim que escolhe.
+2. «Altura média da vegetação (m)» — só para os modelos de matos, e o quadro só vai de 0,2 a
+   3,0 m.
+3. «Declive (%)» e «Vento a 10 m (km/h)». O vento converte-se sozinho para o vento à
+   superfície, que é o que os quadros pedem. Se já declarou o relevo, «Preencher declive do
+   relevo» traz o centro da classe — e diz-lhe que é o centro de uma classe e não uma
+   medição. «Preencher vento da previsão» traz a hora de maior vento da previsão em vigor.
+4. «Humidade do combustível morto fino (%)». Se não a tiver medida, escreva a humidade
+   relativa do ar e os dias sem chuva em «Humidade relativa (%) e dias sem chuva» e carregue
+   em «Estimar HCM».
+5. «Estimar a propagação».
+
+O resultado traz a velocidade, a carga do modelo e a razão declive/vento, cada uma com o
+quadro de onde veio. «Usar nos campos abaixo» passa-os para a intensidade da frente, e a
+cadeia inteira — chama, segurança, contenção, ataque direto — recalcula-se.
+
+**Três coisas para ter presentes ao usar este painel:**
+
+- **São guias de fogo controlado**, construídos sobre fogos de Outono e Primavera, de
+  intensidade baixa a moderada. Não estão validados para o Verão, e a aplicação não afirma
+  que estejam.
+- **Acima de 25 °C a estimativa da humidade recusa-se.** O quadro traz impresso que não é
+  válido acima dessa temperatura, e nesse caso a humidade tem de vir do FWI ou de medição.
+- **Eucaliptal, folhosas e formações herbáceas não têm motor.** Os guias cobrem matos e
+  pinheiro bravo, e mais nada. Nesses modelos a aplicação diz que a velocidade tem de ser
+  observada.
+
+Os quadros foram transcritos de dois documentos que o projeto não tem em mão. Ver
+`docs/FONTES.md`, chave FOGOPT, para o que está confirmado e o que não está. Enquanto assim
+for, o número serve para ordem de grandeza e para comparar cenários — não para sustentar
+sozinho uma decisão de ataque direto.
 
 ---
 
@@ -351,8 +391,9 @@ Isto não é lista de limitações: é a garantia de que o que ela diz, sustenta
 
 | Não faz | Porquê |
 |---|---|
-| **Não diz a que horas o fogo chega a um sítio** | Exige a velocidade básica do combustível, e não há fonte que a dê para os combustíveis do Douro |
+| **Não diz a que horas o fogo chega a um sítio** | Exige propagação sustentada no tempo e no terreno; os quadros dão a velocidade num ponto e num instante, não a progressão |
 | **Não diz quantos hectares vão arder** | Pela mesma razão |
+| **Não estima propagação em eucaliptal, folhosas ou formações herbáceas** | Os guias portugueses de fogo controlado cobrem matos e pinheiro bravo. Fora disso, tem de ser observada |
 | **Não calcula o desvio da cabeça sem a razão declive/vento** | O modelo de Viegas (2004) não o dá sem ela, e um valor por omissão seria invenção |
 | **Não traz serviço de cartografia** | Nenhum está confirmado como podendo ser usado por este posto |
 | **Não deduz a sub-região SIRESP do concelho** | A composição das pastas não está confirmada em fonte |
