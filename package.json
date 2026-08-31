@@ -11,13 +11,14 @@
     "verificar": "node ferramentas/verificar.mjs",
     "testar": "node --test tests/*.test.mjs",
     "lint": "node ferramentas/lint.mjs",
-    "tudo": "npm run verificar && npm run testar && npm run lint && npm run tipos && npm run morto && npm run documentar",
+    "tudo": "npm run verificar && npm run testar && npm run lint && npm run tipos && npm run morto && npm run documentar && npm run manual",
     "visual": "node ferramentas/visual.mjs",
     "tipos": "node ferramentas/tipos.mjs",
     "montar": "node ferramentas/montar.mjs",
     "validar-gp": "node ferramentas/validar-gestaopco.mjs",
     "morto": "node ferramentas/morto.mjs",
-    "documentar": "node ferramentas/documentar.mjs"
+    "documentar": "node ferramentas/documentar.mjs",
+    "manual": "node ferramentas/manual.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

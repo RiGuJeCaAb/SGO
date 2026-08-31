@@ -231,7 +231,16 @@ function enquadrarMapa(larg, altMax){
     if(lo < Q.minLon) Q.minLon = lo; if(lo > Q.maxLon) Q.maxLon = lo;
   };
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
+  /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
+     propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
+     a pena mostrar —, mas o mapa não é para ver: é para **desenhar**. Enquanto não abria com
+     o ponto sozinho havia uma armadilha fechada sobre si mesma: para traçar uma frente era
+     preciso o mapa aberto, e para o mapa abrir era preciso já haver uma frente traçada. */
+  const laO = parseFloat(String(O.meta.lat).replace(",", ".")),
+        loO = parseFloat(String(O.meta.lon).replace(",", "."));
+  juntar(laO, loO);
   if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
   /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
      frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */

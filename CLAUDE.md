@@ -62,8 +62,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
   `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
-  estática, tipos, código morto e cobertura de documentação. Acrescentar um teste que
+  estática, tipos, código morto, cobertura de documentação e manual. Acrescentar um teste que
   exercite o caminho alterado.
+- **Funcionalidade nova entra no `docs/MANUAL.md`.** Os rótulos que o manual cita entre
+  «aspas angulares» são conferidos contra a entrega, e um botão renomeado faz falhar a
+  montagem. As angulares são só para rótulos do ecrã; para ênfase, aspas normais.
 - **Toda a função de topo diz o que promete**, numa linha imediatamente antes dela, e
   `npm run documentar` recusa que a cobertura desça de 100 %. Comenta-se o *porquê* —
   a razão da escolha, o defeito que a motivou, o que se recusou fazer. Um comentário

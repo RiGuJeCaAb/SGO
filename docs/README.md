@@ -9,6 +9,7 @@ Quatro tipos de documento, arrumados por natureza e não por data.
 | `ESTADO.md` | O que está feito, em curso e por fazer, e o registo de revisões. **Atualizar no fim de cada sessão** |
 | `FONTES.md` | Uma entrada por documento doutrinário citado pela aplicação. Regra de conformidade nova declara aqui a sua fonte |
 | `POREXECUTAR.md` | O que está decidido e por fazer, ordenado pelo que se ataca primeiro. Existe porque a lista de tarefas de uma sessão morre com ela |
+| `MANUAL.md` | **Como se usa a aplicação**, por tarefa operacional e não por ecrã. Os rótulos que cita são conferidos contra a entrega por `npm run manual`: um botão renomeado faz falhar a montagem |
 
 Não seguem a convenção `CSREPCDouro_rNNNN_...` de propósito: não são entregas, são
 documentos que mudam continuamente e não têm revisões.

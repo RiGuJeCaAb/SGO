@@ -471,3 +471,30 @@ test('com carta do arquivo e sem serviço, di-lo em vez de dizer que não há ca
   assert.doesNotMatch(t, /Sem serviço de mosaicos configurado/,
     'o mapa estava a mostrar carta e a linha dizia que não havia');
 });
+
+test('o ponto da ocorrência sozinho chega para abrir o mapa', semAplicacao, () => {
+  /* Havia uma armadilha fechada sobre si mesma: o cartão do mapa só abria quando havia
+     algo para enquadrar, e o croqui recusa um ponto sozinho — de propósito, porque um
+     triângulo não é um croqui. Mas o mapa não é para ver, é para desenhar: para traçar uma
+     frente era preciso o mapa aberto, e para o mapa abrir era preciso já haver uma frente.
+     Apanhada ao varrer o que estava escondido, quando se escreveu o manual. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4711'; O.meta.lat = '41,0975'; O.meta.lon = '-7,8103';
+  assert.equal(janela.enquadrarCroqui(640, 420), null, 'o croqui continua a recusar um ponto sozinho');
+  assert.equal(janela.enquadrarMapa(640, 620), true, 'o mapa devia abrir com o ponto');
+});
+
+test('e uma frente traçada fora da caixa do croqui é enquadrada na mesma', semAplicacao, () => {
+  comTeatro();
+  const antes = avaliar(janela, 'MAPA').z;
+  janela.iniciarTraco(-1, 'frente');
+  [[41.30, -7.60], [41.31, -7.59]].forEach(([la, lo]) => janela.pontoDoTraco(la, lo));
+  const t = janela.document.getElementById('frente-tipo');
+  t.innerHTML = '<option value="cabeca"></option>';
+  t.value = 'cabeca';
+  janela.document.getElementById('frente-rumo').value = '90';
+  janela.fecharTraco();
+  janela.enquadrarMapa(640, 620);
+  assert.ok(avaliar(janela, 'MAPA').z < antes, 'não afastou para caber a frente que ficou longe');
+});

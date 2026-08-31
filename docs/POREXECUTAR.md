@@ -84,7 +84,7 @@ Duas cautelas registadas em `FONTES.md` e que não se devem perder:
 E o que continua em falta: **R para os combustíveis do Douro**. Nenhum dos quatro documentos
 o dá. Enquanto não houver fonte, a velocidade de propagação é um dado que o oficial introduz.
 
-## 4. Manual de utilização
+## 4. Manual de utilização — **feito na r0070**
 
 **Há funcionalidades na aplicação que quem a usa já não encontra.** Não é hipótese: a
 leitura da evolução das frentes nasceu dentro do cartão do mapa, que se esconde enquanto
@@ -92,7 +92,7 @@ não houver nada para enquadrar, e o próprio autor do projeto não deu com ela.
 mudada de sítio; o problema de fundo é que a aplicação cresceu mais depressa do que a
 maneira de a explicar.
 
-O manual deve ser **por tarefa operacional e não por ecrã** — «como registo uma ocorrência»,
+Está em `docs/MANUAL.md`, e é **por tarefa operacional e não por ecrã** — «como registo uma ocorrência»,
 «como traço um limite de setor», «como leio a evolução» —, deve nascer do que está na
 entrega e não do que se lembra dela, e cada passo tem de ser verificável contra a revisão em
 vigor. Enquanto se escreve, vale a pena varrer o que mais estará escondido por depender de

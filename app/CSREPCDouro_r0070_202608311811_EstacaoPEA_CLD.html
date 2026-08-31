@@ -2019,14 +2019,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311800_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311811_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311800_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311811_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -7226,7 +7226,16 @@ function enquadrarMapa(larg, altMax){
     if(lo < Q.minLon) Q.minLon = lo; if(lo > Q.maxLon) Q.maxLon = lo;
   };
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
+  /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
+     propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
+     a pena mostrar —, mas o mapa não é para ver: é para **desenhar**. Enquanto não abria com
+     o ponto sozinho havia uma armadilha fechada sobre si mesma: para traçar uma frente era
+     preciso o mapa aberto, e para o mapa abrir era preciso já haver uma frente traçada. */
+  const laO = parseFloat(String(O.meta.lat).replace(",", ".")),
+        loO = parseFloat(String(O.meta.lon).replace(",", "."));
+  juntar(laO, loO);
   if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
   /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
      frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
