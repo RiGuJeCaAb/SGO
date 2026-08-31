@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Aug 2026 08:54:09 GMT
+Content-Type: text/xml
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Frame-Options: ALLOW-FROM http://si.icnf.pt , http://plinia:8080
+X-Control-flow-delay-ms: 0
+Cache-Control: max-age=0, must-revalidate
+Content-Disposition: inline; filename=getcapabilities_1.3.0.xml
+Content-Encoding: gzip
+

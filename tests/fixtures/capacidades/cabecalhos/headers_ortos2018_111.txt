@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Date: Mon, 31 Aug 2026 08:34:25 GMT
+Server: MapProxy/1.9.0 (Werkzeug based) Python/2.7.6
+Access-Control-Allow-Origin: *
+Content-length: 2805
+Content-type: application/vnd.ogc.wms_xml
+Access-control-allow-origin: *
+

@@ -24,17 +24,17 @@ test('a escala do nível 0 bate com a resolução que o mapa usa', semAplicacao,
   /* O WMTS fala em escalas, o mapa em níveis. A ponte é o pixel de 0,28 mm da OGC. Se uma
      das duas constantes mudar sem a outra, a carta aparece com a ampliação errada. */
   const escala0 = avaliar(janela, 'WMTS_ESCALA_0');
-  assert.ok(Math.abs(escala0 * 0.00028 - janela.merEscala(0, 0)) < 0.01,
+  assert.ok(Math.abs(escala0 * 0.00028 - janela.eval('GRELHAS.mercator.escala(0, 0)')) < 0.01,
     'a escala 0 do WMTS deixou de corresponder ao nível 0 do mapa');
 });
 
 test('o nível deriva da escala, e não do nome da matriz', semAplicacao, () => {
   /* «EPSG:3857:14» é um nome; 34123,75 é um número que significa sempre o mesmo. */
-  assert.equal(janela.wmtsNivelDe(avaliar(janela, 'WMTS_ESCALA_0')), 0);
-  assert.equal(janela.wmtsNivelDe(34123.751696), 14);
-  assert.equal(janela.wmtsNivelDe(2132.7344810), 18);
-  assert.equal(janela.wmtsNivelDe(2000000), null, 'uma escala que não é de nenhum nível');
-  assert.equal(janela.wmtsNivelDe('não é número'), null);
+  assert.equal(janela.nivelPorEscala(avaliar(janela, 'WMTS_ESCALA_0'), avaliar(janela, 'WMTS_ESCALA_0')), 0);
+  assert.equal(janela.nivelPorEscala(34123.751696, avaliar(janela, 'WMTS_ESCALA_0')), 14);
+  assert.equal(janela.nivelPorEscala(2132.7344810, avaliar(janela, 'WMTS_ESCALA_0')), 18);
+  assert.equal(janela.nivelPorEscala(2000000, avaliar(janela, 'WMTS_ESCALA_0')), null, 'uma escala que não é de nenhum nível');
+  assert.equal(janela.nivelPorEscala('não é número', avaliar(janela, 'WMTS_ESCALA_0')), null);
 });
 
 test('o código do sistema de coordenadas lê-se em qualquer das formas', semAplicacao, () => {
@@ -62,7 +62,7 @@ test('o elo de uma camada para um conjunto não é ele próprio um conjunto', se
 });
 
 test('o que não é um GetCapabilities de WMTS é recusado com motivo', semAplicacao, () => {
-  assert.throws(() => janela.lerCapacidadesWMTS('<html><body>erro 404</body></html>'), /não é um GetCapabilities/i);
+  assert.throws(() => janela.lerCapacidadesWMTS('<html><body>erro 404</body></html>'), /página de erro/i);
   assert.throws(() => janela.lerCapacidadesWMTS('isto não é xML <<'), /XML válido|GetCapabilities/i);
   assert.throws(() => janela.lerCapacidadesWMTS(
     '<Capabilities xmlns="http://www.opengis.net/wmts/1.0"><Contents/></Capabilities>'), /nenhuma camada/i);
@@ -70,12 +70,24 @@ test('o que não é um GetCapabilities de WMTS é recusado com motivo', semAplic
 
 /* ---- o que serve e o que não serve ---- */
 
-test('um conjunto na quadrícula nacional é recusado, e diz-se porquê', semAplicacao, () => {
-  const c = cap();
-  const r = janela.wmtsCompativel(c.conjuntos['PT-TM06']);
+test('estar em EPSG:3763 não chega: tem de ser a grelha que a DGT publica', semAplicacao, () => {
+  /* Este conjunto está no sistema certo e é recusado à mesma, porque começa noutro canto.
+     É a recusa que interessa ter: o sistema de coordenadas diz em que unidades estão os
+     números, e não onde fica a origem nem que escalas a grelha usa. Aceitá-lo por ter o
+     código certo punha a ortofoto cinquenta quilómetros ao lado. */
+  const r = janela.wmtsCompativel(cap().conjuntos['PT-TM06']);
   assert.equal(r.ok, false);
-  assert.match(r.motivo, /EPSG:3763/, 'o motivo devia nomear o sistema: ' + r.motivo);
-  assert.match(r.motivo, /Web Mercator/);
+  assert.match(r.motivo, /começa em \(-120000, 300000\)/, 'o motivo devia dar o canto lido: ' + r.motivo);
+  assert.match(r.motivo, /PT-TM06.*começa em \(-170000, 290000\)/, r.motivo);
+});
+
+test('um sistema que não é nenhuma das grelhas é recusado a nomear as duas', semAplicacao, () => {
+  const c = daqui(cap().conjuntos['PT-TM06']);
+  c.crs = 'EPSG:4326';
+  const r = janela.wmtsCompativel(c);
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /EPSG:4326/);
+  assert.match(r.motivo, /EPSG:3857.*EPSG:3763|EPSG:3763.*EPSG:3857/, r.motivo);
 });
 
 test('um conjunto em Web Mercator é aceite, com o mapa dos níveis', semAplicacao, () => {
@@ -92,14 +104,14 @@ test('mosaicos que não sejam de 256 px, ou fora do canto do mundo, são recusad
   assert.match(janela.wmtsCompativel(grande).motivo, /512×512/);
 
   const torto = daqui(base); torto.matrizes.forEach((m) => { m.canto = [0, 0]; });
-  assert.match(janela.wmtsCompativel(torto).motivo, /canto do mundo/);
+  assert.match(janela.wmtsCompativel(torto).motivo, /começa em \(0, 0\)/);
 });
 
 test('o inventário mostra as camadas que não servem, com o motivo', semAplicacao, () => {
   const L = janela.wmtsInventario(cap());
   const cm = L.find((x) => x.id === 'cm25');
   assert.equal(cm.serve, false);
-  assert.match(cm.motivo, /EPSG:3763/);
+  assert.match(cm.motivo, /começa em/, cm.motivo);
   assert.equal(L.find((x) => x.id === 'ortos').serve, true);
   assert.equal(L.filter((x) => x.serve).length, 2);
 });

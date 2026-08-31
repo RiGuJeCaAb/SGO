@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "https://geo2.dgterritorio.gov.pt/geoserver/schemas/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1" updateSequence="3983">
+  <Service>
+    <Name>OGC:WMS</Name>
+    <Title>Carta Administrativa Oficial de Portugal - CAOP2025 (Continente)</Title>
+    <Abstract>Serviço de visualização da Carta Administrativa Oficial de Portugal - CAOP2025</Abstract>
+    <KeywordList>
+      <Keyword>Unidades Administrativas</Keyword>
+      <Keyword>CAOP</Keyword>
+      <Keyword>Continente</Keyword>
+      <Keyword>INSPIRECORE</Keyword>
+      <Keyword>DGT</Keyword>
+      <Keyword>infoMapAccessService</Keyword>
+      <Keyword>CAOP2021</Keyword>
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson>Direção-Geral do Território</ContactPerson>
+        <ContactOrganization>Direção-Geral do Território</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address>Rua Artilharia UM, 107</Address>
+        <City/>
+        <StateOrProvince>Lisboa</StateOrProvince>
+        <PostCode/>
+        <Country>Portugal</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress/>
+    </ContactInformation>
+    <Fees>No conditions apply</Fees>
+    <AccessConstraints>None</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom xml</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/openlayers</Format>
+        <Format>application/openlayers2</Format>
+        <Format>application/openlayers3</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss xml</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml</Format>
+        <Format>application/vnd.google-earth.kml xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.google-earth.kmz xml</Format>
+        <Format>application/vnd.google-earth.kmz+xml</Format>
+        <Format>application/vnd.google-earth.kmz;mode=networklink</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>application/x-protobuf;type=mapbox-vector</Format>
+        <Format>atom</Format>
+        <Format>geojson</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/gif;subtype=animated</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png8</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg</Format>
+        <Format>image/svg xml</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>kml</Format>
+        <Format>kmz</Format>
+        <Format>openlayers</Format>
+        <Format>pbf</Format>
+        <Format>rss</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <Format>topojson</Format>
+        <Format>utfgrid</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>application/vnd.ogc.gml</Format>
+        <Format>text/xml</Format>
+        <Format>application/vnd.ogc.gml/3.1.1</Format>
+        <Format>text/xml; subtype=gml/3.1.1</Format>
+        <Format>text/html</Format>
+        <Format>text/javascript</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+      <DescribeLayer>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </DescribeLayer>
+      <GetLegendGraphic>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+        <Format>application/json</Format>
+        <Format>image/gif</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetLegendGraphic>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+      <Format>application/vnd.ogc.se_inimage</Format>
+      <Format>application/vnd.ogc.se_blank</Format>
+      <Format>application/json</Format>
+      <Format>text/javascript</Format>
+    </Exception>
+    <UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+    <Layer>
+      <Title>Carta Administrativa Oficial de Portugal - CAOP2025 (Continente)</Title>
+      <Abstract>Serviço de visualização da Carta Administrativa Oficial de Portugal - CAOP2025</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <SRS>EPSG:4326</SRS>
+      <SRS>EPSG:4258</SRS>
+      <SRS>EPSG:3763</SRS>
+      <SRS>EPSG:3857</SRS>
+      <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+      <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+      <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+      <BoundingBox SRS="EPSG:3763" minx="-128436.74097825012" miny="-301921.538502311" maxx="174686.59115916898" maxy="277913.1347901127"/>
+      <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7537158225" maxx="-687067.9555527298" maxy="5184081.289150462"/>
+      <AuthorityURL name="DGT">
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.dgterritorio.pt"/>
+      </AuthorityURL>
+      <Identifier authority="DGT">http://id.igeo.pt/sdg/8ae0aa93-a58b-4aa7-97b7-d1e1fbf24ba0</Identifier>
+      <Layer queryable="0">
+        <Name>serie1_COS</Name>
+        <Title>serie1_COS</Title>
+        <Abstract>Série 1 da COS</Abstract>
+        <KeywordList/>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.877487170530731" miny="36.71727142553738" maxx="-6.1720364570176915" maxy="42.15427879654537"/>
+        <BoundingBox SRS="EPSG:3763" minx="-144205.734375" miny="-326024.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.877487170530731" miny="36.71727146146177" maxx="-6.172036457017691" maxy="42.15427883685006"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.877487170530731" miny="36.71727142553738" maxx="-6.1720364570176915" maxy="42.15427879654537"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1099556.8421405735" miny="4399771.004337032" maxx="-687067.9555527297" maxy="5184117.7542727105"/>
+        <Style>
+          <Name/>
+          <Title>serie1_COS style</Title>
+          <Abstract>Default style for serie1_COS layer</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=serie1_COS"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_areas_administrativas</Name>
+        <Title>cont_areas_administrativas</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_areas_administrativas</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_AAD</Name>
+          <Title>CAOP_AAD</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_areas_administrativas"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_distritos</Name>
+        <Title>cont_distritos</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_distritos</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_Distrito</Name>
+          <Title>CAOP_Distrito</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_distritos"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_freguesias</Name>
+        <Title>cont_freguesias</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_freguesias</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_Freguesia</Name>
+          <Title>CAOP_Freguesia</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_freguesias"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_municipios</Name>
+        <Title>cont_municipios</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_municipios</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_Concelho</Name>
+          <Title>CAOP_Concelho</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_municipios"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_nuts1</Name>
+        <Title>cont_nuts1</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_nuts1</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_NUTI</Name>
+          <Title>CAOP_NUTI</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_nuts1"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_nuts2</Name>
+        <Title>cont_nuts2</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_nuts2</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_NUTI_II</Name>
+          <Title>CAOP_NUTI_II</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_nuts2"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_nuts3</Name>
+        <Title>cont_nuts3</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_nuts3</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_NUTIII</Name>
+          <Title>CAOP_NUTIII</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_nuts3"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>cont_trocos</Name>
+        <Title>cont_trocos</Title>
+        <Abstract>CAOP2025</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>cont_trocos</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3763" minx="-119191.4140625" miny="-300404.8125" maxx="162129.09375" maxy="276083.78125"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.575004951732978" miny="36.948018841856126" maxx="-6.172036457017691" maxy="42.1540360345098"/>
+        <BoundingBox SRS="EPSG:4258" minx="-9.575004951732978" miny="36.948018805670785" maxx="-6.1720364570176915" maxy="42.15403599420523"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1065884.675569988" miny="4431863.7587561505" maxx="-687067.9555527297" maxy="5184081.2952025635"/>
+        <Style>
+          <Name>CAOP_Troco</Name>
+          <Title>CAOP_Troco</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/caop_continente/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=cont_trocos"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

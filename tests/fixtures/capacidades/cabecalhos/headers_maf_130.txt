@@ -1,0 +1,11 @@
+HTTP/1.1 200 
+Date: Mon, 31 Aug 2026 08:34:21 GMT
+Server: Apache/2.4.46 (Win64) OpenSSL/1.1.1j
+X-Frame-Options: ALLOW-FROM=https://fogos.icnf.pt/*?
+Cache-Control: max-age=0, must-revalidate
+Content-Disposition: inline; filename=getcapabilities_1.3.0.xml
+Content-Encoding: gzip
+Content-Type: text/xml
+Access-Control-Allow-Origin: *
+Transfer-Encoding: chunked
+

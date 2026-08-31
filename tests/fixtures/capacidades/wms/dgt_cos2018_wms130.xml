@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="3983" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms https://geo2.dgterritorio.gov.pt/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+  <Service>
+    <Name>WMS</Name>
+    <Title>COS2018v2</Title>
+    <Abstract>Serviço de Visualização da Carta de Uso e Ocupação do Solo de Portugal Continental para 2018 (COS2018v2).</Abstract>
+    <KeywordList/>
+    <OnlineResource xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson>Direção-Geral do Território</ContactPerson>
+        <ContactOrganization>Direção-Geral do Território</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address>Rua Artilharia UM, 107</Address>
+        <City/>
+        <StateOrProvince>Lisboa</StateOrProvince>
+        <PostCode/>
+        <Country>Portugal</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress/>
+    </ContactInformation>
+    <Fees>No conditions apply</Fees>
+    <AccessConstraints>None</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/COS2018/ows?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/COS2018/ows?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/COS2018/ows?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>application/vnd.ogc.gml</Format>
+        <Format>text/xml</Format>
+        <Format>application/vnd.ogc.gml/3.1.1</Format>
+        <Format>text/xml; subtype=gml/3.1.1</Format>
+        <Format>text/html</Format>
+        <Format>text/javascript</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://geo2.dgterritorio.gov.pt/geoserver/COS2018/ows?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+      <Format>JSON</Format>
+      <Format>JSONP</Format>
+    </Exception>
+    <inspire_vs:ExtendedCapabilities>
+      <inspire_common:MetadataUrl>
+        <inspire_common:URL>https://snig.dgterritorio.gov.pt/rndg/srv/eng/csw-inspire?service=CSW&amp;request=GetRecordById&amp;version=2.0.2&amp;id=b2edf1fb-af63-458a-bf28-1fa4cb4b9d79&amp;outputFormat=application/xml&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full</inspire_common:URL>
+        <inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+      </inspire_common:MetadataUrl>
+      <inspire_common:SupportedLanguages>
+        <inspire_common:DefaultLanguage>
+          <inspire_common:Language>por</inspire_common:Language>
+        </inspire_common:DefaultLanguage>
+      </inspire_common:SupportedLanguages>
+      <inspire_common:ResponseLanguage>
+        <inspire_common:Language>por</inspire_common:Language>
+      </inspire_common:ResponseLanguage>
+    </inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>COS2018v2</Title>
+      <Abstract>Serviço de Visualização da Carta de Uso e Ocupação do Solo de Portugal Continental para 2018 (COS2018v2).</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <CRS>EPSG:4326</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:3763</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>CRS:84</CRS>
+      <EX_GeographicBoundingBox>
+        <westBoundLongitude>0.0</westBoundLongitude>
+        <eastBoundLongitude>-1.0</eastBoundLongitude>
+        <southBoundLatitude>0.0</southBoundLatitude>
+        <northBoundLatitude>-1.0</northBoundLatitude>
+      </EX_GeographicBoundingBox>
+      <BoundingBox CRS="CRS:84" minx="0.0" miny="0.0" maxx="-1.0" maxy="-1.0"/>
+      <AuthorityURL name="DGT">
+        <OnlineResource xlink:type="simple" xlink:href="https://www.dgterritorio.pt"/>
+      </AuthorityURL>
+      <Identifier authority="DGT">http://id.igeo.pt/sdg/b2edf1fb-af63-458a-bf28-1fa4cb4b9d79</Identifier>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>

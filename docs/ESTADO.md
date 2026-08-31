@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-08-30.
+Atualizado em 2026-08-31.
 
 ## Situação atual
 
-A revisão em vigor é a **r0066**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0069**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 66, das anteriores à convenção de nomes até à r0066 |
-| Módulos em `fonte/` | 59, em sete zonas, mais o molde |
-| Testes | 446, todos a passar |
+| Entregas em `app/` | 69, das anteriores à convenção de nomes até à r0069 |
+| Módulos em `fonte/` | 60, em sete zonas, mais o molde |
+| Testes | 509, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -116,6 +116,87 @@ linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia nin
 Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
+
+## Desenhar na projeção portuguesa, na r0069
+
+A r0066 sabia ler o WMTS da DGT e depois **recusava-o**, porque o mapa só sabia a
+aritmética de Mercator. Era o serviço certo a bater à porta e a porta a dizer que não. A
+r0069 abre-a: o mapa deixou de ter uma projeção e passou a ter um **registo de grelhas**,
+e a carta escolhe a sua.
+
+### O registo de grelhas
+
+`GRELHAS`, em `05-mapa-operacional.js`, declara duas: `mercator` (EPSG:3857), que é a do
+esquema de mosaicos da Internet, e `pttm06` (EPSG:3763), que é a da cartografia oficial
+portuguesa. Cada uma sabe projetar, desprojetar, dizer quantos metros vale um pixel e até
+onde vai. O resto do módulo passou a chamar `gPara`, `gDe` e `gEscala`, e não precisa de
+saber em que sistema está.
+
+Quem escolhe é a carta: um serviço `{z}/{x}/{y}` é Mercator por definição, um WMTS traz a
+sua declarada no conjunto de matrizes, e **sem carta fica a portuguesa** — que é a do
+teatro onde esta aplicação trabalha.
+
+`fonte/1-nucleo/23-projecao-pttm06.js` é a projeção nova: Transversa de Mercator sobre o
+GRS80, meridiano central 8° 07′ 59,19″ W, paralelo de origem 39° 40′ 05,73″ N, fator de
+escala 1 e **sem falsa origem**. A série de Snyder truncada na sexta potência, que a esta
+latitude e para uma folha de 615 km dá menos de um milímetro de erro.
+
+### O erro que quase passou
+
+A primeira versão projetou cada eixo sozinho: o Este a partir da longitude, o Norte a
+partir da latitude. **A Transversa de Mercator não é separável** — o Este depende também
+da latitude e o Norte também da longitude. A ida e volta de um ponto de Lamego saiu a
+trinta quilómetros do sítio, em 41,3857/-7,7143 em vez de 41,0975/-7,8103.
+
+A correção mudou a forma da interface: `para(lat, lon, z)` e `de(x, y, z)` recebem e
+devolvem o **par**, e não há maneira de projetar meio ponto. Fica um teste que confere que
+o Este mexe com a latitude e o Norte com a longitude: se algum dia voltarem a não mexer,
+a projeção voltou a ser tratada como separável.
+
+### As capturas dos serviços reais
+
+`tests/fixtures/capacidades/` guarda o que os serviços responderam em 31 de agosto de
+2026: cinco WMTS, dezoito WMS e os vinte e três conjuntos de cabeçalhos HTTP. São **prova
+de proveniência**, e não material de trabalho — um ficheiro editado à mão deixa de o ser.
+`tests/capacidades.test.mjs` confere o resumo SHA-256 de cada um antes de os usar, e
+depois exercita o interpretador contra eles.
+
+Quatro coisas que se davam por assentes e as capturas desmentiram:
+
+| Dava-se por assente | O que as capturas mostram |
+|---|---|
+| Havia vários WMTS oficiais para escolher | Há **um**. Dos cinco endereços procurados, quatro respondem erro |
+| Um erro vem com código de erro HTTP | Os quatro respondem **HTTP 200**: dois com HTML do MapServer, dois com `ows:ExceptionReport` |
+| O WMTS da DGT estaria em Web Mercator | Está em **EPSG:3763**, e só. Não publica Mercator nenhum |
+| Todos os anfitriões abriam o CORS | **O ICNF não abre nenhum.** Nenhuma das seis capturas do ICNF traz `Access-Control-Allow-Origin`, e sem esse cabeçalho uma página em `file://` não lê a resposta — incluindo a do serviço que responde capacidades válidas |
+
+A última não se corrige em código, e por isso está aqui: os serviços do ICNF estão fora do
+alcance desta aplicação enquanto não abrirem o CORS.
+
+### Os números da grelha não são de memória
+
+A grelha `pttm06` traz três constantes escritas no código — o canto (-170 000, 290 000) e
+a escala do nível 0. Escritas à mão, envelheciam em silêncio. Um teste confronta-as com o
+que a captura da DGT declara, matriz a matriz, nos vinte níveis: o canto, a progressão
+binária e a ponte da escala para o nível. Se a DGT republicar o conjunto com outra origem,
+o teste di-lo antes de a carta se deslocar.
+
+O nível 0 dá 615 000 m redondos de lado, que é a folha do continente — e um número redondo
+é a prova de que a escala foi lida certa. Ao nível 14 o mosaico vale 37,5 m, e Lamego cai
+na coluna 5251, linha 3496: conferido à mão contra o que se sabe do terreno, 27 km a leste
+do meridiano central e 159 km a norte da origem.
+
+### O que ficou por provar
+
+**O pedido de um mosaico ao serviço da DGT não foi executado.** A política de rede do
+ambiente onde esta revisão foi montada recusa o anfitrião `cartografia.dgterritorio.gov.pt`
+com `host_not_allowed`, e não se contorna uma política de rede para arranjar uma prova. O
+que está provado é o que se podia provar sem ele: o endereço montado a partir das
+capacidades reais, a grelha conferida contra o documento que a declara, e a coordenada
+conferida à mão. Falta abrir a entrega e carregar a carta.
+
+Nota de operação: a DGT publica o serviço em `http://`, e não em `https://`. Numa página
+aberta de `file://` isso funciona; num servidor em HTTPS não funcionaria.
 
 ## Dizer o que cada função promete, na r0066
 

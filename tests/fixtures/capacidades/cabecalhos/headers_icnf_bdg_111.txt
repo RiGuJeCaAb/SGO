@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Aug 2026 08:54:34 GMT
+Content-Type: application/vnd.ogc.wms_xml
+Content-Length: 23556
+Connection: keep-alive
+Cache-Control: max-age=0, must-revalidate
+Content-Encoding: gzip
+X-Frame-Options: ALLOW-FROM http://si.icnf.pt , http://plinia:8080
+X-Control-flow-delay-ms: 0
+Content-Disposition: inline; filename=getcapabilities_1.1.1.xml
+X-Powered-By: ARR/3.0
+

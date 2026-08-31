@@ -61,10 +61,19 @@ function wmtsTodos(el, nome){
  *
  * @returns {number|null} o nível, ou nada se não cair num nível inteiro
  */
-function wmtsNivelDe(escalaDenominador){
+/**
+ * O nível de uma escala, dada a escala do nível 0 da grelha.
+ *
+ * Deriva-se da escala e **não do nome da matriz**, que pode ser `EPSG:3857:10`, `10` ou
+ * uma palavra. A escala é um número que significa sempre o mesmo; o nome é uma escolha de
+ * quem publicou o serviço.
+ *
+ * @returns {number|null} o nível, ou nada se não cair num nível inteiro
+ */
+function nivelPorEscala(escalaDenominador, escala0){
   const e = Number(escalaDenominador);
   if(!isFinite(e) || e <= 0) return null;
-  const z = Math.log2(WMTS_ESCALA_0 / e);
+  const z = Math.log2(escala0 / e);
   const inteiro = Math.round(z);
   return Math.abs(z - inteiro) < 0.01 && inteiro >= 0 && inteiro <= 25 ? inteiro : null;
 }
@@ -85,10 +94,45 @@ function wmtsCRS(txt){
  * @throws quando o documento não é um GetCapabilities de WMTS
  */
 function lerCapacidadesWMTS(xml){
-  const doc = new DOMParser().parseFromString(String(xml||""), "text/xml");
-  const erro = doc.getElementsByTagName("parsererror")[0];
-  if(erro) throw new Error("O documento não é XML válido.");
+  const texto = String(xml||"");
+  const doc = new DOMParser().parseFromString(texto, "text/xml");
   const raiz = doc.documentElement;
+
+  /* **Um erro pode vir com HTTP 200.** Não é hipótese teórica: das cinco capturas em
+     `tests/fixtures/capacidades/wmts/`, quatro são respostas de erro e as quatro trazem
+     200. Duas são HTML do MapServer («Web application error»), duas são
+     `ows:ExceptionReport` do GeoServer. Julgar pelo código de estado dava-as por boas; e
+     recusá-las com «a raiz não é Capabilities» esconderia o que o servidor explicou.
+     Diz-se o que ele disse. */
+  const excecao = doc.getElementsByTagName("*");
+  for(let i=0;i<excecao.length;i++){
+    if(excecao[i].localName === "ExceptionText" || excecao[i].localName === "ServiceException"){
+      /* O código está ora no elemento do texto, ora no `ows:Exception` que o embrulha —
+         e é `parentElement`, não `parentNode`: o pai de um elemento de topo é o documento,
+         que não tem atributos. */
+      const pai = excecao[i].parentElement;
+      const cod = excecao[i].getAttribute("exceptionCode")
+        || (pai && pai.getAttribute("exceptionCode"))
+        || excecao[i].getAttribute("code") || "";
+      throw new Error("O serviço recusou o pedido"+(cod? " ("+cod+")" : "")+": "
+        + excecao[i].textContent.trim().slice(0, 160));
+    }
+  }
+  /* O `ortosat2023` devolve os cabeçalhos HTTP **repetidos dentro do corpo**, antes do
+     HTML — de modo que o documento nem sequer começa por `<`. Salta-se o que vier antes
+     da primeira etiqueta, ou este caso escapava-se como «XML inválido», que é verdade e
+     não ajuda ninguém. */
+  const inicio = texto.slice(0, 600).replace(/^[^<]*/, "");
+  if(/^\s*(?:<!DOCTYPE\s+html|<html\b)/i.test(inicio) || (raiz && raiz.localName.toLowerCase() === "html")){
+    /* O MapServer põe a explicação no corpo da página, e é ela que interessa a quem lê. */
+    const m = /<BODY[^>]*>([\s\S]*?)<\/BODY>/i.exec(texto);
+    const dito = (m? m[1] : texto).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    throw new Error("O endereço devolveu uma página de erro em vez de um GetCapabilities"
+      + (dito? ": "+dito.slice(0, 160) : ".") + " Confirma que o serviço publica WMTS neste endereço.");
+  }
+
+  const malformado = doc.getElementsByTagName("parsererror")[0];
+  if(malformado) throw new Error("O documento não é XML válido.");
   if(!raiz || raiz.localName !== "Capabilities")
     throw new Error("Não é um GetCapabilities de WMTS (raiz «"+(raiz? raiz.localName : "vazia")+"»).");
 
@@ -175,17 +219,30 @@ function lerCapacidadesWMTS(xml){
  * **diz porque não passou** — recusar com motivo é o que permite a quem lê ir procurar
  * outro conjunto no mesmo serviço.
  *
- * @returns {{ok:boolean, motivo:string, niveis:Object<number,string>, zMin:number, zMax:number}}
+ * @returns {{ok:boolean, motivo:string, grelha:string, niveis:Object<number,string>, zMin:number, zMax:number}}
  */
 function wmtsCompativel(conjunto){
-  const nada = m => ({ ok:false, motivo:m, niveis:{}, zMin:0, zMax:0 });
+  const nada = m => ({ ok:false, motivo:m, grelha:"", niveis:{}, zMin:0, zMax:0 });
   if(!conjunto || !conjunto.matrizes || !conjunto.matrizes.length) return nada("sem matrizes declaradas");
 
-  const mercator = conjunto.crs === "EPSG:3857" || conjunto.crs === "EPSG:900913"
-    || /GoogleMapsCompatible/i.test(conjunto.escalaConhecida||"");
-  if(!mercator)
+  /* Qual das grelhas declaradas é esta? Pelo sistema de coordenadas, e — para o Web
+     Mercator — também pelo conjunto de escalas conhecido, que alguns serviços declaram
+     em vez do código. */
+  const g = Object.values(GRELHAS).find(x => x.crs === conjunto.crs)
+    || (conjunto.crs === "EPSG:900913" ? GRELHAS.mercator : null)
+    || (/GoogleMapsCompatible/i.test(conjunto.escalaConhecida||"") ? GRELHAS.mercator : null);
+  if(!g)
     return nada("está em "+(conjunto.crs||"sistema não declarado")
-      + " — o mapa desenha em Web Mercator (EPSG:3857), e reprojetar mosaicos já desenhados não é possível");
+      + " — o mapa desenha em "+Object.values(GRELHAS).map(x=>x.crs).join(" ou ")
+      + ", e reprojetar mosaicos já desenhados não é possível");
+
+  /* O canto do mundo de cada grelha. O Mercator começa no seu canto; a folha portuguesa
+     começa no canto declarado pela DGT. Um conjunto no sistema certo mas com outra origem
+     põe a carta ao lado do sítio na mesma, e por isso confere-se. */
+  const origem = g.k === "mercator"
+    ? [-WMTS_TOPO_3857, WMTS_TOPO_3857]
+    : [g.E0, g.N0];
+  const escala0 = g.k === "mercator" ? WMTS_ESCALA_0 : g.escala0;
 
   const niveis = {};
   let zMin = 99, zMax = -1, recusa = "";
@@ -194,23 +251,21 @@ function wmtsCompativel(conjunto){
       recusa = recusa || "mosaicos de "+m.larguraMosaico+"×"+m.alturaMosaico+" px; o mapa assume 256×256";
       return;
     }
-    /* A origem tem de ser o canto do mundo. Um conjunto que comece noutro sítio precisa de
-       um deslocamento que a conta do mapa não tem. */
     const [a, b] = m.canto || [];
-    if(!isFinite(a) || !isFinite(b) || Math.abs(Math.abs(a) - WMTS_TOPO_3857) > 1
-       || Math.abs(Math.abs(b) - WMTS_TOPO_3857) > 1){
-      recusa = recusa || "a matriz «"+m.id+"» não começa no canto do mundo";
+    if(!isFinite(a) || !isFinite(b) || Math.abs(a - origem[0]) > 1 || Math.abs(b - origem[1]) > 1){
+      recusa = recusa || "a matriz «"+m.id+"» começa em ("+a+", "+b+") e a grelha "
+        + g.n + " começa em ("+origem[0]+", "+origem[1]+")";
       return;
     }
-    const z = wmtsNivelDe(m.escala);
-    if(z === null){ recusa = recusa || "a escala da matriz «"+m.id+"» não cai num nível do Web Mercator"; return; }
+    const z = nivelPorEscala(m.escala, escala0);
+    if(z === null){ recusa = recusa || "a escala da matriz «"+m.id+"» não cai num nível da grelha "+g.n; return; }
     niveis[z] = m.id;
     if(z < zMin) zMin = z;
     if(z > zMax) zMax = z;
   });
 
   if(zMax < 0) return nada(recusa || "nenhuma matriz utilizável");
-  return { ok:true, motivo:"", niveis, zMin, zMax };
+  return { ok:true, motivo:"", grelha:g.k, niveis, zMin, zMax };
 }
 
 /**
@@ -280,7 +335,7 @@ function wmtsCarta(cap, camadaId, conjuntoId){
   return { ok:true, carta:{
     tipo:"wmts",
     camada:cam.id, camadaTitulo:cam.titulo,
-    conjunto:escolhido.id, estilo, formato:fmt,
+    conjunto:escolhido.id, estilo, formato:fmt, grelha:comp.grelha,
     modelo: rec? rec.modelo : "", kvp: cap.kvp,
     niveis: comp.niveis, zMin: comp.zMin, zMax: comp.zMax,
     atrib: cap.atribuicao || cap.titulo, termos: cap.termos,

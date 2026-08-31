@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Aug 2026 09:06:43 GMT
+Content-Type: application/xml
+Content-Length: 292
+Connection: keep-alive
+Content-Encoding: gzip
+X-Frame-Options: ALLOW-FROM http://si.icnf.pt , http://plinia:8080
+X-Powered-By: ARR/3.0
+

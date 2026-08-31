@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Date: Mon, 31 Aug 2026 08:34:23 GMT
+Server: Apache/2.4.46 (Win32) OpenSSL/1.1.1i mod_fcgid/2.3.9 mod-mapcache/1.11dev mod_wsgi/4.7.1 Python/3.9
+Access-Control-Allow-Origin: *
+Transfer-Encoding: chunked
+Content-Type: text/xml; charset=UTF-8
+

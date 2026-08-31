@@ -110,29 +110,89 @@ const MOSAICO_PX = 256;
 /** Ao fim de quanto tempo um mosaico guardado se considera velho. */
 const MOSAICO_DIAS = 60;
 
-/* ---- projeção de Mercator esférica, a do esquema de mosaicos ----
-   Repare-se que **não é** a projeção do croqui. O croqui é equirrectangular local, que
-   chega para desenhar sozinho; o mosaico vem projetado em Mercator e o que se desenha
-   por cima tem de vir na mesma projeção, ou fica ao lado do sítio. */
+/* ---- as grelhas de mosaicos ----
+   Um mapa de mosaicos é uma projeção mais uma grelha: onde começa, que resolução tem cada
+   nível, e de que tamanho são os quadrados. Estão aqui as duas que interessam, declaradas,
+   e o resto do módulo trabalha em **pixéis da grelha em uso** sem saber qual é.
 
-/** Pixel do mundo, em X, de uma longitude ao nível de ampliação `z`. */
-function merX(lon, z){ return ((lon+180)/360) * MOSAICO_PX * Math.pow(2, z); }
-/** Pixel do mundo, em Y, de uma latitude ao nível de ampliação `z`. */
-function merY(lat, z){
-  const f = Math.min(Math.max(Math.sin(lat*Math.PI/180), -0.9999), 0.9999);
-  return (0.5 - Math.log((1+f)/(1-f))/(4*Math.PI)) * MOSAICO_PX * Math.pow(2, z);
+   Não é «dois motores» — é um motor com a grelha como parâmetro. Tinha de ser assim de
+   qualquer modo: o serviço `{z}/{x}/{y}` é Web Mercator por definição, e a cartografia
+   oficial portuguesa é PT-TM06. Escolher uma só deixava a outra de fora.
+
+   Repare-se que nenhuma delas é a projeção do croqui, que é equirrectangular local e
+   desenha sozinho. Aqui o que se desenha vai por cima de mosaicos já projetados, e tem de
+   ir na projeção deles ou fica ao lado do sítio. */
+const GRELHAS = {
+  /* A do esquema de mosaicos do OpenStreetMap, e de quase toda a cartografia da Internet. */
+  mercator: {
+    k:"mercator", crs:"EPSG:3857", n:"Web Mercator",
+    /* O mundo inteiro num quadrado, e por isso a origem é a mesma em qualquer nível. */
+    para:(lat, lon, z)=>{
+      const f = Math.min(Math.max(Math.sin(lat*Math.PI/180), -0.9999), 0.9999);
+      const n = MOSAICO_PX * Math.pow(2, z);
+      return { x:((lon+180)/360)*n, y:(0.5 - Math.log((1+f)/(1-f))/(4*Math.PI))*n };
+    },
+    de:(x, y, z)=>{
+      const n = MOSAICO_PX * Math.pow(2, z);
+      const t = Math.PI * (1 - 2*y/n);
+      return { lat:180/Math.PI * Math.atan(0.5*(Math.exp(t) - Math.exp(-t))), lon:x/n*360 - 180 };
+    },
+    /* A escala varia com a latitude: a 41° N o metro do mapa vale 0,755 do metro do
+       terreno, e uma barra de escala desenhada sem isto mentiria em 32 %. */
+    escala:(lat, z)=>156543.03392 * Math.cos(lat*Math.PI/180) / Math.pow(2, z),
+    zMin:3, zMax:19
+  },
+  /* A da cartografia oficial portuguesa. Origem no canto superior esquerdo da folha, em
+     metros de PT-TM06, e resolução que não depende da latitude — o metro do mapa é o
+     metro do terreno em toda a folha, que é o que se quer para ler distâncias de manobra. */
+  pttm06: {
+    k:"pttm06", crs:"EPSG:3763", n:"PT-TM06 (ETRS89)",
+    /* Declarados pelo serviço da DGT no conjunto `PTTM_06`: o canto e a escala do nível 0.
+       O nível 0 dá 615 000 m redondos de lado, que é a folha do continente. */
+    E0:-170000, N0:290000, escala0:8579799.10714,
+    res(z){ return this.escala0 * WMTS_PIXEL_OGC / Math.pow(2, z); },
+    /* **A Transversa de Mercator não é separável**: a coordenada Este depende também da
+       latitude, e a Norte também da longitude. A primeira versão projetou cada eixo
+       sozinho — `paraTM06(0, lon)` para o Este — e a ida e volta de um ponto do Douro
+       saiu a trinta quilómetros do sítio. O par entra e sai junto. */
+    para(lat, lon, z){
+      const c = paraTM06(lat, lon), r = this.res(z);
+      return { x:(c.E - this.E0)/r, y:(this.N0 - c.N)/r };
+    },
+    de(x, y, z){
+      const r = this.res(z);
+      return deTM06(this.E0 + x*r, this.N0 - y*r);
+    },
+    escala(lat, z){ return this.res(z); },
+    zMin:0, zMax:19
+  }
+};
+
+/** O pixel normalizado da OGC, 0,28 mm: é o que liga um denominador de escala a metros. */
+const WMTS_PIXEL_OGC = 0.00028;
+
+/**
+ * A grelha em que o mapa está a trabalhar.
+ *
+ * Decide-a a carta: um serviço `{z}/{x}/{y}` é Web Mercator por definição, um WMTS traz a
+ * sua no conjunto de matrizes. Sem carta fica a portuguesa, que é a do teatro onde esta
+ * aplicação trabalha.
+ */
+function grelhaAtual(){
+  if(CARTA && CARTA.grelha && GRELHAS[CARTA.grelha]) return GRELHAS[CARTA.grelha];
+  if(CARTA && CARTA.tipo === "xyz") return GRELHAS.mercator;
+  return GRELHAS.pttm06;
 }
-/** A longitude de um pixel do mundo. */
-function merLon(x, z){ return x/(MOSAICO_PX*Math.pow(2, z))*360 - 180; }
-/** A latitude de um pixel do mundo. */
-function merLat(y, z){
-  const n = Math.PI * (1 - 2*y/(MOSAICO_PX*Math.pow(2, z)));
-  return 180/Math.PI * Math.atan(0.5*(Math.exp(n) - Math.exp(-n)));
-}
-/** Metros por pixel a uma latitude e ampliação. */
-function merEscala(lat, z){
-  return 156543.03392 * Math.cos(lat*Math.PI/180) / Math.pow(2, z);
-}
+
+/* Os nomes curtos que o resto do módulo usa. A projeção da grelha corrente, e nada mais:
+   quem desenha não precisa de saber em que sistema está. Entram e saem **em par**, porque
+   nem todas as projeções deixam separar os eixos. */
+/** O pixel da grelha de um ponto, ao nível `z`. */
+function gPara(lat, lon, z){ return grelhaAtual().para(lat, lon, z); }
+/** O ponto de um pixel da grelha. */
+function gDe(x, y, z){ return grelhaAtual().de(x, y, z); }
+/** Metros por pixel, à latitude dada quando a grelha o exigir. */
+function gEscala(lat, z){ return grelhaAtual().escala(lat, z); }
 
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai
@@ -158,8 +218,11 @@ function enquadrarMapa(larg, altMax){
      quadrado numa tela deitada obrigava a afastar até caber na altura, e metade do mapa
      ficava vazia dos lados — via-se o dobro do que interessa e metade do detalhe. */
   const zRef = 14;
-  const lg = Math.max(1, merX(Q.maxLon, zRef) - merX(Q.minLon, zRef));
-  const al = Math.max(1, merY(Q.minLat, zRef) - merY(Q.maxLat, zRef));
+  /* Os cantos da caixa projetam-se como **pontos**. Tomar o Este do canto direito com a
+     latitude do esquerdo dá um retângulo que não é o do teatro. */
+  const sd = gPara(Q.maxLat, Q.maxLon, zRef), ie = gPara(Q.minLat, Q.minLon, zRef);
+  const lg = Math.max(1, Math.abs(sd.x - ie.x));
+  const al = Math.max(1, Math.abs(ie.y - sd.y));
   const teto = altMax || 620, prop = al/lg;
   let L = MAPA.larg, A = Math.round(L*prop);
   /* Quando a altura ideal não cabe, é a largura que cede — e não a proporção. Deixar a
@@ -173,13 +236,13 @@ function enquadrarMapa(larg, altMax){
   let z = cartaZMin();
   const zMin = cartaZMin();
   for(let t=zMax; t>=zMin; t--){
-    const w = merX(Q.maxLon, t) - merX(Q.minLon, t);
-    const h = merY(Q.minLat, t) - merY(Q.maxLat, t);
+    const A = gPara(Q.maxLat, Q.maxLon, t), B = gPara(Q.minLat, Q.minLon, t);
+    const w = Math.abs(A.x - B.x), h = Math.abs(B.y - A.y);
     if(w <= MAPA.larg && h <= MAPA.alt){ z = t; break; }
   }
   MAPA.z = z;
-  MAPA.cx = (merX(Q.minLon, z) + merX(Q.maxLon, z))/2;
-  MAPA.cy = (merY(Q.minLat, z) + merY(Q.maxLat, z))/2;
+  const C = gPara((Q.minLat+Q.maxLat)/2, (Q.minLon+Q.maxLon)/2, z);
+  MAPA.cx = C.x; MAPA.cy = C.y;
   return true;
 }
 
@@ -196,10 +259,13 @@ function mosaicoURL(z, x, y){
   return CARTA.u.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
 
+/* Sem carta declarada, os limites são os da grelha e não um par de números escritos à
+   mão. Estavam fixos em 3 e 19, que são os do Web Mercator: na grelha portuguesa o nível
+   0 já é a folha do continente, e recusá-lo afastava o enquadramento sem razão. */
 /** O menor nível de ampliação que a carta em uso dá. */
-function cartaZMin(){ return (CARTA && isFinite(CARTA.zMin))? CARTA.zMin : 3; }
-/** O maior. Sem carta, o do esquema de mosaicos. */
-function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : 19; }
+function cartaZMin(){ return (CARTA && isFinite(CARTA.zMin))? CARTA.zMin : grelhaAtual().zMin; }
+/** O maior. Sem carta, o da grelha em uso. */
+function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : grelhaAtual().zMax; }
 
 /** A chave de um mosaico no arquivo local. Uma só, seja qual for a sua proveniência. */
 function chaveMosaico(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
@@ -399,13 +465,14 @@ function marcarSetor(i, lat, lon){
 /** O que se desenha por cima da carta, já em pixéis da tela. */
 function camadaMapa(){
   const z = MAPA.z, ox = MAPA.cx - MAPA.larg/2, oy = MAPA.cy - MAPA.alt/2;
-  const X = lo => merX(lo, z) - ox, Y = la => merY(la, z) - oy;
+  /* Cada ponto projeta-se de uma vez, e devolve o pixel do ecrã. `P` já é o perímetro. */
+  const pxy = (la, lo) => { const q = gPara(la, lo, z); return { x:q.x - ox, y:q.y - oy }; };
   const n = v => Math.round(v*10)/10;
   const P = perimObj();
   let g = "";
 
   if(P) P.aneis.forEach(a=>{
-    const d = a.map((c,i)=>(i?"L":"M")+n(X(c[0]))+","+n(Y(c[1]))).join(" ")+" Z";
+    const d = a.map((c,i)=>{ const q = pxy(c[1], c[0]); return (i?"L":"M")+n(q.x)+","+n(q.y); }).join(" ")+" Z";
     g += '<path d="'+d+'" fill="#B84B3F" fill-opacity=".22" stroke="#B00000" stroke-width="2" stroke-linejoin="round"/>';
   });
 
@@ -417,7 +484,7 @@ function camadaMapa(){
   const det = (O.dados.sensDet && Array.isArray(O.dados.sensDet.itens))? O.dados.sensDet.itens : [];
   if(temPonto) det.forEach(x=>{
     const p = pontoPorRumo(lat0, lon0, +x.dist, x.rumo); if(!p) return;
-    const x0 = n(X(p.lon)), y0 = n(Y(p.lat));
+    const q = pxy(p.lat, p.lon), x0 = n(q.x), y0 = n(q.y);
     g += x.sens
       ? '<rect x="'+n(x0-4)+'" y="'+n(y0-4)+'" width="8" height="8" fill="#B08A2E" stroke="#fff" stroke-width="1.4"/>'
       : '<circle cx="'+x0+'" cy="'+y0+'" r="3.8" fill="#5A5A5A" stroke="#fff" stroke-width="1.4"/>';
@@ -426,7 +493,7 @@ function camadaMapa(){
 
   /* Os pontos notáveis marcados à mão. */
   pontosLista().forEach(p=>{
-    const x0 = n(X(p.lon)), y0 = n(Y(p.lat)), d = defPonto(p.tipo);
+    const q = pxy(p.lat, p.lon), x0 = n(q.x), y0 = n(q.y), d = defPonto(p.tipo);
     g += '<circle cx="'+x0+'" cy="'+y0+'" r="6" fill="'+d.cor+'" stroke="#fff" stroke-width="1.8"/>';
     g += rotulo(x0+9, y0+4, p.nome, 10);
   });
@@ -435,7 +502,7 @@ function camadaMapa(){
   (estObj().setores||[]).forEach((s,i)=>{
     const la = parseFloat(String(s.lat||"").replace(",",".")), lo = parseFloat(String(s.lon||"").replace(",","."));
     if(!isFinite(la) || !isFinite(lo)) return;
-    const x0 = n(X(lo)), y0 = n(Y(la));
+    const q = pxy(la, lo), x0 = n(q.x), y0 = n(q.y);
     g += '<rect x="'+n(x0-9)+'" y="'+n(y0-9)+'" width="18" height="18" rx="3" fill="#1F4E79" stroke="#fff" stroke-width="1.8"/>';
     g += '<text x="'+x0+'" y="'+n(y0+4)+'" font-size="11" font-weight="700" text-anchor="middle" fill="#fff">'
        + esc(String(NOMES_SETOR[i]||"").slice(0,1)) + '</text>';
@@ -443,14 +510,14 @@ function camadaMapa(){
   });
 
   if(temPonto){
-    const x0 = n(X(lon0)), y0 = n(Y(lat0));
+    const q = pxy(lat0, lon0), x0 = n(q.x), y0 = n(q.y);
     g += '<path d="M'+x0+','+n(y0-11)+' L'+n(x0+9.5)+','+n(y0+5.5)+' L'+n(x0-9.5)+','+n(y0+5.5)+' Z" fill="#005CA9" stroke="#fff" stroke-width="1.6"/>';
     g += rotulo(x0+13, y0+5, "PCO", 11, true);
   }
 
   /* Escala e norte, calculados na latitude do centro — em Mercator a escala muda com a
      latitude, e uma barra desenhada com a escala do equador mentiria. */
-  const E = escalaRedonda(merEscala(merLat(MAPA.cy, z), z), MAPA.larg);
+  const E = escalaRedonda(gEscala(gDe(MAPA.cx, MAPA.cy, z).lat, z), MAPA.larg);
   const ex = 14, ey = MAPA.alt - 16;
   g += '<rect x="'+(ex-6)+'" y="'+(ey-15)+'" width="'+(E.px+62)+'" height="24" fill="#fff" fill-opacity=".78" rx="4"/>'
      + '<line x1="'+ex+'" y1="'+ey+'" x2="'+n(ex+E.px)+'" y2="'+ey+'" stroke="#1A1A1A" stroke-width="2.5"/>'
@@ -558,7 +625,7 @@ function pintarEstadoMapa(vieram, total){
   else if(MAPA.falhas)
     partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
 
-  partes.push("Ampliação "+MAPA.z+" · "+Math.round(merEscala(merLat(MAPA.cy, MAPA.z), MAPA.z))+" m por pixel."
+  partes.push("Ampliação "+MAPA.z+" · "+gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z).toFixed(2)+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
 }
@@ -621,7 +688,7 @@ function cliqueNoMapa(px, py){
   const alvo = ($("mapa-alvo")||{}).value || "";
   if(!alvo) return;
   const z = MAPA.z, ox = MAPA.cx - MAPA.larg/2, oy = MAPA.cy - MAPA.alt/2;
-  const lon = merLon(ox + px, z), lat = merLat(oy + py, z);
+  const { lat, lon } = gDe(ox + px, oy + py, z);
 
   if(alvo === "occ"){
     if(!podeFazer("escrever")){ aviso("mapa-msg","err",motivoPerfil("escrever")); return; }
@@ -670,8 +737,9 @@ function medirMapa(){
 function ampliarMapa(d){
   const z = Math.max(cartaZMin(), Math.min(cartaZMax(), MAPA.z + d));
   if(z === MAPA.z) return;
-  const lat = merLat(MAPA.cy, MAPA.z), lon = merLon(MAPA.cx, MAPA.z);
-  MAPA.z = z; MAPA.cx = merX(lon, z); MAPA.cy = merY(lat, z);
+  const c = gDe(MAPA.cx, MAPA.cy, MAPA.z);
+  const p = grelhaAtual().para(c.lat, c.lon, z);
+  MAPA.z = z; MAPA.cx = p.x; MAPA.cy = p.y;
   pintarMapa();
 }
 
