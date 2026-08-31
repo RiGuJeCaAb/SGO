@@ -2045,6 +2045,7 @@ intermédias de trabalho não saem do computador e não contam.
 | r0029 | 281713 | esta | Especificação v1.2: instantes em GDH ou ISO no mesmo campo, bloco `pco` e ponto de trânsito no envelope da especificação, estimativa de empenhamento assinalada; exemplo e validação da v1.2 |
 | r0030 a r0033 | — | paralela | Produzidas do outro lado sobre a r0028 de 15h23, e não montadas aqui. `p0003` passagem de turno e estado na versão 4; `p0004` os dois instantes da nomeação externa; `p0005` posse do estado por célula |
 | r0032 | 281900 | paralela | A entrega que chegou em ficheiro, e a base da fusão. O rodapé lá dentro diz `r0031`: numeração do outro lado, registada como veio |
+| r0033 | 281713 | paralela | Chegou em ficheiro ao mesmo tempo que a r0032 e **ficou três dias fora de `app/`**, por lapso de arrumação e não por decisão. Arquivada agora, com as outras. O que trouxe está absorvido em `fonte/` desde a fusão da r0034 |
 | r0034 | 281800 | esta | Fusão da terceira linhagem paralela. Passagem de turno, posse do estado por célula, os dois instantes da nomeação externa no importador; correção da fusão de funções, que apagava com vazio o que estava registado |
 | r0035 | 282010 | paralela | `O.logistica` com reserva, zona de apoio e ponto de trânsito; estado na versão 5. Resolve a conflação de `dados.est` |
 | r0036 | 282100 | paralela | Interface organizada por célula: um separador por célula do PCO, registo `ARRUMACAO` e auditoria |
