@@ -330,6 +330,24 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 21 -> 22 · Identificador e posição em cada unidade do dispositivo. O identificador tem de
+   ser atribuído aqui e não à primeira vez que faça falta: sem ele, uma unidade só se poderia
+   apontar pela posição na lista, e essa muda quando alguém a move de setor — a coordenada
+   passava para a unidade errada, em silêncio. A posição fica vazia: não se deduz onde
+   estava um meio a partir do setor a que foi atribuído. */
+MIGRACOES.push(e => {
+  const est = e.dados && e.dados.est;
+  if(est && Array.isArray(est.setores)) est.setores.forEach(s=>{
+    if(!s || !Array.isArray(s.tip)) return;
+    s.tip.forEach((it, k)=>{
+      if(!it) return;
+      if(!it.id) it.id = "u" + ((it.ts||0) + k).toString(36) + Math.random().toString(36).slice(2, 6);
+      if(!("lat" in it)){ it.lat = null; it.lon = null; it.posG = ""; it.posPor = ""; }
+    });
+  });
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *

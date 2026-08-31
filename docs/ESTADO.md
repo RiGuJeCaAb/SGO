@@ -117,6 +117,38 @@ Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes d
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
 
+## Os meios onde estão, na r0072
+
+Na carta anotada do PCO os meios estão desenhados no sítio onde estão: GRIR Guarda, GRUATA
+BSE, CATE Viseu. No dispositivo desta aplicação já lá estavam — cada unidade com tipologia,
+entidade e hora de empenhamento — e o que lhes faltava era coordenada.
+
+**Não se criou um segundo inventário.** Dar posição a um meio é acrescentar coordenada ao que
+já está contado: um dispositivo contado em dois sítios acaba a contar dois números
+diferentes, e a fase do SGO depende dessa contagem.
+
+Cada unidade passou a nascer com identificador próprio, e a migração dá-o às que já existiam.
+Sem ele, a posição só se poderia prender ao lugar na lista — e o quadro de setorização move
+unidades de setor, o que passaria a coordenada para a unidade errada, em silêncio. Fica um
+teste que move uma unidade e confere que a coordenada não mudou de dono.
+
+### O que isto destrava
+
+A pergunta a que a carta anotada responde de relance: **quem fica do lado errado da frente.**
+A leitura da evolução destaca-a à parte do resto, porque é decisão de outra natureza — uma
+coisa é o fogo caminhar para uma charca, outra é caminhar para uma equipa:
+
+> **No corredor de progressão desta frente: GRIR Guarda a 1,1 km; BRIR BSE a 2,2 km.**
+
+E com ela vai a ressalva que a torna honesta: *dos 3 meios do dispositivo, 2 têm posição no
+mapa; o que a leitura diz sobre meios no caminho da frente vale só para esses.* Dizer que não
+há meios no caminho com três posicionados em vinte diz muito menos do que parece.
+
+### O que o verificador de tipos apanhou
+
+`String(x).toString(36)` — a `toString` de uma cadeia não leva argumentos, e o identificador
+saía em decimal em vez de base 36. Não partia nada; estava errado, e não teria sido visto.
+
 ## A carta pré-descarregada, que ninguém conseguia carregar — absorvido da r0071
 
 A linhagem paralela mandou a r0071 com dois defeitos desta linhagem, e ambos são reais.

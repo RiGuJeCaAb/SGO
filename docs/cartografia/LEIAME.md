@@ -22,7 +22,7 @@ na aplicação à data da r0066.
 | Frentes ativas, com o símbolo militar de progressão | **Feito na r0070.** `dados.frentes`: linha traçada, secção (cabeça, flanco, retaguarda) e rumo de progressão, com seta desenhada. O rumo distingue o que foi indicado do que foi sugerido |
 | Linhas de contenção e de apoio, por tipo de traço | **Feito na r0070.** `dados.linhas`, com a largura útil confrontada com a que a intensidade exige — Byram (1959). A de contenção desenha-se a tracejado enquanto está por abrir |
 | Ponto de abastecimento de **água** e de **combustível** | **Feito.** `TIPOS_PONTO` — o de água ainda sem artigo confirmado |
-| Meios nomeados no sítio onde estão: GRIR Guarda, GRUATA BSE, BRIR-BSE, GRIR Oeste, GRIR 01 Alentejo, CATE Viseu, UEPS, MR15-FSBE | **Por fazer.** Os meios estão no dispositivo, sem posição no mapa |
+| Meios nomeados no sítio onde estão: GRIR Guarda, GRUATA BSE, BRIR-BSE, GRIR Oeste, GRIR 01 Alentejo, CATE Viseu, UEPS, MR15-FSBE | **Feito na r0072.** Cada unidade do dispositivo ganha coordenada, sem se duplicar a contagem. A leitura diz que meios ficam no corredor da frente |
 | Posto de meteorologia, e o 2.º comandante na torre de Moncorvo | **Por fazer.** Nomeações sem coordenada |
 | Notas de manobra sobre o traçado: «interdito a VFCI», «inversão de marcha», «estrada para entrada de meios», «não ardido», «incêndio subterrâneo», «descarga de MA com retardantes», «grupo para combate com linha de água» | **Por fazer.** Não há anotação livre georreferenciada |
 | Rede viária identificada — N324, EM623, EM624, EM632, CM1144, IP2 | Vem da carta de fundo, quando a houver |

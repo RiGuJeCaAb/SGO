@@ -103,6 +103,20 @@ escreve no campo.
 
 A retaguarda não leva seta. Arde para trás do que já ardeu.
 
+### Pôr um meio no mapa
+
+1. Atribua primeiro o meio a um setor, em Operações → **Setorização do TO e quadro de meios**.
+2. No mapa, escolha *Posicionar GRIR Guarda* (ou o que for) na lista — os meios do
+   dispositivo aparecem lá todos, com o setor a que pertencem.
+3. Clique onde ele está.
+
+Não é um segundo inventário: é coordenada dada ao meio que já está contado. Retirar a
+posição não retira o meio do dispositivo.
+
+A partir daí a leitura da evolução diz-lhe **que meios ficam no corredor de progressão de
+cada frente** — e diz também quantos dos meios do dispositivo têm posição, porque dizer que
+não há meios no caminho, com três posicionados em vinte, diz muito menos do que parece.
+
 ### Traçar uma linha de contenção ou de apoio
 
 1. No mapa, escolha *Linha de contenção* ou *Linha de apoio*.

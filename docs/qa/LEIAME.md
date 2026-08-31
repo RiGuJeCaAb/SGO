@@ -52,3 +52,13 @@ onde cada frente progride e de onde veio o rumo, assinala a divergência de 144�
 rumo declarado e o que a composição de declive e vento dá, lista o que está no corredor por
 distância, dá a intensidade e o que ela decide na manobra, e fecha com o que a leitura
 **não** afirma.
+
+## qa0023 — r0072, meios posicionados
+
+`qa0023_r0072_MeiosPosicionados_CLD.png` — o GRIR Guarda e o BRIR BSE desenhados onde estão,
+com as frentes, as duas linhas e o limite do setor Bravo.
+
+`qa0023_r0072_LeituraComMeios_CLD.png` — a leitura da mesma ocorrência. A frase que faltava
+está na primeira alínea, a negrito: **«No corredor de progressão desta frente: GRIR Guarda a
+1,1 km; BRIR BSE a 2,2 km.»** E no fim, a ressalva que a torna honesta: dos 3 meios do
+dispositivo, 2 têm posição — o que a leitura diz sobre meios no caminho vale só para esses.

@@ -18,7 +18,7 @@ estas cinco que separam o mapa da aplicação da carta que se usa.
 | ~~1~~ | ~~**Limites de setor**~~ | **Feito na r0070.** Anel fechado por setor, traçado no mapa. Dá área por setor, área setorizada do teatro, e o setor em que cai cada ponto marcado |
 | ~~2~~ | ~~**Frentes ativas com direção**~~ | **Feito na r0070.** Linha traçada com secção e rumo de progressão. A composição de declive e vento propõe o rumo da cabeça; quem comanda decide se é aquele |
 | ~~3~~ | ~~**Linhas de contenção e de apoio**~~ | **Feito na r0070.** Com a largura útil confrontada com a que a intensidade exige, e o traço a distinguir o que está aberto do que está por abrir |
-| 4 | **Meios no sítio onde estão** | GRIR Guarda, GRUATA BSE, CATE Viseu e os restantes estão no dispositivo sem coordenada. Também as nomeações — posto de meteorologia, 2.º comandante na torre |
+| ~~4~~ | ~~**Meios no sítio onde estão**~~ | **Feito na r0072.** Coordenada na própria unidade do dispositivo, presa ao seu identificador. Falta ainda posicionar as nomeações — posto de meteorologia, 2.º comandante na torre |
 | 5 | **Anotação livre georreferenciada** | «Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo». Não há onde escrever isto no mapa |
 
 As duas primeiras estão feitas. Com elas, a previsão passa a ter de onde partir: há uma

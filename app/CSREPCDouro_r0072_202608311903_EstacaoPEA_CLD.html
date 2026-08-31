@@ -2037,14 +2037,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0072</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0072_202608311834_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0072</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0072_202608311903_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0072", FICHEIRO_APP = "CSREPCDouro_r0072_202608311834_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0072", FICHEIRO_APP = "CSREPCDouro_r0072_202608311903_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2199,7 +2199,7 @@ async function prepararArmazem(){
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 21;
+const VERSAO_ESTADO = 22;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2589,6 +2589,24 @@ MIGRACOES.push(e => {
 MIGRACOES.push(e => {
   e.dados = e.dados || {};
   if(!Array.isArray(e.dados.linhas)) e.dados.linhas = [];
+  return e;
+});
+
+/* 21 -> 22 · Identificador e posição em cada unidade do dispositivo. O identificador tem de
+   ser atribuído aqui e não à primeira vez que faça falta: sem ele, uma unidade só se poderia
+   apontar pela posição na lista, e essa muda quando alguém a move de setor — a coordenada
+   passava para a unidade errada, em silêncio. A posição fica vazia: não se deduz onde
+   estava um meio a partir do setor a que foi atribuído. */
+MIGRACOES.push(e => {
+  const est = e.dados && e.dados.est;
+  if(est && Array.isArray(est.setores)) est.setores.forEach(s=>{
+    if(!s || !Array.isArray(s.tip)) return;
+    s.tip.forEach((it, k)=>{
+      if(!it) return;
+      if(!it.id) it.id = "u" + ((it.ts||0) + k).toString(36) + Math.random().toString(36).slice(2, 6);
+      if(!("lat" in it)){ it.lat = null; it.lon = null; it.posG = ""; it.posPor = ""; }
+    });
+  });
   return e;
 });
 
@@ -7291,6 +7309,7 @@ function enquadrarMapa(larg, altMax){
   };
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
   /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
      propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
@@ -7700,6 +7719,14 @@ function camadaMapa(){
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
   });
 
+  /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
+     anotada e como se dizem na rádio. */
+  meiosPosicionados().forEach(m=>{
+    const q = pxy(m.it.lat, m.it.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<rect x="'+n(x0-8)+'" y="'+n(y0-6)+'" width="16" height="12" rx="2" fill="#2F4F6F" stroke="#fff" stroke-width="1.6"/>';
+    g += rotulo(x0 + 11, y0 + 4, m.nome, 9.5);
+  });
+
   if(temPonto){
     const q = pxy(lat0, lon0), x0 = n(q.x), y0 = n(q.y);
     g += '<path d="M'+x0+','+n(y0-11)+' L'+n(x0+9.5)+','+n(y0+5.5)+' L'+n(x0-9.5)+','+n(y0+5.5)+' Z" fill="#005CA9" stroke="#fff" stroke-width="1.6"/>';
@@ -7855,6 +7882,8 @@ function pintarAlvos(){
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
+    + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
+        +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
@@ -7913,12 +7942,18 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista(), LN = linhasLista();
-  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length){
+  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = LN.map(l=>
+  el.innerHTML = MP.map(m=>
+      '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
+      + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
+      + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
+      + '<span class="hint">'+esc(m.it.posG||"")+(m.it.posPor? " · "+esc(m.it.posPor):"")+'</span>'
+      + '<button type="button" class="lk" data-despos-meio="'+esc(m.it.id)+'">retirar a posição</button></div>').join("")
+    + LN.map(l=>
       '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
       + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
       + '<span class="mono">'+l.m+' m</span>'
@@ -7957,6 +7992,11 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-despos-meio]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = despositionarMeio(b.dataset.desposMeio);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarAlvos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-apagar-linha]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarLinha(b.dataset.apagarLinha);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -8013,6 +8053,10 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("M:")){
+    const r = posicionarMeio(alvo.slice(2), lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    aviso("mapa-msg","ok", nomeDoMeio(r.meio)+" em "+fmtDec(lat, lon)+".");
   } else if(alvo === "F"){
     /* Como o limite: pousar um vértice não grava nada. A frente entra no estado ao fechar. */
     if(TRACO.tipo !== "frente"){
@@ -10253,6 +10297,12 @@ function noCorredorDaFrente(f){
 
   pontosLista().forEach(p=>juntar(p.nome, defPonto(p.tipo).n.toLowerCase(), p.lat, p.lon));
 
+  /* **Os meios posicionados, que é a pergunta a que a carta anotada responde de relance:
+     quem fica do lado errado da frente.** Entram com a espécie «meio» para se distinguirem
+     de um ponto de água ou de um aglomerado: uma coisa é o fogo caminhar para uma charca,
+     outra é caminhar para uma equipa. */
+  meiosPosicionados().forEach(m=>juntar(m.nome, "meio", m.it.lat, m.it.lon));
+
   return out.sort((a,b)=>a.m - b.m);
 }
 
@@ -10320,6 +10370,14 @@ function leituraDaFrente(f){
   }
 
   const corredor = noCorredorDaFrente(f);
+  /* Os meios no corredor saem à parte e primeiro. O resto do que está no caminho é
+     património e terreno; isto são pessoas, e a decisão que gera é outra e é imediata. */
+  const meios = corredor.filter(x=>x.especie === "meio");
+  if(meios.length)
+    p.push("**No corredor de progressão desta frente: "
+      + meios.map(x=>x.nome + " a " + (x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m")).join("; ")
+      + ".**");
+
   if(corredor.length){
     p.push("No corredor de progressão, do mais próximo para o mais longe: "
       + corredor.slice(0, 6).map(x=>x.nome + " (" + x.especie + ") a " + (x.m >= 1000
@@ -10380,6 +10438,13 @@ function leituraDaEvolucao(){
     out.limites.push("Sem série meteorológica carregada não há evolução no tempo: só o rumo declarado em cada frente.");
   if(!(estObj().setores||[]).some((_,i)=>limiteSetor(i)))
     out.limites.push("Sem limites de setor traçados, a leitura não diz que setores a frente atinge.");
+  /* **A medida da confiança que se pode ter no que ficou escrito acima.** Dizer «nenhum
+     meio no corredor» com três posicionados em vinte diz muito menos do que parece, e quem
+     lê tem de o saber sem ter de ir contar. */
+  const cm = contagemPosicionados();
+  if(cm.total && cm.postos < cm.total)
+    out.limites.push("Dos " + cm.total + " meios do dispositivo, " + cm.postos
+      + " têm posição no mapa. O que a leitura diz sobre meios no caminho da frente vale só para esses.");
   return out;
 }
 
@@ -10785,7 +10850,11 @@ function renderSetores(){
       /* A quantidade é comodidade de escrita, não forma do estado: cria n unidades
          independentes, cada uma com o seu relógio e a sua origem daí para a frente. */
       for(let k=0;k<Math.max(1,Math.round(q));k++){
-        e.setores[i].tip.push({t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent});
+        /* Cada unidade leva identificador próprio desde que nasce. É por ele que a
+           posição no mapa lhe fica presa: a posição na lista muda quando alguém move uma
+           unidade de setor, e a coordenada passaria para a unidade errada. */
+        e.setores[i].tip.push({ id:"u"+(ts+k).toString(36)+Math.random().toString(36).slice(2,6),
+          t, mu:d.mu, ou, mr:d.mr||0, ar:d.ar||0, ts, ent, lat:null, lon:null, posG:"", posPor:"" });
       }
       fita("Atribuído "+q+"× "+t+(ent? " ("+ent+")":"")+" ao Setor "+NOMES_SETOR[i]);
       renderSetores(); pintarDON(); persistir(false);
@@ -12494,6 +12563,97 @@ function leituraDasLinhas(){
   if(L.some(l=>linhaBasta(l)))
     partes.push("A regra da largura pressupõe que não há projeção de faúlhas com capacidade de ignição (Byram 1959). Com projeção, nenhuma destas larguras garante o que promete.");
   return partes.join(" ");
+}
+/* ================= OPERAÇÕES · posição dos meios =================
+   Na carta anotada de Cabeça Boa os meios estão desenhados **onde estão**: GRIR Guarda,
+   GRUATA BSE, CATE Viseu, UEPS. No dispositivo desta aplicação já lá estavam — cada unidade
+   é um item com tipologia, entidade e hora de empenhamento — mas sem coordenada.
+
+   Por isso aqui **não se cria um segundo inventário**. Dar posição a um meio é acrescentar
+   coordenada ao que já está contado, e não registá-lo outra vez noutro sítio: um dispositivo
+   contado em dois sítios acaba a contar dois números diferentes, e a fase do SGO depende
+   dessa contagem.
+
+   O que a posição destrava é a pergunta que a carta anotada responde de relance e a
+   aplicação ainda não respondia: **quem é que fica do lado errado da frente.** */
+
+/**
+ * Todas as unidades do dispositivo, achatadas, com o setor a que pertencem.
+ *
+ * O `id` é o da própria unidade e não a sua posição na lista: as unidades mudam de setor, e
+ * um identificador que fosse «terceira do setor Alfa» apontava para outra unidade assim que
+ * alguém movesse a primeira.
+ */
+function meiosDoDispositivo(){
+  const out = [];
+  (estObj().setores||[]).forEach((s,i)=>{
+    (s.tip||[]).forEach(it=>out.push({ it, setor:i, nome:nomeDoMeio(it) }));
+  });
+  return out;
+}
+
+/**
+ * O nome por que uma unidade se conhece no teatro.
+ *
+ * É a tipologia com a entidade, que é como aparece na carta anotada e como se diz na
+ * rádio: «GRIR Guarda», «CATE Viseu». Sem entidade fica a tipologia sozinha, que é o que
+ * há.
+ */
+function nomeDoMeio(it){
+  return String(it && it.t || "") + (it && it.ent? " " + it.ent : "");
+}
+
+/** A unidade com este identificador, com o setor onde está, ou nada. */
+function meioPorId(id){
+  return meiosDoDispositivo().find(m=>m.it.id === id) || null;
+}
+
+/**
+ * Dá coordenada a uma unidade do dispositivo.
+ *
+ * Regista **quando** e **por quem** foi posicionada, como tudo o resto: uma posição de há
+ * seis horas não vale o mesmo que uma de há dez minutos, e quem lê tem de o poder saber.
+ */
+function posicionarMeio(id, lat, lon){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de posicionar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const m = meioPorId(id);
+  if(!m) return { ok:false, motivo:"Meio não encontrado no dispositivo." };
+  if(!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok:false, motivo:"Coordenada inválida." };
+  m.it.lat = +lat.toFixed(6); m.it.lon = +lon.toFixed(6);
+  m.it.posG = gdhAgora(); m.it.posPor = quemRegista();
+  O.evolucao.push({ g:m.it.posG, tipo:"posit",
+    txt:m.nome+" posicionado no Setor "+NOMES_SETOR[m.setor]+": "+fmtDec(m.it.lat, m.it.lon)+"." });
+  fita(m.nome+" posicionado: "+fmtDec(m.it.lat, m.it.lon));
+  return { ok:true, meio:m.it };
+}
+
+/** Retira a posição de uma unidade, sem a retirar do dispositivo. */
+function despositionarMeio(id){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de alterar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const m = meioPorId(id);
+  if(!m || !Number.isFinite(m.it.lat)) return { ok:false, motivo:"Esse meio não tem posição." };
+  m.it.lat = null; m.it.lon = null; m.it.posG = ""; m.it.posPor = "";
+  fita("Retirada a posição de "+m.nome);
+  return { ok:true };
+}
+
+/** As unidades que têm coordenada. */
+function meiosPosicionados(){
+  return meiosDoDispositivo().filter(m=>Number.isFinite(m.it.lat) && Number.isFinite(m.it.lon));
+}
+
+/**
+ * Quanto do dispositivo está localizado.
+ *
+ * **Não é estatística: é a medida da confiança que se pode ter na leitura.** Uma leitura
+ * que diga «nenhum meio no corredor da frente» com três meios posicionados em vinte diz
+ * muito menos do que parece, e é isso que este número deixa ver.
+ */
+function contagemPosicionados(){
+  const t = meiosDoDispositivo().length;
+  return { total:t, postos:meiosPosicionados().length };
 }
 /* ================= LOGÍSTICA · canais SIRESP (art. 34.º) ================= */
 const PASTAS = {

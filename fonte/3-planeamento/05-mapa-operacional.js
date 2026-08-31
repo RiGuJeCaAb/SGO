@@ -278,6 +278,7 @@ function enquadrarMapa(larg, altMax){
   };
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
   /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
      propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
@@ -687,6 +688,14 @@ function camadaMapa(){
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
   });
 
+  /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
+     anotada e como se dizem na rádio. */
+  meiosPosicionados().forEach(m=>{
+    const q = pxy(m.it.lat, m.it.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<rect x="'+n(x0-8)+'" y="'+n(y0-6)+'" width="16" height="12" rx="2" fill="#2F4F6F" stroke="#fff" stroke-width="1.6"/>';
+    g += rotulo(x0 + 11, y0 + 4, m.nome, 9.5);
+  });
+
   if(temPonto){
     const q = pxy(lat0, lon0), x0 = n(q.x), y0 = n(q.y);
     g += '<path d="M'+x0+','+n(y0-11)+' L'+n(x0+9.5)+','+n(y0+5.5)+' L'+n(x0-9.5)+','+n(y0+5.5)+' Z" fill="#005CA9" stroke="#fff" stroke-width="1.6"/>';
@@ -842,6 +851,8 @@ function pintarAlvos(){
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
+    + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
+        +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
@@ -900,12 +911,18 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista(), LN = linhasLista();
-  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length){
+  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = LN.map(l=>
+  el.innerHTML = MP.map(m=>
+      '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
+      + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
+      + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
+      + '<span class="hint">'+esc(m.it.posG||"")+(m.it.posPor? " · "+esc(m.it.posPor):"")+'</span>'
+      + '<button type="button" class="lk" data-despos-meio="'+esc(m.it.id)+'">retirar a posição</button></div>').join("")
+    + LN.map(l=>
       '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
       + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
       + '<span class="mono">'+l.m+' m</span>'
@@ -944,6 +961,11 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-despos-meio]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = despositionarMeio(b.dataset.desposMeio);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarAlvos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-apagar-linha]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarLinha(b.dataset.apagarLinha);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -1000,6 +1022,10 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("M:")){
+    const r = posicionarMeio(alvo.slice(2), lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    aviso("mapa-msg","ok", nomeDoMeio(r.meio)+" em "+fmtDec(lat, lon)+".");
   } else if(alvo === "F"){
     /* Como o limite: pousar um vértice não grava nada. A frente entra no estado ao fechar. */
     if(TRACO.tipo !== "frente"){

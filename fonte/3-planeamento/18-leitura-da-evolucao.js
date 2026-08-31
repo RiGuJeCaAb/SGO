@@ -119,6 +119,12 @@ function noCorredorDaFrente(f){
 
   pontosLista().forEach(p=>juntar(p.nome, defPonto(p.tipo).n.toLowerCase(), p.lat, p.lon));
 
+  /* **Os meios posicionados, que é a pergunta a que a carta anotada responde de relance:
+     quem fica do lado errado da frente.** Entram com a espécie «meio» para se distinguirem
+     de um ponto de água ou de um aglomerado: uma coisa é o fogo caminhar para uma charca,
+     outra é caminhar para uma equipa. */
+  meiosPosicionados().forEach(m=>juntar(m.nome, "meio", m.it.lat, m.it.lon));
+
   return out.sort((a,b)=>a.m - b.m);
 }
 
@@ -186,6 +192,14 @@ function leituraDaFrente(f){
   }
 
   const corredor = noCorredorDaFrente(f);
+  /* Os meios no corredor saem à parte e primeiro. O resto do que está no caminho é
+     património e terreno; isto são pessoas, e a decisão que gera é outra e é imediata. */
+  const meios = corredor.filter(x=>x.especie === "meio");
+  if(meios.length)
+    p.push("**No corredor de progressão desta frente: "
+      + meios.map(x=>x.nome + " a " + (x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m")).join("; ")
+      + ".**");
+
   if(corredor.length){
     p.push("No corredor de progressão, do mais próximo para o mais longe: "
       + corredor.slice(0, 6).map(x=>x.nome + " (" + x.especie + ") a " + (x.m >= 1000
@@ -246,6 +260,13 @@ function leituraDaEvolucao(){
     out.limites.push("Sem série meteorológica carregada não há evolução no tempo: só o rumo declarado em cada frente.");
   if(!(estObj().setores||[]).some((_,i)=>limiteSetor(i)))
     out.limites.push("Sem limites de setor traçados, a leitura não diz que setores a frente atinge.");
+  /* **A medida da confiança que se pode ter no que ficou escrito acima.** Dizer «nenhum
+     meio no corredor» com três posicionados em vinte diz muito menos do que parece, e quem
+     lê tem de o saber sem ter de ir contar. */
+  const cm = contagemPosicionados();
+  if(cm.total && cm.postos < cm.total)
+    out.limites.push("Dos " + cm.total + " meios do dispositivo, " + cm.postos
+      + " têm posição no mapa. O que a leitura diz sobre meios no caminho da frente vale só para esses.");
   return out;
 }
 
