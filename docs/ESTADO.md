@@ -117,6 +117,44 @@ Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes d
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
 
+## O eixo do tempo, na r0072 — e o fogo ativo, que continua de fora
+
+A r0070 recusava por completo uma camada com dimensão. A recusa estava certa — servir pelo
+valor por omissão mostrava outra data sem o dizer — e o resultado era inútil: recusava 1 210
+das 1 315 camadas do GIBS, exatamente as que interessavam.
+
+Passa a ler-se o eixo, a indicar-se o valor no pedido e a escrever-se **a data por baixo do
+mapa**, que é a razão inteira de se ter feito isto: sem ela via-se imagem de outro dia sem
+ter como saber.
+
+Uma data que o serviço não declare é recusada com a distinção que importa: **«não há dados
+desse dia» não é «não houve deteções nesse dia»**, e a segunda a aplicação não a pode saber
+de todo — um mosaico vazio e um mosaico que não existe são coisas diferentes. Onde o passo do
+intervalo não é de dias inteiros, abstém-se e di-lo, em vez de responder mal.
+
+Das 1 315 camadas passaram a servir **1 197**, entre elas a cor verdadeira diária do VIIRS e
+do MODIS: imagem fresca da região, que nenhuma fonte nacional dá.
+
+### A correção que isto obrigou a fazer
+
+**Esperava-se que ler o eixo trouxesse o fogo ativo do GIBS para dentro do mapa. Não traz.**
+As dezoito camadas de anomalias térmicas continuam recusadas, e não pelo tempo: são servidas
+só em `application/vnd.mapbox-vector-tile`, que não é imagem e que este mapa não desenha.
+
+Ficou escrito onde estava escrito o contrário, e fica um teste que o fixa — confere que as
+dezoito são recusadas **por formato** e que a palavra «eixo» já não aparece no motivo.
+
+Isto reforça o §4 do relatório de fontes internacionais, que já era a conclusão certa: os
+focos de calor são pontos e não mosaicos. A via é a API de área do FIRMS, que devolve
+coordenada, hora de deteção, satélite, potência radiativa e confiança por foco. Um ponto
+reprojeta-se para PT-TM06 com a aritmética que já está escrita; um mosaico já desenhado não.
+
+### Um erro meu na conta dos intervalos
+
+Uma data dentro de um intervalo que não caia num múltiplo do passo **não existe** — e eu
+tinha-a a devolver «incerto». O passo é conhecido e a conta fecha; confundir uma coisa com a
+outra fazia a aplicação abster-se de dizer o que sabia.
+
 ## A dívida cartográfica, saldada na r0072
 
 A carta que o Ricardo anotou à mão no PCO de Cabeça Boa abriu este trabalho: sete coisas que

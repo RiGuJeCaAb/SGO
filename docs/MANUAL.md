@@ -167,6 +167,13 @@ Há três caminhos:
   `GetCapabilities` e carregue em «Ler o serviço», ou carregue o XML de um ficheiro guardado.
   A aplicação mostra as camadas que existem, em que projeção, com que ampliações e de quem
   são. As que não puder desenhar aparecem na mesma, com o motivo.
+
+  **Cartas com data.** Muitas camadas — imagem de satélite diária, por exemplo — existem num
+  dia de cada vez. Quando a carta em uso tem eixo temporal, aparece o campo «Data da carta em
+  uso», e a data fica escrita por baixo do mapa: sem isso via imagem de outro dia sem ter
+  como saber. Uma data que o serviço não declare é recusada — *não há dados desse dia*, o que
+  é diferente de não ter havido nada nesse dia, e essa segunda coisa a aplicação não a pode
+  saber.
 - **Serviço de mosaicos `{z}/{x}/{y}`** — a convenção do OpenStreetMap. Exige endereço,
   atribuição e termos de uso, e regista quem o declarou.
 - **Carta pré-descarregada** — para trabalhar sem rede. Prepare-se no gabinete.

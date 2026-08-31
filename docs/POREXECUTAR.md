@@ -26,20 +26,25 @@ linha com direção e há áreas a que ela pode chegar. O que falta para a previ
 é projetar a frente no rumo declarado e ver que limites atravessa — `dentroDoAnel` já lá
 está.
 
-## 2. Fogo ativo: o eixo do tempo
+## 2. O eixo do tempo — **feito na r0072**; o fogo ativo, não
 
-O NASA GIBS publica dezoito camadas de anomalias térmicas VIIRS e MODIS, em serviço aberto,
-sem chave e com CORS. **É a única fonte de fogo ativo identificada, e hoje é recusada por
-inteiro**: 1 210 das 1 315 camadas declaram dimensão `Time`, e o construtor de endereços da
-Estação não sabe indicar data.
+**O eixo está feito, e o fogo ativo continua de fora — por outra razão.**
 
-A recusa é correta — servir pelo valor por omissão mostrava outra data sem o dizer — e é
-inútil, porque recusa exatamente as camadas que interessam. Falta:
+O eixo temporal lê-se, o valor entra no pedido, a data fica escrita por baixo do mapa e uma
+data que o serviço não declare é recusada com a distinção que interessa: *não há dados desse
+dia* não é *não houve deteções nesse dia*. Das 1 315 camadas do GIBS passaram a servir 1 197,
+entre elas a cor verdadeira diária do VIIRS e do MODIS — imagem fresca da região, que nenhuma
+fonte nacional dá.
 
-- ler `Dimension` e usar o `Default`, que no GIBS acompanha a última data disponível;
-- **mostrar ao operador a data efetiva** do que está no ecrã;
-- distinguir «não há deteções» de «não há dados nesse dia» — os intervalos declarados pelo
-  GIBS têm buracos, e um mapa que confunda as duas coisas induz em erro por omissão.
+**Mas as dezoito camadas de anomalias térmicas continuam recusadas, e não é pelo tempo: é
+pelo formato.** São servidas só em `application/vnd.mapbox-vector-tile`, que não é imagem e
+que este mapa não desenha. Esperava-se que ler o eixo as trouxesse; não traz.
+
+Fica reforçada a conclusão do §4 do relatório de fontes internacionais, que já era a certa:
+**os focos de calor são pontos, não mosaicos.** A via é a API de área do FIRMS, que devolve
+CSV com latitude, longitude, hora de deteção, satélite, potência radiativa e confiança por
+foco. Um ponto reprojeta-se para PT-TM06 com a aritmética que já está escrita; um mosaico já
+desenhado não. E os atributos por foco são coisa que o mosaico nunca daria.
 
 Nota de escala: as anomalias térmicas param no nível 8, **611 m por pixel**. Serve para
 contexto regional — saber se a ocorrência no Douro é isolada ou parte de uma situação

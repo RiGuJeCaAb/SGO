@@ -811,7 +811,11 @@ function pintarEstadoMapa(vieram, total){
   const el = $("mapa-info"); if(!el) return;
   const partes = [];
   if(CARTA) partes.push(CARTA.atrib + (CARTA.termos? " — " + CARTA.termos : "")
-    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : ""));
+    + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : "")
+    /* **A data do que está no ecrã, sempre à vista.** Uma carta com eixo temporal mostra o
+       dia que se lhe pedir, e sem isto escrito o operador vê imagem de outro dia sem ter
+       como saber. É a razão inteira de se ter lido o eixo. */
+    + (CARTA.dim? " · " + CARTA.dim.id + ": " + CARTA.dim.valor : ""));
   else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo"
     + (CARTA_LOCAL && CARTA_LOCAL.atrib? " — " + CARTA_LOCAL.atrib : "")
     + (CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]? " · " + GRELHAS[CARTA_LOCAL.grelha].n
@@ -1363,7 +1367,7 @@ function pintarCamadasWMTS(){
     if(!r.ok){ aviso("wm-msg","err",r.motivo); return; }
     const g = await adotarCartaWMTS(r.carta);
     if(!g.ok){ aviso("wm-msg","err",g.motivo); return; }
-    pintarCarta();
+    pintarCarta(); pintarDimensaoDaCarta();
     aviso("wm-msg","ok","Carta adotada: "+r.carta.camadaTitulo+". Carregar a carta para a ver.");
     medirMapa(); if(enquadrarMapa(MAPA.larg, MAPA.alt)) pintarMapa();
   }));
@@ -1394,6 +1398,36 @@ $("wm-ler").addEventListener("click", async ()=>{
        o que serve num posto sem rede. */
     aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
   }
+});
+
+/**
+ * Mostra o campo da data quando a carta em uso tem eixo, e esconde-o quando não tem.
+ *
+ * Um campo de data sempre visível para uma carta que não tem tempo é convite a preencher o
+ * que não existe.
+ */
+function pintarDimensaoDaCarta(){
+  const box = $("wm-dim"); if(!box) return;
+  const ha = !!(CARTA && CARTA.dim);
+  box.style.display = ha ? "" : "none";
+  if(!ha) return;
+  $("wm-dim-v").value = CARTA.dim.valor || "";
+  const ult = ultimaDataDaDimensao(CARTA.dim);
+  $("wm-dim-h").textContent = "Eixo «" + CARTA.dim.id + "»"
+    + (ult ? " · o serviço declara até " + ult : "")
+    + ". O que estiver aqui é o dia que o mapa mostra.";
+}
+
+$("wm-dim-b").addEventListener("click", async ()=>{
+  const r = mudarDimensaoDaCarta($("wm-dim-v").value);
+  if(!r.ok){ aviso("wm-msg","err",r.motivo); pintarDimensaoDaCarta(); return; }
+  await adotarCartaWMTS(CARTA);
+  /* Os mosaicos guardados são de outra data: pedir de novo é o que faz o mapa mudar. */
+  await esquecerMosaicos();
+  aviso("wm-msg","ok","Carta em "+r.valor+"."
+    + (r.incerto? " O serviço declara este intervalo com um passo que não é de dias inteiros: não se pôde confirmar que esta data exista." : "")
+    + " Carregar a carta para a ver.");
+  pintarCarta(); pintarDimensaoDaCarta(); await pintarArquivoMapa(); pintarMapa();
 });
 
 /* A procura repinta a lista à medida que se escreve. Sem `debounce`: a lista já está em

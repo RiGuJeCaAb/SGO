@@ -252,22 +252,58 @@ test('o GIBS é todo Web Mercator, e por isso a grelha portuguesa não o serve',
   assert.equal(comp.zMax, 8, 'as anomalias térmicas param no nível 8, a 611 m por pixel');
 });
 
-test('as camadas de fogo ativo do GIBS têm eixo temporal, e hoje são recusadas por isso', semAplicacao, async () => {
-  /* Registo do que a aplicação **não** faz. 1 210 das 1 315 camadas declaram `Time`, e
-     entre elas estão as dezoito de anomalias térmicas — que são a razão de olhar para o
-     GIBS. Recusá-las é correto e é inútil: enquanto o construtor de endereços não souber
-     indicar a data, o fogo ativo da NASA não entra no mapa.
-
-     Este teste não aprova a recusa. Fixa-a, para que o dia em que deixar de valer se veja
-     aqui e não em silêncio. */
+test('o eixo temporal deixou de ser motivo de recusa, e o GIBS abre', semAplicacao, async () => {
+  /* Antes da r0072 uma camada com dimensão era recusada por completo: 1 210 das 1 315 do
+     GIBS ficavam de fora. Com a dimensão lida e indicada no pedido, a maior parte serve. */
   const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
   const L = janela.wmtsInventario(c);
-  const term = L.filter((x) => /Thermal_Anomalies/.test(x.id));
+  assert.ok(L.filter((x) => x.serve).length > 1000, 'servem ' + L.filter((x) => x.serve).length);
+  const tc = L.find((x) => x.id === 'VIIRS_NOAA20_CorrectedReflectance_TrueColor');
+  assert.equal(tc.serve, true, tc.motivo);
+});
+
+test('as anomalias térmicas continuam de fora — e não é pelo tempo, é pelo formato', semAplicacao, async () => {
+  /* **Correção ao que se esperava.** O relatório de fontes internacionais e o registo desta
+     linhagem davam a entender que ler o eixo `Time` traria o fogo ativo do GIBS para dentro
+     do mapa. Não traz: as dezoito camadas de anomalias térmicas são servidas **só** em
+     `application/vnd.mapbox-vector-tile`, que não é imagem e que este mapa não desenha.
+
+     A conclusão do §4 do relatório fica reforçada, e é ela que vale: a via para focos de
+     calor é a API de pontos do FIRMS, não o mosaico do GIBS. */
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const term = janela.wmtsInventario(c).filter((x) => /Thermal_Anomalies/.test(x.id));
   assert.equal(term.length, 18);
   term.forEach((x) => {
     assert.equal(x.serve, false, x.id);
-    assert.match(x.motivo, /eixo «Time»/);
+    assert.match(x.motivo, /nenhum formato desenhável/, x.id);
+    assert.match(x.motivo, /mapbox-vector-tile/, x.id);
+    assert.ok(!/eixo/.test(x.motivo), 'ainda recusada pelo tempo: ' + x.id);
   });
-  /* e o serviço não fica com zero camadas: 99 não têm eixo temporal e são desenháveis */
-  assert.ok(L.filter((x) => x.serve).length > 50, 'sobraram poucas camadas servíveis');
+});
+
+test('o pedido leva a data, e a linha continua antes da coluna', semAplicacao, async () => {
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const r = await janela.wmtsCarta(c, 'VIIRS_NOAA20_CorrectedReflectance_TrueColor');
+  assert.ok(r.ok, r.motivo);
+  assert.equal(r.carta.dim.id, 'Time');
+  assert.equal(r.carta.dim.valor, '2026-08-31', 'o valor por omissão do serviço');
+  const u = janela.wmtsEndereco(r.carta, 7, 61, 48);
+  assert.match(u, /\/2026-08-31\//, 'o {Time} do modelo não foi preenchido: ' + u);
+  assert.ok(u.endsWith('/48/61.jpeg'), 'a linha tem de vir antes da coluna: ' + u);
+  assert.ok(!/\{/.test(u), 'ficou um marcador por preencher: ' + u);
+});
+
+test('os buracos declarados pelo GIBS são buracos, e a aplicação vê-os', semAplicacao, async () => {
+  /* Os intervalos das anomalias térmicas têm falhas — entre 2024-03-19 e 2024-03-25 não há
+     nada. Um mapa que não distinga «não há dados nesse dia» de «não há deteções» induz em
+     erro por omissão, e a segunda coisa a aplicação não a pode saber de todo. */
+  const c = janela.lerCapacidadesWMTS(await ler('wmts/wmts_gibs_3857.xml'));
+  const cam = c.camadas.find((x) => x.id === 'VIIRS_NOAA20_Thermal_Anomalies_375m_All');
+  const dim = cam.dimensoes[0];
+  assert.equal(dim.id, 'Time');
+  assert.equal(janela.dataNaDimensao(dim, '2024-03-18'), true, 'dentro do intervalo');
+  assert.equal(janela.dataNaDimensao(dim, '2024-03-22'), false, 'está no buraco declarado');
+  assert.equal(janela.dataNaDimensao(dim, '2019-06-01'), false, 'antes do primeiro intervalo');
+  assert.equal(janela.dataNaDimensao(dim, 'ontem'), false, 'uma data que não é data');
+  assert.equal(janela.ultimaDataDaDimensao(dim), '2026-08-31');
 });

@@ -298,7 +298,12 @@ function lerCapacidadesWMTS(xml){
          preencher, uma camada que declare uma é **recusada** — não servida por omissão. */
       dimensoes: wmtsTodos(lx, "Dimension").map(d=>({
         id: wmtsTexto(d, "Identifier") || d.getAttribute("name") || "dimensão sem nome",
-        omissao: wmtsTexto(d, "Default")
+        uom: wmtsTexto(d, "UOM"),
+        omissao: wmtsTexto(d, "Default"),
+        /* Os valores declarados. No GIBS são intervalos `início/fim/passo`, e **têm
+           buracos**: entre 2024-03-19 e 2024-03-25 não há nada. É essa lista que permite
+           dizer «não há dados nesse dia» em vez de pedir um mosaico que não existe. */
+        valores: wmtsFilhos(d, "Value").map(v=>v.textContent.trim()).filter(Boolean)
       })).filter(d=>d.id),
       recursos: wmtsTodos(lx, "ResourceURL")
         .filter(r=>r.getAttribute("resourceType") === "tile")
@@ -387,7 +392,10 @@ function wmtsEndereco(c, z, x, y){
       .replace(/\{TileRow\}/gi, String(y))
       .replace(/\{TileCol\}/gi, String(x))
       .replace(/\{Style\}/gi, c.estilo || "default")
-      .replace(/\{Layer\}/gi, c.camada);
+      .replace(/\{Layer\}/gi, c.camada)
+      /* O modelo do GIBS traz `{Time}` — o nome do marcador é o identificador da dimensão,
+         e compara-se sem distinguir maiúsculas porque cada serviço o escreve à sua maneira. */
+      .replace(new RegExp("\\{" + (c.dim? c.dim.id : "\u0000") + "\\}", "gi"), c.dim? c.dim.valor : "");
   }
   if(!c.kvp) return "";
   /* **Os parâmetros fundem-se, não se colam.** O endereço declarado pelo serviço pode já
@@ -401,7 +409,7 @@ function wmtsEndereco(c, z, x, y){
     TILEMATRIXSET:c.conjunto, TILEMATRIX:matriz,
     TILEROW:String(y), TILECOL:String(x),
     FORMAT:c.formato || "image/png"
-  });
+  }, c.dim? { [c.dim.id.toUpperCase()]: c.dim.valor } : null);
 }
 
 /**
@@ -413,15 +421,17 @@ function wmtsEndereco(c, z, x, y){
  *
  * @param {string} base o endereço declarado pelo serviço
  * @param {Object<string,string>} pars os parâmetros a impor
+ * @param {Object<string,string>|null} [extra] mais parâmetros, como o valor de uma dimensão
  * @returns {string} o endereço completo
  */
-function kvpFundido(base, pars){
+function kvpFundido(base, pars, extra){
   const corte = String(base).indexOf("?");
   const raiz = corte < 0 ? String(base) : String(base).slice(0, corte);
   const q = new URLSearchParams(corte < 0 ? "" : String(base).slice(corte + 1));
-  Object.keys(pars).forEach(k=>{
+  const todos = Object.assign({}, pars, extra || {});
+  Object.keys(todos).forEach(k=>{
     [...q.keys()].forEach(j=>{ if(j.toUpperCase() === k.toUpperCase()) q.delete(j); });
-    q.set(k, pars[k]);
+    q.set(k, todos[k]);
   });
   return raiz + "?" + q.toString();
 }
@@ -445,6 +455,68 @@ function httpsSeForPreciso(u){
 }
 
 /**
+ * Os intervalos de uma dimensão, já em números.
+ *
+ * Um valor `2020-01-01/2020-03-17/P1D` é um intervalo com passo; um valor solto é uma data
+ * única. O passo lê-se em dias — `P1D`, `P8D` — e um passo que não seja de dias inteiros não
+ * se converte: fica declarado como desconhecido, e a verificação de disponibilidade
+ * abstém-se em vez de responder mal.
+ *
+ * @returns {{de:number, ate:number, passoDias:number|null, texto:string}[]}
+ */
+function intervalosDaDimensao(dim){
+  if(!dim || !Array.isArray(dim.valores)) return [];
+  return dim.valores.map(v=>{
+    const p = String(v).split("/");
+    const de = Date.parse(p[0]);
+    if(!Number.isFinite(de)) return null;
+    if(p.length === 1) return { de, ate:de, passoDias:1, texto:v };
+    const ate = Date.parse(p[1]);
+    if(!Number.isFinite(ate)) return null;
+    const m = p[2] ? /^P(\d+)D$/i.exec(p[2].trim()) : null;
+    return { de, ate, passoDias: p[2] ? (m ? +m[1] : null) : 1, texto:v };
+  }).filter(Boolean).sort((a,b)=>a.de - b.de);
+}
+
+/**
+ * Esta data está declarada pela dimensão?
+ *
+ * Responde `true`, `false` ou `null` — e o `null` é o que interessa: quando o passo não é de
+ * dias inteiros a aplicação **não sabe** se aquela data existe, e dizer que não existe seria
+ * tão errado como dizer que existe.
+ *
+ * Note-se o que isto **não** responde: se há ou não deteções naquele dia. Um mosaico vazio e
+ * um mosaico que não existe são coisas diferentes, e só a segunda se pode saber daqui.
+ *
+ * @returns {boolean|null}
+ */
+function dataNaDimensao(dim, data){
+  const t = Date.parse(String(data||""));
+  if(!Number.isFinite(t)) return false;
+  const iv = intervalosDaDimensao(dim);
+  if(!iv.length) return null;
+  let incerto = false;
+  for(const i of iv){
+    if(t < i.de || t > i.ate) continue;
+    if(i.passoDias === null){ incerto = true; continue; }
+    /* Dentro do intervalo, só os múltiplos do passo a partir do início existem. Uma data que
+       caia entre dois passos **não existe** — não é incerta: o passo é conhecido, e a conta
+       fecha. Confundir uma coisa com a outra fazia a aplicação abster-se de dizer o que
+       sabia. */
+    const d = Math.round((t - i.de) / 86400000);
+    if(d % i.passoDias === 0) return true;
+  }
+  return incerto ? null : false;
+}
+
+/** A última data que a dimensão declara, que é a mais recente que se pode pedir. */
+function ultimaDataDaDimensao(dim){
+  const iv = intervalosDaDimensao(dim);
+  if(!iv.length) return "";
+  return new Date(iv[iv.length-1].ate).toISOString().slice(0, 10);
+}
+
+/**
  * Compõe a declaração de carta a partir de uma camada escolhida de um serviço lido.
  *
  * @param {any} cap o que `lerCapacidadesWMTS` devolveu
@@ -456,14 +528,13 @@ function wmtsCarta(cap, camadaId, conjuntoId){
   const cam = cap.camadas.find(c=>c.id === camadaId);
   if(!cam) return { ok:false, motivo:"Camada não encontrada no serviço." };
 
-  /* Recusa-se antes de escolher conjunto ou formato: uma camada com eixo temporal não é
-     desenhável por esta aplicação, e servi-la pelo valor por omissão seria mostrar outra
-     data sem o dizer. */
-  if(cam.dimensoes && cam.dimensoes.length){
-    const d = cam.dimensoes[0];
-    return { ok:false, motivo:"a camada tem o eixo «"+d.id+"», que o mapa não sabe indicar"
-      + (d.omissao? " — servi-la daria sempre "+d.omissao+", em vez do que se procura" : "") };
-  }
+  /* **Uma dimensão serve-se; duas não.** A aplicação tem um campo para indicar um valor, e
+     uma camada com eixo temporal *e* eixo de altitude precisaria de dois — servi-la com um
+     só era escolher o outro em silêncio, que é o que esta regra existe para impedir. */
+  const dims = cam.dimensoes || [];
+  if(dims.length > 1)
+    return { ok:false, motivo:"a camada tem "+dims.length+" eixos além do espaço ("
+      + dims.map(d=>d.id).join(", ")+") e o mapa só sabe indicar um" };
 
   const candidatos = conjuntoId? [conjuntoId] : cam.conjuntos;
   let escolhido = null, comp = null, motivos = [];
@@ -493,9 +564,15 @@ function wmtsCarta(cap, camadaId, conjuntoId){
   if(!rec && !cap.kvp)
     return { ok:false, motivo:"O serviço não declara nem modelo de endereço nem ponto de acesso KVP para os mosaicos." };
 
+  /* O valor da dimensão: o que o serviço declara por omissão, que no GIBS acompanha a
+     última data disponível. Guarda-se também a lista de intervalos, porque é a única
+     maneira de mais tarde dizer que uma data pedida não existe. */
+  const dim = dims[0] || null;
   return { ok:true, carta:{
     tipo:"wmts",
     camada:cam.id, camadaTitulo:cam.titulo,
+    dim: dim? { id:dim.id, uom:dim.uom, valor:dim.omissao || ultimaDataDaDimensao(dim),
+      omissao:dim.omissao, valores:dim.valores } : null,
     conjunto:escolhido.id, estilo, formato:fmt, grelha:comp.grelha,
     modelo: rec? rec.modelo : "", kvp: cap.kvp,
     niveis: comp.niveis, zMin: comp.zMin, zMax: comp.zMax,
@@ -520,4 +597,28 @@ function wmtsInventario(cap){
       zMin:r.ok? r.carta.zMin : null, zMax:r.ok? r.carta.zMax : null,
       formatos:cam.formatos };
   });
+}
+
+/**
+ * Muda a data — ou o valor da dimensão — da carta em uso.
+ *
+ * Recusa o que o serviço não declara. Pedir um mosaico de um dia que não existe devolve
+ * erro ou, pior, um quadrado vazio que se lê como «não houve nada ali»: **um mosaico vazio
+ * e um mosaico que não existe são coisas diferentes**, e só a segunda se sabe daqui.
+ *
+ * @returns {{ok:boolean, motivo?:string, valor?:string, incerto?:boolean}}
+ */
+function mudarDimensaoDaCarta(valor){
+  if(!CARTA || !CARTA.dim) return { ok:false, motivo:"A carta em uso não tem eixo nenhum além do espaço." };
+  const v = String(valor||"").trim();
+  if(!v) return { ok:false, motivo:"Indica o valor do eixo «"+CARTA.dim.id+"»." };
+  const ha = dataNaDimensao(CARTA.dim, v);
+  if(ha === false)
+    return { ok:false, motivo:"O serviço não declara «"+v+"» para o eixo "+CARTA.dim.id
+      + ". A última data declarada é "+(ultimaDataDaDimensao(CARTA.dim) || "nenhuma")+"."
+      + " Não há dados desse dia — o que é diferente de não haver deteções nesse dia, e essa"
+      + " a aplicação não a pode saber." };
+  CARTA.dim.valor = v;
+  fita("Carta em "+CARTA.dim.id+" = "+v);
+  return { ok:true, valor:v, incerto: ha === null };
 }
