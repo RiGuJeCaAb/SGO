@@ -44,7 +44,38 @@ peninsular —, não para vista de setor. Para vista de setor a via é a API de 
 FIRMS, que devolve coordenadas e não mosaicos: um ponto reprojeta-se para PT-TM06, um
 mosaico já desenhado não.
 
-## 3. Validar as fontes na rede real
+## 3. Intensidade da frente, e o que ela decide
+
+Os quatro documentos de comportamento do fogo chegados a 31 de agosto — ver `FONTES.md`,
+secção `FOGOINT` — desbloqueiam metade do problema. Com a velocidade de propagação e a carga
+de combustível **introduzidas pelo oficial**, como já se faz com o ε, ficam ao alcance:
+
+| A calcular | De onde vem |
+|---|---|
+| Intensidade da frente, kW/m | `I = R·w/2` — Byram (1959), via Fernandes (2003) |
+| Comprimento da chama, m | `I = 300·L²` — Fernandes (2003) |
+| **Distância de segurança** à frente | ≥ 4 × altura da chama — Butler e Cohen (1998) |
+| **Largura de contenção** necessária | ≥ 1,5 × comprimento da chama — Byram (1959) |
+| **Se o ataque direto à cabeça é admissível** | Limite de 4 000 kW/m — Alexander (2000) |
+| Que meios são eficazes | Tabela de interpretação para supressão, quatro classes |
+| Crescimento do perímetro | ≈ 2,5 × R — Alexander (2000) |
+
+É isto que liga a previsão ao PEA: não «o fogo vai ali», mas **«a esta intensidade o ataque
+à cabeça é inconsequente, a linha tem de ter esta largura, e ninguém fica a menos desta
+distância»**. Que é uma proposta de manobra com fundamento citável.
+
+Duas cautelas registadas em `FONTES.md` e que não se devem perder:
+
+- O diapositivo de formação traz a relação de comprimento de chama **invertida**. Implementar
+  como está escrito daria números absurdos.
+- As tabelas de área e perímetro do guia canadiano estão em imagem digitalizada. **Números
+  lidos a olho de uma digitalização não entram no código**; para as usar é preciso a descrição
+  técnica que o guia cita e não inclui.
+
+E o que continua em falta: **R para os combustíveis do Douro**. Nenhum dos quatro documentos
+o dá. Enquanto não houver fonte, a velocidade de propagação é um dado que o oficial introduz.
+
+## 4. Validar as fontes na rede real
 
 **Todas as capturas de 31 de agosto de 2026 foram feitas por dados móveis**, não da rede
 institucional — o endereço de origem `172.20.10.3` numa interface Wi-Fi é a gama que o iOS
@@ -56,7 +87,7 @@ Repetir uma amostra a partir de um posto da rede do CSREPC Douro e do VCOC ligad
 Starlink. Se os resultados divergirem, a mesma aplicação comporta-se de maneira diferente
 conforme o local — e isso é requisito de desenho, não contratempo.
 
-## 4. Depende de terceiros
+## 5. Depende de terceiros
 
 - **Que serviço de cartografia o posto tem direito a usar.** A aplicação sabe ler um WMTS;
   falta a decisão institucional. Os serviços do ICNF ficam de fora de qualquer modo: não
@@ -65,14 +96,14 @@ conforme o local — e isso é requisito de desenho, não contratempo.
 - **Confrontar o importador com uma exportação real da Gestão PCO.** Testado contra os
   documentos; falta o que a aplicação de origem produz de facto.
 
-## 5. Pontos por confirmar em fonte
+## 6. Pontos por confirmar em fonte
 
 A lista vive em `ESTADO.md`, secção «Pontos por confirmar em fonte», e não se repete aqui.
 Um deles tem dono e prazo do lado de cá: a informação de canais SIRESP que chegou por
 captura de ecrã, com o pedido de a validar antes de usar. **Não foi validada, e por isso
 não foi usada.** Continua fora da aplicação.
 
-## 6. Fora da cartografia
+## 7. Fora da cartografia
 
 - Camada de análise determinística: **Meteo, Topografia e Demografia**. O Comportamento do
   Fogo está feito na r0026, com o que a fonte sustenta.

@@ -116,6 +116,122 @@ outras origens, e o seu apêndice compara duas formulações — a de Rothermel 
 (1994) — sem eleger nenhuma para uso operacional. Enquanto essa fonte não existir, ε é um
 dado que o oficial introduz, e a aplicação diz de onde vem cada número que mostra.
 
+## `FOGOINT` — intensidade da frente e o que ela decide
+
+Quatro documentos chegados a 31 de agosto de 2026, todos em `docs/fontes/`. Tratam do que
+o Viegas (2004) deixa de fora: **o que fazer com a velocidade de propagação depois de a ter.**
+
+Nenhum deles está ainda implementado. Esta entrada existe para fixar, antes de se escrever
+uma linha, o que cada um autoriza e o que continua a não autorizar.
+
+### `FERNANDES2003` — o documento operacionalmente mais útil dos quatro
+
+**Fernandes, P. M. (2003), "A Avaliação do Comportamento do Fogo no Combate a Incêndios
+Florestais", *Revista enB* n.º 27, pp. 18-25.** Departamento Florestal da Universidade de
+Trás-os-Montes e Alto Douro — a universidade do território deste posto.
+Ficheiro: `A_avaliacao_do_comportamento_do_fogo_no_combate_a_incendios_florestais_Fernandes2003_RevENB.pdf`.
+
+Traz relações fechadas, cada uma com a sua fonte primária, e todas independentes do tipo de
+combustível — que é a razão de serem aproveitáveis aqui:
+
+| Relação | O que dá | Fonte primária citada |
+|---|---|---|
+| `I = R·w / 2`, com R em m/h e w em t/ha | Intensidade da frente, em kW/m | Byram (1959) |
+| `I = 300·L²` | Comprimento da chama, por aproximação geral | — |
+| Distância de segurança **≥ 4 × altura da chama** | Tolerância de 7 kW/m² de radiação incidente | Butler e Cohen (1998) |
+| Largura de corta-fogo **≥ 1,5 × comprimento da chama** | Para suster, sem projeção de faúlhas | Byram (1959) |
+| **4 000 kW/m** (chamas > 3,6 m) | Acima disto, atacar a cabeça diretamente é *"perigoso e inconsequente"* | Alexander (2000) |
+| Expansão perimetral ≈ **2,5 × R** | Crescimento do perímetro, m/h | Alexander (2000) |
+| Perímetro ≈ 2,5 × (R × tempo desde a ignição) | Extensão do perímetro, m | Alexander (2000) |
+| Gama de R: 1,5 m/h a ~14 km/h em floresta, 20 km/h em pasto seco | Ordem de grandeza, para recusar entradas absurdas | Alexander (2000) |
+
+Diz ainda que um fogo de propagação dominada pelo vento **toma a forma de uma elipse**, com
+intensidade máxima na cabeça, decrescente ao longo dos flancos e mínima na retaguarda.
+
+E um aviso que interessa registar: **Portugal adotou o sistema canadiano de indexação de
+perigo** — FFMC, DMC, DC, ISI, BUI, FWI —, mas *"os limites das classes de perigo do índice
+FWI definiram-se em função das estatísticas de ocorrência de incêndios a nível distrital, ou
+seja, de acordo com um critério puramente administrativo."* Uma classe de perigo do FWI não é
+uma medida do comportamento do fogo naquele sítio.
+
+### `COMPFOGO` — a tabela de interpretação para supressão
+
+`COMPORTAMENTO_DO_FOGO.pdf`, 78 diapositivos de formação. **Autoria e instituição não
+declaradas no ficheiro**, e por isso a proveniência fica **por confirmar**: cita Rothermel
+(1972) e acompanha o conteúdo do artigo anterior, mas isso é indício e não atribuição.
+
+O que traz de aproveitável é a tabela clássica que liga intensidade a decisão de manobra:
+
+| Intensidade (kW/m) | Chama (m) | Interpretação para supressão |
+|---|---|---|
+| < 350 | < 1,2 | Ataque à cabeça possível, com ferramentas manuais. Linha de contenção manual eficaz |
+| 350 – 1 700 | 1,2 – 2,4 | Demasiado intenso para ataque manual. Autotanques. Bulldozer para abrir linha |
+| 1 700 – 3 450 | 2,4 – 3,4 | Controlo muito difícil. Podem ocorrer fogos de copas e emissão de faúlhas. Ataque à cabeça provavelmente ineficaz |
+| > 3 450 | > 3,4 | Comportamentos extremos. Ataque à cabeça ineficaz. Alguma eficácia do ataque aéreo |
+
+**Correção a fazer ao documento, não a seguir cegamente.** O diapositivo escreve a relação
+de comprimento de chama como `Lf = 258·IB^2,17`, e está invertida: é `IB = 258·Lf^2,17`.
+Confirma-se pelos próprios exemplos do documento — 258 × 3,6^2,17 = 4 157 kW/m para os
+4 213 kW/m que ele declara, e 258 × 3,2^2,17 = 3 220 para os 3 233 que declara. Implementada
+como está escrita, a fórmula daria comprimentos de chama absurdos.
+
+As duas formulações concordam onde interessa: a `I = 300·L²` de Fernandes dá 3,75 m para
+4 213 kW/m onde a `I = 258·L^2,17` dá 3,6 m, e o limite de 4 000 kW/m corresponde nas duas a
+chamas de cerca de 3,6 m.
+
+### `FBP1996` — adotado em Portugal só até meio
+
+**Taylor, S. W. (1996), *Field Guide to the Canadian Forest Fire Behavior Prediction (FBP)
+System*.** Canadian Forest Service e B.C. Ministry of Forests, FRDA handbook 012.
+Ficheiro digitalizado, sem camada de texto.
+
+**Não é transponível para o Douro, e a distinção é essencial:**
+
+- O que Portugal adotou é o **FWI**, a parte de indexação de perigo. Isso está confirmado
+  por Fernandes (2003).
+- O que o FBP acrescenta são **velocidades de propagação por tipo de combustível**, e os
+  dezasseis tipos de referência são canadianos: pícea boreal, pinheiro *jack*, choupo
+  tremedor, abeto bálsamo. Nenhum é pinheiro bravo, eucalipto ou matagal mediterrânico.
+- O próprio guia avisa: *"Users must be careful not to apply the system beyond its useful
+  range"*, e Fernandes escreve que aos modelos empíricos *"não se recomenda o seu uso em
+  condições não abrangidas pela base de dados que lhes deu origem."*
+
+Aproveitável dele é a **geometria**, que não depende do combustível: as tabelas 6.1 e 6.2 de
+área e perímetro em função da distância percorrida e do vento efetivo, e a razão
+comprimento/largura da elipse por velocidade de vento. Com uma reserva de método: essas
+tabelas estão em imagem digitalizada, e **números lidos a olho de uma digitalização não
+entram no código**. Para as usar é preciso a descrição técnica do sistema — Forestry Canada
+Fire Danger Group (1992), Info. Rep. ST-X-3 —, que o guia cita e não inclui.
+
+### `PAIXAO2014` — porque não se usam modelos de combustível de fora
+
+**Paixão, L. G. M. A. (2014), *Simulação de comportamento de fogo em zonas florestais no
+Alentejo Central: comparação de modelos de combustível*.** Dissertação de mestrado,
+orientada por Pedro Cabral e Nuno Guiomar.
+Ficheiro: `SIMULACAO_DE_COMPORTAMENTO_DE_FOGO_EM_ZONAS_FLORESTAIS_NO_ALENTEJO_CENTRAL.pdf`.
+
+Compara conjuntos de modelos de combustível a simular fogos reais com o FARSITE, e conclui
+que **os modelos customizados descrevem melhor a vegetação da área de estudo** do que os
+conjuntos padrão. Sustenta, com trabalho experimental português, a posição que esta aplicação
+já tinha por outra via: um modelo de combustível de outro território dá números e não dá
+razão para acreditar neles.
+
+E sustenta também o seu contrário, que é preciso dizer: a área de estudo é o **Alentejo
+Central**, não o Douro. Os modelos que lá foram calibrados não se transportam para cá pelo
+mesmo argumento que os invalida vindos do Canadá.
+
+### O que estes quatro mudam, e o que não mudam
+
+**Mudam:** deixa de ser verdade que a aplicação nada pode dizer sobre a manobra. Com uma
+velocidade de propagação e uma carga de combustível — **ambas dadas pelo oficial**, como já
+acontece com o ε —, ficam ao alcance a intensidade da frente, o comprimento da chama, a
+distância de segurança, a largura de contenção necessária, o limite de ataque direto e o
+crescimento do perímetro. Tudo com fonte declarada e primária.
+
+**Não mudam:** continua a faltar a fonte que dê **R para os combustíveis do Douro**. Nenhum
+destes quatro a traz. O que se pode calcular continua a partir de um número que alguém tem de
+introduzir, e a aplicação continua a não fingir que o sabe.
+
 ## Como acrescentar
 
 1. Acrescentar aqui a entrada do documento, com a designação exata usada nas citações.

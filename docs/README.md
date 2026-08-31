@@ -56,11 +56,15 @@ Capturas de ecrã que acompanham uma revisão e mostram o que ela mudou. Ver `qa
 Não substituem `npm run visual`: servem para o que a auditoria automática não vê, que é se
 o que está no ecrã é o que se queria.
 
-## `fontes/` — documentos doutrinários externos
+## `fontes/` — documentos doutrinários e científicos externos
 
 Os documentos de terceiros que a aplicação cita. Não são do projeto e não se alteram; a
 entrada correspondente em `FONTES.md` diz o que deles se usa e o que deliberadamente não
 se usa.
+
+Um documento entra aqui **antes** de ser implementado, com a sua entrada em `FONTES.md` a
+declarar o que autoriza e o que não autoriza. A ordem importa: escrever primeiro o código e
+procurar depois a fonte que o justifique é como nascem os números sem origem.
 
 ## Onde acrescentar
 
