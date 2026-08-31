@@ -232,6 +232,89 @@ crescimento do perímetro. Tudo com fonte declarada e primária.
 destes quatro a traz. O que se pode calcular continua a partir de um número que alguém tem de
 introduzir, e a aplicação continua a não fingir que o sabe.
 
+## `FOGOMOD` — os modelos de propagação, e porque nenhum deles resolve o que falta
+
+Mais três documentos, a 31 de agosto de 2026. Tratam do modelo que está por baixo de quase
+tudo o que se usa no mundo — o de Rothermel (1972) — e de como se combinam o vento e o
+declive. Nenhum está implementado; esta entrada diz o que autorizam.
+
+### `WEISE1997` — o que valida o que já fizemos, e onde não valida
+
+**Weise, D. R. e Biging, G. S. (1997), "A Qualitative Comparison of Fire Spread Models
+Incorporating Wind and Slope Effects", *Forest Science* 43(2), pp. 170-180.**
+Ficheiro: `A_Qualitative_Comparison_of_Fire_Spread_Models_Weise_Biging_1997.pdf`.
+
+É o documento mais pertinente dos três, porque trata exatamente do que a r0026 implementou
+a partir do Viegas (2004): **combinar o efeito do vento com o do declive por soma
+vetorial**. Os autores confrontam quatro modelos — Rothermel, medidores de McArthur,
+sistema canadiano FBP e o modelo físico de Pagni e Peterson — com fogos de laboratório em
+que o vento e o declive foram variados **ao mesmo tempo**, o que dizem ser inédito.
+
+O que sustenta:
+
+- A composição vetorial é a família de métodos correta: as versões de Rothermel com o
+  método de Albini, e o modelo de Pagni, *"closely mimicked the shape of the rate of spread
+  response to various combinations of wind and slope"*.
+- Entre os três métodos propostos para o modelo de Rothermel, **o de Albini é o mais
+  apropriado** segundo este estudo.
+
+O que avisa, e que interessa mais:
+
+- **O vento e o declive não são completamente aditivos na cabeça do fogo.** É achado
+  experimental, não conjetura.
+- As diferenças entre os métodos de Albini, Rothermel e McAlpine estão todas no
+  **tratamento dos valores negativos de φs − φw** — ou seja, no caso em que o vento e o
+  declive se opõem. É precisamente o caso em que o desvio da cabeça mais importa, e onde a
+  aplicação deve ser mais prudente com o que mostra.
+- O FBP e o McArthur **sobrestimaram**, e uma das causas apontadas é *"application of
+  equations derived from full-scale fires to laboratory-scale fires"*. O argumento da
+  não-transponibilidade vale nos dois sentidos: do terreno para o laboratório também.
+
+Consequência para esta aplicação: confirma que mostrar **a forma da resposta** — direção do
+desvio, velocidade relativa — está bem fundamentado, e que **um número absoluto não está**.
+É o que a r0026 já fazia; agora está fundamentado por mais do que uma fonte.
+
+### `ROTHERMEL2008` — o enquadramento, não a matéria
+
+**Wells, G. (2008), "The Rothermel Fire-Spread Model: Still Running Like a Champ",
+*Fire Science Digest* n.º 2, Joint Fire Science Program.**
+Ficheiro: `The_Rothermel_Fire_Spread_Model_Still_Running_Like_a_Champ_Wells_2008.pdf`.
+
+Divulgação, não artigo científico: conta como o modelo de 1972 sobreviveu trinta e cinco
+anos e onde falha. Serve para enquadrar decisões e para explicar a escolha a quem não é do
+ofício. **Não se cita para fundamentar cálculo nenhum** — para isso cita-se o Rothermel
+original, ou o Weise que o testou.
+
+### `SCOTT2005` — os quarenta modelos de combustível, e o país deles
+
+**Scott, J. H. e Burgan, R. E. (2005), *Standard Fire Behavior Fuel Models: A Comprehensive
+Set for Use with Rothermel's Surface Fire Spread Model*.** USDA Forest Service, Rocky
+Mountain Research Station, General Technical Report RMRS-GTR-153.
+Ficheiro: `Standard_Fire_Behavior_Fuel_Models_Scott_Burgan_2005_RMRS-GTR-153.pdf`.
+
+É o conjunto que substitui os treze modelos de Anderson (1982) e que alimenta o modelo de
+Rothermel — os parâmetros de combustível que a Estação não tem. Traz também os **modelos
+dinâmicos**, em que a carga herbácea viva passa a morta em função do seu teor de humidade,
+que é um mecanismo real e não um afinamento.
+
+E traz o mesmo problema dos outros: **são modelos dos Estados Unidos**, financiados pelo
+projeto LANDFIRE e construídos para a vegetação de lá.
+
+Aqui o círculo fecha-se, e é a razão de este documento valer a pena: a dissertação de
+Paixão (2014) — ver `FOGOINT` — usou **estes** modelos, através do FARSITE, em fogos reais
+do Alentejo Central, e concluiu que os modelos customizados descrevem melhor a vegetação do
+que os conjuntos padrão. Não é uma opinião sobre transponibilidade: é uma medição feita em
+Portugal com este conjunto.
+
+### O que os três, juntos, resolvem
+
+Nada do que falta. Continua sem haver fonte para **R nos combustíveis do Douro**, e estes
+três documentos descrevem a máquina que precisaria desse número para trabalhar.
+
+O que dão é fundamento para a posição que a aplicação já tinha: a composição vetorial de
+vento e declive está validada experimentalmente **na forma da resposta**, e é isso e só
+isso que se mostra.
+
 ## Como acrescentar
 
 1. Acrescentar aqui a entrada do documento, com a designação exata usada nas citações.

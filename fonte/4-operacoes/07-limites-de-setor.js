@@ -94,32 +94,53 @@ function setorDoPonto(lat, lon){
 }
 
 /* ---- o traçado, que é estado da vista e não da ocorrência ----
-   Enquanto se está a traçar não há limite nenhum: há vértices pousados que ainda não
-   fazem figura. Só ao fechar é que aquilo entra no estado da ocorrência, e é por isso
-   que isto não se grava — um traçado a meio não é um facto sobre o incêndio. */
-const TRACO = { setor:-1, pontos:[] };
+   Enquanto se está a traçar não há figura nenhuma: há vértices pousados. Só ao fechar é
+   que aquilo entra no estado da ocorrência, e é por isso que isto não se grava — um
+   traçado a meio não é um facto sobre o incêndio.
 
-/** Começa a traçar o limite de um setor, do zero. */
-function iniciarTraco(i){
+   Serve dois desenhos e não um: o limite de setor, que é anel fechado e precisa de três
+   vértices, e a linha de frente, que é aberta e chega-lhe dois. O que muda entre os dois
+   é o mínimo e o que se faz ao fechar; o pousar, o desfazer e o largar são os mesmos, e
+   dois traçados quase iguais em dois sítios acabariam a divergir. */
+const TRACO = { tipo:"", setor:-1, pontos:[] };
+
+/** O número mínimo de vértices de cada espécie de traçado. */
+const TRACO_MIN = { limite:3, frente:2 };
+
+/** Começa a traçar, do zero. `tipo` é `"limite"` ou `"frente"`. */
+function iniciarTraco(i, tipo){
+  const t = tipo || "limite";
+  if(!TRACO_MIN[t]) return { ok:false, motivo:"Espécie de traçado desconhecida." };
   const e = estObj();
-  if(!e.setores || !e.setores[i]) return { ok:false, motivo:"Setor não encontrado." };
-  TRACO.setor = i; TRACO.pontos = [];
+  /* Uma frente pode não pertencer a setor nenhum — `i` a -1 —, um limite pertence sempre. */
+  if(t === "limite" && (!e.setores || !e.setores[i]))
+    return { ok:false, motivo:"Setor não encontrado." };
+  TRACO.tipo = t; TRACO.setor = i; TRACO.pontos = [];
   return { ok:true };
 }
 
+/** Está a decorrer um traçado? */
+function tracoEmCurso(){ return !!TRACO.tipo; }
+
 /** Larga o traçado em curso sem gravar nada. */
-function largarTraco(){ TRACO.setor = -1; TRACO.pontos = []; }
+function largarTraco(){ TRACO.tipo = ""; TRACO.setor = -1; TRACO.pontos = []; }
+
+/** Quantos vértices faltam para o traçado em curso poder fechar. Zero: já pode. */
+function faltamAoTraco(){
+  if(!TRACO.tipo) return 0;
+  return Math.max(0, TRACO_MIN[TRACO.tipo] - TRACO.pontos.length);
+}
 
 /** Pousa um vértice no traçado em curso. */
 function pontoDoTraco(lat, lon){
-  if(TRACO.setor < 0) return { ok:false, motivo:"Não há traçado em curso." };
+  if(!TRACO.tipo) return { ok:false, motivo:"Não há traçado em curso." };
   TRACO.pontos.push([+lon.toFixed(6), +lat.toFixed(6)]);
   return { ok:true, n:TRACO.pontos.length };
 }
 
 /** Retira o último vértice pousado. Traçar à mão é errar, e errar corrige-se. */
 function desfazerTraco(){
-  if(TRACO.setor < 0 || !TRACO.pontos.length) return { ok:false, motivo:"Não há vértice para retirar." };
+  if(!TRACO.tipo || !TRACO.pontos.length) return { ok:false, motivo:"Não há vértice para retirar." };
   TRACO.pontos.pop();
   return { ok:true, n:TRACO.pontos.length };
 }
@@ -133,8 +154,9 @@ function desfazerTraco(){
 function fecharTraco(){
   if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de traçar." };
   if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  if(TRACO.tipo === "frente") return fecharFrente();
   const i = TRACO.setor;
-  if(i < 0) return { ok:false, motivo:"Não há traçado em curso." };
+  if(TRACO.tipo !== "limite" || i < 0) return { ok:false, motivo:"Não há traçado em curso." };
   const anel = anelFechado(TRACO.pontos);
   if(!anel) return { ok:false, motivo:"Um limite precisa de pelo menos três vértices." };
   const e = estObj(), s = e.setores[i];

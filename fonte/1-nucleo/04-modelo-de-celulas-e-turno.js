@@ -303,6 +303,15 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 18 -> 19 · As frentes de fogo do teatro. O estado do setor era uma palavra; a frente é
+   uma linha com direção, e é dela que se decide para onde vai o incêndio. Lista nova,
+   vazia no que já existe: não se inventa uma frente a partir de um estado de setor. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.frentes)) e.dados.frentes = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -313,7 +322,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

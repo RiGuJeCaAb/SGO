@@ -19,7 +19,7 @@ na aplicação à data da r0066.
 |---|---|
 | Perímetro do ardido, com as manchas por arder lá dentro | **Feito.** `dados.perim`, com anéis interiores contados na área |
 | **Setor Alfa** e **Setor Bravo**, com os limites traçados | **Feito na r0070.** `Setor.limite`, anel fechado traçado no mapa. Dá área por setor, área setorizada do teatro, e diz em que setor cai cada ponto marcado |
-| Frentes ativas, com o símbolo militar de progressão | **Por fazer.** O estado do setor é texto; não há linha de frente com direção |
+| Frentes ativas, com o símbolo militar de progressão | **Feito na r0070.** `dados.frentes`: linha traçada, secção (cabeça, flanco, retaguarda) e rumo de progressão, com seta desenhada. O rumo distingue o que foi indicado do que foi sugerido |
 | Linhas de contenção e de apoio, por tipo de traço | **Por fazer** |
 | Ponto de abastecimento de **água** e de **combustível** | **Feito.** `TIPOS_PONTO` — o de água ainda sem artigo confirmado |
 | Meios nomeados no sítio onde estão: GRIR Guarda, GRUATA BSE, BRIR-BSE, GRIR Oeste, GRIR 01 Alentejo, CATE Viseu, UEPS, MR15-FSBE | **Por fazer.** Os meios estão no dispositivo, sem posição no mapa |

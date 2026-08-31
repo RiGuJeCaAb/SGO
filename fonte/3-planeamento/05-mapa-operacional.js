@@ -506,6 +506,34 @@ function camadaMapa(){
     g += rotulo(x0+7, y0+3.5, x.nome, 9);
   });
 
+  /* As frentes de fogo, por cima dos limites e por baixo dos pontos: são a informação
+     mais viva do mapa e não podem ficar escondidas, mas também não devem tapar uma marca. */
+  frentesLista().forEach(f=>{
+    if(!Array.isArray(f.linha) || f.linha.length < 2) return;
+    const d = defFrente(f.tipo);
+    const q = f.linha.map(c=>pxy(c[1], c[0]));
+    g += '<path d="'+q.map((p,k)=>(k?"L":"M")+n(p.x)+","+n(p.y)).join(" ")
+       + '" fill="none" stroke="'+d.cor+'" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+    /* A seta de progressão sai do meio da linha, na direção do rumo. Uma seta por frente e
+       não uma por segmento: o rumo é da frente inteira, e uma seta em cada vértice daria a
+       entender que cada troço progride para o seu lado. */
+    if(f.rumo !== null && isFinite(f.rumo) && d.avanca){
+      const meio = q[Math.floor(q.length/2)];
+      const a = (f.rumo - 90) * Math.PI/180;
+      const ux = Math.cos(a), uy = Math.sin(a), L = 26;
+      const x1 = meio.x + ux*L, y1 = meio.y + uy*L;
+      g += '<path d="M'+n(meio.x)+','+n(meio.y)+' L'+n(x1)+','+n(y1)+'" stroke="'+d.cor+'" stroke-width="2.4"/>';
+      /* A ponta, com as duas hastes a 150° do sentido de marcha. */
+      [150, -150].forEach(ang=>{
+        const b = a + ang*Math.PI/180;
+        g += '<path d="M'+n(x1)+','+n(y1)+' L'+n(x1 + Math.cos(b)*9)+','+n(y1 + Math.sin(b)*9)
+           + '" stroke="'+d.cor+'" stroke-width="2.4" stroke-linecap="round"/>';
+      });
+    }
+    const p0 = q[0];
+    g += rotulo(p0.x + 8, p0.y - 6, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
+  });
+
   /* Os pontos notáveis marcados à mão. */
   pontosLista().forEach(p=>{
     const q = pxy(p.lat, p.lon), x0 = n(q.x), y0 = n(q.y), d = defPonto(p.tipo);
@@ -702,6 +730,7 @@ function pintarAlvos(){
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
+    + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
   if([...sel.options].some(o=>o.value === antes)) sel.value = antes;
 }
@@ -714,14 +743,33 @@ function pintarAlvos(){
  */
 function pintarTraco(){
   const box = $("mapa-traco"); if(!box) return;
-  const ativo = TRACO.setor >= 0;
+  const ativo = tracoEmCurso();
   box.style.display = ativo ? "" : "none";
-  if(!ativo) return;
-  const n = TRACO.pontos.length;
-  $("mapa-traco-txt").textContent = "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor]
-    + " — " + n + " vértice(s)" + (n < 3 ? ", faltam " + (3 - n) + " para fechar" : "");
-  $("mapa-traco-fechar").disabled = n < 3;
+  if(!ativo){ if($("frente-op")) $("frente-op").style.display = "none"; return; }
+  const n = TRACO.pontos.length, falta = faltamAoTraco();
+  const eFrente = TRACO.tipo === "frente";
+  $("mapa-traco-txt").textContent = (eFrente ? "A traçar uma frente" : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor])
+    + " — " + n + " vértice(s)" + (falta ? ", falta" + (falta > 1 ? "m " : " ") + falta + " para fechar" : "");
+  $("mapa-traco-fechar").disabled = falta > 0;
   $("mapa-traco-desfazer").disabled = n < 1;
+
+  const op = $("frente-op");
+  if(op){
+    op.style.display = eFrente ? "" : "none";
+    if(eFrente){
+      if(!$("frente-tipo").options.length)
+        $("frente-tipo").innerHTML = TIPOS_FRENTE.map(t=>'<option value="'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
+      /* O rumo que o comportamento do fogo prevê aparece como **proposta**, com a hora e o
+         que a sustenta. Não se escreve no campo: quem comanda é que decide se é aquele. */
+      const p = rumoPrevistoDaCabeca();
+      $("frente-previsto").textContent = p
+        ? "A composição de declive e vento dá " + Math.round(p.rumo) + "° para a cabeça"
+          + (p.hora ? " (vento mais forte da série, " + p.hora + ")" : "")
+          + (p.eps ? "" : " — sem a razão declive/vento informada, é o que a geometria dá sozinha")
+          + ". É uma proposta: o rumo que fica é o que for indicado aqui."
+        : "Sem exposição dominante ou sem série de vento não há rumo previsto. Indicar à mão, ou deixar vazio para o traçado sugerir.";
+    }
+  }
 }
 
 /** A lista do que está marcado, com o GDH e por quem, e um botão para retirar. */
@@ -730,11 +778,22 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  if(!L.length && !setores.length && !limites.length){
+  const F = frentesLista();
+  if(!L.length && !setores.length && !limites.length && !F.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = limites.map(i=>
+  el.innerHTML = F.map(f=>
+      '<div class="mp-li"><b>'+esc(defFrente(f.tipo).n)+'</b>'
+      + (f.setor? ' <span class="hint">setor '+esc(f.setor)+'</span>' : "")
+      + '<span class="mono">'+f.m+' m</span>'
+      + (f.rumo !== null? '<span class="mono">'+Math.round(f.rumo)+'°</span>'
+          + '<span class="hint">'+esc(f.rumoFonte)+'</span>' : '<span class="hint">sem progressão</span>')
+      + '<span class="hint">'+esc(f.g)+(f.por? " · "+esc(f.por):"")+'</span>'
+      + (defFrente(f.tipo).avanca
+          ? '<button type="button" class="lk" data-rumo-frente="'+esc(f.id)+'">corrigir o rumo</button>' : "")
+      + '<button type="button" class="lk" data-apagar-frente="'+esc(f.id)+'">retirar</button></div>').join("")
+    + limites.map(i=>
       '<div class="mp-li"><b>Limite do setor '+esc(NOMES_SETOR[i])+'</b>'
       + '<span class="hint">'+(limiteSetor(i).length-1)+' vértices</span>'
       + '<span class="mono">'+areaSetorHa(i)+' ha</span>'
@@ -751,6 +810,19 @@ function pintarPontos(){
     const r = apagarPonto(b.dataset.apagarPonto);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     persistir(false); pintarPontos(); pintarMapa(); pintarCroqui();
+  }));
+  el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarFrente(b.dataset.apagarFrente);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-rumo-frente]").forEach(b=>b.addEventListener("click", ()=>{
+    const f = frentesLista().find(x=>x.id === b.dataset.rumoFrente); if(!f) return;
+    const v = prompt("Rumo de progressão em graus de norte (0 a 360):", f.rumo === null? "" : String(Math.round(f.rumo)));
+    if(v === null) return;
+    const r = rumoDaFrente(f.id, v);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
   }));
   el.querySelectorAll("[data-apagar-limite]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarLimite(+b.dataset.apagarLimite);
@@ -784,6 +856,18 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo === "F"){
+    /* Como o limite: pousar um vértice não grava nada. A frente entra no estado ao fechar. */
+    if(TRACO.tipo !== "frente"){
+      const r0 = iniciarTraco(-1, "frente");
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    const falta = faltamAoTraco();
+    aviso("mapa-msg","ok","Frente: "+r.n+" vértice(s). "+(falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
+    pintarTraco(); pintarMapa();
+    return;
   } else if(alvo.startsWith("L:")){
     /* Traçar não é marcar: um clique pousa um vértice e não grava nada. O limite só entra
        no estado quando se fecha, e por isso aqui não se persiste — persistir a meio
@@ -845,8 +929,12 @@ $("mapa-traco-fechar").addEventListener("click", ()=>{
   const r = fecharTraco();
   if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
   persistir(false);
-  aviso("mapa-msg","ok","Limite traçado: "+r.area+" ha.");
-  pintarTraco(); pintarAlvos(); pintarMapa();
+  aviso("mapa-msg","ok", r.frente
+    ? defFrente(r.frente.tipo).n+" traçada: "+r.frente.m+" m"
+      + (r.frente.rumo !== null? ", rumo "+Math.round(r.frente.rumo)+"° ("+r.frente.rumoFonte+")" : "")+"."
+    : "Limite traçado: "+r.area+" ha.");
+  if($("frente-rumo")) $("frente-rumo").value = "";
+  pintarTraco(); pintarAlvos(); pintarPontos(); pintarMapa();
 });
 
 $("mapa-traco-desfazer").addEventListener("click", ()=>{

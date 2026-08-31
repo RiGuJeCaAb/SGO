@@ -44,6 +44,7 @@ const POSSE = [
       { p:"dados.est.aerL",    r:"art. 19.º",                d:"Meios aéreos no TO — núcleo de meios aéreos" },
       { p:"dados.est.livre",   r:"art. 17.º",                d:"Modo de composição do dispositivo" },
       { p:"dados.setores",     r:"art. 17.º, n.º 1, al. a)", d:"Quadro geral do dispositivo (derivado)" },
+      { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
       { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
       { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
     ] },

@@ -169,6 +169,32 @@ interface PontoNotavel {
   setor?: string;
 }
 
+/**
+ * Uma frente de fogo: linha traçada, com a direção em que progride.
+ *
+ * A nomenclatura das secções — cabeça, flanco, retaguarda — é a de Fernandes (2003).
+ * Ver `docs/FONTES.md`, `FOGOINT`.
+ */
+interface FrenteDeFogo {
+  id: string;
+  /** `cabeca`, `flanco` ou `retaguarda`. Ver TIPOS_FRENTE. */
+  tipo: string;
+  /** A linha traçada, aberta, em pares [lon, lat]. */
+  linha: number[][];
+  /** Rumo de progressão em graus de norte; `null` na retaguarda, que não avança. */
+  rumo: number | null;
+  /**
+   * De onde veio o rumo: `indicado` por quem comanda, ou `sugerido pelo traçado`. É o que
+   * impede uma sugestão de passar por observação três turnos depois.
+   */
+  rumoFonte: string;
+  /** O setor em que a linha começa, pelo nome. Vazio se não houver limites traçados. */
+  setor: string;
+  /** Comprimento da linha, em metros. */
+  m: number;
+  g: string; por: string; nota: string;
+}
+
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
 interface PerimetroGravado {
   nome: string;
@@ -194,6 +220,8 @@ interface DadosOcorrencia {
   sensDet: DetecaoSensiveis | null;
   /** Os pontos notáveis do teatro, marcados no mapa. Ver TIPOS_PONTO. */
   pontos: PontoNotavel[];
+  /** As frentes de fogo traçadas no mapa, com a direção em que progridem. */
+  frentes: FrenteDeFogo[];
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */

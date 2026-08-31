@@ -44,7 +44,7 @@ test('um setor nasce sem limite, e isso não é um setor de área nula', semApli
 
 test('traçar precisa de três vértices, e dois não fazem figura', semAplicacao, () => {
   comSetores(2);
-  assert.ok(janela.iniciarTraco(0).ok);
+  assert.ok(janela.iniciarTraco(0, 'limite').ok);
   janela.pontoDoTraco(41.09, -7.82);
   janela.pontoDoTraco(41.09, -7.81);
   const r = janela.fecharTraco();
@@ -55,7 +55,7 @@ test('traçar precisa de três vértices, e dois não fazem figura', semAplicaca
 
 test('o traçado a meio não é facto: não entra no estado nem na evolução', semAplicacao, () => {
   const O = comSetores(2);
-  janela.iniciarTraco(0);
+  janela.iniciarTraco(0, 'limite');
   [[41.09, -7.82], [41.09, -7.81], [41.10, -7.81]].forEach(([la, lo]) => janela.pontoDoTraco(la, lo));
   assert.equal(janela.limiteSetor(0), null, 'gravou antes de fechar');
   assert.equal(O.evolucao.filter((x) => /[Ll]imite/.test(x.txt)).length, 0);
@@ -67,7 +67,7 @@ test('o traçado a meio não é facto: não entra no estado nem na evolução', 
 
 test('fechar grava o limite, a área e a linha de evolução', semAplicacao, () => {
   const O = comSetores(2);
-  janela.iniciarTraco(0);
+  janela.iniciarTraco(0, 'limite');
   ALFA.slice(0, 4).forEach(([lo, la]) => janela.pontoDoTraco(la, lo));
   const r = janela.fecharTraco();
   assert.ok(r.ok, r.motivo);
@@ -82,7 +82,7 @@ test('fechar grava o limite, a área e a linha de evolução', semAplicacao, () 
 
 test('desfazer retira o último vértice, e não mais', semAplicacao, () => {
   comSetores(1);
-  janela.iniciarTraco(0);
+  janela.iniciarTraco(0, 'limite');
   [[41.09, -7.82], [41.09, -7.81], [41.10, -7.81]].forEach(([la, lo]) => janela.pontoDoTraco(la, lo));
   assert.equal(janela.desfazerTraco().n, 2);
   assert.equal(avaliar(janela, 'TRACO').pontos.length, 2);
@@ -92,7 +92,7 @@ test('desfazer retira o último vértice, e não mais', semAplicacao, () => {
 
 test('um limite traçado pode ser retirado', semAplicacao, () => {
   comSetores(1);
-  janela.iniciarTraco(0);
+  janela.iniciarTraco(0, 'limite');
   ALFA.slice(0, 4).forEach(([lo, la]) => janela.pontoDoTraco(la, lo));
   janela.fecharTraco();
   assert.ok(janela.apagarLimite(0).ok);
@@ -105,7 +105,7 @@ test('um limite traçado pode ser retirado', semAplicacao, () => {
 function comDoisLimites() {
   comSetores(2);
   [[0, ALFA], [1, BRAVO]].forEach(([i, anel]) => {
-    janela.iniciarTraco(i);
+    janela.iniciarTraco(i, 'limite');
     anel.slice(0, 4).forEach(([lo, la]) => janela.pontoDoTraco(la, lo));
     janela.fecharTraco();
   });
@@ -168,7 +168,7 @@ test('com o registo encerrado não se traça nem se apaga', semAplicacao, () => 
   comDoisLimites();
   const O = avaliar(janela, 'O');
   O.encerramento.g = '311200AGO26'; O.encerramento.por = 'Cmdt A';
-  janela.iniciarTraco(0);
+  janela.iniciarTraco(0, 'limite');
   ALFA.slice(0, 4).forEach(([lo, la]) => janela.pontoDoTraco(la, lo));
   assert.equal(janela.fecharTraco().ok, false);
   assert.equal(janela.apagarLimite(1).ok, false);
