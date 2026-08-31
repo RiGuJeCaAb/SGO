@@ -22,7 +22,29 @@ nada além do que os patches dizem.
 | `CSREPCDouro_t0007_..._ArrumarCasa_CLD.js` | Testes dessa alteração | — |
 | `CSREPCDouro_p0008_..._JsPorCelula_CLD.py` | Reagrupamento das secções do `<script>` por célula. Só ordem e cabeçalhos; nenhum byte de conteúdo muda | r0037 |
 | `CSREPCDouro_p0009_..._CorPorCelula_CLD.py` | Cor por célula nos separadores, estendendo a convenção que já existia no PEA impresso | r0038 |
+| `CSREPCDouro_p0003_..._PassagemTurno_CLD.py` | Passagem de turno por célula e nomeação externa em dois instantes; estado 3 → 4 | r0026 |
+| `CSREPCDouro_t0003_..._PassagemTurno_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_p0004_..._SolicitadoImportador_CLD.py` | O conversor da Gestão PCO passa a gravar o instante da solicitação. Depende do `p0003` | r0027 |
+| `CSREPCDouro_q0002_..._QAVisual_CLD.js` | Guião de captura das provas `qa0002` e `qa0003`, sobre a r0024 | — |
+| `CSREPCDouro_p0010_..._NumeracaoMorta_CLD.py` | Remoção da numeração de secções que morreu com a arrumação por células | r0048 |
+| `CSREPCDouro_p0011_..._AjudaDobravel_CLD.py` | A ajuda deixa de ser um muro de texto e passa a dobrável | r0049 |
+| `CSREPCDouro_p0012_..._HierarquiaTipografica_CLD.py` | Hierarquia tipográfica: trinta e cinco maiúsculas forçadas a menos | r0056 |
+| `CSREPCDouro_p0013_..._QuatroCorreccoes_CLD.py` | Quatro correções de interface encontradas em uso | r0057 |
+| `CSREPCDouro_p0014_..._FormatoOficialPEA_CLD.py` | O PEA impresso passa a seguir as medidas do modelo `.docx` aceite | r0058 (paralela) |
+| `CSREPCDouro_p0015_..._FolhaPorCelula_CLD.py` | Uma folha por célula na impressão, e equilíbrio da mancha | r0059 (paralela) |
+| `CSREPCDouro_p0018_..._CartoesDobraveis_CLD.py` | A fita do tempo e a linha de evolução abrem em acordeão | r0063b |
+| `CSREPCDouro_t0018_..._CartoesDobraveis_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_p0017_..._CartaLocal_CLD.py` | Carta pré-descarregada: seleção de pasta, grelha declarada, atribuição. **Absorvido** | r0071 |
+| `CSREPCDouro_t0017_..._CartaLocal_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_q0017_..._CartaLocal_CLD.js` | Guião de captura da prova em navegador | — |
+| `CSREPCDouro_p0019_..._PropagacaoModelos_CLD.py` | Velocidade de propagação e modelos de combustível. **Absorvido** em `fonte/3-planeamento/21-modelos-de-combustivel.js` | r0073 |
+| `CSREPCDouro_t0019_..._Propagacao_CLD.js` | Testes dessa alteração. **Portados** para `tests/propagacao.test.mjs` | — |
+| `CSREPCDouro_q0019_..._Propagacao_CLD.js` | Guião de captura da prova em navegador | — |
 | `patch_r0016.py`, `teste.js` | Versões anteriores dos mesmos guiões | r0016 |
+
+Os seis guiões de 31 de agosto — `p0017`, `t0017`, `q0017`, `p0019`, `t0019`, `q0019` —
+chegaram com os campos do nome trocados, `CSREPCDouro_AAAAMMDDHHMM_p0017_...`, e foram postos
+na ordem da convenção. Só o nome mudou; o conteúdo é o que veio.
 
 **Não são o método deste lado.** A fonte vive em `fonte/`, um módulo por subsistema, e a
 entrega produz-se com `npm run montar`. Alterar a aplicação aqui é alterar o módulo

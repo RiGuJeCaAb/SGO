@@ -280,3 +280,15 @@ test('sem classe declarada no relevo o botão recusa em vez de arbitrar um decli
   assert.equal(janela.document.getElementById('pr-decl').value, '', 'nada foi preenchido');
   assert.match(janela.document.getElementById('pr-saida').textContent, /não declara classe/);
 });
+
+test('o tipo de pinhal do registo e o do estado dão o mesmo resultado', semAplicacao, () => {
+  // No registo o tipo é número, no estado é texto. O parseInt engolia os dois sem se
+  // queixar, e o verificador de tipos apanhou-o: é a diferença entre um campo lido e um
+  // campo por omissão passar a valer coisas diferentes sem ninguém dar por isso.
+  const pin = avaliar(janela, 'MODELOS_COMB').find((m) => m.motor === 'pinhal');
+  const doRegisto = estimar({ modelo: pin.c, u10: '4,5', declive: '20', hcm: '16' });
+  const doEstado = estimar({ modelo: pin.c, u10: '4,5', declive: '20', hcm: '16',
+                             tipoPin: String(pin.tipoPin) });
+  assert.equal(doRegisto.ok, true, doRegisto.recusa);
+  assert.equal(doEstado.r, doRegisto.r);
+});

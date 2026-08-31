@@ -334,7 +334,9 @@ function estimarPropagacao(){
     if(!Number.isFinite(alt) || alt <= 0) return rec("Falta a altura média da vegetação, que o Quadro 3.4.2 exige.");
     p = propagacaoMatos(u2, hcm, alt, decl);
   }else{
-    const tipo = parseInt(E.tipoPin || m.tipoPin, 10);
+    /* `E.tipoPin` vem do estado e é texto; `m.tipoPin` vem do registo e é número. O
+       `parseInt` aceita os dois em silêncio, e é por aí que passam os enganos. */
+    const tipo = parseInt(String(E.tipoPin || m.tipoPin), 10);
     p = propagacaoPinhal(u2, hcm, decl, tipo);
   }
   if(!p) return rec("Nesta combinação de vento e humidade a fonte não dá propagação sustentada. "

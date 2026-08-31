@@ -63,8 +63,8 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   corre por essa ordem — o núcleo primeiro, o arranque no fim. Um `.js` solto na raiz de
   `fonte/` é recusado pela montagem.
 - Antes de entregar: `npm run tudo` — sintaxe do `<script>` isolado, testes, análise
-  estática, tipos, código morto, cobertura de documentação e manual. Acrescentar um teste que
-  exercite o caminho alterado.
+  estática, tipos, código morto, cobertura de documentação, manual e arrumação. Acrescentar
+  um teste que exercite o caminho alterado.
 - **Funcionalidade nova entra no `docs/MANUAL.md`.** Os rótulos que o manual cita entre
   «aspas angulares» são conferidos contra a entrega, e um botão renomeado faz falhar a
   montagem. As angulares são só para rótulos do ecrã; para ênfase, aspas normais.
@@ -110,6 +110,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   resumo em `resumos.json` e a linha no `MANIFESTO.md`.
 - Verificação de conformidade nova é uma regra em `REGRAS_DON`, com as fontes declaradas
   e registadas em `docs/FONTES.md`. Regras de prazo recebem o instante, não leem o relógio.
+- **Ficheiro que entra numa pasta catalogada leva o nome da convenção e uma linha no
+  catálogo da pasta** — `docs/qa/LEIAME.md`, `ferramentas/historico/README.md`,
+  `docs/cartografia/LEIAME.md`, `docs/FONTES.md`. O `npm run arrumado` recusa as duas faltas.
+  Havia 47 ficheiros por catalogar quando a verificação nasceu, e sete provas de verificação
+  com nome de rascunho que ninguém sabia o que provavam.
 - Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
   por botão, não por `prefers-color-scheme`.
 

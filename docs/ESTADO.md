@@ -2404,3 +2404,56 @@ confiança do mundo. Pedem-se os dois documentos em PDF para `docs/fontes/`.
 
 Criada `entrada/`, para se largar lá o que chegar de fora antes de estar arrumado. O
 `entrada/README.md` diz para onde vai cada tipo de ficheiro. Não é arquivo: esvazia-se.
+
+## r0075 — arrumar o repositório, e a máquina que o mantém arrumado
+
+Sessão de arrumação, pedida em cima da r0074. Encontraram-se **47 ficheiros por arrumar** em
+quatro pastas, e o que os pôs assim foi sempre o mesmo: entra um ficheiro com o nome que
+trazia, ninguém escreve a linha no catálogo da pasta, e meses depois ninguém sabe o que
+aquilo é nem se pode sair.
+
+### O que se arrumou
+
+- **`docs/qa/`** — sete provas de verificação tinham nome de rascunho (`qa0019-croqui-claro.png`
+  e companhia) e outras sete traziam a revisão no lugar do carimbo de data. Todas as catorze
+  passaram à convenção. Nove provas antigas, das `qa0002` às `qa0005`, estavam na pasta desde
+  a arrumação da raiz **sem uma única linha que dissesse o que provavam**: ficaram catalogadas,
+  e a revisão de cada uma foi apurada, não deduzida — duas trazem-na impressa no rodapé da
+  própria captura, uma vem do guião que a produziu, e a quarta é atribuída pelo carimbo.
+- **`ferramentas/historico/`** — seis guiões de 31 de agosto chegaram com os campos do nome
+  trocados e foram postos na ordem da convenção. Dezoito guiões não estavam no `README.md`
+  da pasta: ficaram, com o que fizeram e a revisão que produziram.
+- **`docs/fontes/`** — **cinco documentos estavam na pasta sem entrada em `FONTES.md`**, o que
+  é exatamente o que a regra da pasta proíbe. Ficam numa secção nova, «Recebidos e por ler»,
+  nomeados pelo que a folha de rosto diz e por mais nada. Dois deles merecem atenção quando
+  houver tempo: o estado da arte de André e Viegas, em português e para utilizadores, e o
+  *Fire Spread in Canyons* de Viegas e Pita — **o teatro do Douro é vale encaixado, e a
+  aplicação não diz nada sobre o que o vale faz à propagação**.
+- **`docs/README.md`** — quatro documentos não estavam na tabela, entre eles duas versões
+  posteriores da especificação que podiam passar por ser a que está em vigor. Ficou dito que
+  não são.
+
+### A máquina, que é o que faz isto durar
+
+`ferramentas/arrumado.mjs`, `npm run arrumado`, dentro do `npm run tudo`. Cada pasta catalogada
+declara a forma do nome que aceita e o documento que a cataloga, e todo o ficheiro tem de
+cumprir as duas coisas. Aceita a citação com reticências no lugar do carimbo, que é como os
+catálogos já citavam famílias de ficheiros da mesma revisão.
+
+**O que a ferramenta não faz é ler.** Não sabe se a linha do catálogo descreve o ficheiro ou
+mente sobre ele. Garante que existe uma linha, que é o mínimo para que alguém possa dar pela
+mentira. O teste que a acompanha prova que ela vê: escreve um ficheiro por catalogar e outro
+com nome de rascunho, confere que ambos são apanhados, e apaga-os.
+
+### Um defeito de tipos que passou despercebido na r0074
+
+O `npm run tudo` da r0074 **parou no `lint` e eu li o resultado com um filtro que escondia o
+resto**. O `npm run tipos` tinha um diagnóstico novo por resolver: `parseInt(E.tipoPin ||
+m.tipoPin, 10)`, em que o primeiro é texto vindo do estado e o segundo é número vindo do
+registo. O `parseInt` aceita os dois em silêncio. Corrigido, com teste que confere que o tipo
+do registo e o do estado dão o mesmo resultado. A r0074 ficou entregue com o portão por
+fechar; a r0075 fecha-o.
+
+### `entrada/`
+
+A pasta para largar o que chega de fora, criada na sessão anterior, continua vazia à espera.

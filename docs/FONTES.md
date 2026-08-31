@@ -183,7 +183,8 @@ chamas de cerca de 3,6 m.
 
 **Taylor, S. W. (1996), *Field Guide to the Canadian Forest Fire Behavior Prediction (FBP)
 System*.** Canadian Forest Service e B.C. Ministry of Forests, FRDA handbook 012.
-Ficheiro digitalizado, sem camada de texto.
+Ficheiro digitalizado, sem camada de texto. Em
+`docs/fontes/Field_Guide_to_the_Canadian_Forest_Fire_Behavior_Prediction_FBP_System_1996.pdf`.
 
 **Não é transponível para o Douro, e a distinção é essencial:**
 
@@ -379,6 +380,25 @@ não está a discordar de nenhuma das duas fontes.
 Os dois documentos, em PDF, para `docs/fontes/`. Enquanto não chegarem, todo o número que
 sai deste motor é bom para ordem de grandeza e para comparar cenários entre si — não para
 sustentar sozinho uma decisão de ataque direto.
+
+## Recebidos e por ler
+
+Documentos que estão em `docs/fontes/` e **não sustentam nada na aplicação**. Chegaram, foram
+guardados e nunca foram lidos com atenção nem declarados. Ficam nomeados aqui pelo que a sua
+folha de rosto diz, e por mais nada: o que se segue não é uma leitura, é um inventário.
+
+A regra da pasta é que um documento entra **antes** de ser implementado, com a entrada a
+dizer o que autoriza. Estes cinco entraram sem ela. Enquanto a entrada não for escrita,
+**nenhum número da aplicação pode invocá-los** — e o `npm run arrumado` passa a recusar que
+volte a haver um documento nesta pasta sem uma linha aqui.
+
+| Ficheiro | O que a folha de rosto diz | Porque interessa |
+|---|---|---|
+| `modPropagacoFogo1.pdf` | André, J.C.S. e Viegas, D.X. (2001), *Modelos de Propagação de Fogos Florestais: Estado-da-Arte para Utilizadores — Parte I: Introdução e Modelos Locais*, Silva Lusitana 9(2): 237-265 | Estado da arte **em português e para utilizadores**, dos mesmos autores do modelo de composição vetorial que a aplicação já usa. É o candidato mais direto a enquadrar o que se fez |
+| `ModelosPropagaFogos2.pdf` | Os mesmos autores (2002), *Parte II: Modelos Globais e Sistemas Informáticos*, Silva Lusitana 10(2): 217-233 | A segunda metade do mesmo artigo |
+| `FirePropagationCanyons.pdf` | Viegas, D.X. e Pita, L.P., *Fire Spread in Canyons*, Universidade de Coimbra e ADAI | **Vales encaixados.** O teatro do Douro é isso, e a aplicação não diz nada sobre o que o vale faz à propagação |
+| `Field_Guide_for_Predicting_Fire_Behaviour_in_Ontarios_Tallgrass_Prairie.pdf` | Kidnie, S.M., Wotton, B.M. e Droog, W.N., *Field Guide for Predicting Fire Behaviour in Ontario's Tallgrass Prairie* | Formações herbáceas, que é justamente onde os guias portugueses não têm motor. **Mas é do Ontário**, e a objeção de transponibilidade da `SCOTT2005` aplica-se por inteiro |
+| `LIVRO_Florestas_e_Legislacao_planos_municipais_de_defesa_da_floresta_contra_incendios.pdf` | Antunes, M.J., Lopes, D. e Oliveira, C. (coord.), *Florestas e Legislação: Planos Municipais da Defesa da Floresta Contra Incêndios* | Matéria jurídica de defesa da floresta. Não é doutrina de comando, e não se lhe viu ainda ligação a nenhuma regra do motor de conformidade |
 
 ## Como acrescentar
 
