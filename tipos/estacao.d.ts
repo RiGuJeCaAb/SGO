@@ -195,6 +195,28 @@ interface FrenteDeFogo {
   g: string; por: string; nota: string;
 }
 
+/** Uma linha de contenção a abrir, ou de apoio já existente no terreno. */
+interface LinhaDeContencao {
+  id: string;
+  /** `contencao` ou `apoio`. Ver TIPOS_LINHA. */
+  tipo: string;
+  /** A linha traçada, aberta, em pares [lon, lat]. */
+  linha: number[][];
+  /**
+   * Largura **útil** em metros — a faixa sem combustível, e não a largura da estrada com as
+   * bermas por cortar. `null` enquanto não for indicada: uma linha sem largura declarada não
+   * é uma linha de largura zero.
+   */
+  larguraM: number | null;
+  /** Se já está aberta no terreno. Uma linha de apoio nasce aberta: já lá estava. */
+  aberta: boolean;
+  /** Comprimento da linha, em metros. */
+  m: number;
+  /** O setor em que a linha começa, pelo nome. */
+  setor: string;
+  g: string; por: string; nota: string;
+}
+
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
 interface PerimetroGravado {
   nome: string;
@@ -222,6 +244,8 @@ interface DadosOcorrencia {
   pontos: PontoNotavel[];
   /** As frentes de fogo traçadas no mapa, com a direção em que progridem. */
   frentes: FrenteDeFogo[];
+  /** As linhas de contenção e de apoio traçadas no mapa. */
+  linhas: LinhaDeContencao[];
   /**
    * Comportamento do fogo: velocidade de propagação em m/h e carga de combustível
    * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os

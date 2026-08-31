@@ -207,8 +207,11 @@ function leituraDaFrente(f){
  */
 function leituraDaEvolucao(){
   const F = frentesLista();
-  const out = { frentes:[], giro:"", intensidade:"", limites:[], vazio:!F.length };
-  if(!F.length) return out;
+  /* Há leitura desde que haja **alguma coisa traçada**, e não só frentes: uma ocorrência
+     pode ter linhas de contenção abertas antes de alguém ter traçado a frente, e essas
+     lêem-se na mesma. */
+  const out = { frentes:[], giro:"", intensidade:"", linhas:"", limites:[], vazio:!F.length && !linhasLista().length };
+  if(out.vazio) return out;
 
   out.frentes = F.map(f=>({ id:f.id, tipo:f.tipo, texto:leituraDaFrente(f) }));
 
@@ -232,6 +235,7 @@ function leituraDaEvolucao(){
   /* A intensidade, quando há com que a calcular. Entra aqui e não numa leitura à parte
      porque é a mesma decisão: para onde vai a frente e o que se lhe pode fazer. */
   out.intensidade = leituraDaIntensidade();
+  out.linhas = leituraDasLinhas();
 
   /* O que fica por dizer, sempre e por escrito. Uma leitura que não declare os seus limites
      lê-se como se os não tivesse. */
@@ -259,12 +263,19 @@ function pintarEvolucao(){
   const L = leituraDaEvolucao();
   const negrito = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   if(L.vazio){
-    el.innerHTML = '<p class="hint">Nenhuma frente traçada. Traça uma frente no mapa para haver evolução que ler.</p>';
+    /* Uma secção vazia que só diz «não há nada» deixa quem lê sem saber o que fazer a
+       seguir. Diz-se o caminho: onde se traça, e em quantos cliques. */
+    el.innerHTML = '<p class="hint">Nenhuma frente traçada — e por isso não há evolução que ler.'
+      + ' Para traçar uma: no <b>Mapa do teatro de operações</b>, aqui em cima, escolher'
+      + ' <b>Frente de fogo</b> em «Clicar no mapa marca» e clicar dois ou mais pontos ao longo da frente.'
+      + ' Depois escolher a secção — cabeça, flanco ou retaguarda —, indicar o rumo de progressão se for'
+      + ' conhecido, e fechar.</p>';
     return;
   }
   el.innerHTML = L.frentes.map(f=>'<p class="ev-f">'+negrito(f.texto)+'</p>').join("")
     + (L.giro? '<p class="ev-g">'+negrito(L.giro)+'</p>' : "")
     + (L.intensidade? '<p class="ev-g">'+negrito(L.intensidade)+'</p>' : "")
+    + (L.linhas? '<p class="ev-f">'+negrito(L.linhas)+'</p>' : "")
     + (L.limites.length
         ? '<p class="ev-lim"><b>O que esta leitura não afirma:</b> '+L.limites.map(x=>esc(x)).join(" ")+'</p>'
         : "");
@@ -276,7 +287,7 @@ function evolucaoEmTexto(){
   if(L.vazio) return "";
   const limpo = t => String(t).replace(/\*\*/g, "");
   return [...L.frentes.map(f=>limpo(f.texto)), L.giro? limpo(L.giro) : "",
-    L.intensidade? limpo(L.intensidade) : "",
+    L.intensidade? limpo(L.intensidade) : "", L.linhas? limpo(L.linhas) : "",
     L.limites.length? "O que esta leitura não afirma: "+L.limites.join(" ") : ""]
     .filter(Boolean).join("\n\n");
 }

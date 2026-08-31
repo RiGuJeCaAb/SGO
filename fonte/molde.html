@@ -1232,6 +1232,15 @@
           </div>
           <p class="hint" id="frente-previsto" style="margin:6px 0 0 0"></p>
         </div>
+        <div id="linha-op" style="margin-top:10px;display:none">
+          <div class="grid g2">
+            <div><label for="linha-tipo">Espécie de linha</label><select id="linha-tipo"></select></div>
+            <div><label for="linha-larg">Largura útil (m)</label>
+              <input id="linha-larg" inputmode="decimal" placeholder="a faixa sem combustível, não a estrada com bermas">
+              <div class="hint" style="margin-top:4px">Com a intensidade da frente preenchida, a aplicação diz se esta
+              largura aguenta — uma vez e meia o comprimento da chama (Byram 1959).</div></div>
+          </div>
+        </div>
         <div id="mapa-traco" style="margin-top:10px;display:none">
           <div class="row">
             <span class="hint" id="mapa-traco-txt" style="margin:0"></span>
@@ -1241,15 +1250,6 @@
           </div>
         </div>
         <div id="mapa-pontos" style="margin-top:10px"></div>
-
-        <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
-          <p class="hint" style="margin:0 0 8px 0">A seta no mapa diz para onde a frente aponta. Isto diz o que se
-          segue — e diz também o que a aplicação não pode afirmar, e porquê.</p>
-          <div id="evol-txt"></div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
-          </div>
-        </div>
 
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
@@ -1412,6 +1412,17 @@
             povoamento.</div></div>
         </div>
         <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
+        <p class="hint" style="margin:0 0 8px 0">O que se segue às frentes traçadas no mapa: para onde progridem, o
+        que apanham no caminho, e como o rumo da cabeça roda ao longo da série meteorológica. Diz também o que a
+        aplicação <b>não</b> pode afirmar, e porquê. <b>Esta secção está sempre aqui</b> — mesmo sem frentes
+        traçadas, para dizer o que lhe falta.</p>
+        <div id="evol-txt"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
+        </div>
         <div class="row" style="margin:12px 0 8px">
           <button class="btn btn-b" id="b-relevo" type="button">Analisar relevo automaticamente (coordenadas da ocorrência)</button>
           <span class="hint" style="margin:0" id="t-relevo-info">Amostra 25 cotas reais em 8 rumos até 1200 m do ponto e preenche orientação e declive.</span>

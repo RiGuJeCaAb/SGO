@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 20;
+const VERSAO_ESTADO = 21;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os

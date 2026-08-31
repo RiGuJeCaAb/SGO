@@ -531,6 +531,22 @@ function camadaMapa(){
     g += rotulo(x0+7, y0+3.5, x.nome, 9);
   });
 
+  /* As linhas de contenção e de apoio. Traço diferente por espécie, como na carta anotada:
+     a de contenção a cheio quando está aberta e a tracejado enquanto está por abrir — que é
+     a diferença entre o que está no terreno e o que está no plano. */
+  linhasLista().forEach(l=>{
+    if(!Array.isArray(l.linha) || l.linha.length < 2) return;
+    const d = defLinha(l.tipo);
+    const q = l.linha.map(c=>pxy(c[1], c[0]));
+    g += '<path d="'+q.map((p,k)=>(k?"L":"M")+n(p.x)+","+n(p.y)).join(" ")
+       + '" fill="none" stroke="'+d.cor+'" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"'
+       + (l.aberta? "" : ' stroke-dasharray="9 5"')+'/>';
+    const meio = q[Math.floor(q.length/2)];
+    g += rotulo(meio.x + 8, meio.y - 6,
+      (d.obra? "Contenção" : "Apoio") + (l.larguraM? " "+String(l.larguraM).replace(".", ",")+" m" : "")
+      + (d.obra && !l.aberta? " (por abrir)" : ""), 9.5);
+  });
+
   /* As frentes de fogo, por cima dos limites e por baixo dos pontos: são a informação
      mais viva do mapa e não podem ficar escondidas, mas também não devem tapar uma marca. */
   frentesLista().forEach(f=>{
@@ -764,6 +780,7 @@ function pintarAlvos(){
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
+    + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
   if([...sel.options].some(o=>o.value === antes)) sel.value = antes;
 }
@@ -781,11 +798,20 @@ function pintarTraco(){
   if(!ativo){ if($("frente-op")) $("frente-op").style.display = "none"; return; }
   const n = TRACO.pontos.length, falta = faltamAoTraco();
   const eFrente = TRACO.tipo === "frente";
-  $("mapa-traco-txt").textContent = (eFrente ? "A traçar uma frente" : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor])
+  const oQue = eFrente ? "A traçar uma frente"
+    : TRACO.tipo === "linha" ? "A traçar uma linha"
+    : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor];
+  $("mapa-traco-txt").textContent = oQue
     + " — " + n + " vértice(s)" + (falta ? ", falta" + (falta > 1 ? "m " : " ") + falta + " para fechar" : "");
   $("mapa-traco-fechar").disabled = falta > 0;
   $("mapa-traco-desfazer").disabled = n < 1;
 
+  const opL = $("linha-op");
+  if(opL){
+    opL.style.display = TRACO.tipo === "linha" ? "" : "none";
+    if(TRACO.tipo === "linha" && !$("linha-tipo").options.length)
+      $("linha-tipo").innerHTML = TIPOS_LINHA.map(t=>'<option value="'+t.k+'">'+esc(t.n)+'</option>').join("");
+  }
   const op = $("frente-op");
   if(op){
     op.style.display = eFrente ? "" : "none";
@@ -811,12 +837,20 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista();
-  if(!L.length && !setores.length && !limites.length && !F.length){
+  const F = frentesLista(), LN = linhasLista();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = F.map(f=>
+  el.innerHTML = LN.map(l=>
+      '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
+      + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
+      + '<span class="mono">'+l.m+' m</span>'
+      + '<span class="mono">'+(l.larguraM? String(l.larguraM).replace(".", ",")+" m larg." : "largura por indicar")+'</span>'
+      + (defLinha(l.tipo).obra
+          ? '<button type="button" class="lk" data-abrir-linha="'+esc(l.id)+'">'+(l.aberta? "dar por abrir" : "dar por aberta")+'</button>' : "")
+      + '<button type="button" class="lk" data-apagar-linha="'+esc(l.id)+'">retirar</button></div>').join("")
+    + F.map(f=>
       '<div class="mp-li"><b>'+esc(defFrente(f.tipo).n)+'</b>'
       + (f.setor? ' <span class="hint">setor '+esc(f.setor)+'</span>' : "")
       + '<span class="mono">'+f.m+' m</span>'
@@ -847,6 +881,17 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-apagar-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarLinha(b.dataset.apagarLinha);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-abrir-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const l = linhasLista().find(x=>x.id === b.dataset.abrirLinha); if(!l) return;
+    const r = abrirLinha(l.id, !l.aberta);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarFrente(b.dataset.apagarFrente);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -902,6 +947,19 @@ function cliqueNoMapa(px, py){
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     const falta = faltamAoTraco();
     aviso("mapa-msg","ok","Frente: "+r.n+" vértice(s). "+(falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
+    pintarTraco(); pintarMapa();
+    return;
+  } else if(alvo.startsWith("C:")){
+    if(TRACO.tipo !== "linha"){
+      const r0 = iniciarTraco(-1, "linha");
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+      if($("linha-tipo")) $("linha-tipo").value = alvo.slice(2);
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    const falta = faltamAoTraco();
+    aviso("mapa-msg","ok", defLinha(alvo.slice(2)).n+": "+r.n+" vértice(s). "
+      + (falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
     pintarTraco(); pintarMapa();
     return;
   } else if(alvo.startsWith("L:")){
@@ -968,7 +1026,9 @@ $("mapa-traco-fechar").addEventListener("click", ()=>{
   aviso("mapa-msg","ok", r.frente
     ? defFrente(r.frente.tipo).n+" traçada: "+r.frente.m+" m"
       + (r.frente.rumo !== null? ", rumo "+Math.round(r.frente.rumo)+"° ("+r.frente.rumoFonte+")" : "")+"."
+    : r.linha ? defLinha(r.linha.tipo).n+" traçada: "+r.linha.m+" m."
     : "Limite traçado: "+r.area+" ha.");
+  if($("linha-larg")) $("linha-larg").value = "";
   if($("frente-rumo")) $("frente-rumo").value = "";
   pintarTraco(); pintarAlvos(); pintarPontos(); pintarMapa();
 });

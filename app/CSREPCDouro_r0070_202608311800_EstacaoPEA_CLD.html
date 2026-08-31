@@ -1232,6 +1232,15 @@
           </div>
           <p class="hint" id="frente-previsto" style="margin:6px 0 0 0"></p>
         </div>
+        <div id="linha-op" style="margin-top:10px;display:none">
+          <div class="grid g2">
+            <div><label for="linha-tipo">Espécie de linha</label><select id="linha-tipo"></select></div>
+            <div><label for="linha-larg">Largura útil (m)</label>
+              <input id="linha-larg" inputmode="decimal" placeholder="a faixa sem combustível, não a estrada com bermas">
+              <div class="hint" style="margin-top:4px">Com a intensidade da frente preenchida, a aplicação diz se esta
+              largura aguenta — uma vez e meia o comprimento da chama (Byram 1959).</div></div>
+          </div>
+        </div>
         <div id="mapa-traco" style="margin-top:10px;display:none">
           <div class="row">
             <span class="hint" id="mapa-traco-txt" style="margin:0"></span>
@@ -1241,15 +1250,6 @@
           </div>
         </div>
         <div id="mapa-pontos" style="margin-top:10px"></div>
-
-        <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
-          <p class="hint" style="margin:0 0 8px 0">A seta no mapa diz para onde a frente aponta. Isto diz o que se
-          segue — e diz também o que a aplicação não pode afirmar, e porquê.</p>
-          <div id="evol-txt"></div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
-          </div>
-        </div>
 
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
@@ -1412,6 +1412,17 @@
             povoamento.</div></div>
         </div>
         <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
+        <p class="hint" style="margin:0 0 8px 0">O que se segue às frentes traçadas no mapa: para onde progridem, o
+        que apanham no caminho, e como o rumo da cabeça roda ao longo da série meteorológica. Diz também o que a
+        aplicação <b>não</b> pode afirmar, e porquê. <b>Esta secção está sempre aqui</b> — mesmo sem frentes
+        traçadas, para dizer o que lhe falta.</p>
+        <div id="evol-txt"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
+        </div>
         <div class="row" style="margin:12px 0 8px">
           <button class="btn btn-b" id="b-relevo" type="button">Analisar relevo automaticamente (coordenadas da ocorrência)</button>
           <span class="hint" style="margin:0" id="t-relevo-info">Amostra 25 cotas reais em 8 rumos até 1200 m do ponto e preenche orientação e declive.</span>
@@ -2008,14 +2019,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311539_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311800_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311539_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311800_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2170,7 +2181,7 @@ async function prepararArmazem(){
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 20;
+const VERSAO_ESTADO = 21;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2555,6 +2566,14 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 20 -> 21 · As linhas de contenção e de apoio. Lista nova, vazia no que já existe: não se
+   deduz uma linha de contenção do texto de um plano antigo. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.linhas)) e.dados.linhas = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -2565,7 +2584,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
@@ -3202,6 +3221,7 @@ const POSSE = [
       { p:"dados.est.livre",   r:"art. 17.º",                d:"Modo de composição do dispositivo" },
       { p:"dados.setores",     r:"art. 17.º, n.º 1, al. a)", d:"Quadro geral do dispositivo (derivado)" },
       { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
+      { p:"dados.linhas",      r:"art. 17.º, n.º 1, als. a) e b)", d:"Linhas de contenção e de apoio traçadas, com a largura útil" },
       { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
       { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
     ] },
@@ -7506,6 +7526,22 @@ function camadaMapa(){
     g += rotulo(x0+7, y0+3.5, x.nome, 9);
   });
 
+  /* As linhas de contenção e de apoio. Traço diferente por espécie, como na carta anotada:
+     a de contenção a cheio quando está aberta e a tracejado enquanto está por abrir — que é
+     a diferença entre o que está no terreno e o que está no plano. */
+  linhasLista().forEach(l=>{
+    if(!Array.isArray(l.linha) || l.linha.length < 2) return;
+    const d = defLinha(l.tipo);
+    const q = l.linha.map(c=>pxy(c[1], c[0]));
+    g += '<path d="'+q.map((p,k)=>(k?"L":"M")+n(p.x)+","+n(p.y)).join(" ")
+       + '" fill="none" stroke="'+d.cor+'" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"'
+       + (l.aberta? "" : ' stroke-dasharray="9 5"')+'/>';
+    const meio = q[Math.floor(q.length/2)];
+    g += rotulo(meio.x + 8, meio.y - 6,
+      (d.obra? "Contenção" : "Apoio") + (l.larguraM? " "+String(l.larguraM).replace(".", ",")+" m" : "")
+      + (d.obra && !l.aberta? " (por abrir)" : ""), 9.5);
+  });
+
   /* As frentes de fogo, por cima dos limites e por baixo dos pontos: são a informação
      mais viva do mapa e não podem ficar escondidas, mas também não devem tapar uma marca. */
   frentesLista().forEach(f=>{
@@ -7739,6 +7775,7 @@ function pintarAlvos(){
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
+    + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
   if([...sel.options].some(o=>o.value === antes)) sel.value = antes;
 }
@@ -7756,11 +7793,20 @@ function pintarTraco(){
   if(!ativo){ if($("frente-op")) $("frente-op").style.display = "none"; return; }
   const n = TRACO.pontos.length, falta = faltamAoTraco();
   const eFrente = TRACO.tipo === "frente";
-  $("mapa-traco-txt").textContent = (eFrente ? "A traçar uma frente" : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor])
+  const oQue = eFrente ? "A traçar uma frente"
+    : TRACO.tipo === "linha" ? "A traçar uma linha"
+    : "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor];
+  $("mapa-traco-txt").textContent = oQue
     + " — " + n + " vértice(s)" + (falta ? ", falta" + (falta > 1 ? "m " : " ") + falta + " para fechar" : "");
   $("mapa-traco-fechar").disabled = falta > 0;
   $("mapa-traco-desfazer").disabled = n < 1;
 
+  const opL = $("linha-op");
+  if(opL){
+    opL.style.display = TRACO.tipo === "linha" ? "" : "none";
+    if(TRACO.tipo === "linha" && !$("linha-tipo").options.length)
+      $("linha-tipo").innerHTML = TIPOS_LINHA.map(t=>'<option value="'+t.k+'">'+esc(t.n)+'</option>').join("");
+  }
   const op = $("frente-op");
   if(op){
     op.style.display = eFrente ? "" : "none";
@@ -7786,12 +7832,20 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista();
-  if(!L.length && !setores.length && !limites.length && !F.length){
+  const F = frentesLista(), LN = linhasLista();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = F.map(f=>
+  el.innerHTML = LN.map(l=>
+      '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
+      + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
+      + '<span class="mono">'+l.m+' m</span>'
+      + '<span class="mono">'+(l.larguraM? String(l.larguraM).replace(".", ",")+" m larg." : "largura por indicar")+'</span>'
+      + (defLinha(l.tipo).obra
+          ? '<button type="button" class="lk" data-abrir-linha="'+esc(l.id)+'">'+(l.aberta? "dar por abrir" : "dar por aberta")+'</button>' : "")
+      + '<button type="button" class="lk" data-apagar-linha="'+esc(l.id)+'">retirar</button></div>').join("")
+    + F.map(f=>
       '<div class="mp-li"><b>'+esc(defFrente(f.tipo).n)+'</b>'
       + (f.setor? ' <span class="hint">setor '+esc(f.setor)+'</span>' : "")
       + '<span class="mono">'+f.m+' m</span>'
@@ -7822,6 +7876,17 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-apagar-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarLinha(b.dataset.apagarLinha);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
+  el.querySelectorAll("[data-abrir-linha]").forEach(b=>b.addEventListener("click", ()=>{
+    const l = linhasLista().find(x=>x.id === b.dataset.abrirLinha); if(!l) return;
+    const r = abrirLinha(l.id, !l.aberta);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarFrente(b.dataset.apagarFrente);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -7877,6 +7942,19 @@ function cliqueNoMapa(px, py){
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     const falta = faltamAoTraco();
     aviso("mapa-msg","ok","Frente: "+r.n+" vértice(s). "+(falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
+    pintarTraco(); pintarMapa();
+    return;
+  } else if(alvo.startsWith("C:")){
+    if(TRACO.tipo !== "linha"){
+      const r0 = iniciarTraco(-1, "linha");
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+      if($("linha-tipo")) $("linha-tipo").value = alvo.slice(2);
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    const falta = faltamAoTraco();
+    aviso("mapa-msg","ok", defLinha(alvo.slice(2)).n+": "+r.n+" vértice(s). "
+      + (falta? "Falta "+falta+" para poder fechar." : "Já dá para fechar."));
     pintarTraco(); pintarMapa();
     return;
   } else if(alvo.startsWith("L:")){
@@ -7943,7 +8021,9 @@ $("mapa-traco-fechar").addEventListener("click", ()=>{
   aviso("mapa-msg","ok", r.frente
     ? defFrente(r.frente.tipo).n+" traçada: "+r.frente.m+" m"
       + (r.frente.rumo !== null? ", rumo "+Math.round(r.frente.rumo)+"° ("+r.frente.rumoFonte+")" : "")+"."
+    : r.linha ? defLinha(r.linha.tipo).n+" traçada: "+r.linha.m+" m."
     : "Limite traçado: "+r.area+" ha.");
+  if($("linha-larg")) $("linha-larg").value = "";
   if($("frente-rumo")) $("frente-rumo").value = "";
   pintarTraco(); pintarAlvos(); pintarPontos(); pintarMapa();
 });
@@ -10160,8 +10240,11 @@ function leituraDaFrente(f){
  */
 function leituraDaEvolucao(){
   const F = frentesLista();
-  const out = { frentes:[], giro:"", intensidade:"", limites:[], vazio:!F.length };
-  if(!F.length) return out;
+  /* Há leitura desde que haja **alguma coisa traçada**, e não só frentes: uma ocorrência
+     pode ter linhas de contenção abertas antes de alguém ter traçado a frente, e essas
+     lêem-se na mesma. */
+  const out = { frentes:[], giro:"", intensidade:"", linhas:"", limites:[], vazio:!F.length && !linhasLista().length };
+  if(out.vazio) return out;
 
   out.frentes = F.map(f=>({ id:f.id, tipo:f.tipo, texto:leituraDaFrente(f) }));
 
@@ -10185,6 +10268,7 @@ function leituraDaEvolucao(){
   /* A intensidade, quando há com que a calcular. Entra aqui e não numa leitura à parte
      porque é a mesma decisão: para onde vai a frente e o que se lhe pode fazer. */
   out.intensidade = leituraDaIntensidade();
+  out.linhas = leituraDasLinhas();
 
   /* O que fica por dizer, sempre e por escrito. Uma leitura que não declare os seus limites
      lê-se como se os não tivesse. */
@@ -10212,12 +10296,19 @@ function pintarEvolucao(){
   const L = leituraDaEvolucao();
   const negrito = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   if(L.vazio){
-    el.innerHTML = '<p class="hint">Nenhuma frente traçada. Traça uma frente no mapa para haver evolução que ler.</p>';
+    /* Uma secção vazia que só diz «não há nada» deixa quem lê sem saber o que fazer a
+       seguir. Diz-se o caminho: onde se traça, e em quantos cliques. */
+    el.innerHTML = '<p class="hint">Nenhuma frente traçada — e por isso não há evolução que ler.'
+      + ' Para traçar uma: no <b>Mapa do teatro de operações</b>, aqui em cima, escolher'
+      + ' <b>Frente de fogo</b> em «Clicar no mapa marca» e clicar dois ou mais pontos ao longo da frente.'
+      + ' Depois escolher a secção — cabeça, flanco ou retaguarda —, indicar o rumo de progressão se for'
+      + ' conhecido, e fechar.</p>';
     return;
   }
   el.innerHTML = L.frentes.map(f=>'<p class="ev-f">'+negrito(f.texto)+'</p>').join("")
     + (L.giro? '<p class="ev-g">'+negrito(L.giro)+'</p>' : "")
     + (L.intensidade? '<p class="ev-g">'+negrito(L.intensidade)+'</p>' : "")
+    + (L.linhas? '<p class="ev-f">'+negrito(L.linhas)+'</p>' : "")
     + (L.limites.length
         ? '<p class="ev-lim"><b>O que esta leitura não afirma:</b> '+L.limites.map(x=>esc(x)).join(" ")+'</p>'
         : "");
@@ -10229,7 +10320,7 @@ function evolucaoEmTexto(){
   if(L.vazio) return "";
   const limpo = t => String(t).replace(/\*\*/g, "");
   return [...L.frentes.map(f=>limpo(f.texto)), L.giro? limpo(L.giro) : "",
-    L.intensidade? limpo(L.intensidade) : "",
+    L.intensidade? limpo(L.intensidade) : "", L.linhas? limpo(L.linhas) : "",
     L.limites.length? "O que esta leitura não afirma: "+L.limites.join(" ") : ""]
     .filter(Boolean).join("\n\n");
 }
@@ -11889,14 +11980,14 @@ function setorDoPonto(lat, lon){
    que aquilo entra no estado da ocorrência, e é por isso que isto não se grava — um
    traçado a meio não é um facto sobre o incêndio.
 
-   Serve dois desenhos e não um: o limite de setor, que é anel fechado e precisa de três
-   vértices, e a linha de frente, que é aberta e chega-lhe dois. O que muda entre os dois
-   é o mínimo e o que se faz ao fechar; o pousar, o desfazer e o largar são os mesmos, e
-   dois traçados quase iguais em dois sítios acabariam a divergir. */
+   Serve três desenhos e não um: o limite de setor, que é anel fechado e precisa de três
+   vértices, e a linha de frente e a de contenção, que são abertas e chegam-lhes dois. O que
+   muda entre eles é o mínimo e o que se faz ao fechar; o pousar, o desfazer e o largar são
+   os mesmos, e três traçados quase iguais em três sítios acabariam a divergir. */
 const TRACO = { tipo:"", setor:-1, pontos:[] };
 
 /** O número mínimo de vértices de cada espécie de traçado. */
-const TRACO_MIN = { limite:3, frente:2 };
+const TRACO_MIN = { limite:3, frente:2, linha:2 };
 
 /** Começa a traçar, do zero. `tipo` é `"limite"` ou `"frente"`. */
 function iniciarTraco(i, tipo){
@@ -11946,6 +12037,7 @@ function fecharTraco(){
   if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de traçar." };
   if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
   if(TRACO.tipo === "frente") return fecharFrente();
+  if(TRACO.tipo === "linha") return fecharLinha();
   const i = TRACO.setor;
   if(TRACO.tipo !== "limite" || i < 0) return { ok:false, motivo:"Não há traçado em curso." };
   const anel = anelFechado(TRACO.pontos);
@@ -12150,6 +12242,157 @@ function rumoPrevistoDaCabeca(){
   if(!t.orient || !hora || !Number.isFinite(hora.wd)) return null;
   const c = comportamentoFogo({ orient:t.orient, rumoVento:hora.wd, eps: t.eps });
   return c && Number.isFinite(c.cabeca) ? { rumo:c.cabeca, hora:hora.h, eps:t.eps, delta:c.delta } : null;
+}
+/* ================= OPERAÇÕES · linhas de contenção e de apoio =================
+   Na carta anotada de Cabeça Boa as linhas aparecem com traço diferente conforme o que
+   são: uma linha de contenção é obra a abrir, uma linha de apoio é o que já existe no
+   terreno e se aproveita — uma estrada, uma linha de água, uma faixa já gerida.
+
+   O que este módulo faz de diferente do resto é **confrontar a linha com a intensidade**.
+   Byram (1959), por Fernandes (2003), dá a largura mínima para suster uma frente: uma vez
+   e meia o comprimento da chama, e só na ausência de projeção de faúlhas com capacidade de
+   ignição. Uma linha desenhada sem essa conta é um traço bonito; feita a conta, a aplicação
+   diz se aquela linha aguenta o fogo que ali chega — e diz de onde tirou o número.
+
+   Não decide por ninguém. Quem comanda tem razões que o modelo não tem, e a largura sai
+   com a sua fonte precisamente para poder ser contrariada com conhecimento de causa. */
+
+/**
+ * As espécies de linha, com o que cada uma é.
+ *
+ * Duas, que são as que a carta anotada distingue. `obra` diz se a linha é para abrir — é o
+ * que separa o que custa meios do que já lá está.
+ */
+const TIPOS_LINHA = [
+  { k:"contencao", n:"Linha de contenção", d:"A abrir, para suster a frente", cor:"#7A4E8C", obra:true },
+  { k:"apoio",     n:"Linha de apoio",     d:"Já existe no terreno e aproveita-se — estrada, linha de água, faixa gerida", cor:"#4E8B6E", obra:false }
+];
+
+/** A definição de uma espécie de linha. O que não se reconhece cai em «apoio». */
+function defLinha(k){ return TIPOS_LINHA.find(t=>t.k === k) || TIPOS_LINHA[1]; }
+
+/** A lista de linhas do teatro, criada à primeira vez que faz falta. */
+function linhasLista(){
+  if(!Array.isArray(O.dados.linhas)) O.dados.linhas = [];
+  return O.dados.linhas;
+}
+
+/**
+ * Fecha o traçado em curso como linha de contenção ou de apoio.
+ *
+ * A largura entra em metros e é a largura **útil** — a faixa sem combustível, e não a
+ * largura da estrada com as bermas por cortar.
+ */
+function fecharLinha(){
+  const traco = TRACO.pontos.map(p=>[p[0], p[1]]);
+  if(traco.length < 2) return { ok:false, motivo:"Uma linha precisa de pelo menos dois vértices." };
+  const tipo = String(($("linha-tipo")||{}).value || "contencao");
+  const d = defLinha(tipo);
+  const larg = parseFloat(String(($("linha-larg")||{}).value || "").replace(",", "."));
+  const l = {
+    id:"l"+Date.now().toString(36),
+    tipo:d.k,
+    linha:traco,
+    /* Vazia quando não foi indicada: uma linha sem largura declarada não é uma linha de
+       largura zero, e a leitura di-lo em vez de a dar por insuficiente. */
+    larguraM: Number.isFinite(larg) && larg > 0 ? larg : null,
+    aberta: !d.obra,
+    m: comprimentoLinhaM(traco),
+    setor: (()=>{ const i = setorDoPonto(traco[0][1], traco[0][0]); return i >= 0 ? NOMES_SETOR[i] : ""; })(),
+    g: gdhAgora(), por: quemRegista(), nota: ""
+  };
+  linhasLista().push(l);
+  O.evolucao.push({ g:l.g, tipo:"posit",
+    txt:d.n+" traçada"+(l.setor? " no setor "+l.setor : "")+": "+l.m+" m"
+      + (l.larguraM? ", "+String(l.larguraM).replace(".", ",")+" m de largura útil" : ", largura por indicar")+"." });
+  fita(d.n+" traçada: "+l.m+" m");
+  largarTraco();
+  return { ok:true, linha:l };
+}
+
+/** Retira uma linha. */
+function apagarLinha(id){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de alterar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const L = linhasLista(), i = L.findIndex(x=>x.id === id);
+  if(i < 0) return { ok:false, motivo:"Linha não encontrada." };
+  const [l] = L.splice(i, 1);
+  O.evolucao.push({ g:gdhAgora(), tipo:"posit", txt:"Retirada a "+defLinha(l.tipo).n.toLowerCase()+" de "+l.m+" m." });
+  return { ok:true, linha:l };
+}
+
+/**
+ * Marca uma linha de contenção como aberta, ou volta a pô-la por abrir.
+ *
+ * É a diferença entre o que está no plano e o que está no terreno, e num ponto de situação
+ * é a primeira pergunta: *a linha do flanco sul já está aberta?*
+ */
+function abrirLinha(id, aberta){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de alterar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const l = linhasLista().find(x=>x.id === id);
+  if(!l) return { ok:false, motivo:"Linha não encontrada." };
+  l.aberta = !!aberta;
+  O.evolucao.push({ g:gdhAgora(), tipo:"posit",
+    txt:defLinha(l.tipo).n+" de "+l.m+" m dada por "+(l.aberta? "aberta" : "por abrir")+"." });
+  return { ok:true, linha:l };
+}
+
+/**
+ * Esta linha aguenta o fogo que ali chega?
+ *
+ * Compara a largura declarada com a que Byram (1959) exige para a intensidade corrente —
+ * uma vez e meia o comprimento da chama. Devolve `null` quando falta um dos dois lados da
+ * comparação, e é isso que a leitura diz: não se responde a uma pergunta que não se pode
+ * pôr.
+ *
+ * @returns {null|{basta:boolean, tem:number, precisa:number}}
+ */
+function linhaBasta(l){
+  const f = O.dados.fogo;
+  const m = limitesDeManobra(f.r, f.w);
+  if(!m || !l || !l.larguraM) return null;
+  return { basta: l.larguraM >= m.contencao, tem: l.larguraM, precisa: m.contencao };
+}
+
+/**
+ * A leitura escrita das linhas: o que há, o que está aberto, e o que não aguenta.
+ *
+ * A ordem não é a de traçado: primeiro o que não aguenta, depois o que está por abrir,
+ * depois o resto. Numa leitura em voz alta o que interessa vem à cabeça.
+ */
+function leituraDasLinhas(){
+  const L = linhasLista();
+  if(!L.length) return "";
+  const peso = l => { const b = linhaBasta(l); return (b && !b.basta)? 0 : (!l.aberta? 1 : 2); };
+  const ordenadas = L.slice().sort((a,b)=>peso(a) - peso(b));
+
+  const partes = ordenadas.map(l=>{
+    const d = defLinha(l.tipo);
+    const p = [d.n + (l.setor? " no setor "+l.setor : "") + ", " + l.m + " m"
+      + (l.larguraM? " por "+String(l.larguraM).replace(".", ",")+" m de largura útil" : ", largura por indicar") + "."];
+    if(d.obra) p.push(l.aberta? "Dada por aberta." : "**Por abrir.**");
+    const b = linhaBasta(l);
+    if(b === null){
+      p.push(l.larguraM
+        ? "Sem a intensidade da frente não há com que dizer se aguenta."
+        : "Sem a largura útil indicada não há com que dizer se aguenta.");
+    } else if(b.basta){
+      p.push("Aguenta: " + String(b.tem).replace(".", ",") + " m para os "
+        + String(b.precisa).replace(".", ",") + " m que a intensidade exige (Byram 1959).");
+    } else {
+      p.push("**Não aguenta: " + String(b.tem).replace(".", ",") + " m para os "
+        + String(b.precisa).replace(".", ",") + " m que a intensidade exige** (Byram 1959).");
+    }
+    return p.join(" ");
+  });
+
+  /* O aviso que Byram põe e que se repete aqui porque é o que falha primeiro num incêndio
+     de verão no Douro: a regra da largura pressupõe que não há projeção de faúlhas com
+     capacidade de ignição. Com projeção, nenhuma largura destas garante o que promete. */
+  if(L.some(l=>linhaBasta(l)))
+    partes.push("A regra da largura pressupõe que não há projeção de faúlhas com capacidade de ignição (Byram 1959). Com projeção, nenhuma destas larguras garante o que promete.");
+  return partes.join(" ");
 }
 /* ================= LOGÍSTICA · canais SIRESP (art. 34.º) ================= */
 const PASTAS = {

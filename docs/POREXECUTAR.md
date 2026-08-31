@@ -17,7 +17,7 @@ estas cinco que separam o mapa da aplicação da carta que se usa.
 |---|---|---|
 | ~~1~~ | ~~**Limites de setor**~~ | **Feito na r0070.** Anel fechado por setor, traçado no mapa. Dá área por setor, área setorizada do teatro, e o setor em que cai cada ponto marcado |
 | ~~2~~ | ~~**Frentes ativas com direção**~~ | **Feito na r0070.** Linha traçada com secção e rumo de progressão. A composição de declive e vento propõe o rumo da cabeça; quem comanda decide se é aquele |
-| 3 | **Linhas de contenção e de apoio**, por tipo de traço | São a manobra. O PEA propõe-nas em palavras e não as sabe desenhar |
+| ~~3~~ | ~~**Linhas de contenção e de apoio**~~ | **Feito na r0070.** Com a largura útil confrontada com a que a intensidade exige, e o traço a distinguir o que está aberto do que está por abrir |
 | 4 | **Meios no sítio onde estão** | GRIR Guarda, GRUATA BSE, CATE Viseu e os restantes estão no dispositivo sem coordenada. Também as nomeações — posto de meteorologia, 2.º comandante na torre |
 | 5 | **Anotação livre georreferenciada** | «Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo». Não há onde escrever isto no mapa |
 
@@ -84,7 +84,21 @@ Duas cautelas registadas em `FONTES.md` e que não se devem perder:
 E o que continua em falta: **R para os combustíveis do Douro**. Nenhum dos quatro documentos
 o dá. Enquanto não houver fonte, a velocidade de propagação é um dado que o oficial introduz.
 
-## 4. Validar as fontes na rede real
+## 4. Manual de utilização
+
+**Há funcionalidades na aplicação que quem a usa já não encontra.** Não é hipótese: a
+leitura da evolução das frentes nasceu dentro do cartão do mapa, que se esconde enquanto
+não houver nada para enquadrar, e o próprio autor do projeto não deu com ela. Já foi
+mudada de sítio; o problema de fundo é que a aplicação cresceu mais depressa do que a
+maneira de a explicar.
+
+O manual deve ser **por tarefa operacional e não por ecrã** — «como registo uma ocorrência»,
+«como traço um limite de setor», «como leio a evolução» —, deve nascer do que está na
+entrega e não do que se lembra dela, e cada passo tem de ser verificável contra a revisão em
+vigor. Enquanto se escreve, vale a pena varrer o que mais estará escondido por depender de
+estado que não é óbvio.
+
+## 5. Validar as fontes na rede real
 
 **Todas as capturas de 31 de agosto de 2026 foram feitas por dados móveis**, não da rede
 institucional — o endereço de origem `172.20.10.3` numa interface Wi-Fi é a gama que o iOS
@@ -96,7 +110,7 @@ Repetir uma amostra a partir de um posto da rede do CSREPC Douro e do VCOC ligad
 Starlink. Se os resultados divergirem, a mesma aplicação comporta-se de maneira diferente
 conforme o local — e isso é requisito de desenho, não contratempo.
 
-## 5. Depende de terceiros
+## 6. Depende de terceiros
 
 - **Que serviço de cartografia o posto tem direito a usar.** A aplicação sabe ler um WMTS;
   falta a decisão institucional. Os serviços do ICNF ficam de fora de qualquer modo: não
@@ -105,14 +119,14 @@ conforme o local — e isso é requisito de desenho, não contratempo.
 - **Confrontar o importador com uma exportação real da Gestão PCO.** Testado contra os
   documentos; falta o que a aplicação de origem produz de facto.
 
-## 6. Pontos por confirmar em fonte
+## 7. Pontos por confirmar em fonte
 
 A lista vive em `ESTADO.md`, secção «Pontos por confirmar em fonte», e não se repete aqui.
 Um deles tem dono e prazo do lado de cá: a informação de canais SIRESP que chegou por
 captura de ecrã, com o pedido de a validar antes de usar. **Não foi validada, e por isso
 não foi usada.** Continua fora da aplicação.
 
-## 7. Fora da cartografia
+## 8. Fora da cartografia
 
 - Camada de análise determinística: **Meteo, Topografia e Demografia**. O Comportamento do
   Fogo está feito na r0026, com o que a fonte sustenta.

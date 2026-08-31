@@ -322,6 +322,14 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 20 -> 21 · As linhas de contenção e de apoio. Lista nova, vazia no que já existe: não se
+   deduz uma linha de contenção do texto de um plano antigo. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.linhas)) e.dados.linhas = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -332,7 +340,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

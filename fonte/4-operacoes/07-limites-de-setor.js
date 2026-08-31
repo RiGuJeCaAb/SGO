@@ -98,14 +98,14 @@ function setorDoPonto(lat, lon){
    que aquilo entra no estado da ocorrência, e é por isso que isto não se grava — um
    traçado a meio não é um facto sobre o incêndio.
 
-   Serve dois desenhos e não um: o limite de setor, que é anel fechado e precisa de três
-   vértices, e a linha de frente, que é aberta e chega-lhe dois. O que muda entre os dois
-   é o mínimo e o que se faz ao fechar; o pousar, o desfazer e o largar são os mesmos, e
-   dois traçados quase iguais em dois sítios acabariam a divergir. */
+   Serve três desenhos e não um: o limite de setor, que é anel fechado e precisa de três
+   vértices, e a linha de frente e a de contenção, que são abertas e chegam-lhes dois. O que
+   muda entre eles é o mínimo e o que se faz ao fechar; o pousar, o desfazer e o largar são
+   os mesmos, e três traçados quase iguais em três sítios acabariam a divergir. */
 const TRACO = { tipo:"", setor:-1, pontos:[] };
 
 /** O número mínimo de vértices de cada espécie de traçado. */
-const TRACO_MIN = { limite:3, frente:2 };
+const TRACO_MIN = { limite:3, frente:2, linha:2 };
 
 /** Começa a traçar, do zero. `tipo` é `"limite"` ou `"frente"`. */
 function iniciarTraco(i, tipo){
@@ -155,6 +155,7 @@ function fecharTraco(){
   if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de traçar." };
   if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
   if(TRACO.tipo === "frente") return fecharFrente();
+  if(TRACO.tipo === "linha") return fecharLinha();
   const i = TRACO.setor;
   if(TRACO.tipo !== "limite" || i < 0) return { ok:false, motivo:"Não há traçado em curso." };
   const anel = anelFechado(TRACO.pontos);
