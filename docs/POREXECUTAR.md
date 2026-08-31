@@ -141,3 +141,45 @@ não foi usada.** Continua fora da aplicação.
 - Reter a última previsão meteorológica, para servir sem rede.
 - **Exportação do PEA em DOCX**, com direção de texto na célula em vez de fusão vertical.
 - **Impressão do plano de comunicações** em folha autónoma.
+
+## Em dívida com a linhagem paralela — recado de 31 de agosto
+
+O outro lado deixou ponto de situação. Fica aqui o que dele nos toca, e o que se fez já.
+
+### Feito
+
+- **A base IndexedDB passou de 2 para 3 do lado de lá** (loja `folhas`, no `p0018`). Esta
+  entrega abria por um número fixo, o 2, e contra a base deles isso dá `VersionError` — que
+  aqui virava um `null` silencioso: sem diário, sem cópias de recuperação, sem mosaicos de
+  carta, e nada no ecrã a dizer porquê. **Corrigido na r0076**: adota-se a versão que a base
+  tiver e sobe-se um degrau só quando falta uma loja. Provado em Chromium por
+  `ferramentas/prova-idb.mjs`, e o defeito reproduzido antes de ser corrigido.
+- **A colisão da r0074** ficou escrita em `app/RESERVADAS.md`, com a razão de não ser
+  desfeita e o número livre seguinte.
+
+### Por fazer, e depende deles
+
+1. ~~**O `p0020` não chegou.**~~ **Chegou e está absorvido na r0077** — ver `docs/ESTADO.md`.
+   Ficou de fora o ramo das folhas calibradas (`FOLHAS`, `folhaCalibrada`), que é trabalho
+   deles e não existe aqui: **quando essas folhas forem absorvidas, a cartografia do
+   `retratoDoFogo` volta a nomeá-las**.
+2. **A escada de migrações divergiu.** Eles vão na versão de estado 22, esta linhagem na 25.
+   Não é erro de nenhum dos lados — são degraus diferentes, postos por ordens diferentes. O
+   que importa é a consequência: **um degrau do `p0020` não pode ser copiado com o número que
+   traz**, tem de entrar no fim da escada daqui com o número seguinte, como se fez com o
+   `p0019`.
+3. **O `t0020` está por escrever do lado deles.** Deste lado, o que substitui isso é um teste
+   em formato de projeto sobre o caminho que o `p0020` alterar, como se fez em
+   `tests/propagacao.test.mjs`.
+4. **As missões do PEA por alinhar com as propostas** — dívida declarada por eles. Deste lado
+   ainda não se olhou para isso; fica em lista para quando o `p0020` chegar, porque é provável
+   que mexa no mesmo sítio.
+
+### O que convém dizer-lhes de volta
+
+- Que existem **duas r0074** e que o número seguinte livre é o **r0077**, porque esta linhagem
+  já usou a r0075 e a r0076.
+- Que a **versão da base local não deve ser escrita à mão** em nenhuma das duas linhagens,
+  pela razão acima: a base é partilhada por origem, não por entrega, e quem correr as duas no
+  mesmo navegador leva com o erro. Se do lado de lá continuar um `open(nome, 3)` fixo, o
+  problema volta ao contrário assim que esta linhagem subir de versão.

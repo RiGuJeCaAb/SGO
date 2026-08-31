@@ -293,7 +293,19 @@ interface DadosOcorrencia {
    * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os
    * estima: exigiriam um modelo de combustível calibrado para a vegetação do território.
    */
-  fogo: { r: string; w: string };
+  fogo: {
+    r: string; w: string;
+    /**
+     * As entradas da estimativa de propagação pelos quadros de fogo controlado. Separadas
+     * de `r` e `w` de propósito: aqueles são o que vale, este é como se lá chegou.
+     */
+    est: {
+      modelo: string; altura: string; dias: string; hcm: string; hcmOrigem: string;
+      u10: string; declive: string; tipoPin: string;
+      rEst: string; wMin: string; wMax: string;
+      g: string; por: string; avisos: string[];
+    };
+  };
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */

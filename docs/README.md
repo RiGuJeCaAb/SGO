@@ -22,6 +22,8 @@ versão nova é um ficheiro novo.
 | Ficheiro | O que é |
 |---|---|
 | `CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md` | **A especificação completa.** Arquitetura, estado, subsistema de canais, motor de conformidade, geração do PEA, sistema visual |
+| `CSREPCDouro_202608272208_PromptEstacaoPEA_CLD.md` | A especificação alargada nessa noite, com o mapa e a fita do tempo. **Não substitui a de cima**, que continua a ser a fonte de verdade declarada no `CLAUDE.md` |
+| `CSREPCDouro_202608280012_PromptEstacaoPEA_CLD.md` | A terceira e mais longa. Mesma condição: é instantâneo de trabalho, não a especificação em vigor |
 | `CSREPCDouro_202608272118_PropostaEvolucao_CLD.md` | Proposta de evolução técnica: camadas de estabilidade, linguagens, correções estruturais |
 | `CSREPCDouro_202608272132_PipelineAnalise_CLD.md` | Desenho do pipeline de análise: o que é determinístico e o que precisa de modelo |
 | `CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md` | Triagem, achado a achado e com a prova em código, da análise clínica externa ao r0050 |
@@ -41,6 +43,8 @@ validar uma exportação.
 | `CSREPCDouro_202608301515_ContratoServicoVCOC_v01_CLD.md` | **Proposta.** O contrato do serviço de acompanhamento da VCOC: contas, perfis, sincronização e recibo assinado. É o que o servidor deve implementar |
 | `CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md` | v1.1, substituída. Continua a ser lida pela Estação, por retrocompatibilidade |
 | `CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md` | A proposta que deu origem à v1.2. Arquivada: o que propunha está no documento em vigor |
+| `CSREPCDouro_202608271109_EspecificacaoExportacaoJSON_CLD.md` | v1.0, a primeira. Arquivada |
+| `CSREPCDouro_r0001_202608271615_EspecificacaoExportacaoJSON_CLD.md` | A mesma v1.0 carimbada com revisão. Arquivada |
 | `CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md` | Arquivado. Escrito a analisar um esboço anterior; o seu autor corrigiu-se. Dele vieram os três acréscimos da v1.2 |
 | `exemplos/` | Um ficheiro por envelope que o importador lê, e o validador que os confere |
 
@@ -76,3 +80,9 @@ procurar depois a fonte que o justifique é como nascem os números sem origem.
 - Uma captura que prove o que uma revisão mudou → `qa/`, e uma linha em `qa/LEIAME.md`.
 - Uma carta anotada de uma ocorrência real → `cartografia/`, e uma linha em `cartografia/LEIAME.md`.
 - O que mudou nesta sessão → `ESTADO.md`, sempre.
+
+**Uma linha no catálogo não é boa vontade: é condição.** O `npm run arrumado` percorre `qa/`,
+`cartografia/`, `fontes/` e `ferramentas/historico/` e recusa um ficheiro que não tenha nome
+de convenção ou que não esteja nomeado no documento que cataloga a pasta. O que a ferramenta
+não sabe é se a linha diz a verdade — só garante que existe uma, que é o mínimo para que
+alguém possa dar pela mentira.

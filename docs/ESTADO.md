@@ -2354,3 +2354,209 @@ intermédias de trabalho não saem do computador e não contam.
 | r0043 | 291129 | — | Análise da repartição dos meios pelos setores, que compara setores entre si e propõe destino; frases-tipo passam a propor a mudança de estado do setor, por caminho único |
 | r0042 | 291109 | — | Rótulo comprido deixa de desalinhar o campo, e a grelha deixa de o permitir; caixas de aviso com três pesos visuais; cartão das integrações posto a par do que já está feito |
 | r0041 | 282352 | — | Ajuda no ecrã recuperada: um bloco por separador, dentro do painel da célula, declarado em `AJUDAS` e auditado. Sete dos oito estavam presos em painéis escondidos desde a arrumação por célula |
+
+## r0074 — o motor de propagação, e o número que faltava
+
+Absorvida a **r0073 da linhagem paralela** (p0019/t0019/q0019). Traz o que estava em falta
+desde o princípio da cadeia de comportamento do fogo: **a velocidade de propagação**. Até
+aqui a aplicação pedia R ao utilizador e não sabia estimá-lo, e o `docs/FONTES.md` dizia,
+com razão, que não havia fonte que o desse para os combustíveis do Douro.
+
+### O que entrou
+
+- `fonte/3-planeamento/21-modelos-de-combustivel.js` — os 18 modelos de combustível para
+  Portugal com o intervalo de carga fina de cada um, os quadros do fogo controlado
+  (humidade do combustível morto, vento à superfície, propagação em matos, propagação em
+  pinheiro bravo), e a ponte para a razão declive/vento de Viegas.
+- O painel de estimativa no separador do planeamento, logo acima da intensidade da frente,
+  com passagem direta do resultado para os campos que já lá estavam.
+- Migração 24 → 25, com `dados.fogo.est`.
+- `tests/propagacao.test.mjs` — 28 testes.
+- A chave `FOGOPT` em `docs/FONTES.md` e a secção nova no `docs/MANUAL.md`.
+
+### O que se corrigiu ao absorver
+
+- **Uma entrega apagada.** A r0072 tinha sido committed e empurrada, e foi apagada para
+  remontar o mesmo número — exatamente o que a regra proíbe. Reposta, e este trabalho saiu
+  na r0074. A r0073 é da linhagem paralela e está declarada em `app/RESERVADAS.md`.
+- **`DECLIVE_CLASSE` estava escrito e ninguém o usava** — apanhado pelo `npm run lint`. O
+  painel do relevo já declara a classe de declive e o painel da propagação obrigava a
+  escrevê-la outra vez. Passou a haver «Preencher declive do relevo», que traz o centro da
+  classe **e diz que é o centro de uma classe**: enchê-lo em silêncio faria passar por
+  medido um valor que é um intervalo inteiro.
+- O teste que conta degraus da escada de migrações continuava a esperar 24.
+
+### O que fica em aberto, e é preciso não esquecer
+
+Os quadros **foram transcritos de dois documentos que este repositório não tem** — o manual
+de fogo controlado de Fernandes, Botelho & Loureiro (2002b) e os modelos de Fernandes &
+Loureiro (2021). A existência e a referência do primeiro estão confirmadas: Fernandes
+(2003), que está em `docs/fontes/`, cita-o na bibliografia. A coerência interna dos quadros
+está verificada por teste — monotonia no vento e na humidade em todas as células, domínios
+respeitados, nenhuma velocidade negativa, extremo superior dentro do que Alexander (2000)
+reconhece.
+
+**O que não está verificado é a transcrição contra o impresso.** Uma tabela mal copiada
+passa em qualquer teste de coerência e devolve comportamento do fogo errado com toda a
+confiança do mundo. Pedem-se os dois documentos em PDF para `docs/fontes/`.
+
+## Pasta de entrada
+
+Criada `entrada/`, para se largar lá o que chegar de fora antes de estar arrumado. O
+`entrada/README.md` diz para onde vai cada tipo de ficheiro. Não é arquivo: esvazia-se.
+
+## r0075 — arrumar o repositório, e a máquina que o mantém arrumado
+
+Sessão de arrumação, pedida em cima da r0074. Encontraram-se **47 ficheiros por arrumar** em
+quatro pastas, e o que os pôs assim foi sempre o mesmo: entra um ficheiro com o nome que
+trazia, ninguém escreve a linha no catálogo da pasta, e meses depois ninguém sabe o que
+aquilo é nem se pode sair.
+
+### O que se arrumou
+
+- **`docs/qa/`** — sete provas de verificação tinham nome de rascunho (`qa0019-croqui-claro.png`
+  e companhia) e outras sete traziam a revisão no lugar do carimbo de data. Todas as catorze
+  passaram à convenção. Nove provas antigas, das `qa0002` às `qa0005`, estavam na pasta desde
+  a arrumação da raiz **sem uma única linha que dissesse o que provavam**: ficaram catalogadas,
+  e a revisão de cada uma foi apurada, não deduzida — duas trazem-na impressa no rodapé da
+  própria captura, uma vem do guião que a produziu, e a quarta é atribuída pelo carimbo.
+- **`ferramentas/historico/`** — seis guiões de 31 de agosto chegaram com os campos do nome
+  trocados e foram postos na ordem da convenção. Dezoito guiões não estavam no `README.md`
+  da pasta: ficaram, com o que fizeram e a revisão que produziram.
+- **`docs/fontes/`** — **cinco documentos estavam na pasta sem entrada em `FONTES.md`**, o que
+  é exatamente o que a regra da pasta proíbe. Ficam numa secção nova, «Recebidos e por ler»,
+  nomeados pelo que a folha de rosto diz e por mais nada. Dois deles merecem atenção quando
+  houver tempo: o estado da arte de André e Viegas, em português e para utilizadores, e o
+  *Fire Spread in Canyons* de Viegas e Pita — **o teatro do Douro é vale encaixado, e a
+  aplicação não diz nada sobre o que o vale faz à propagação**.
+- **`docs/README.md`** — quatro documentos não estavam na tabela, entre eles duas versões
+  posteriores da especificação que podiam passar por ser a que está em vigor. Ficou dito que
+  não são.
+
+### A máquina, que é o que faz isto durar
+
+`ferramentas/arrumado.mjs`, `npm run arrumado`, dentro do `npm run tudo`. Cada pasta catalogada
+declara a forma do nome que aceita e o documento que a cataloga, e todo o ficheiro tem de
+cumprir as duas coisas. Aceita a citação com reticências no lugar do carimbo, que é como os
+catálogos já citavam famílias de ficheiros da mesma revisão.
+
+**O que a ferramenta não faz é ler.** Não sabe se a linha do catálogo descreve o ficheiro ou
+mente sobre ele. Garante que existe uma linha, que é o mínimo para que alguém possa dar pela
+mentira. O teste que a acompanha prova que ela vê: escreve um ficheiro por catalogar e outro
+com nome de rascunho, confere que ambos são apanhados, e apaga-os.
+
+### Um defeito de tipos que passou despercebido na r0074
+
+O `npm run tudo` da r0074 **parou no `lint` e eu li o resultado com um filtro que escondia o
+resto**. O `npm run tipos` tinha um diagnóstico novo por resolver: `parseInt(E.tipoPin ||
+m.tipoPin, 10)`, em que o primeiro é texto vindo do estado e o segundo é número vindo do
+registo. O `parseInt` aceita os dois em silêncio. Corrigido, com teste que confere que o tipo
+do registo e o do estado dão o mesmo resultado. A r0074 ficou entregue com o portão por
+fechar; a r0075 fecha-o.
+
+### `entrada/`
+
+A pasta para largar o que chega de fora, criada na sessão anterior, continua vazia à espera.
+
+## r0076 — o recado do outro lado, e o defeito que ele revelou
+
+Chegou ponto de situação da linhagem paralela. Duas coisas dele exigiram trabalho já.
+
+### A base local abria por um número fixo, e isso partia contra a base deles
+
+O recado diz que **a base IndexedDB subiu de 2 para 3** do lado de lá, com a loja `folhas` do
+`p0018`. Esta entrega abria com `indexedDB.open("peaapp", 2)`, e um número fixo só funciona
+enquanto uma única linhagem escrever na base. **A base é partilhada por origem, não por
+entrega**: quem corresse a entrega deles e depois esta, no mesmo navegador, ficava sem base.
+
+O defeito foi reproduzido antes de ser corrigido, em Chromium a sério: abrir na 2 uma base que
+está na 3 dá `VersionError — The requested version (2) is less than the existing version (3)`,
+que chega pelo `onerror` e aqui virava `res(null)`. A partir daí **não havia diário, não havia
+cópias de recuperação e não havia mosaicos de carta guardados, e nada no ecrã dizia porquê**:
+de todos os sítios que usam a base, só o painel da carta pré-descarregada se queixa quando ela
+falta. Num PCO com a rede em baixo, é exatamente o que não pode acontecer em silêncio.
+
+A correção: **adota-se a versão que a base tiver**, e sobe-se um degrau acima dela só quando
+falta alguma loja. Uma base mais recente do que a que esta entrega conhece serve como está, as
+lojas da outra linhagem não se perdem, e a versão nunca desce. Provado no mesmo Chromium —
+abre na 4, com `chaves`, `copias`, `diario`, `folhas` e `mosaicos`, e escreve.
+
+Fica `ferramentas/prova-idb.mjs` no repositório. Não entra no `npm run tudo` porque precisa de
+navegador e de origem HTTP — o Chromium não dá IndexedDB em `file://` —, mas corre-se à mão
+quando se mexer na abertura da base. É ela que confere a fidelidade do `indexedDB` de imitação
+usado em `tests/armazem-idb.test.mjs`: um teste contra uma imitação prova a lógica, não prova
+que a imitação é fiel.
+
+### Existem duas r0074
+
+Como já houve duas r0058. A desta linhagem é a absorção do motor de propagação, das 21h54; a
+da paralela é o `p0020` sobre a r0070, e soube-se dela por recado depois de a nossa ter saído.
+**A reserva só evita a colisão quando o número é declarado antes de ser usado.** Ficam ambas,
+distintas pelo carimbo, com a razão escrita em `app/RESERVADAS.md`. O número livre seguinte é
+o **r0077**: esta linhagem já usou a r0075 e a r0076.
+
+### O que fica pendente do recado
+
+Em `docs/POREXECUTAR.md`, com detalhe. O essencial: **o `p0020` não chegou** e sem ele não há
+o que absorver; a escada de migrações divergiu (eles na versão de estado 22, esta na 25), pelo
+que um degrau do `p0020` terá de entrar no fim da escada daqui e não com o número que traz; e
+as missões do PEA por alinhar com as propostas ficam para quando esse ficheiro chegar, porque é
+provável que mexam no mesmo sítio.
+
+## r0077 — o ambiente de fogo entra no plano
+
+Absorvido o `p0020` da linhagem paralela, que chegou logo a seguir ao recado. É a correção de
+uma falha estrutural, e não uma funcionalidade nova.
+
+### O que estava mal
+
+Havia **dois** coletores a alimentar o PEA — `retratoOperacional()` para o dispositivo e
+`metricas()` para a meteorologia — e nenhum para o resto. Os painéis do relevo, do
+combustível, da propagação, da intensidade, das frentes e das linhas escreviam no estado,
+pintavam o seu ecrã, e ninguém os juntava. A auditoria do outro lado conta-o assim: de onze
+painéis que produzem informação, **cinco não chegavam ao PEA por via nenhuma** e três chegavam
+só à via do modelo de linguagem.
+
+O resultado via-se no papel. A aplicação calculava que acima dos 4 000 kW/m atacar diretamente
+a cabeça é inconsequente, e emitia a seguir um plano a dizer «postura defensiva fora da
+janela», com fundamento genérico — **a mesma frase que sairia para um incêndio de 200 kW/m**.
+
+### O que entrou
+
+`fonte/3-planeamento/22-ambiente-de-fogo.js`, o terceiro coletor: `retratoDoFogo()` reúne
+terreno, combustível, comportamento e o que está traçado no teatro; `resumoDoFogo()` di-lo numa
+passagem. Ligado às duas vias — vai no contexto do modelo de linguagem e entra na decisão
+determinística. Daí saem oito propostas fundadas em números com fonte, **à frente das
+genéricas**, porque a intensidade decide se há sequer ataque à cabeça, e essa decisão precede a
+ordem de esforço. E a distância de segurança passa a ir em metros nas medidas de segurança.
+
+Cada grandeza leva a **origem da prova** — R observado no teatro ou estimado pelos guias. Sobre
+isto o outro lado retirou uma proposta que tinha feito, de graduar a força das propostas
+conforme a origem, e retirou-a bem: o PEA é aprovado pelo COS (art. 27.º, n.º 1, al. a)), é a
+aprovação que confere força, e não cabe à aplicação enfraquecer a sua própria proposta para se
+precaver. O que lhe cabe é pôr a qualidade da prova à vista.
+
+`tests/ambiente-de-fogo.test.mjs`, 17 testes. O que se verifica não é que o retrato existe: é
+que **o plano muda quando ele muda** — as quatro faixas de intensidade dão quatro manobras
+diferentes, e um fogo de 60 m/h deixa de receber a frase de um de 3 192.
+
+### Três coisas que se corrigiram ao absorver
+
+- **`FOLHAS` e `folhaCalibrada` não existem deste lado** — são as folhas calibradas da linhagem
+  paralela. O ramo saiu em vez de ficar escrito a apontar para o vazio; quando as folhas forem
+  absorvidas, a cartografia do retrato volta a nomeá-las. Apanhado pelo `npm run lint`.
+- **Os recuos `D.fogo || {r:"",w:""}` e `F.est || {}` alargavam o tipo até ele deixar de dizer
+  nada**: o verificador passou a não saber que `est` tem `modelo` nem `hcm`. Saíram. Os dois
+  ramos são garantidos pelo `novoEstado` e pela escada de migrações, e defender-se do que a
+  escada promete é desconfiar do próprio contrato e perder a verificação em troca de nada.
+- **Os `id` das propostas — `PI`, `PL`, `PQ` — são decorativos**: `detDecisao` renumera tudo
+  para `P1..Pn` no fim. Os testes procuram pelo texto e pela posição; procurar pelo `id` daria
+  um teste a garantir que não há proposta quando ela lá está.
+
+Sem migração: o `p0020` não muda a forma do estado. A versão continua na 25.
+
+### A colisão da r0074 fecha-se aqui
+
+O guião chegou, está absorvido e arquivado. Continuam a existir duas r0074, e continua a estar
+escrito porquê. Esta linhagem já usou a r0075, a r0076 e a r0077: **o número seguinte livre é o
+r0078**.

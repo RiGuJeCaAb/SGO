@@ -1422,11 +1422,52 @@
         </div>
       </div>
 
+      <div class="sub" style="margin-top:12px"><span class="stit">Estimativa da velocidade de propagação (guias de fogo controlado)</span>
+        <p class="hint" style="margin:0 0 10px 0">Quadros de <b>Fernandes, Botelho e Loureiro (2002b)</b>, <i>Manual de
+        Formação para a Técnica do Fogo Controlado</i>, UTAD — matos (guia E1) e pinheiro bravo (guia E2). Modelos e
+        cargas de <b>Fernandes e Loureiro (2021)</b>, <i>Modelos de combustível florestal para Portugal</i>, UTAD/CITAB.</p>
+        <p class="hint" style="margin:0 0 10px 0"><b>São guias de fogo controlado.</b> Foram construídos sobre fogos de
+        Outono e Primavera, de intensidade baixa a moderada. Fernandes (2003) desaconselha o seu uso fora das condições
+        que originaram os dados. A aplicação usa cada quadro dentro do seu domínio e recusa fora dele — o que não é o
+        mesmo que validá-los para o Verão, e não o afirma.</p>
+        <div class="grid g3">
+          <div><label for="pr-modelo">Modelo de combustível</label>
+            <select id="pr-modelo" data-campo="dados.fogo.est.modelo"><option value="">— por escolher —</option></select>
+            <div class="hint" style="margin-top:4px" id="pr-modelo-d"></div></div>
+          <div><label for="pr-alt">Altura média da vegetação (m)</label>
+            <input id="pr-alt" data-campo="dados.fogo.est.altura" inputmode="decimal" placeholder="0,2 a 3,0 — só para matos">
+            <div class="hint" style="margin-top:4px">Quadro 3.4.2. Medida, não a classe do modelo.</div></div>
+          <div><label for="pr-decl">Declive (%)</label>
+            <input id="pr-decl" data-campo="dados.fogo.est.declive" inputmode="decimal" placeholder="ex.: 25">
+            <div class="hint" style="margin-top:4px">Onde está a <b>frente</b>, não no ponto de referência do TO.</div></div>
+          <div><label for="pr-u10">Vento a 10 m (km/h)</label>
+            <input id="pr-u10" data-campo="dados.fogo.est.u10" inputmode="decimal" placeholder="ex.: 18">
+            <div class="hint" style="margin-top:4px">Convertido a 2 m por 2/3 (Quadro 3.3.1).</div></div>
+          <div><label for="pr-hr">Humidade relativa (%) e dias sem chuva</label>
+            <div class="row" style="gap:6px">
+              <input id="pr-hr" inputmode="decimal" placeholder="HR %" style="flex:1 1 80px">
+              <input id="pr-dias" data-campo="dados.fogo.est.dias" inputmode="numeric" placeholder="dias" style="flex:1 1 60px">
+              <button class="btn btn-b" type="button" id="pr-hcm-calc">Estimar HCM</button>
+            </div>
+            <div class="hint" style="margin-top:4px">Quadro 3.2.1, válido só até 25 °C.</div></div>
+          <div><label for="pr-hcm">Humidade do combustível morto fino (%)</label>
+            <input id="pr-hcm" data-campo="dados.fogo.est.hcm" inputmode="decimal" placeholder="ex.: 12">
+            <div class="hint" style="margin-top:4px" id="pr-hcm-o">Origem por declarar.</div></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-o" type="button" id="pr-calc">Estimar a propagação</button>
+          <button class="btn btn-b" type="button" id="pr-meteo">Preencher vento da previsão</button>
+          <button class="btn btn-b" type="button" id="pr-relevo">Preencher declive do relevo</button>
+          <button class="btn btn-b" type="button" id="pr-usar">Usar nos campos abaixo</button>
+        </div>
+        <div id="pr-saida" class="ev-f" style="margin-top:10px"></div>
+      </div>
+
       <div class="sub" style="margin-top:12px"><span class="stit">Comportamento do fogo — intensidade da frente</span>
-        <p class="hint" style="margin:0 0 10px 0">Dois números que a aplicação <b>não estima</b>: exigiriam um modelo
-        de combustível calibrado para a vegetação do Douro, e não existe. Dados eles, saem a intensidade da frente, o
-        comprimento da chama, a distância de segurança, a largura de contenção necessária e se o ataque direto à cabeça
-        é admissível.</p>
+        <p class="hint" style="margin:0 0 10px 0">Deles saem a intensidade da frente, o comprimento da chama, a
+        distância de segurança, a largura de contenção necessária e se o ataque direto à cabeça é admissível. Podem
+        vir da estimativa acima, e nesse caso a origem fica registada; podem ser observados no terreno, e é a leitura
+        que prevalece — uma frente vista a correr vale mais do que um quadro.</p>
         <div class="grid g2">
           <div><label for="fg-r">Velocidade de propagação (m/h)</label>
             <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">

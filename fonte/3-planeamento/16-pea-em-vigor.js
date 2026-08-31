@@ -259,13 +259,18 @@ function detSituacao(novas, anterior){
             + (z.length? "; por iniciar "+z.map(x=>x.k).join(", ") : "")+".";
         })() : ""),
     analise_zi: `Área de ${O.dados.area||"?"} ha com pontos sensíveis: ${O.dados.sensiveis||"a identificar"}. `
-      +(ptObj().des? `Ponto de trânsito em ${ptObj().des}${ptObj().resp? ", responsável "+ptObj().resp:""}. ` : "")+(m.janela? `A meteorologia concentra a vantagem operacional na janela ${m.janela.inicio}–${m.janela.fim}; fora dela, contenção e defesa.` : "Sem janela de HR ≥ 50 %: postura defensiva contínua."),
+      +(ptObj().des? `Ponto de trânsito em ${ptObj().des}${ptObj().resp? ", responsável "+ptObj().resp:""}. ` : "")+(m.janela? `A meteorologia concentra a vantagem operacional na janela ${m.janela.inicio}–${m.janela.fim}; fora dela, contenção e defesa.` : "Sem janela de HR ≥ 50 %: postura defensiva contínua.")
+      + " " + resumoDoFogo(retratoDoFogo()),
     previsao:`HR mínima ${m.hr_min.v} % às ${m.hr_min.h} (${m.hr_min.d}); recuperação até ${m.hr_max.v} % às ${m.hr_max.h}. T máxima ${m.t_max.v} °C às ${m.t_max.h} (${m.t_max.d}). Rotações: ${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join("; ")||"sem rotações relevantes"}. ${m.convectivo.length? "Assinatura convectiva às "+m.convectivo.map(c=>c.h).join(" e ")+" — risco de rajadas erráticas.":"Sem precipitação prevista."} Nota: ${m.nota}.`
   };
 }
 /** A decisão e as missões, compostas do mesmo modo — do dispositivo e da janela. */
 function detDecisao(novas, anterior){
   const m=metricas(), jan=m.janela, r=retratoOperacional(), dif=diferencasDesde(anterior);
+  /* O ambiente de fogo entra aqui com o mesmo estatuto do dispositivo e da meteorologia.
+     As propostas que dele saem vêm **à frente** das genéricas: a intensidade da frente
+     decide se há sequer ataque à cabeça, e essa decisão precede a ordem de esforço. */
+  const F = retratoDoFogo();
   const nomes = a => a.map(x=>x.n).join(", ");
   const fimJ = jan? jan.fim : null;
   const gdhLim = (()=>{ if(!fimJ) return "______";
@@ -274,6 +279,38 @@ function detDecisao(novas, anterior){
     return partes[0]+fimJ.replace("h","").padStart(2,"0")+"00"+sufixo; })();
   return {
     propostas:[
+      /* Limite de manobra antes de tudo o resto. O número existe, tem fonte e tem origem
+         declarada; deixá-lo fora do plano para repetir uma regra genérica era a falha que
+         este trabalho corrige. */
+      (F.lim && !F.lim.direto)&&{id:"PI",
+        texto:`Interdição de ataque direto à cabeça: a intensidade frontal estimada é de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m. `
+          +`Ataque à cabeça apenas por meios aéreos ou indiretamente, com ancoragem pelos flancos e pela retaguarda. `
+          +`Ninguém a menos de ${F.lim.seguranca} m da frente de chamas.`,
+        fundamento:`${Math.round(F.r.v)} m/h (${F.r.origem}) sobre ${F.w.v} t/ha dão ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m e chama de ${F.lim.chama.toFixed(1).replace(".", ",")} m — acima dos 4 000 kW/m o controlo frontal é impossível (Alexander 2000, via Fernandes 2003); DON n.º 2, Anexo 3, situação n.º 10.`},
+      (F.lim && F.lim.direto && F.lim.i >= 2000)&&{id:"PI",
+        texto:`Ataque à cabeça com apoio de meios aéreos; vigilância permanente de focos secundários a sotavento, com equipa dedicada.`,
+        fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): acima dos 2 000 kW/m a projeção de faúlhas é expectável e acima dos 4 000 o fogo de copas é quase certo (Alexander 2000).`},
+      (F.lim && F.lim.direto && F.lim.i >= 500 && F.lim.i < 2000)&&{id:"PI",
+        texto:`Ataque direto à cabeça admissível com meios terrestres sob pressão de água; máquinas de rasto em apoio à abertura de faixas, com veículo de combate a acompanhar cada máquina.`,
+        fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): entre 500 e 2 000 kW/m os meios terrestres são eficazes (Alexander 2000, via Fernandes 2003).`},
+      (F.lim && F.lim.i < 500)&&{id:"PI",
+        texto:`Supressão com equipamento de sapador nas frentes de menor intensidade; reservar os meios com água para os troços de maior desenvolvimento.`,
+        fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m — abaixo dos 500 kW/m o equipamento manual é eficaz (Alexander 2000).`},
+      (F.perfil && F.perfil.salto)&&{id:"PQ",
+        texto:`Suspender a validade da previsão de propagação a partir da quebra de ${F.perfil.salto.para} % a ${String(F.perfil.salto.km).replace(".", ",")} km segundo ${F.perfil.rot}; reconhecimento obrigatório antes de empenhar meios para lá desse ponto.`,
+        fundamento:`Passar de ${F.perfil.salto.deRef} % para ${F.perfil.salto.para} % multiplica a componente de declive por cerca de ${String(F.perfil.salto.k).replace(".", ",")}. A razão entre declives é independente do modelo de combustível, pelo que o salto é afirmável mesmo sem ele.`},
+      (F.lim && F.linhas.some(l=>l.estreita))&&{id:"PL",
+        texto:`Alargar as linhas de contenção com menos de ${String(F.lim.contencao).replace(".", ",")} m de largura útil antes de as considerar ancoragem: ${F.linhas.filter(l=>l.estreita).map(l=>(l.setor? "setor "+l.setor+", ":"")+String(l.larguraM).replace(".", ",")+" m").join("; ")}.`,
+        fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${F.lim.chama.toFixed(1).replace(".", ",")} m), e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).`},
+      (F.linhas.some(l=>l.semLargura))&&{id:"PW",
+        texto:`Declarar a largura útil das linhas já traçadas sem dimensão indicada${F.linhas.filter(l=>l.semLargura).some(l=>l.setor)? " ("+F.linhas.filter(l=>l.semLargura&&l.setor).map(l=>"setor "+l.setor).join(", ")+")":""}: sem largura não é possível aferir se servem de ancoragem.`,
+        fundamento:"Linhas traçadas no teatro sem largura útil registada; a largura decide se a linha suporta a frente ou se apenas a atrasa."},
+      (F.frentes.some(f=>f.rumoFonte === "sugerido pelo traçado"))&&{id:"PN",
+        texto:`Confirmar por observação o rumo de progressão das frentes cujo rumo foi deduzido do traçado antes de fixar a ordem de esforço.`,
+        fundamento:`${F.frentes.filter(f=>f.rumoFonte === "sugerido pelo traçado").length} frente(s) com rumo sugerido pela geometria e não observado; a ordem de esforço assenta na direção de progressão.`},
+      (F.detetados.porValidar.length)&&{id:"PS",
+        texto:`Validar com o ERAS os pontos sensíveis detetados e ainda não constantes do plano: ${F.detetados.porValidar.slice(0,4).join("; ")}${F.detetados.porValidar.length>4? " e mais "+(F.detetados.porValidar.length-4):""}.`,
+        fundamento:"Instalações sensíveis identificadas na deteção cartográfica e ausentes do campo de pontos sensíveis — art. 27.º, n.º 1, al. b)."},
       r.reativados.length&&{id:"PR",texto:`Prioridade absoluta à reativação em ${nomes(r.reativados)}: reforço imediato, reavaliação do perímetro e confirmação de rotas de fuga antes de qualquer outro empenho.`,fundamento:`Setor${r.reativados.length>1?"es":""} em reativação no quadro de estados; a reativação altera a ordem de esforço fixada na proposta anterior.`},
       (r.nAtivos===0 && r.setores.length>0)&&{id:"PC",texto:`Sem frentes ativas: transição para consolidação de rescaldo e vigilância ativa em ${nomes(r.setores)}, com desmobilização faseada a começar pelos meios com mais horas de empenhamento.`,fundamento:`Nenhum setor em curso; ${r.nResolucao} em resolução, ${r.nConclusao} em conclusão, ${r.nVigilancia} em vigilância ativa.`},
       (r.nAtivos>0 && r.reserva===0 && r.c.m>=10)&&{id:"PV",texto:`Constituição de reserva tática fora da zona de intervenção, com um mínimo de dois grupos, antes de novo empenho no esforço principal.`,fundamento:`${r.c.m} meios no TO com ${r.nAtivos} setor${r.nAtivos>1?"es":""} em curso e sem reserva constituída.`},
@@ -311,6 +348,11 @@ function detDecisao(novas, anterior){
       {tipo:"Ação de moldagem", texto:"Rendições faseadas com meios frescos no início e fecho da janela; reposicionamento antes da rotação.", atribuida:"Todos os setores + Reserva", gdh:"______"}
     ].filter(Boolean),
     seguranca:["Protocolo LACES e EPI florestal obrigatórios em todos os setores.",
+      /* A distância deixa de ser princípio e passa a ser número. É a diferença entre uma
+         medida que se lê e uma que se cumpre. */
+      ...(F.lim? [`Distância mínima à frente de chamas: ${F.lim.seguranca} m — quatro vezes a altura da chama, para a tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998).`] : []),
+      ...(F.lim && !F.lim.direto? [`Intensidade frontal acima dos 4 000 kW/m: nenhuma equipa à frente da cabeça, em nenhuma circunstância. Reavaliar se a intensidade descer.`] : []),
+      ...(F.lim && F.lim.i >= 2000? [`Projeção de faúlhas expectável acima dos 2 000 kW/m: vigia dedicado a sotavento e reconhecimento periódico da retaguarda.`] : []),
       "Proibição de ataque direto descendente em encosta com catabático estabelecido sem rota de fuga confirmada.",
       ...m.rotacoes.slice(0,2).map(r=>`Máxima atenção às ${r.h} (${r.de}→${r.para}) — transição de regime, comportamento errático.`),
       ...(m.convectivo.length?["Se confirmada trovoada: retirada imediata de zonas alinhadas e suspensão de operações em cumeada."]:[]),

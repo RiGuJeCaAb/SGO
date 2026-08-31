@@ -5,6 +5,15 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 
 | Ficheiro | Revisão | O que prova |
 |---|---|---|
+| `CSREPCDouro_qa0002_..._PEAClaro_CLD.png` | r0024 | O PEA repartido pelas células, tema claro |
+| `CSREPCDouro_qa0002_..._PEAEscuro_CLD.png` | r0024 | O mesmo, tema escuro |
+| `CSREPCDouro_qa0002_..._PEAImpresso_CLD.pdf` | r0024 | O PEA impresso, com as etiquetas de célula |
+| `CSREPCDouro_qa0003_..._TurnoClaro_CLD.png` | r0024 | A passagem de turno em espelho, com as pendências compostas por célula |
+| `CSREPCDouro_qa0003_..._TurnoEscuro_CLD.png` | r0024 | O mesmo, tema escuro |
+| `CSREPCDouro_qa0004_..._TurnoEscuro_CLD.png` | r0029 | A passagem de turno depois da revisão do quadro de rendições |
+| `CSREPCDouro_qa0004_..._AvisosEscuro_CLD.png` | r0029 | Os avisos ativos com situação, fundamento e determinação |
+| `CSREPCDouro_qa0005_..._TurnoEscuro_CLD.png` | r0030 | O mesmo quadro de turno, na revisão seguinte |
+| `CSREPCDouro_qa0005_..._AvisosEscuro_CLD.png` | r0030 | Os avisos com o controlo de tempos e rendições ao fundo |
 | `CSREPCDouro_qa0008_..._RamoLogistica_CLD.png` | r0035 | O ramo `O.logistica` com reserva, zona de apoio e ponto de trânsito |
 | `CSREPCDouro_qa0009_..._Planeamento_CLD.png` | r0036 | O separador de Planeamento depois da arrumação por célula |
 | `CSREPCDouro_qa0009_..._Operacoes_CLD.png` | r0036 | O separador de Operações |
@@ -31,6 +40,12 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0017_..._CopiasEDiario_CLD.png` | r0064 | As cópias de recuperação e o diário do posto, com o IndexedDB a servir |
 | `CSREPCDouro_qa0018_..._SolicitacaoRendicao_CLD.png` | r0065 | O painel de rendição aberto pela ampulheta, com o texto a transmitir ao CSREPC |
 
+A revisão dos `qa0002` a `qa0005` foi apurada e não deduzida: o `qa0003` e o `qa0005` trazem
+a revisão impressa no rodapé da própria captura (r0024 e r0030), o `qa0002` saiu do guião
+`CSREPCDouro_q0002_..._QAVisual_CLD.js`, que aponta ao ficheiro da r0024, e o `qa0004` é
+atribuído à r0029 pelo carimbo de data, que é o da entrega. Estiveram nove sessões nesta
+pasta sem uma linha que dissesse o que eram.
+
 Os `qa0011` e `qa0012` de 29 de agosto às 17h30 e 18h30 vieram da linhagem paralela e
 repetem números que esta linhagem já tinha usado nesse dia. Distinguem-se pelo carimbo de
 data e ficam como vieram: renumerá-los partiria a referência dos documentos que os citam.
@@ -39,15 +54,43 @@ Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exce
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o
 que está no ecrã é o que se queria.
 
+## qa0019 — r0066 e r0067, croqui, cartões dobráveis e o primeiro mapa
+
+`CSREPCDouro_qa0019_202608302102_CroquiClaro_CLD.png` e
+`CSREPCDouro_qa0019_202608302102_CroquiEscuro_CLD.png` — o croqui
+do teatro de operações absorvido da linhagem paralela, nos dois temas.
+
+`CSREPCDouro_qa0019_202608302102_Dobraveis380_CLD.png` — os cartões dobráveis a 380 px, que é
+onde a largura reduzida os põe à prova.
+
+`CSREPCDouro_qa0019_202608302121_Mapa380_CLD.png` e
+`CSREPCDouro_qa0019_202608302121_MapaEscuro_CLD.png` — o mapa
+operacional na primeira revisão em que desenha a forma do incêndio sobre a carta.
+
+Estas cinco estiveram nesta pasta com nome de rascunho — `qa0019-croqui-claro.png` e
+companhia — e sem uma linha que dissesse o que provavam. Ficam com o nome da convenção; o
+conteúdo não se tocou.
+
+## qa0020 — a carta local, e o que ela prova sem rede
+
+`CSREPCDouro_qa0020_202608302158_CartaLocalSemRede_CLD.png` — o mapa a desenhar sobre a carta
+pré-descarregada, sem ligação nenhuma. É a prova de que a carta não vem no código e de que o
+posto pode trabalhar com a rede em baixo.
+
+## qa0021 — o WMTS lido pelo GetCapabilities
+
+`CSREPCDouro_qa0021_202608310007_WmtsLeituraDoServico_CLD.png` — a leitura de um serviço
+oficial a partir do que ele próprio declara, e não de endereços escritos à mão.
+
 ## qa0022 — r0070, frentes com direção e leitura da evolução
 
-`qa0022_r0070_FrentesComDirecao_CLD.png` — duas frentes traçadas sobre a grelha portuguesa,
+`CSREPCDouro_qa0022_..._FrentesComDirecao_CLD.png` — duas frentes traçadas sobre a grelha portuguesa,
 sem carta de fundo: uma cabeça a 175° e um flanco a 53°, cada uma com a sua seta de
 progressão, o limite do setor Bravo a tracejado e os pontos marcados. Os rótulos ficam
 atrás da frente, do lado que já ardeu: a primeira versão punha-os no vértice inicial e duas
 frentes que começassem perto punham dois rótulos em cima um do outro.
 
-`qa0022_r0070_LeituraDaEvolucao_CLD.png` — a mesma ocorrência, lida por escrito. Diz para
+`CSREPCDouro_qa0022_..._LeituraDaEvolucao_CLD.png` — a mesma ocorrência, lida por escrito. Diz para
 onde cada frente progride e de onde veio o rumo, assinala a divergência de 144° entre o
 rumo declarado e o que a composição de declive e vento dá, lista o que está no corredor por
 distância, dá a intensidade e o que ela decide na manobra, e fecha com o que a leitura
@@ -55,26 +98,26 @@ distância, dá a intensidade e o que ela decide na manobra, e fecha com o que a
 
 ## qa0023 — r0072, meios posicionados
 
-`qa0023_r0072_MeiosPosicionados_CLD.png` — o GRIR Guarda e o BRIR BSE desenhados onde estão,
+`CSREPCDouro_qa0023_..._MeiosPosicionados_CLD.png` — o GRIR Guarda e o BRIR BSE desenhados onde estão,
 com as frentes, as duas linhas e o limite do setor Bravo.
 
-`qa0023_r0072_LeituraComMeios_CLD.png` — a leitura da mesma ocorrência. A frase que faltava
+`CSREPCDouro_qa0023_..._LeituraComMeios_CLD.png` — a leitura da mesma ocorrência. A frase que faltava
 está na primeira alínea, a negrito: **«No corredor de progressão desta frente: GRIR Guarda a
 1,1 km; BRIR BSE a 2,2 km.»** E no fim, a ressalva que a torna honesta: dos 3 meios do
 dispositivo, 2 têm posição — o que a leitura diz sobre meios no caminho vale só para esses.
 
 ## qa0024 — r0072, a dívida cartográfica saldada
 
-`qa0024_r0072_CartaCompleta_CLD.png` — as sete linhas da tabela de `docs/cartografia/`, na
+`CSREPCDouro_qa0024_..._CartaCompleta_CLD.png` — as sete linhas da tabela de `docs/cartografia/`, na
 mesma carta: limite do setor Bravo, cabeça e flanco com seta de progressão, linha de
 contenção por abrir e linha de apoio, GRIR Guarda e BRIR BSE onde estão, pontos notáveis, e
 as três notas escritas por cima do sítio a que dizem respeito. O aviso a negrito, as outras
 não.
 
-`qa0024_r0072_LeituraCompleta_CLD.png` — a leitura da mesma ocorrência.
+`CSREPCDouro_qa0024_..._LeituraCompleta_CLD.png` — a leitura da mesma ocorrência.
 
 ## qa0025 — r0072, focos de calor
 
-Cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
+`CSREPCDouro_qa0025_..._FocosDeCalor_CLD.png` — cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
 **por baixo** de tudo o que o posto desenhou à mão: são observação de satélite, e o que o
 posto traçou tem precedência de leitura sobre o que a máquina viu.

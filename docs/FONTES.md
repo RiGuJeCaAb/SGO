@@ -183,7 +183,8 @@ chamas de cerca de 3,6 m.
 
 **Taylor, S. W. (1996), *Field Guide to the Canadian Forest Fire Behavior Prediction (FBP)
 System*.** Canadian Forest Service e B.C. Ministry of Forests, FRDA handbook 012.
-Ficheiro digitalizado, sem camada de texto.
+Ficheiro digitalizado, sem camada de texto. Em
+`docs/fontes/Field_Guide_to_the_Canadian_Forest_Fire_Behavior_Prediction_FBP_System_1996.pdf`.
 
 **Não é transponível para o Douro, e a distinção é essencial:**
 
@@ -308,12 +309,96 @@ Portugal com este conjunto.
 
 ### O que os três, juntos, resolvem
 
-Nada do que falta. Continua sem haver fonte para **R nos combustíveis do Douro**, e estes
-três documentos descrevem a máquina que precisaria desse número para trabalhar.
+Nada do que falta — **a leitura acima é de antes de a `FOGOPT` chegar**, e fica como estava
+porque continua verdadeira quanto a estes três: descrevem a máquina que precisaria de R
+para trabalhar, e nenhum deles o dá para os combustíveis do Douro. Quem o dá é a `FOGOPT`,
+adiante, com as reservas que lá estão escritas.
 
-O que dão é fundamento para a posição que a aplicação já tinha: a composição vetorial de
-vento e declive está validada experimentalmente **na forma da resposta**, e é isso e só
-isso que se mostra.
+O que estes três dão é fundamento para a posição que a aplicação já tinha: a composição
+vetorial de vento e declive está validada experimentalmente **na forma da resposta**, e é
+isso e só isso que se mostra.
+
+## `FOGOPT` — os quadros portugueses que dão a velocidade de propagação
+
+Chave invocada por `fonte/3-planeamento/21-modelos-de-combustivel.js`, que traz o motor de
+propagação, e pelo painel de estimativa em `19-intensidade-da-frente.js`.
+
+São dois documentos, e **o repositório não tem nenhum deles**:
+
+- FERNANDES, P.M., BOTELHO, H.S., LOUREIRO, C., 2002b. *Manual de Formação para a Técnica
+  do Fogo Controlado.* UTAD, Vila Real. Daqui vêm o Quadro 3.2.1 (humidade do combustível
+  morto fino), o 3.3.1 (vento à superfície), os 3.4.1 a 3.4.3 (propagação em matos) e os
+  7.1 e 7.2 (propagação em pinheiro bravo).
+- FERNANDES, P.M., LOUREIRO, C., 2021. Os 18 modelos de combustível para Portugal, com o
+  intervalo de carga fina de cada um.
+
+### O que está confirmado, e o que não está
+
+**Confirmada está a existência e a referência do manual de 2002b**: Fernandes (2003), que
+está em `docs/fontes/` e se lê aqui, cita-o na sua bibliografia com esta designação exata.
+Não é uma obra inventada nem uma referência aproximada.
+
+**Confirmada está a coerência interna dos quadros transcritos**, por
+`tests/propagacao.test.mjs`: a propagação cresce com o vento e decresce com a humidade em
+todas as células, os fatores de altura e declive comportam-se como fatores, o extremo
+superior fica dentro do que Alexander (2000) reconhece para floresta, e nenhuma combinação
+produz velocidade negativa.
+
+**Não está confirmada a transcrição contra o impresso.** É preciso dizê-lo sem rodeios:
+uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento do fogo
+errado com toda a confiança do mundo. Os números destes quadros chegaram por transcrição, de
+documentos que ninguém aqui abriu, e ficam a valer sob essa reserva até que os dois
+documentos entrem em `docs/fontes/` e alguém confira célula a célula.
+
+**Não está confirmada a atribuição dos modelos de 2021.** Os 18 códigos, descrições e
+cargas foram transcritos com a referência acima; a referência não foi verificada contra
+nenhum documento em mão.
+
+### A ponte para Viegas, que não é de nenhuma das fontes
+
+Os quadros de Fernandes são multiplicativos: o declive amplia a propagação que o vento já
+produziu. Viegas (2004) — ver `FOGO` — é vetorial: o declive acrescenta parcela própria. Para
+passar de um para o outro, `epsilonDosQuadros` toma como parcela de declive o acréscimo que
+o declive produz sobre a propagação sem vento, e como parcela de vento o acréscimo do vento
+sobre a mesma base.
+
+**Isto não está em Fernandes nem em Viegas.** É uma ponte declarada, escrita no módulo e
+mostrada no ecrã, precisamente para poder ser recusada por quem a leia. Quem discordar dela
+não está a discordar de nenhuma das duas fontes.
+
+### As duas recusas que estes quadros trazem
+
+1. **Acima de 25 °C** o Quadro 3.2.1 traz impresso que não é válido. A aplicação recusa em
+   vez de avisar: um aviso ignora-se às três da manhã, uma recusa obriga a ir buscar o
+   número a quem o tem — ao FWI ou a medição.
+2. **Eucaliptal, folhosas e formações herbáceas não têm motor português.** Os guias cobrem
+   matos (E1) e pinheiro bravo (E2), e mais nada. Para o resto a aplicação diz que a
+   velocidade tem de ser observada no terreno, em vez de a arbitrar por semelhança.
+
+### O que fica pedido
+
+Os dois documentos, em PDF, para `docs/fontes/`. Enquanto não chegarem, todo o número que
+sai deste motor é bom para ordem de grandeza e para comparar cenários entre si — não para
+sustentar sozinho uma decisão de ataque direto.
+
+## Recebidos e por ler
+
+Documentos que estão em `docs/fontes/` e **não sustentam nada na aplicação**. Chegaram, foram
+guardados e nunca foram lidos com atenção nem declarados. Ficam nomeados aqui pelo que a sua
+folha de rosto diz, e por mais nada: o que se segue não é uma leitura, é um inventário.
+
+A regra da pasta é que um documento entra **antes** de ser implementado, com a entrada a
+dizer o que autoriza. Estes cinco entraram sem ela. Enquanto a entrada não for escrita,
+**nenhum número da aplicação pode invocá-los** — e o `npm run arrumado` passa a recusar que
+volte a haver um documento nesta pasta sem uma linha aqui.
+
+| Ficheiro | O que a folha de rosto diz | Porque interessa |
+|---|---|---|
+| `modPropagacoFogo1.pdf` | André, J.C.S. e Viegas, D.X. (2001), *Modelos de Propagação de Fogos Florestais: Estado-da-Arte para Utilizadores — Parte I: Introdução e Modelos Locais*, Silva Lusitana 9(2): 237-265 | Estado da arte **em português e para utilizadores**, dos mesmos autores do modelo de composição vetorial que a aplicação já usa. É o candidato mais direto a enquadrar o que se fez |
+| `ModelosPropagaFogos2.pdf` | Os mesmos autores (2002), *Parte II: Modelos Globais e Sistemas Informáticos*, Silva Lusitana 10(2): 217-233 | A segunda metade do mesmo artigo |
+| `FirePropagationCanyons.pdf` | Viegas, D.X. e Pita, L.P., *Fire Spread in Canyons*, Universidade de Coimbra e ADAI | **Vales encaixados.** O teatro do Douro é isso, e a aplicação não diz nada sobre o que o vale faz à propagação |
+| `Field_Guide_for_Predicting_Fire_Behaviour_in_Ontarios_Tallgrass_Prairie.pdf` | Kidnie, S.M., Wotton, B.M. e Droog, W.N., *Field Guide for Predicting Fire Behaviour in Ontario's Tallgrass Prairie* | Formações herbáceas, que é justamente onde os guias portugueses não têm motor. **Mas é do Ontário**, e a objeção de transponibilidade da `SCOTT2005` aplica-se por inteiro |
+| `LIVRO_Florestas_e_Legislacao_planos_municipais_de_defesa_da_floresta_contra_incendios.pdf` | Antunes, M.J., Lopes, D. e Oliveira, C. (coord.), *Florestas e Legislação: Planos Municipais da Defesa da Floresta Contra Incêndios* | Matéria jurídica de defesa da floresta. Não é doutrina de comando, e não se lhe viu ainda ligação a nenhuma regra do motor de conformidade |
 
 ## Como acrescentar
 

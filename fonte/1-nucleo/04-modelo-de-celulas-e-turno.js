@@ -365,6 +365,18 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 24 -> 25 · As entradas da estimativa de propagação. Ramo novo e vazio: o R que estivesse
+   escrito continua a ser de quem o escreveu, e uma migração que lhe atribuísse origem
+   calculada estaria a inventar proveniência para um número que ninguém calculou. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.fogo = Object.assign({r:"", w:""}, e.dados.fogo||{});
+  if(!e.dados.fogo.est || typeof e.dados.fogo.est !== "object")
+    e.dados.fogo.est = { modelo:"", altura:"", dias:"", hcm:"", hcmOrigem:"", u10:"",
+      declive:"", tipoPin:"", rEst:"", wMin:"", wMax:"", g:"", por:"", avisos:[] };
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -375,7 +387,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], focos:{itens:[], origem:"", g:"", por:"", nota:""}, fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], focos:{itens:[], origem:"", g:"", por:"", nota:""}, fogo:{r:"", w:"", est:{modelo:"", altura:"", dias:"", hcm:"", hcmOrigem:"", u10:"", declive:"", tipoPin:"", rEst:"", wMin:"", wMax:"", g:"", por:"", avisos:[]}}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

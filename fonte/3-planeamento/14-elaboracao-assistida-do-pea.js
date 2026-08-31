@@ -55,7 +55,11 @@ ${anterior? "PEA ANTERIOR (n.º "+anterior.n+"): objetivo: "+JSON.stringify(peca
 EVOLUÇÃO DESDE O PEA ANTERIOR:
 ${novas.length? novas.map(e=>e.g+" ["+e.tipo+"] "+e.txt).join("\n") : "(sem registos novos)"}
 MÉTRICAS METEOROLÓGICAS CALCULADAS (usa exatamente estes valores; nunca recalcules):
-${JSON.stringify(metricas())}`;
+${JSON.stringify(metricas())}
+AMBIENTE DE FOGO — terreno, combustível, comportamento e o que está traçado no teatro
+(usa exatamente estes valores; nunca recalcules; cada proposta que dependa de um deles tem
+de o citar no fundamento, com a origem que vem indicada):
+${JSON.stringify(retratoDoFogo())}`;
 }
 /* Célula de PLANEAMENTO — art. 27.º, n.º 1, al. a): elaborar o plano estratégico de
    ação, para aprovação pelo COS, e assegurar a sua permanente atualização. O PEA é
@@ -70,7 +74,7 @@ Responde APENAS JSON válido, sem markdown:
 "analise_zi":"análise da zona de intervenção face à área, aos pontos sensíveis e à meteorologia (3-5 frases, cada uma com a consequência operacional)",
 "previsao":"parágrafo de previsão operacional citando janela, HR, temperaturas, rotações e perigos exatamente com os valores dados",
 "objetivo":"frase única com o efeito desejado e o GDH limite derivado da janela",
-"propostas":[{"id":"P1","texto":"prioridade tática","fundamento":"1 frase ligada às métricas ou à evolução"} 5 a 7 itens por ordem de prioridade — mantém do PEA anterior o que continua válido, altera o que a evolução mudou],
+"propostas":[{"id":"P1","texto":"prioridade tática","fundamento":"1 frase ligada a um facto do contexto — métrica meteorológica, ambiente de fogo ou registo de evolução — com o valor e a origem"} 5 a 7 itens por ordem de prioridade — mantém do PEA anterior o que continua válido, altera o que a evolução mudou; se a intensidade da frente for conhecida, a primeira proposta tem de decorrer dela],
 "seguranca":["4-6 medidas ligadas às horas críticas, rotações e trabalho noturno"],
 "validade":"GDH de validade recomendado e gatilhos de revisão"}`);
   if(!j.situacao||!j.previsao||!j.objetivo||!Array.isArray(j.propostas)) throw "plano estratégico de ação incompleto";
