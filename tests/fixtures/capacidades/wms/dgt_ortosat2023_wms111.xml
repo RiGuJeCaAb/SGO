@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+ <!ELEMENT VendorSpecificCapabilities EMPTY>
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1">
+
+<!-- MapServer version 7.7.0-dev (MS4W 4.0.5) OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=SVGCAIRO SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>OrtoSat2023</Title>
+  <Abstract>Ortoimagens de 2023 (Imagens de Satélite de Elevada Resolução)</Abstract>
+  <KeywordList>
+      <Keyword>Ortoimagens</Keyword>
+      <Keyword> 2023</Keyword>
+      <Keyword> Imagens de Satélite de Elevada Resolução</Keyword>
+      <Keyword> Cor Verdadeira</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Direção de Serviços de Geodesia, Cartografia e Informação Geográfica</ContactPerson>
+      <ContactOrganization>Direção-Geral do Território</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>owner</ContactPosition>
+    <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>Rua Artilharia Um, 107 Lisboa</Address>
+        <City></City>
+        <StateOrProvince></StateOrProvince>
+        <PostCode>1099-052 LISBOA</PostCode>
+        <Country>Portugal</Country>
+    </ContactAddress>
+      <ContactVoiceTelephone></ContactVoiceTelephone>
+      <ContactFacsimileTelephone></ContactFacsimileTelephone>
+  <ContactElectronicMailAddress>loja@dgterritorio.pt</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>no conditions apply</Fees>
+  <AccessConstraints>None</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/tiff</Format>
+      <Format>application/vnd.google-earth.kml+xml</Format>
+      <Format>application/vnd.google-earth.kmz</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/xml</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </DescribeLayer>
+    <GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetLegendGraphic>
+    <GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetStyles>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities />
+  <UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"/>
+  <Layer>
+    <Name>OrtoSat2023</Name>
+    <Title>OrtoSat2023</Title>
+    <Abstract>Ortoimagens de 2023 (Imagens de Satélite de Elevada Resolução)</Abstract>
+    <KeywordList>
+        <Keyword>Ortoimagens</Keyword>
+        <Keyword> 2023</Keyword>
+        <Keyword> Imagens de Satélite de Elevada Resolução</Keyword>
+        <Keyword> Cor Verdadeira</Keyword>
+    </KeywordList>
+    <SRS>EPSG:3763</SRS>
+    <SRS>EPSG:4326</SRS>
+    <SRS>EPSG:4258</SRS>
+    <SRS>EPSG:3857</SRS>
+    <LatLonBoundingBox minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+    <BoundingBox SRS="EPSG:3763"
+                minx="-170000" miny="-320000" maxx="200000" maxy="290000" />
+    <BoundingBox SRS="EPSG:4326"
+                minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+    <BoundingBox SRS="EPSG:4258"
+                minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+    <BoundingBox SRS="EPSG:3857"
+                minx="-1.13472e+06" miny="4.4063e+06" maxx="-635583" maxy="5.20296e+06" />
+    <ScaleHint min="0.249451424214819" max="249451.424214819" />
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>ortoSat2023-CorVerdadeira</Name>
+        <Title>ortoSat2023-CorVerdadeira</Title>
+        <Abstract>RGB</Abstract>
+        <KeywordList>
+            <Keyword>RGB</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <SRS>EPSG:4326</SRS>
+        <SRS>EPSG:4258</SRS>
+        <SRS>EPSG:3857</SRS>
+        <LatLonBoundingBox minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:3763"
+                    minx="-170000" miny="-320000" maxx="200000" maxy="290000" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-1.13472e+06" miny="4.4063e+06" maxx="-635583" maxy="5.20296e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?request=GetMetadata&amp;layer=ortoSat2023-CorVerdadeira"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>ortoSat2023-FalsaCor</Name>
+        <Title>ortoSat2023-FalsaCor</Title>
+        <Abstract>IRG</Abstract>
+        <KeywordList>
+            <Keyword>IRG</Keyword>
+        </KeywordList>
+        <SRS>EPSG:3763</SRS>
+        <SRS>EPSG:4326</SRS>
+        <SRS>EPSG:4258</SRS>
+        <SRS>EPSG:3857</SRS>
+        <LatLonBoundingBox minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:3763"
+                    minx="-170000" miny="-320000" maxx="200000" maxy="290000" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-10.1934" miny="36.7643" maxx="-5.70954" maxy="42.2796" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-1.13472e+06" miny="4.4063e+06" maxx="-635583" maxy="5.20296e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ortos.dgterritorio.gov.pt/wms/ortosat2023?request=GetMetadata&amp;layer=ortoSat2023-FalsaCor"/>
+        </MetadataURL>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

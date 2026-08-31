@@ -1,0 +1,1815 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0"   xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd http://mapserver.gis.umn.edu/mapserver http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+<Service>
+  <Name>WMS</Name>
+  <Title>EFFIS</Title>
+  <Abstract>The European Forest Fire Information System (EFFIS) supports the services in charge of the protection of forests against fires in the EU countries and provides the European Commission services and the European Parliament with updated and reliable information on wildland fires in Europe.</Abstract>
+  <KeywordList>
+      <Keyword>Europe</Keyword>
+      <Keyword>Wildfire</Keyword>
+      <Keyword>Forest</Keyword>
+      <Keyword>Forest Fires</Keyword>
+      <Keyword>FWI</Keyword>
+      <Keyword>Fire Weather Index</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Jesús San-Miguel-Ayanz</ContactPerson>
+      <ContactOrganization>European Commission, Joint Research Centre</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>European Union</ContactPosition>
+    <ContactAddress>
+        <AddressType>postal</AddressType>
+        <Address>Via E. Fermi 2749 - TP 261</Address>
+        <City>Ispra</City>
+        <StateOrProvince>VA</StateOrProvince>
+        <PostCode>I-21027</PostCode>
+        <Country>Italy</Country>
+    </ContactAddress>
+      <ContactVoiceTelephone>+39 0332 786138</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>+39 0332 789803</ContactFacsimileTelephone>
+  <ContactElectronicMailAddress>effis@jrc.ec.europa.eu</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>none</Fees>
+  <AccessConstraints>None</AccessConstraints>
+  <LayerLimit>8</LayerLimit>
+  <MaxWidth>5120</MaxWidth>
+  <MaxHeight>5120</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/gif</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>image/tiff</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/svg+xml</Format>
+      <Format>application/vnd.google-earth.kml+xml</Format>
+      <Format>application/vnd.google-earth.kmz</Format>
+      <Format>application/vnd.mapbox-vector-tile</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <sld:DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:DescribeLayer>
+    <sld:GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/gif</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:GetLegendGraphic>
+    <ms:GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </ms:GetStyles>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0" InlineFeature="0" RemoteWCS="0"/>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:ResourceLocator>
+      <inspire_common:URL>http://maps.effis.emergency.copernicus.eu/effis?</inspire_common:URL>
+    </inspire_common:ResourceLocator>
+    <inspire_common:ResourceType>service</inspire_common:ResourceType>
+    <inspire_common:TemporalReference>
+      <inspire_common:DateOfLastRevision>2014-08-08</inspire_common:DateOfLastRevision>
+    </inspire_common:TemporalReference>
+    <inspire_common:Conformity>
+      <inspire_common:Specification>
+        <inspire_common:Title>-</inspire_common:Title>
+        <inspire_common:DateOfLastRevision>2014-08-08</inspire_common:DateOfLastRevision>
+      </inspire_common:Specification>
+      <inspire_common:Degree>notEvaluated</inspire_common:Degree>
+    </inspire_common:Conformity>
+    <inspire_common:MetadataPointOfContact>
+      <inspire_common:OrganisationName>Jesús San-Miguel-Ayanz</inspire_common:OrganisationName>
+      <inspire_common:EmailAddress>effis@jrc.ec.europa.eu</inspire_common:EmailAddress>
+    </inspire_common:MetadataPointOfContact>
+      <inspire_common:MetadataDate>2014-08-08</inspire_common:MetadataDate>
+    <inspire_common:SpatialDataServiceType>view</inspire_common:SpatialDataServiceType>
+    <inspire_common:MandatoryKeyword>
+      <inspire_common:KeywordValue>Wildfire</inspire_common:KeywordValue>
+    </inspire_common:MandatoryKeyword>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>eng</inspire_common:Language></inspire_common:DefaultLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>eng</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  <Layer queryable="1">
+    <Name>EFFIS</Name>
+    <Title>EFFIS</Title>
+    <Abstract>The European Forest Fire Information System (EFFIS) supports the services in charge of the protection of forests against fires in the EU countries and provides the European Commission services and the European Parliament with updated and reliable information on wildland fires in Europe.</Abstract>
+    <KeywordList>
+        <Keyword>Europe</Keyword>
+        <Keyword>Wildfire</Keyword>
+        <Keyword>Forest</Keyword>
+        <Keyword>Forest Fires</Keyword>
+        <Keyword>FWI</Keyword>
+        <Keyword>Fire Weather Index</Keyword>
+    </KeywordList>
+    <CRS>EPSG:4326</CRS>
+    <CRS>EPSG:3035</CRS>
+    <CRS>EPSG:3034</CRS>
+    <CRS>EPSG:3857</CRS>
+    <CRS>EPSG:900913</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>-180.000000</westBoundLongitude>
+        <eastBoundLongitude>180.000000</eastBoundLongitude>
+        <southBoundLatitude>-90.000000</southBoundLatitude>
+        <northBoundLatitude>90.000000</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:4326"
+                minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+    <Attribution>
+        <Title>The geodata are released under the terms and conditions of the EU Data License, available at https://ec.europa.eu/geninfo/legal_notices_en.htm</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://ec.europa.eu/geninfo/legal_notices_en.htm"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="207" height="2768">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EFFIS&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>mf010.query</Name>
+        <Title>mf010.query</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-25.000000</westBoundLongitude>
+            <eastBoundLongitude>50.000000</eastBoundLongitude>
+            <southBoundLatitude>25.000000</southBoundLatitude>
+            <northBoundLatitude>72.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="25.000000" miny="-25.000000" maxx="72.000000" maxy="50.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.query"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.fwi</Name>
+        <Title>mf010.fwi</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2021-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.fwi"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="146" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.fwi&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.ffmc</Name>
+        <Title>mf010.ffmc</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.ffmc"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="146" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.ffmc&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.dmc</Name>
+        <Title>mf010.dmc</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.dmc"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="149" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.dmc&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.dc</Name>
+        <Title>mf010.dc</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.dc"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="158" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.dc&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.isi</Name>
+        <Title>mf010.isi</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.isi"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="143" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.isi&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.bui</Name>
+        <Title>mf010.bui</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.bui"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="152" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.bui&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.anomaly</Name>
+        <Title>mf010.anomaly</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.anomaly"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="137" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.anomaly&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mf010.ranking</Name>
+        <Title>mf010.ranking</Title>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2019-01-01" nearestValue="0">2018-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=mf010.ranking"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="161" height="95">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mf010.ranking&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>all.hs</Name>
+        <Title>all.hs</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=all.hs"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="202" height="319">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=all.hs&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>viirs.hs</Name>
+        <Title>viirs.hs</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=viirs.hs"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="207" height="281">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=viirs.hs&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>noaa.hs</Name>
+        <Title>noaa.hs</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=noaa.hs"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="191" height="97">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=noaa.hs&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.hs</Name>
+        <Title>modis.hs</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.hs"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="198" height="193">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.hs&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>all.hs.query</Name>
+        <Title>all.hs.query</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=all.hs.query"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>viirs.hs.query</Name>
+        <Title>viirs.hs.query</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=viirs.hs.query"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>noaa.hs.query</Name>
+        <Title>noaa.hs.query</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=noaa.hs.query"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.hs.query</Name>
+        <Title>modis.hs.query</Title>
+        <Abstract>Active fires (VIIRS)</Abstract>
+        <CRS>EPSG:4326</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2020-01-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.hs.query"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba</Title>
+      <Abstract>modis.ba</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly</Name>
+        <Title>modis.ba.poly</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <Dimension name="time" units="ISO8601" default="2016-05-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point</Name>
+        <Title>modis.ba.point</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <Dimension name="time" units="ISO8601" default="2016-05-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>effis.nrt.ba</Name>
+      <Title>viirs.ba</Title>
+      <Abstract>The GWIS Near‑Real‑Time Burnt‑Area layer presents the extent of recent fire impact derived from the clustering of VIIRS thermal‑anomaly (hotspot) detections. Individual VIIRS hotspots are grouped in space and time to delineate contiguous burnt‑area polygons, which are then updated at each acquisition cycle (up to 14 passes per day). The product provides a synoptic view of actively burning and freshly extinguished surfaces across the European Union, supporting the European Forest Fire Information System (EFFIS) with timely information for fire‑risk assessment, situational awareness and operational response.</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=effis.nrt.ba&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>effis.nrt.ba.poly</Name>
+        <Title>viirs.ba.poly</Title>
+        <Abstract>The GWIS Near‑Real‑Time Burnt‑Area layer presents the extent of recent fire impact derived from the clustering of VIIRS thermal‑anomaly (hotspot) detections. Individual VIIRS hotspots are grouped in space and time to delineate contiguous burnt‑area polygons, which are then updated at each acquisition cycle (up to 14 passes per day). The product provides a synoptic view of actively burning and freshly extinguished surfaces across the European Union, supporting the European Forest Fire Information System (EFFIS) with timely information for fire‑risk assessment, situational awareness and operational response.</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2016-05-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=effis.nrt.ba.poly"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=effis.nrt.ba.poly&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>effis.nrt.ba.point</Name>
+        <Title>viirs.ba.point</Title>
+        <Abstract>The GWIS Near‑Real‑Time Burnt‑Area layer presents the extent of recent fire impact derived from the clustering of VIIRS thermal‑anomaly (hotspot) detections. Individual VIIRS hotspots are grouped in space and time to delineate contiguous burnt‑area polygons, which are then updated at each acquisition cycle (up to 14 passes per day). The product provides a synoptic view of actively burning and freshly extinguished surfaces across the European Union, supporting the European Forest Fire Information System (EFFIS) with timely information for fire‑risk assessment, situational awareness and operational response.</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-180.000000</westBoundLongitude>
+            <eastBoundLongitude>180.000000</eastBoundLongitude>
+            <southBoundLatitude>-90.000000</southBoundLatitude>
+            <northBoundLatitude>90.000000</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="-90.000000" miny="-180.000000" maxx="90.000000" maxy="180.000000" />
+        <Dimension name="time" units="ISO8601" default="2016-05-01" nearestValue="0">2000-01-01/2099-12-31</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=effis.nrt.ba.point"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=effis.nrt.ba.point&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.today</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.today</Title>
+      <Abstract>modis.ba.today</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.today&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.today</Name>
+        <Title>modis.ba.poly.today</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.today"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.today&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.today</Name>
+        <Title>modis.ba.point</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.today"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.today&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.week</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.week</Title>
+      <Abstract>modis.ba.week</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.week&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.week</Name>
+        <Title>modis.ba.poly.week</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.week"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.week&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.week</Name>
+        <Title>modis.ba.point</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.week"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.week&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.month</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.month</Title>
+      <Abstract>modis.ba.month</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.month&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.month</Name>
+        <Title>modis.ba.poly.month</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.month"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.month&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.month</Name>
+        <Title>modis.ba.point</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.month"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.month&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.season</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.season</Title>
+      <Abstract>modis.ba.season</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="99" height="125">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.season&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.season</Name>
+        <Title>modis.ba.poly.season</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.season"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.season&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.season</Name>
+        <Title>modis.ba.point</Title>
+        <Abstract>Current Season Burned Areas</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.season"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="65">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.season&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2016</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2016</Title>
+      <Abstract>modis.ba.2016</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2016&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2016</Name>
+        <Title>modis.ba.poly.2016</Title>
+        <Abstract>Burned Areas 2016</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2016"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2016&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2016</Name>
+        <Title>modis.ba.point.2016</Title>
+        <Abstract>Burned Areas 2016</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2016"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2016&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2017</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2017</Title>
+      <Abstract>modis.ba.2017</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2017&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2017</Name>
+        <Title>modis.ba.poly.2017</Title>
+        <Abstract>Burned Areas 2017</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2017"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2017&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2017</Name>
+        <Title>modis.ba.point.2017</Title>
+        <Abstract>Burned Areas 2017</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2017"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2017&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2018</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2018</Title>
+      <Abstract>modis.ba.2018</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2018&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2018</Name>
+        <Title>modis.ba.poly.2018</Title>
+        <Abstract>Burned Areas 2018</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2018"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2018&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2018</Name>
+        <Title>modis.ba.point.2018</Title>
+        <Abstract>Burned Areas 2018</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2018"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2018&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2019</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2019</Title>
+      <Abstract>modis.ba.2019</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2019&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2019</Name>
+        <Title>modis.ba.poly.2019</Title>
+        <Abstract>Burned Areas 2019</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2019"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2019&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2019</Name>
+        <Title>modis.ba.point.2019</Title>
+        <Abstract>Burned Areas 2019</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2019"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2019&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2020</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2020</Title>
+      <Abstract>modis.ba.2020</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2020&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2020</Name>
+        <Title>modis.ba.poly.2020</Title>
+        <Abstract>Burned Areas 2020</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2020"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2020&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2020</Name>
+        <Title>modis.ba.point.2020</Title>
+        <Abstract>Burned Areas 2020</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2020"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2020&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2021</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2021</Title>
+      <Abstract>modis.ba.2021</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2021&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2021</Name>
+        <Title>modis.ba.poly.2021</Title>
+        <Abstract>Burned Areas 2021</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2021"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2021&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2021</Name>
+        <Title>modis.ba.point.2021</Title>
+        <Abstract>Burned Areas 2021</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2021"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2021&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2022</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2022</Title>
+      <Abstract>modis.ba.2022</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2022&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2022</Name>
+        <Title>modis.ba.poly.2022</Title>
+        <Abstract>Burned Areas 2022</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2022"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2022&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2022</Name>
+        <Title>modis.ba.point.2022</Title>
+        <Abstract>Burned Areas 2022</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2022"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2022&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2023</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2023</Title>
+      <Abstract>modis.ba.2023</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2023&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2023</Name>
+        <Title>modis.ba.poly.2023</Title>
+        <Abstract>Burned Areas 2023</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2023"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2023&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2023</Name>
+        <Title>modis.ba.point.2023</Title>
+        <Abstract>Burned Areas 2023</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2023"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2023&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2024</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2024</Title>
+      <Abstract>modis.ba.2024</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2024&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2024</Name>
+        <Title>modis.ba.poly.2024</Title>
+        <Abstract>Burned Areas 2024</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2024"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2024&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2024</Name>
+        <Title>modis.ba.point.2024</Title>
+        <Abstract>Burned Areas 2024</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2024"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2024&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>modis.ba.2025</Name>
+<!-- WARNING: Mandatory metadata "wms_GROUP_TITLE" or "ows_GROUP_TITLE" was missing in this context. -->
+      <Title>modis.ba.2025</Title>
+      <Abstract>modis.ba.2025</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="121" height="35">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.2025&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.poly.2025</Name>
+        <Title>modis.ba.poly.2025</Title>
+        <Abstract>Burned Areas 2025</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.poly.2025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.poly.2025&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1</MinScaleDenominator>
+        <MaxScaleDenominator>999999</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>modis.ba.point.2025</Name>
+        <Title>modis.ba.point.2025</Title>
+        <Abstract>Burned Areas 2025</Abstract>
+        <CRS>epsg:4326</CRS>
+        <CRS>epsg:3035</CRS>
+        <CRS>EPSG:900913</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-29.088598</westBoundLongitude>
+            <eastBoundLongitude>-29.085072</eastBoundLongitude>
+            <southBoundLatitude>12.992021</southBoundLatitude>
+            <northBoundLatitude>12.995128</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="epsg:4326"
+                    minx="12.992021" miny="-29.088598" maxx="12.995128" maxy="-29.085072" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=modis.ba.point.2025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="121" height="20">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=modis.ba.point.2025&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>1e+06</MinScaleDenominator>
+        <MaxScaleDenominator>1e+08</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>fuel_map</Name>
+        <Title>effis.fuel_map</Title>
+        <Abstract>Fuel Map - ver. 2017</Abstract>
+        <CRS>EPSG:3857</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-72.805568</westBoundLongitude>
+            <eastBoundLongitude>90.382095</eastBoundLongitude>
+            <southBoundLatitude>22.216796</southBoundLatitude>
+            <northBoundLatitude>81.847374</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-8.10468e+06" miny="2.53757e+06" maxx="1.00613e+07" maxy="1.68469e+07" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;request=GetMetadata&amp;layer=fuel_map"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="141" height="158">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://maps.effis.emergency.copernicus.eu/effis?language=eng&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=fuel_map&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

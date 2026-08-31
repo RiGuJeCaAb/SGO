@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml" xsi:schemaLocation="http://www.opengis.net/wmts/1.0   ../wmtsGetCapabilities_response.xsd" version="1.0.0">
+  <ows:ServiceIdentification>
+    <ows:Title>DGT - WMTS dos Ortos 2018</ows:Title>
+    <ows:Abstract>Serviço WMTS dos ortofotos de 2018.</ows:Abstract>
+    <ows:ServiceType>OGC WMTS</ows:ServiceType>
+    <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+    <ows:Fees>None</ows:Fees>
+    <ows:AccessConstraints>This service is public.</ows:AccessConstraints>
+  </ows:ServiceIdentification>
+  <ows:ServiceProvider>
+    <ows:ProviderName>Direção-Geral do Território</ows:ProviderName>
+    <ows:ProviderSite xlink:href="http://cartografia.dgterritorio.gov.pt:8080/ortos2018/service?"/>
+    <ows:ServiceContact>
+      <ows:IndividualName>Danilo Furtado</ows:IndividualName>
+      <ows:PositionName></ows:PositionName>
+      <ows:ContactInfo>
+        <ows:Phone>
+          <ows:Voice>+351 21 381 96 00</ows:Voice>
+          <ows:Facsimile></ows:Facsimile>
+        </ows:Phone>
+        <ows:Address>
+          <ows:DeliveryPoint>Direção-Geral do Território</ows:DeliveryPoint>
+          <ows:City>Lisboa</ows:City>
+          <ows:PostalCode></ows:PostalCode>
+          <ows:Country>Portugal</ows:Country>
+          <ows:ElectronicMailAddress>loja@dgterritorio.pt</ows:ElectronicMailAddress>
+        </ows:Address>
+      </ows:ContactInfo>
+    </ows:ServiceContact>
+  </ows:ServiceProvider>
+  <ows:OperationsMetadata>
+    <ows:Operation name="GetCapabilities">
+      <ows:DCP>
+        <ows:HTTP>
+          <ows:Get xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service?">
+            <ows:Constraint name="GetEncoding">
+              <ows:AllowedValues>
+                <ows:Value>KVP</ows:Value>
+              </ows:AllowedValues>
+            </ows:Constraint>
+          </ows:Get>
+        </ows:HTTP>
+      </ows:DCP>
+    </ows:Operation>
+    <ows:Operation name="GetTile">
+      <ows:DCP>
+        <ows:HTTP>
+          <ows:Get xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service?">
+            <ows:Constraint name="GetEncoding">
+              <ows:AllowedValues>
+                <ows:Value>KVP</ows:Value>
+              </ows:AllowedValues>
+            </ows:Constraint>
+          </ows:Get>
+        </ows:HTTP>
+      </ows:DCP>
+    </ows:Operation>
+  </ows:OperationsMetadata>
+  <Contents>
+    <Layer>
+      <ows:Title>Ortos2018-RGB</ows:Title>
+      <ows:Abstract></ows:Abstract>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>-10.1933914843 36.7232839377</ows:LowerCorner>
+        <ows:UpperCorner>-5.95171484738 42.2795978817</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+      <ows:Identifier>Ortos2018-RGB</ows:Identifier>
+      <Style>
+        <ows:Identifier>default</ows:Identifier>
+      </Style>
+      <Format>image/png</Format>
+      <TileMatrixSetLink>
+        <TileMatrixSet>PTTM_06</TileMatrixSet>
+      </TileMatrixSetLink>
+    </Layer>
+    <TileMatrixSet>
+      <ows:Identifier>PTTM_06</ows:Identifier>
+      <ows:SupportedCRS>EPSG:3763</ows:SupportedCRS>
+      <TileMatrix>
+        <ows:Identifier>00</ows:Identifier>
+        <ScaleDenominator>8579799.10714</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>1</MatrixWidth>
+        <MatrixHeight>1</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>01</ows:Identifier>
+        <ScaleDenominator>4289899.55357</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>2</MatrixWidth>
+        <MatrixHeight>2</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>02</ows:Identifier>
+        <ScaleDenominator>2144949.77679</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>3</MatrixWidth>
+        <MatrixHeight>4</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>03</ows:Identifier>
+        <ScaleDenominator>1072474.88839</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>5</MatrixWidth>
+        <MatrixHeight>8</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>04</ows:Identifier>
+        <ScaleDenominator>536237.444196</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>10</MatrixWidth>
+        <MatrixHeight>16</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>05</ows:Identifier>
+        <ScaleDenominator>268118.722098</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>19</MatrixWidth>
+        <MatrixHeight>32</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>06</ows:Identifier>
+        <ScaleDenominator>134059.361049</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>37</MatrixWidth>
+        <MatrixHeight>64</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>07</ows:Identifier>
+        <ScaleDenominator>67029.6805246</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>73</MatrixWidth>
+        <MatrixHeight>128</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>08</ows:Identifier>
+        <ScaleDenominator>33514.8402623</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>146</MatrixWidth>
+        <MatrixHeight>256</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>09</ows:Identifier>
+        <ScaleDenominator>16757.4201311</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>292</MatrixWidth>
+        <MatrixHeight>512</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>10</ows:Identifier>
+        <ScaleDenominator>8378.71006557</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>583</MatrixWidth>
+        <MatrixHeight>1024</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>11</ows:Identifier>
+        <ScaleDenominator>4189.35503278</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>1166</MatrixWidth>
+        <MatrixHeight>2048</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>12</ows:Identifier>
+        <ScaleDenominator>2094.67751639</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>2332</MatrixWidth>
+        <MatrixHeight>4096</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>13</ows:Identifier>
+        <ScaleDenominator>1047.3387582</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>4663</MatrixWidth>
+        <MatrixHeight>8192</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>14</ows:Identifier>
+        <ScaleDenominator>523.669379098</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>9325</MatrixWidth>
+        <MatrixHeight>16384</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>15</ows:Identifier>
+        <ScaleDenominator>261.834689549</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>18649</MatrixWidth>
+        <MatrixHeight>32768</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>16</ows:Identifier>
+        <ScaleDenominator>130.917344775</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>37297</MatrixWidth>
+        <MatrixHeight>65536</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>17</ows:Identifier>
+        <ScaleDenominator>65.4586723873</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>74594</MatrixWidth>
+        <MatrixHeight>131072</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>18</ows:Identifier>
+        <ScaleDenominator>32.7293361936</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>149188</MatrixWidth>
+        <MatrixHeight>262144</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>19</ows:Identifier>
+        <ScaleDenominator>16.3646680968</ScaleDenominator>
+        <TopLeftCorner>-170000.0 290000.0</TopLeftCorner>
+        <TileWidth>256</TileWidth>
+        <TileHeight>256</TileHeight>
+        <MatrixWidth>298376</MatrixWidth>
+        <MatrixHeight>524288</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+  </Contents>
+</Capabilities>

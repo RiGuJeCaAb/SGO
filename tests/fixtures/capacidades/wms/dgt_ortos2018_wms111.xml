@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+ <!ELEMENT VendorSpecificCapabilities EMPTY>
+ ]>  <!-- end of DOCTYPE declaration -->
+<WMT_MS_Capabilities version="1.1.1">
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>MapProxy WMS</Title>
+  <Abstract></Abstract>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service"/>
+  <Fees>none</Fees>
+  <AccessConstraints>none</AccessConstraints>
+</Service>
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+        <Format>image/png</Format>
+        <Format>image/jpg'</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/plain</Format>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://cartografia.dgterritorio.gov.pt/ortos2018/service?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <Layer>
+    <Name>DGT_Ortos2018</Name>
+    <Title>Ortos2018</Title>
+    <Abstract>Serviço WMTS dos ortofotos de 2018, disponível para visualização até à escala 1:2 000.</Abstract>
+    <SRS>EPSG:3763</SRS>
+    <SRS>EPSG:3857</SRS>
+    <LatLonBoundingBox minx="-10.1933914843" miny="36.7232839377" maxx="-5.95171484738" maxy="42.2795978817" />
+    <BoundingBox SRS="EPSG:3857" minx="-1134723.14949" miny="4400606.00393" maxx="-662541.866157" maxy="5202954.30141" />
+    <BoundingBox SRS="EPSG:3763" minx="-170000" miny="-325000" maxx="180000" maxy="290000" />
+    <Layer>
+      <Name>Ortos2018-RGB</Name>
+      <Title>Ortos2018-RGB</Title>
+      <LatLonBoundingBox minx="-10.1933914843" miny="36.7232839377" maxx="-5.95171484738" maxy="42.2795978817" />
+      <BoundingBox SRS="EPSG:3857" minx="-1134723.14949" miny="4400606.00393" maxx="-662541.866157" maxy="5202954.30141" />
+      <BoundingBox SRS="EPSG:3763" minx="-170000" miny="-325000" maxx="180000" maxy="290000" />
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

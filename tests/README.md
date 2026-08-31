@@ -13,7 +13,9 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run tipos` | Verifica os tipos com o TypeScript, sem compilar nada |
 | `npm run montar` | Junta os módulos de `fonte/` e produz a entrega seguinte em `app/` |
 | `npm run validar-gp -- <ficheiro>` | Corre o leitor da Gestão PCO sobre uma exportação e diz o que a Estação fará com ela |
-| `npm run tudo` | Sintaxe, testes, análise estática e tipos, por esta ordem |
+| `npm run morto` | Relata identificadores e funções que ninguém usa. **Lê-se, não se aplica** |
+| `npm run documentar` | Confere que toda a função de topo diz o que promete; recusa que a cobertura desça de 100 % |
+| `npm run tudo` | Sintaxe, testes, análise estática, tipos, código morto e cobertura de documentação, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.
@@ -58,6 +60,22 @@ dependem saltam-se sozinhos quando não há revisão em `app/`.
 
 A aplicação arma temporizadores — a conformidade é reavaliada a cada trinta segundos —,
 por isso a janela tem de ser fechada no fim, ou o processo de teste nunca termina.
+
+## As capturas dos serviços reais
+
+`tests/fixtures/capacidades/` guarda o que os serviços de cartografia responderam a
+`GetCapabilities` em 31 de agosto de 2026 — cinco WMTS, dezoito WMS e os vinte e três
+conjuntos de cabeçalhos HTTP. São **prova de proveniência**, e o valor delas está em serem
+o que o servidor disse: um ficheiro editado à mão deixa de o ser. `capacidades.test.mjs`
+confere o resumo SHA-256 de cada um antes de o usar, e recusa que a pasta e o manifesto
+divirjam.
+
+Capturas inventadas confirmam o que quem as escreve já acredita. Estas desmentiram quatro
+coisas que se davam por assentes — que havia vários WMTS oficiais, que um erro vem com
+código de erro HTTP, que a DGT publicaria Web Mercator e que todos os anfitriões abriam o
+CORS. As quatro estão registadas no `MANIFESTO.md`.
+
+Captura nova entra com o ficheiro, o resumo em `resumos.json` e a linha no `MANIFESTO.md`.
 
 ## Onde investir
 

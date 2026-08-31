@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://si.icnf.pt/geoserverplinia/schemas/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1" updateSequence="7599">
+  <Service>
+    <Name>OGC:WMS</Name>
+    <Title>ICNF Web Map Service</Title>
+    <Abstract>Serviços WMS do ICNF</Abstract>
+    <KeywordList>
+      <Keyword>WFS</Keyword>
+      <Keyword>WMS</Keyword>
+      <Keyword>GEOSERVER</Keyword>
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://plinia:8080/geoserver/web"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson>Instituto da Conservação das Natureza das Florestas</ContactPerson>
+        <ContactOrganization>ICNF, I. P.</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType>work</AddressType>
+        <Address>Avenida da Republica, 16 A e B</Address>
+        <City>Lisboa</City>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country>Portugal</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone>351 213507900</ContactVoiceTelephone>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress>sig@icnf.pt</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>sem restrições</Fees>
+    <AccessConstraints>Nenhum</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom xml</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/openlayers</Format>
+        <Format>application/openlayers2</Format>
+        <Format>application/openlayers3</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss xml</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml</Format>
+        <Format>application/vnd.google-earth.kml xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.google-earth.kmz xml</Format>
+        <Format>application/vnd.google-earth.kmz+xml</Format>
+        <Format>application/vnd.google-earth.kmz;mode=networklink</Format>
+        <Format>atom</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/gif;subtype=animated</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png8</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg</Format>
+        <Format>image/svg xml</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>kml</Format>
+        <Format>kmz</Format>
+        <Format>openlayers</Format>
+        <Format>rss</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <Format>utfgrid</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/xml</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+      <DescribeLayer>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </DescribeLayer>
+      <GetLegendGraphic>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/gif</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetLegendGraphic>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+      <Format>application/vnd.ogc.se_inimage</Format>
+      <Format>application/vnd.ogc.se_blank</Format>
+      <Format>application/json</Format>
+    </Exception>
+    <UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+    <Layer>
+      <Title>ICNF Web Map Service</Title>
+      <Abstract>Serviços WMS do ICNF</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <SRS>EPSG:3763</SRS>
+      <SRS>EPSG:4326</SRS>
+      <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+      <BoundingBox SRS="EPSG:3763" minx="-137025.13384975598" miny="-303429.5232980652" maxx="186579.8502112732" maxy="280627.8117900241"/>
+      <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+      <AuthorityURL name="ICNF">
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.icnf.pt"/>
+      </AuthorityURL>
+      <Identifier authority="ICNF">http://id.igeo.pt/sdg/29086635-4d66-4033-98b9-65a6893dcd5f</Identifier>
+      <Layer queryable="1">
+        <Name>areas_ardidas</Name>
+        <Title>Territórios ardidos</Title>
+        <Abstract>Layer-Group type layer: areas_ardidas</Abstract>
+        <KeywordList/>
+        <SRS>EPSG:3763</SRS>
+        <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+        <BoundingBox SRS="EPSG:3763" minx="-127096.80687006014" miny="-301702.02931375435" maxx="173081.7938279003" maxy="278541.6694684961"/>
+        <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.934388699559335" maxx="-6.03890931474376" maxy="42.17612044533371"/>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2025</Name>
+          <Title>Territórios ardidos (área ardida ano 2025)</Title>
+          <Abstract>Territórios ardidos (área ardida ano 2025)</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2025</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.45004988481237" miny="37.013464124245" maxx="-6.22504889104307" maxy="42.11971982881516"/>
+          <BoundingBox SRS="EPSG:3763" minx="-108918.34130000044" miny="-293219.4252000004" maxx="157829.23790000007" maxy="272267.7376000006"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.450049884812373" miny="37.01346416050326" maxx="-6.22504889104307" maxy="42.119719869104756"/>
+          <Style>
+            <Name>BDG:ardida_2021</Name>
+            <Title>BDG:ardida_2021</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2025"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2024</Name>
+          <Title>Territórios ardidos (área ardida ano 2024)</Title>
+          <Abstract>Territórios ardidos (área ardida ano 2024)</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2024</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.519291220563803" miny="37.01440814299141" maxx="-6.28947736101992" maxy="42.13099965167536"/>
+          <BoundingBox SRS="EPSG:3763" minx="-114626.27940000035" miny="-293212.8013000004" maxx="152470.20100000035" maxy="273517.6853"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.519291220563803" miny="37.01440817925073" maxx="-6.28947736101992" maxy="42.13099969196991"/>
+          <Style>
+            <Name>BDG:ardida_2021</Name>
+            <Title>BDG:ardida_2021</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2024"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2023</Name>
+          <Title>Territórios ardidos (área ardida ano 2023)</Title>
+          <Abstract>Territórios ardidos (área ardida ano 2023)</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2023</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+          <BoundingBox SRS="EPSG:3763" minx="-127096.80687006014" miny="-301702.02931375435" maxx="173081.7938279003" maxy="278541.6694684961"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.934388699559335" maxx="-6.03890931474376" maxy="42.17612044533371"/>
+          <Style>
+            <Name>BDG:ardida_2021</Name>
+            <Title>BDG:ardida_2021</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2023"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2022</Name>
+          <Title>Territórios ardidos (área ardida ano 2022)</Title>
+          <Abstract>Territórios ardidos (área ardida ano 2022)</Abstract>
+          <KeywordList>
+            <Keyword>ardida_2022</Keyword>
+            <Keyword>features</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+          <BoundingBox SRS="EPSG:3763" minx="-127096.80687006014" miny="-301702.02931375435" maxx="173081.7938279003" maxy="278541.6694684961"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.934388699559335" maxx="-6.03890931474376" maxy="42.17612044533371"/>
+          <Style>
+            <Name>BDG:ardida_2021</Name>
+            <Title>BDG:ardida_2021</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2022"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2021</Name>
+          <Title>Territórios ardidos (área ardida ano 2021)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2021_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.344199851925946" miny="37.045792058846715" maxx="-6.252898165702339" maxy="42.11217888588678"/>
+          <BoundingBox SRS="EPSG:3763" minx="-100174.0345999999" miny="-289672.3554999996" maxx="155543.12629999965" maxy="271417.58860000037"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.344199851925948" miny="37.04579209514083" maxx="-6.252898165702339" maxy="42.11217892617308"/>
+          <Style>
+            <Name>BDG:ardida_2021</Name>
+            <Title>BDG:ardida_2021</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2021"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2020</Name>
+          <Title>Territórios ardidos (área ardida ano 2020)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2020_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.525217072937515" miny="37.01674125526726" maxx="-6.2126217261533965" maxy="42.134477464369645"/>
+          <BoundingBox SRS="EPSG:3763" minx="-115110.00499999989" miny="-292837.02050000057" maxx="158820.7527999999" maxy="273912.4597999994"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.525217072937517" miny="37.01674129152917" maxx="-6.2126217261533965" maxy="42.13447750466572"/>
+          <Style>
+            <Name>BDG:ardida_2020</Name>
+            <Title>BDG:ardida_2020</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2020"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2019</Name>
+          <Title>Territórios ardidos (área ardida ano 2019)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2019_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.446159516971127" miny="37.09676540940825" maxx="-6.294134002721776" maxy="42.1177038975961"/>
+          <BoundingBox SRS="EPSG:3763" minx="-108599.86950000003" miny="-284075.17730000056" maxx="152116.5240000002" maxy="272048.8076000009"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.446159516971125" miny="37.096765445758656" maxx="-6.294134002721777" maxy="42.11770393788481"/>
+          <Style>
+            <Name>BDG:ardida_2019</Name>
+            <Title>BDG:ardida_2019</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2019"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2018</Name>
+          <Title>Territórios ardidos (área ardida ano 2018)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>ardida_2018_</Keyword>
+            <Keyword>features</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+          <BoundingBox SRS="EPSG:3763" minx="-127096.80687006014" miny="-301702.02931375435" maxx="173081.7938279003" maxy="278541.6694684961"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.934388699559335" maxx="-6.03890931474376" maxy="42.17612044533371"/>
+          <Style>
+            <Name>BDG:ardida_2018</Name>
+            <Title>BDG:ardida_2018</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2018"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2017</Name>
+          <Title>Territórios ardidos (área ardida ano 2017)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2017_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.479087481208683" miny="37.02430759200049" maxx="-6.1940134146251244" maxy="42.12858716539903"/>
+          <BoundingBox SRS="EPSG:3763" minx="-111304.99139999971" miny="-291967.60170000046" maxx="160375.40720000025" maxy="273254.83359999955"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.479087481208683" miny="37.024307628270805" maxx="-6.194013414625123" maxy="42.128587205692526"/>
+          <Style>
+            <Name>BDG:ardida_2017</Name>
+            <Title>BDG:ardida_2017</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2017"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2016</Name>
+          <Title>Territórios ardidos (área ardida ano 2016)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2016_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.407177308818373" miny="37.184144295692406" maxx="-6.627042478056808" maxy="42.09080402686114"/>
+          <BoundingBox SRS="EPSG:3763" minx="-105419.89319999982" miny="-274825.53720000014" maxx="124621.86249999981" maxy="269034.1054999996"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.407177308818373" miny="37.18414433213862" maxx="-6.627042478056807" maxy="42.09080406713799"/>
+          <Style>
+            <Name>BDG:ardida_2016</Name>
+            <Title>BDG:ardida_2016</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2016"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2015</Name>
+          <Title>Territórios ardidos (área ardida ano 2015)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2015_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.290522303339165" miny="37.250741291384365" maxx="-6.5825488561588275" maxy="42.10371989906923"/>
+          <BoundingBox SRS="EPSG:3763" minx="-95745.94849999994" miny="-267377.1906000003" maxx="128278.59530000016" maxy="270480.9371000007"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.290522303339165" miny="37.25074132790302" maxx="-6.582548856158828" maxy="42.10371993935178"/>
+          <Style>
+            <Name>BDG:ardida_2015</Name>
+            <Title>BDG:ardida_2015</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2015"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2014</Name>
+          <Title>Territórios ardidos (área ardida ano 2014)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2014_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.561059299542725" miny="37.10999857048007" maxx="-6.557409229552096" maxy="42.05392060725223"/>
+          <BoundingBox SRS="EPSG:3763" minx="-118224.60649999976" miny="-282968.4788000006" maxx="130461.41019999981" maxy="264933.41709999926"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.561059299542725" miny="37.109998606845046" maxx="-6.557409229552096" maxy="42.05392064751262"/>
+          <Style>
+            <Name>BDG:ardida_2014</Name>
+            <Title>BDG:ardida_2014</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2014"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2013</Name>
+          <Title>Territórios ardidos (área ardida ano 2013)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2013_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.544987158088077" miny="37.09428528646348" maxx="-6.200296003428923" maxy="42.13096505970487"/>
+          <BoundingBox SRS="EPSG:3763" minx="-116751.68670000043" miny="-284207.6805000007" maxx="159849.47869999986" maxy="273521.37040000036"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.544987158088079" miny="37.09428532281117" maxx="-6.200296003428923" maxy="42.13096509999939"/>
+          <Style>
+            <Name>BDG:ardida_2013</Name>
+            <Title>BDG:ardida_2013</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2013"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2012</Name>
+          <Title>Territórios ardidos (área ardida ano 2012)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2012_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.549330244651063" miny="37.04727334305446" maxx="-6.177963374437318" maxy="42.14185743042622"/>
+          <BoundingBox SRS="EPSG:3763" minx="-117090.83040000033" miny="-289392.99310000055" maxx="161669.73720000032" maxy="274733.56269999966"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.549330244651063" miny="37.04727337935024" maxx="-6.177963374437317" maxy="42.141857470725505"/>
+          <Style>
+            <Name>BDG:ardida_2012</Name>
+            <Title>BDG:ardida_2012</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2012"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2011</Name>
+          <Title>Territórios ardidos (área ardida ano 2011)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2011_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.552598405529398" miny="37.100365615078495" maxx="-6.203457760525444" maxy="42.13849340145957"/>
+          <BoundingBox SRS="EPSG:3763" minx="-117367.38889999967" miny="-283537.8626000006" maxx="159568.98330000043" maxy="274356.2429000009"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.552598405529398" miny="37.100365651432874" maxx="-6.203457760525444" maxy="42.13849344175739"/>
+          <Style>
+            <Name>BDG:ardida_2011</Name>
+            <Title>BDG:ardida_2011</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2011"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2010</Name>
+          <Title>Territórios ardidos (área ardida ano 2010)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2010_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.544987158088077" miny="37.09428528646348" maxx="-6.200296003428923" maxy="42.13096505970487"/>
+          <BoundingBox SRS="EPSG:3763" minx="-116751.68670000043" miny="-284207.6805000007" maxx="159849.47869999986" maxy="273521.37040000036"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.544987158088079" miny="37.09428532281117" maxx="-6.200296003428923" maxy="42.13096509999939"/>
+          <Style>
+            <Name>BDG:ardida_2010</Name>
+            <Title>BDG:ardida_2010</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2010"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2009</Name>
+          <Title>Territórios ardidos (área ardida ano 2009)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2009_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.358550135940801" miny="37.189011290578044" maxx="-6.2011467616719695" maxy="42.12061885224822"/>
+          <BoundingBox SRS="EPSG:3763" minx="-101347.83469999954" miny="-273690.59699999914" maxx="159805.49019999988" maxy="272353.7466000002"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.358550135940801" miny="37.189011327029576" maxx="-6.2011467616719695" maxy="42.12061889253822"/>
+          <Style>
+            <Name>BDG:ardida_2009</Name>
+            <Title>BDG:ardida_2009</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2009"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_2000_2008</Name>
+          <Title>Territórios ardidos (área ardida anos 2000-2008)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_2000_2008_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.562565991030382" miny="37.01365224750541" maxx="-6.216216795582034" maxy="42.122423926455795"/>
+          <BoundingBox SRS="EPSG:3763" minx="-118221.70419999957" miny="-293185.0083000008" maxx="158553.44790000003" maxy="272568.56420000084"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.56256599103038" miny="37.01365228376388" maxx="-6.216216795582035" maxy="42.12242396674658"/>
+          <Style>
+            <Name>BDG:ardida_2000_2008</Name>
+            <Title>BDG:ardida_2000_2008</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_2000_2008"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_1990_1999</Name>
+          <Title>Territórios ardidos (área ardida anos 1990-1999)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_1990_1999_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.67114232810413" miny="36.93438866338924" maxx="-6.03890931474376" maxy="42.17612040501959"/>
+          <BoundingBox SRS="EPSG:3763" minx="-127096.80687006014" miny="-301702.02931375435" maxx="173081.7938279003" maxy="278541.6694684961"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.67114232810413" miny="36.934388699559335" maxx="-6.03890931474376" maxy="42.17612044533371"/>
+          <Style>
+            <Name>BDG:ardida_1990_1999</Name>
+            <Title>BDG:ardida_1990_1999</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_1990_1999"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>BDG:ardida_1975_1989</Name>
+          <Title>Territórios ardidos (área ardida anos 1975-1989)</Title>
+          <Abstract/>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>ardida_1975_1989_</Keyword>
+          </KeywordList>
+          <SRS>EPSG:3763</SRS>
+          <LatLonBoundingBox minx="-9.564123004114824" miny="36.99709533539129" maxx="-6.17625150992121" maxy="42.12487732892057"/>
+          <BoundingBox SRS="EPSG:3763" minx="-118345.86969999969" miny="-294960.9291999992" maxx="161854.62640000042" maxy="272845.79389999993"/>
+          <BoundingBox SRS="EPSG:4326" minx="-9.564123004114824" miny="36.997095371631374" maxx="-6.176251509921209" maxy="42.124877369212435"/>
+          <Style>
+            <Name>BDG:ardida_2009</Name>
+            <Title>BDG:ardida_2009</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://si.icnf.pt/geoserverplinia/BDG/areas_ardidas/wms?request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BDG%3Aardida_1975_1989"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

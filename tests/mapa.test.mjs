@@ -25,32 +25,108 @@ function comTeatro() {
 
 beforeEach(async () => { if (janela) await janela.largarTeclado(); });
 
-/* ---- a projeção ---- */
+/* ---- as grelhas ---- */
 
-test('a projeção de Mercator e o seu inverso dão a volta', semAplicacao, () => {
-  [[41.0975, -7.8103], [-33.9, 18.4], [0, 0], [60.2, 24.9]].forEach(([la, lo]) => {
-    [8, 12, 16].forEach((z) => {
-      assert.ok(Math.abs(janela.merLat(janela.merY(la, z), z) - la) < 1e-6, `lat ${la} z${z}`);
-      assert.ok(Math.abs(janela.merLon(janela.merX(lo, z), z) - lo) < 1e-6, `lon ${lo} z${z}`);
+test('cada grelha declara o sistema em que trabalha', semAplicacao, () => {
+  const G = avaliar(janela, 'GRELHAS');
+  Object.entries(G).forEach(([k, g]) => {
+    assert.equal(g.k, k, 'a chave e o nome da grelha divergem: ' + k);
+    assert.match(g.crs, /^EPSG:\d+$/, k + ' sem sistema declarado');
+    assert.ok(g.n && g.n.length > 3, k + ' sem nome legível');
+    assert.ok(g.zMax > g.zMin, k);
+  });
+  assert.equal(G.mercator.crs, 'EPSG:3857');
+  assert.equal(G.pttm06.crs, 'EPSG:3763');
+});
+
+test('sem carta o mapa trabalha na grelha portuguesa', semAplicacao, async () => {
+  await janela.retirarCarta();
+  assert.equal(janela.grelhaAtual().k, 'pttm06');
+});
+
+test('um serviço {z}/{x}/{y} arrasta consigo o Web Mercator', semAplicacao, async () => {
+  assert.ok((await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'Entidade X', 'https://t', 19)).ok);
+  assert.equal(janela.grelhaAtual().k, 'mercator', 'o esquema de mosaicos da Internet é Mercator por definição');
+  await janela.retirarCarta();
+});
+
+test('em qualquer grelha, projetar e desprojetar dá a volta', semAplicacao, () => {
+  /* A ida e volta é feita **em par**: a Transversa de Mercator não separa os eixos, e uma
+     primeira versão que projetou cada um sozinho pôs um ponto do Douro a trinta
+     quilómetros do sítio. O teste chama `para` e `de` com o par, que é como o código
+     corre. */
+  const G = avaliar(janela, 'GRELHAS');
+  const pontos = [[41.0975, -7.8103], [38.7223, -9.1393], [41.8, -6.7], [37.0, -8.9]];
+  Object.keys(G).forEach((k) => {
+    pontos.forEach(([la, lo]) => {
+      [G[k].zMin, 12, G[k].zMax].forEach((z) => {
+        const q = janela.eval(`(function(){ const g = GRELHAS.${k};
+          const p = g.para(${la}, ${lo}, ${z}); return g.de(p.x, p.y, ${z}); })()`);
+        assert.ok(Math.abs(q.lat - la) < 1e-7, `${k} z${z} lat ${la}: veio ${q.lat}`);
+        assert.ok(Math.abs(q.lon - lo) < 1e-7, `${k} z${z} lon ${lo}: veio ${q.lon}`);
+      });
     });
   });
 });
 
+/* ---- a projeção portuguesa ---- */
+
+test('a origem de PT-TM06 cai exatamente em zero', semAplicacao, () => {
+  /* EPSG:3763 não tem falsa origem: a origem das coordenadas é o próprio ponto central,
+     39° 40′ 05,73″ N, 8° 07′ 59,19″ W. Se o arco do meridiano estivesse errado, era aqui
+     que se via. */
+  const o = janela.paraTM06(39 + 40 / 60 + 5.73 / 3600, -(8 + 7 / 60 + 59.19 / 3600));
+  assert.ok(Math.abs(o.E) < 1e-6, 'Este da origem: ' + o.E);
+  assert.ok(Math.abs(o.N) < 1e-6, 'Norte da origem: ' + o.N);
+});
+
+test('o Este depende da latitude e o Norte da longitude', semAplicacao, () => {
+  /* O que a primeira versão deu por assente e não é verdade. Se estes dois valores fossem
+     iguais, a projeção estaria a ser tratada como separável — e voltava o erro. */
+  const a = janela.paraTM06(41.1, -7.8), b = janela.paraTM06(38.7, -7.8);
+  assert.notEqual(a.E, b.E, 'o Este não mexeu com a latitude');
+  const c = janela.paraTM06(41.1, -9.1);
+  assert.notEqual(a.N, c.N, 'o Norte não mexeu com a longitude');
+});
+
+test('o nível 0 da grelha portuguesa dá a folha do continente', semAplicacao, () => {
+  /* 2402,34375 m por pixel × 256 pixéis = 615 000 m redondos de lado, que é o que a DGT
+     declara no conjunto PTTM_06. Um número redondo é a prova de que a escala do nível 0
+     foi lida certa. */
+  const lado = janela.eval('GRELHAS.pttm06.res(0) * MOSAICO_PX');
+  assert.ok(Math.abs(lado - 615000) < 1, 'lado do nível 0: ' + lado);
+  /* e os níveis seguintes são metades exatas */
+  const r = janela.eval('[GRELHAS.pttm06.res(0), GRELHAS.pttm06.res(1), GRELHAS.pttm06.res(14)]');
+  assert.ok(Math.abs(r[0] / 2 - r[1]) < 1e-9);
+  assert.ok(Math.abs(r[0] / Math.pow(2, 14) - r[2]) < 1e-12);
+});
+
+test('na grelha portuguesa o metro do mapa é o metro do terreno', semAplicacao, () => {
+  /* Ao contrário do Mercator, a escala não depende da latitude: é isso que deixa ler
+     distâncias de manobra da barra de escala sem correção nenhuma. */
+  const G = avaliar(janela, 'GRELHAS');
+  assert.equal(janela.eval('GRELHAS.pttm06.escala(37, 14)'), janela.eval('GRELHAS.pttm06.escala(42, 14)'));
+  assert.ok(G.pttm06.zMin === 0, 'o nível 0 é a folha inteira, e serve');
+});
+
+/* ---- a projeção de Mercator ---- */
+
 test('um grau de longitude vale sempre o mesmo, em qualquer latitude', semAplicacao, () => {
-  const a = janela.merX(1, 12) - janela.merX(0, 12);
-  const b = janela.merX(101, 12) - janela.merX(100, 12);
-  assert.ok(Math.abs(a - b) < 1e-9);
+  const x = (lo) => janela.eval(`GRELHAS.mercator.para(0, ${lo}, 12).x`);
+  assert.ok(Math.abs((x(1) - x(0)) - (x(101) - x(100))) < 1e-9);
 });
 
-test('a escala aperta com a latitude e com a ampliação', semAplicacao, () => {
-  assert.ok(janela.merEscala(41, 12) < janela.merEscala(0, 12), 'a 41 graus o pixel vale menos metros');
-  assert.ok(janela.merEscala(41, 13) < janela.merEscala(41, 12));
+test('a escala do Mercator aperta com a latitude e com a ampliação', semAplicacao, () => {
+  const e = (la, z) => janela.eval(`GRELHAS.mercator.escala(${la}, ${z})`);
+  assert.ok(e(41, 12) < e(0, 12), 'a 41 graus o pixel vale menos metros');
+  assert.ok(e(41, 13) < e(41, 12));
   /* referência conhecida: no equador, ao nível 0, o pixel vale cerca de 156 km */
-  assert.ok(Math.abs(janela.merEscala(0, 0) - 156543) < 1);
+  assert.ok(Math.abs(e(0, 0) - 156543) < 1);
 });
 
-test('os polos não fazem a projeção rebentar', semAplicacao, () => {
-  [90, -90, 89.999].forEach((la) => assert.ok(isFinite(janela.merY(la, 10)), 'lat ' + la));
+test('os polos não fazem a projeção de Mercator rebentar', semAplicacao, () => {
+  [90, -90, 89.999].forEach((la) =>
+    assert.ok(isFinite(janela.eval(`GRELHAS.mercator.para(${la}, 0, 10).y`)), 'lat ' + la));
 });
 
 /* ---- o enquadramento ---- */
@@ -65,13 +141,17 @@ test('o enquadramento escolhe a maior ampliação em que o teatro cabe', semApli
   assert.equal(janela.enquadrarMapa(640, 620), true);
   const M = avaliar(janela, 'MAPA');
   const P = janela.perimObj();
-  const w = janela.merX(P.bbox[2], M.z) - janela.merX(P.bbox[0], M.z);
-  const h = janela.merY(P.bbox[1], M.z) - janela.merY(P.bbox[3], M.z);
-  assert.ok(w <= M.larg + 0.5 && h <= M.alt + 0.5, `não coube: ${w}x${h} em ${M.larg}x${M.alt}`);
+  /* Os cantos projetam-se como pontos, e não eixo a eixo: é assim que o enquadramento
+     mede, e medir de outra maneira dava outro retângulo. */
+  const caixa = (z) => {
+    const sd = janela.gPara(P.bbox[3], P.bbox[2], z), ie = janela.gPara(P.bbox[1], P.bbox[0], z);
+    return { w: Math.abs(sd.x - ie.x), h: Math.abs(ie.y - sd.y) };
+  };
+  const a = caixa(M.z);
+  assert.ok(a.w <= M.larg + 0.5 && a.h <= M.alt + 0.5, `não coube: ${a.w}x${a.h} em ${M.larg}x${M.alt}`);
   /* e uma ampliação acima já não caberia */
-  const w2 = janela.merX(P.bbox[2], M.z + 1) - janela.merX(P.bbox[0], M.z + 1);
-  const h2 = janela.merY(P.bbox[1], M.z + 1) - janela.merY(P.bbox[3], M.z + 1);
-  assert.ok(w2 > M.larg || h2 > M.alt, 'ficou mais afastado do que precisava');
+  const b = caixa(M.z + 1);
+  assert.ok(b.w > M.larg || b.h > M.alt, 'ficou mais afastado do que precisava');
 });
 
 test('a tela toma a proporção do teatro, e não uma proporção fixa', semAplicacao, () => {
@@ -88,7 +168,7 @@ test('o centro do enquadramento é o centro do teatro', semAplicacao, () => {
   janela.enquadrarMapa(640, 620);
   const M = avaliar(janela, 'MAPA');
   const P = janela.perimObj();
-  assert.ok(Math.abs(janela.merLon(M.cx, M.z) - (P.bbox[0] + P.bbox[2]) / 2) < 1e-6);
+  assert.ok(Math.abs(janela.gDe(M.cx, M.cy, M.z).lon - (P.bbox[0] + P.bbox[2]) / 2) < 1e-6);
 });
 
 /* ---- a carta e a atribuição ---- */
@@ -124,14 +204,14 @@ test('o serviço declarado fica com quem o declarou, e monta o endereço', semAp
 });
 
 test('a ampliação máxima é a que o serviço declarou', semAplicacao, async () => {
-  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'X', 'https://t', '15');
+  assert.ok((await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'Entidade X', 'https://t', '15')).ok);
   comTeatro();
   janela.enquadrarMapa(2000, 620);
   assert.ok(avaliar(janela, 'MAPA').z <= 15, 'passou da ampliação que o serviço dá');
 });
 
 test('retirar o serviço leva com ele os mosaicos que dele vieram', semAplicacao, async () => {
-  await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'X', 'https://t', 19);
+  assert.ok((await janela.guardarCarta('https://c/{z}/{x}/{y}.png', 'Entidade X', 'https://t', 19)).ok);
   await janela.retirarCarta();
   assert.equal(avaliar(janela, 'CARTA'), null);
 });

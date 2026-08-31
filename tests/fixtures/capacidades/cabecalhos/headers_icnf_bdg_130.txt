@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Aug 2026 08:54:32 GMT
+Content-Type: text/xml
+Content-Length: 30454
+Connection: keep-alive
+Cache-Control: max-age=0, must-revalidate
+Content-Encoding: gzip
+X-Frame-Options: ALLOW-FROM http://si.icnf.pt , http://plinia:8080
+X-Control-flow-delay-ms: 0
+Content-Disposition: inline; filename=getcapabilities_1.3.0.xml
+X-Powered-By: ARR/3.0
+

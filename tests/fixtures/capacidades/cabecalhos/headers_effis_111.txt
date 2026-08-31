@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Date: Mon, 31 Aug 2026 08:54:37 GMT
+Content-Type: application/vnd.ogc.wms_xml; charset=UTF-8
+Content-Length: 98635
+Connection: keep-alive
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Cache-Control: public, max-age=3600
+Expires: Mon, 31 Aug 2026 09:53:35 GMT
+Server: lighttpd/1.4.74
+

@@ -91,6 +91,15 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
   mão. Campo derivado, sem campo no formulário, não precisa de nada — nada passa por ele.
 - Migração do pacote de canais faz-se em `carregarCanais`.
+- O mapa desenha em duas projeções, declaradas em `GRELHAS`: Web Mercator e PT-TM06
+  (EPSG:3763), que é a da cartografia oficial portuguesa. Quem desenha chama `gPara`,
+  `gDe` e `gEscala` e não sabe em que grelha está. **Os eixos entram e saem em par** — a
+  Transversa de Mercator não é separável, e projetar cada um sozinho já pôs um ponto do
+  Douro a trinta quilómetros do sítio.
+- As capturas em `tests/fixtures/capacidades/` são prova de proveniência do que os
+  serviços responderam. **Não se editam**: um ficheiro alterado à mão deixa de ser prova,
+  e `tests/capacidades.test.mjs` confere o resumo de cada um. Captura nova entra com o
+  resumo em `resumos.json` e a linha no `MANIFESTO.md`.
 - Verificação de conformidade nova é uma regra em `REGRAS_DON`, com as fontes declaradas
   e registadas em `docs/FONTES.md`. Regras de prazo recebem o instante, não leem o relógio.
 - Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
