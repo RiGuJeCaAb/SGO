@@ -8,6 +8,7 @@ Quatro tipos de documento, arrumados por natureza e não por data.
 |---|---|
 | `ESTADO.md` | O que está feito, em curso e por fazer, e o registo de revisões. **Atualizar no fim de cada sessão** |
 | `FONTES.md` | Uma entrada por documento doutrinário citado pela aplicação. Regra de conformidade nova declara aqui a sua fonte |
+| `POREXECUTAR.md` | O que está decidido e por fazer, ordenado pelo que se ataca primeiro. Existe porque a lista de tarefas de uma sessão morre com ela |
 
 Não seguem a convenção `CSREPCDouro_rNNNN_...` de propósito: não são entregas, são
 documentos que mudam continuamente e não têm revisões.
@@ -25,6 +26,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md` | Triagem, achado a achado e com a prova em código, da análise clínica externa ao r0050 |
 | `202608292108_AnaliseClinicaExterna.pdf` | **Documento externo**, não escrito aqui: a análise clínica à r0051 e à r0057, que abriu a fase de robustecimento. Chegou como `202608292108_Analise_clinica_do_projeto.pdf` e foi renomeado para dizer o que é; o conteúdo não se tocou |
 | `CSREPCDouro_202608310914_d_RelatorioSessaoCartografia_CLD.md` | **Relatório da sessão de captura** dos `GetCapabilities` reais, escrito noutra sessão. É o documento que abriu o trabalho de cartografia: diz o que se tentou, o que falhou e porquê, e é dele que veio o §17 com os requisitos do interpretador. As capturas que descreve estão em `tests/fixtures/capacidades/` |
+| `CSREPCDouro_202608311242_d_RelatorioFontesInternacionais_CLD.md` | **Continuação do anterior**: que fonte internacional dá o que nenhuma nacional dá. Conclui que é imagem fresca e deteção de fogo ativo, seleciona o NASA GIBS e acrescenta cinco requisitos ao interpretador. Traz a distinção que desbloqueia o impasse do sistema de coordenadas: **os focos de calor são pontos, não mosaicos**, e um ponto reprojeta-se |
 
 ## `interop/` — a ligação à Gestão PCO
 

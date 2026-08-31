@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 71, das anteriores à convenção de nomes até à r0070 |
 | Módulos em `fonte/` | 60, em sete zonas, mais o molde |
-| Testes | 517, todos a passar |
+| Testes | 520, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -116,6 +116,45 @@ linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia nin
 Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
+
+## O teste de esforço, e a travessia que era quadrática
+
+O NASA GIBS publica 5,8 MB de `GetCapabilities`: 62 034 elementos, 1 315 camadas, sete
+conjuntos de matrizes. Entrou como teste de esforço, e o interpretador **não o leu** —
+passou de cinco minutos sem terminar.
+
+A causa era minha e estava em duas linhas parecidas. `wmtsTodos` fazia
+`[...el.getElementsByTagName("*")].filter(...)`, e a coleção devolvida é **viva**: espalhá-la
+faz o motor voltar a percorrer a árvore a cada passo do iterador. A busca de exceções fazia
+`for(let i=0; i < col.length; i++)` sobre outra coleção viva, e o comprimento é recalculado
+a cada volta. Ambas são a forma óbvia de escrever aquilo, e ambas são quadráticas.
+
+A caminhada por `firstElementChild`/`nextElementSibling` percorre os mesmos 62 034 elementos
+em 38 ms. A leitura completa passou a **1,8 s**, e o inventário das 1 315 camadas a 17 ms.
+A busca de exceções deixou de percorrer o que quer que seja em documento bom: um relatório
+de exceção da OGC é um documento inteiro, e decide-se pela raiz.
+
+Nenhum documento pequeno apanhava isto. Ficou teste, com limite generoso: o que se trava é
+a regressão para tempo quadrático, não milissegundos.
+
+### O que o GIBS mostrou sobre o fogo ativo
+
+| | |
+|---|---|
+| Camadas | 1 315, das quais **99 desenháveis hoje** |
+| Recusadas por eixo temporal | **1 210** |
+| Recusadas por formato | 6, em mosaico vetorial |
+| Anomalias térmicas | 18 camadas VIIRS e MODIS — **todas recusadas**, todas por `Time` |
+
+É a única fonte de fogo ativo identificada em serviço aberto, sem chave e com CORS. E está
+recusada por inteiro, pela regra que a r0070 acabou de introduzir. A regra está certa —
+servir pelo valor por omissão mostrava outra data sem o dizer — e o resultado é inútil.
+Ler o eixo `Time` passa a ser a tarefa que desbloqueia o assunto; está em
+`docs/POREXECUTAR.md`, ponto 2.
+
+Nota de escala, para não se esperar do GIBS o que ele não dá: as anomalias térmicas param no
+nível 8, **611 m por pixel**. É honesto da NASA — o sensor VIIRS tem 375 m de resolução
+nativa —, e serve para contexto regional, não para vista de setor.
 
 ## Os requisitos do §17, na r0070
 

@@ -1958,14 +1958,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311316_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311401_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311316_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311401_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -6424,9 +6424,40 @@ function wmtsTexto(el, nome){
   const c = wmtsFilhos(el, nome)[0];
   return c? c.textContent.trim() : "";
 }
-/** Todos os descendentes com este nome local, a qualquer profundidade. */
+/**
+ * Todos os descendentes com este nome local, a qualquer profundidade.
+ *
+ * **Caminha-se a árvore à mão, de propósito.** A primeira versão fazia
+ * `[...el.getElementsByTagName("*")].filter(...)`, que é a forma óbvia e é a forma lenta:
+ * a coleção devolvida é *viva*, e espalhá-la faz o motor voltar a percorrer a árvore a
+ * cada passo do iterador. No `GetCapabilities` do NASA GIBS — 5,8 MB, 62 034 elementos,
+ * 1 315 camadas — isso não terminou em cinco minutos. A caminhada por
+ * `firstElementChild`/`nextElementSibling` percorre os mesmos 62 034 em 38 ms.
+ *
+ * Pela mesma razão nunca se escreve `for(...; i < col.length; i++)` sobre uma coleção
+ * viva: o comprimento é recalculado a cada volta.
+ */
 function wmtsTodos(el, nome){
-  return el? [...el.getElementsByTagName("*")].filter(x=>x.localName === nome) : [];
+  const out = [];
+  if(!el) return out;
+  (function anda(e){
+    for(let c = e.firstElementChild; c; c = c.nextElementSibling){
+      if(c.localName === nome) out.push(c);
+      anda(c);
+    }
+  })(el);
+  return out;
+}
+
+/** O primeiro descendente com este nome local, sem percorrer o resto da árvore. */
+function wmtsPrimeiro(el, nome){
+  if(!el) return null;
+  for(let c = el.firstElementChild; c; c = c.nextElementSibling){
+    if(c.localName === nome) return c;
+    const f = wmtsPrimeiro(c, nome);
+    if(f) return f;
+  }
+  return null;
 }
 
 /**
@@ -6500,19 +6531,27 @@ function lerCapacidadesWMTS(xml){
      `ows:ExceptionReport` do GeoServer. Julgar pelo código de estado dava-as por boas; e
      recusá-las com «a raiz não é Capabilities» esconderia o que o servidor explicou.
      Diz-se o que ele disse. */
-  const excecao = doc.getElementsByTagName("*");
-  for(let i=0;i<excecao.length;i++){
-    if(excecao[i].localName === "ExceptionText" || excecao[i].localName === "ServiceException"){
-      /* O código está ora no elemento do texto, ora no `ows:Exception` que o embrulha —
-         e é `parentElement`, não `parentNode`: o pai de um elemento de topo é o documento,
-         que não tem atributos. */
-      const pai = excecao[i].parentElement;
-      const cod = excecao[i].getAttribute("exceptionCode")
-        || (pai && pai.getAttribute("exceptionCode"))
-        || excecao[i].getAttribute("code") || "";
-      throw new Error("O serviço recusou o pedido"+(cod? " ("+cod+")" : "")+": "
-        + excecao[i].textContent.trim().slice(0, 160));
-    }
+  /* Decide-se **pela raiz**, e não à procura por toda a árvore. Um relatório de exceção da
+     OGC é um documento inteiro, não um elemento escondido dentro de umas capacidades: a
+     raiz é `ExceptionReport` ou `ServiceExceptionReport`. Procurar por todo o lado custava
+     uma travessia dos 62 034 elementos de um serviço grande para não encontrar nada, em
+     todos os documentos bons. */
+  const RAIZ_ERRO = /^(ExceptionReport|ServiceExceptionReport|ExceptionText|ServiceException)$/;
+  const erro = raiz && RAIZ_ERRO.test(raiz.localName)
+    ? (raiz.localName === "ExceptionText" || raiz.localName === "ServiceException"
+        ? raiz
+        : (wmtsPrimeiro(raiz, "ExceptionText") || wmtsPrimeiro(raiz, "ServiceException") || raiz))
+    : null;
+  if(erro){
+    /* O código está ora no elemento do texto, ora no `ows:Exception` que o embrulha —
+       e é `parentElement`, não `parentNode`: o pai de um elemento de topo é o documento,
+       que não tem atributos. */
+    const pai = erro.parentElement;
+    const cod = erro.getAttribute("exceptionCode")
+      || (pai && pai.getAttribute("exceptionCode"))
+      || erro.getAttribute("code") || "";
+    throw new Error("O serviço recusou o pedido"+(cod? " ("+cod+")" : "")+": "
+      + erro.textContent.trim().slice(0, 160));
   }
   /* O `ortosat2023` devolve os cabeçalhos HTTP **repetidos dentro do corpo**, antes do
      HTML — de modo que o documento nem sequer começa por `<`. Salta-se o que vier antes
