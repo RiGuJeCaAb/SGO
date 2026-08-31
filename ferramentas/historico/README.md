@@ -40,6 +40,7 @@ nada além do que os patches dizem.
 | `CSREPCDouro_p0019_..._PropagacaoModelos_CLD.py` | Velocidade de propagação e modelos de combustível. **Absorvido** em `fonte/3-planeamento/21-modelos-de-combustivel.js` | r0073 |
 | `CSREPCDouro_t0019_..._Propagacao_CLD.js` | Testes dessa alteração. **Portados** para `tests/propagacao.test.mjs` | — |
 | `CSREPCDouro_q0019_..._Propagacao_CLD.js` | Guião de captura da prova em navegador | — |
+| `CSREPCDouro_p0020_..._RetratoDoFogo_CLD.py` | O ambiente de fogo entra no plano: terceiro coletor, propostas fundadas na intensidade. **Absorvido** em `fonte/3-planeamento/22-ambiente-de-fogo.js` | r0074 (paralela) |
 | `patch_r0016.py`, `teste.js` | Versões anteriores dos mesmos guiões | r0016 |
 
 Os seis guiões de 31 de agosto — `p0017`, `t0017`, `q0017`, `p0019`, `t0019`, `q0019` —

@@ -13,7 +13,7 @@ Uma linha por reserva, com o número mais alto conhecido e a data em que se soub
     r0063 · 2026-08-30 · linhagem paralela: «os r já vão na r0063»
     r0071 · 2026-08-31 · linhagem paralela: p0017, carta pré-descarregada — **chegada e absorvida**
     r0073 · 2026-08-31 · linhagem paralela: p0019, modelos de combustível — **chegada e absorvida**
-    r0074 · 2026-08-31 · linhagem paralela: p0020 — **colisão: existem duas r0074**, e a delas não chegou
+    r0074 · 2026-08-31 · linhagem paralela: p0020 — **colisão: existem duas r0074**; o guião chegou e está absorvido
 
 A r0063b — o `b` é sufixo de trabalho da linhagem paralela, não um número novo — chegou
 com o croqui do teatro de operações e os cartões dobráveis, e está em `app/` ao lado das
@@ -41,8 +41,8 @@ não foi: soube-se dele já usado dos dois lados.
 Não há aqui nada a desfazer: as duas saíram, e apagar uma para renumerar seria repetir o erro
 que a regra proíbe. Ficam ambas, distintas pelo carimbo de data, e fica escrito porquê.
 
-Para não haver uma terceira: **esta linhagem já usou a r0075 e a r0076.** O número seguinte
-livre é o r0077.
+Para não haver uma terceira: **esta linhagem já usou a r0075, a r0076 e a r0077.** O número
+seguinte livre é o r0078.
 
 Quando as revisões chegarem e forem absorvidas em `fonte/`, ficam em `app/` como as
 outras e a linha correspondente pode sair.

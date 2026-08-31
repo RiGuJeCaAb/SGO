@@ -159,8 +159,10 @@ O outro lado deixou ponto de situação. Fica aqui o que dele nos toca, e o que 
 
 ### Por fazer, e depende deles
 
-1. **O `p0020` não chegou.** É o que a r0074 deles carrega e nunca foi visto deste lado. Sem
-   ele não há como absorver o que essa revisão traz. **Pedir o ficheiro.**
+1. ~~**O `p0020` não chegou.**~~ **Chegou e está absorvido na r0077** — ver `docs/ESTADO.md`.
+   Ficou de fora o ramo das folhas calibradas (`FOLHAS`, `folhaCalibrada`), que é trabalho
+   deles e não existe aqui: **quando essas folhas forem absorvidas, a cartografia do
+   `retratoDoFogo` volta a nomeá-las**.
 2. **A escada de migrações divergiu.** Eles vão na versão de estado 22, esta linhagem na 25.
    Não é erro de nenhum dos lados — são degraus diferentes, postos por ordens diferentes. O
    que importa é a consequência: **um degrau do `p0020` não pode ser copiado com o número que

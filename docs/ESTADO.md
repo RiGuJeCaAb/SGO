@@ -2502,3 +2502,61 @@ o que absorver; a escada de migrações divergiu (eles na versão de estado 22, 
 que um degrau do `p0020` terá de entrar no fim da escada daqui e não com o número que traz; e
 as missões do PEA por alinhar com as propostas ficam para quando esse ficheiro chegar, porque é
 provável que mexam no mesmo sítio.
+
+## r0077 — o ambiente de fogo entra no plano
+
+Absorvido o `p0020` da linhagem paralela, que chegou logo a seguir ao recado. É a correção de
+uma falha estrutural, e não uma funcionalidade nova.
+
+### O que estava mal
+
+Havia **dois** coletores a alimentar o PEA — `retratoOperacional()` para o dispositivo e
+`metricas()` para a meteorologia — e nenhum para o resto. Os painéis do relevo, do
+combustível, da propagação, da intensidade, das frentes e das linhas escreviam no estado,
+pintavam o seu ecrã, e ninguém os juntava. A auditoria do outro lado conta-o assim: de onze
+painéis que produzem informação, **cinco não chegavam ao PEA por via nenhuma** e três chegavam
+só à via do modelo de linguagem.
+
+O resultado via-se no papel. A aplicação calculava que acima dos 4 000 kW/m atacar diretamente
+a cabeça é inconsequente, e emitia a seguir um plano a dizer «postura defensiva fora da
+janela», com fundamento genérico — **a mesma frase que sairia para um incêndio de 200 kW/m**.
+
+### O que entrou
+
+`fonte/3-planeamento/22-ambiente-de-fogo.js`, o terceiro coletor: `retratoDoFogo()` reúne
+terreno, combustível, comportamento e o que está traçado no teatro; `resumoDoFogo()` di-lo numa
+passagem. Ligado às duas vias — vai no contexto do modelo de linguagem e entra na decisão
+determinística. Daí saem oito propostas fundadas em números com fonte, **à frente das
+genéricas**, porque a intensidade decide se há sequer ataque à cabeça, e essa decisão precede a
+ordem de esforço. E a distância de segurança passa a ir em metros nas medidas de segurança.
+
+Cada grandeza leva a **origem da prova** — R observado no teatro ou estimado pelos guias. Sobre
+isto o outro lado retirou uma proposta que tinha feito, de graduar a força das propostas
+conforme a origem, e retirou-a bem: o PEA é aprovado pelo COS (art. 27.º, n.º 1, al. a)), é a
+aprovação que confere força, e não cabe à aplicação enfraquecer a sua própria proposta para se
+precaver. O que lhe cabe é pôr a qualidade da prova à vista.
+
+`tests/ambiente-de-fogo.test.mjs`, 17 testes. O que se verifica não é que o retrato existe: é
+que **o plano muda quando ele muda** — as quatro faixas de intensidade dão quatro manobras
+diferentes, e um fogo de 60 m/h deixa de receber a frase de um de 3 192.
+
+### Três coisas que se corrigiram ao absorver
+
+- **`FOLHAS` e `folhaCalibrada` não existem deste lado** — são as folhas calibradas da linhagem
+  paralela. O ramo saiu em vez de ficar escrito a apontar para o vazio; quando as folhas forem
+  absorvidas, a cartografia do retrato volta a nomeá-las. Apanhado pelo `npm run lint`.
+- **Os recuos `D.fogo || {r:"",w:""}` e `F.est || {}` alargavam o tipo até ele deixar de dizer
+  nada**: o verificador passou a não saber que `est` tem `modelo` nem `hcm`. Saíram. Os dois
+  ramos são garantidos pelo `novoEstado` e pela escada de migrações, e defender-se do que a
+  escada promete é desconfiar do próprio contrato e perder a verificação em troca de nada.
+- **Os `id` das propostas — `PI`, `PL`, `PQ` — são decorativos**: `detDecisao` renumera tudo
+  para `P1..Pn` no fim. Os testes procuram pelo texto e pela posição; procurar pelo `id` daria
+  um teste a garantir que não há proposta quando ela lá está.
+
+Sem migração: o `p0020` não muda a forma do estado. A versão continua na 25.
+
+### A colisão da r0074 fecha-se aqui
+
+O guião chegou, está absorvido e arquivado. Continuam a existir duas r0074, e continua a estar
+escrito porquê. Esta linhagem já usou a r0075, a r0076 e a r0077: **o número seguinte livre é o
+r0078**.

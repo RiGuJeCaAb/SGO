@@ -345,6 +345,32 @@ O **Pacote de canais** traz o do posto. Canais que não constem do pacote acresc
 
 ---
 
+## O que o plano passa a citar
+
+Não há painel para isto: é o que acontece **dentro** do PEA quando os painéis anteriores
+estiverem preenchidos.
+
+Até à r0076, o que se escrevia no relevo, no combustível e na intensidade da frente ficava no
+ecrã onde tinha sido escrito. O plano saía com fundamentos genéricos — a mesma frase para um
+incêndio de 200 kW/m e para um de 30 000. A partir da r0077 o PEA reúne também o ambiente de
+fogo, e isso muda três coisas no documento:
+
+| Onde | O que passa a lá estar |
+|---|---|
+| Análise da zona de intervenção | O combustível e a carga, a intensidade e o comprimento da chama, o terreno e o perfil, a idade da previsão e a cartografia em uso — **ou o que falta de cada um** |
+| Propostas | A primeira proposta decorre da intensidade da frente, quando ela é conhecida: interdição de ataque à cabeça, ataque com apoio aéreo, ataque direto admissível, ou supressão manual, conforme a faixa |
+| Medidas de segurança | A distância mínima à frente de chamas **em metros**, e não como princípio |
+
+Cada fundamento traz o valor e **a origem da prova** — se a velocidade de propagação foi
+observada no teatro ou estimada pelos guias de fogo controlado. A proposta não se enfraquece
+por ser estimada: quem aprova é o COS, e o que lhe cabe saber é o que está a aprovar.
+
+Além disso, o plano passa a pedir o que falta: uma linha de contenção estreita de mais para a
+chama calculada, uma linha sem largura declarada, uma frente cujo rumo foi deduzido do traçado
+e não observado, um ponto sensível detetado na carta e ausente do campo de sensíveis.
+
+---
+
 ## Elaborar o PEA
 
 Planeamento → **Elaborar proposta de PEA**, com «Elaborar proposta de PEA».
