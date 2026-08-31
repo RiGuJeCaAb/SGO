@@ -292,6 +292,17 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 17 -> 18 · Limite traçado do setor. Até aqui o setor tinha um ponto e mais nada, e um
+   ponto não diz onde acaba a responsabilidade de quem comanda um nem começa a do outro.
+   Campo novo, sem valor que se possa presumir: fica vazio. Um setor sem limite é um setor
+   **por delimitar** — não é um setor de área nula, e a aplicação não o desenha. */
+MIGRACOES.push(e => {
+  const est = e.dados && e.dados.est;
+  if(est && Array.isArray(est.setores))
+    est.setores.forEach(s=>{ if(s && !Array.isArray(s.limite)) s.limite = []; });
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *

@@ -15,13 +15,13 @@ estas cinco que separam o mapa da aplicação da carta que se usa.
 
 | | O que falta | Porque interessa |
 |---|---|---|
-| 1 | **Limites de setor.** O setor tem um ponto, não tem área | Alfa e Bravo estão traçados na carta real. Sem área não há como dizer o que é de quem, nem alimentar previsão nenhuma |
+| ~~1~~ | ~~**Limites de setor**~~ | **Feito na r0070.** Anel fechado por setor, traçado no mapa. Dá área por setor, área setorizada do teatro, e o setor em que cai cada ponto marcado |
 | 2 | **Frentes ativas com direção.** O estado do setor é texto; não há linha de frente | É o dado de que qualquer previsão de evolução parte. Sem frente orientada não há para onde projetar |
 | 3 | **Linhas de contenção e de apoio**, por tipo de traço | São a manobra. O PEA propõe-nas em palavras e não as sabe desenhar |
 | 4 | **Meios no sítio onde estão** | GRIR Guarda, GRUATA BSE, CATE Viseu e os restantes estão no dispositivo sem coordenada. Também as nomeações — posto de meteorologia, 2.º comandante na torre |
 | 5 | **Anotação livre georreferenciada** | «Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo». Não há onde escrever isto no mapa |
 
-As duas primeiras são pré-requisito das outras e de tudo o que venha a seguir.
+A primeira está feita. A segunda é pré-requisito das outras e de tudo o que venha a seguir.
 
 ## 2. Fogo ativo: o eixo do tempo
 

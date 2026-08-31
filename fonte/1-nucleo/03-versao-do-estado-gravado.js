@@ -3,7 +3,7 @@
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 17;
+const VERSAO_ESTADO = 18;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -57,4 +57,10 @@ const MIGRACOES = [
     return e;
   }
 ];
+
+/* **A escada continua noutro ficheiro.** Os degraus seguintes são acrescentados com
+   `MIGRACOES.push` em `04-modelo-de-celulas-e-turno.js`, à medida que a matéria de cada um
+   passou a existir. Quem acrescentar um degrau novo acrescenta-o **no fim desse ficheiro**,
+   e não aqui: um degrau posto no meio corre na versão errada. Já aconteceu — o limite de
+   setor, escrito aqui, ficou a correr no degrau 3 e nunca chegava aos setores. */
 

@@ -80,6 +80,12 @@ interface Setor {
   siresp?: string; ba?: string; tat?: string; tatba?: string;
   /** Coordenada do setor, marcada no mapa. Vazia enquanto não for marcada. */
   lat?: string; lon?: string;
+  /**
+   * Limite traçado do setor: anel fechado de pares `[lon, lat]`, na convenção do GeoJSON
+   * e a mesma do perímetro da zona de intervenção. Vazio enquanto não for traçado — um
+   * setor sem limite é um setor por delimitar, e não um setor de área nula.
+   */
+  limite?: number[][];
   tip?: any[];
   [outro: string]: any;
 }
@@ -154,6 +160,13 @@ interface PontoNotavel {
   id: string; tipo: string; nome: string;
   lat: number; lon: number;
   g: string; por: string; nota: string;
+  /**
+   * O setor em cujo limite o ponto caiu, pelo nome — vazio se não caiu em nenhum ou se
+   * não havia limites traçados quando foi marcado. Gravado no momento da marca, e não
+   * recalculado: é o registo de onde o ponto estava quando alguém o pôs ali, e um limite
+   * redesenhado depois não muda o que se registou.
+   */
+  setor?: string;
 }
 
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */

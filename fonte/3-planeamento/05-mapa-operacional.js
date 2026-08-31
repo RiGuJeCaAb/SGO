@@ -440,9 +440,16 @@ function marcarPonto(tipo, lat, lon, nome){
   const p = { id:"p"+Date.now().toString(36), tipo:d.k, nome:String(nome||d.n),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6), g:gdhAgora(), por:quemRegista(), nota:"" };
   pontosLista().push(p);
+  /* Se houver limites traçados, diz-se em que setor o ponto caiu. É a pergunta que se faz
+     a seguir a marcar — «isso é de quem?» — e a resposta está na geometria que já existe.
+     Sem limites traçados não se diz nada, em vez de dizer «setor desconhecido», que daria
+     a entender que havia setores e o ponto não caiu em nenhum. */
+  const iS = setorDoPonto(p.lat, p.lon);
+  const noSetor = iS >= 0 ? ", no setor "+NOMES_SETOR[iS] : "";
+  p.setor = iS >= 0 ? NOMES_SETOR[iS] : "";
   O.evolucao.push({ g:p.g, tipo:"posit",
-    txt:d.n+" marcado no mapa"+(nome? " ("+nome+")":"")+": "+fmtDec(p.lat, p.lon)+"." });
-  fita(d.n+" marcado: "+fmtDec(p.lat, p.lon));
+    txt:d.n+" marcado no mapa"+(nome? " ("+nome+")":"")+": "+fmtDec(p.lat, p.lon)+noSetor+"." });
+  fita(d.n+" marcado: "+fmtDec(p.lat, p.lon)+noSetor);
   return { ok:true, ponto:p };
 }
 
@@ -505,6 +512,34 @@ function camadaMapa(){
     g += '<circle cx="'+x0+'" cy="'+y0+'" r="6" fill="'+d.cor+'" stroke="#fff" stroke-width="1.8"/>';
     g += rotulo(x0+9, y0+4, p.nome, 10);
   });
+
+  /* Os limites de setor, **por baixo de tudo o que se marca**: são superfície, e uma
+     superfície desenhada por cima esconde os pontos que lhe estão dentro. Por isso este
+     bloco vem antes na cadeia de desenho e o preenchimento é fraco. */
+  (estObj().setores||[]).forEach((s,i)=>{
+    const anel = limiteSetor(i); if(!anel) return;
+    const d = anel.map((c,k)=>{ const q = pxy(c[1], c[0]); return (k?"L":"M")+n(q.x)+","+n(q.y); }).join(" ")+" Z";
+    g += '<path d="'+d+'" fill="#1F4E79" fill-opacity=".10" stroke="#1F4E79" stroke-width="2.2"'
+       + ' stroke-dasharray="7 4" stroke-linejoin="round"/>';
+    /* O rótulo vai ao centróide da área, e não ao ponto do setor: o ponto é onde está o
+       comando do setor, o centróide é onde a figura se lê. */
+    const c = centroAnel(anel); if(!c) return;
+    const q = pxy(c.lat, c.lon);
+    g += '<text x="'+n(q.x)+'" y="'+n(q.y)+'" font-size="15" font-weight="700" text-anchor="middle"'
+       + ' fill="#1F4E79" stroke="#fff" stroke-width="3.5" paint-order="stroke">'
+       + esc(String(NOMES_SETOR[i]||"")) + '</text>';
+  });
+
+  /* O traçado em curso, se houver: os vértices já pousados e a linha entre eles. Não é
+     estado da ocorrência e por isso desenha-se de outra maneira — linha fina e contínua,
+     com os vértices à vista, para se distinguir de um limite fechado. */
+  if(TRACO.setor >= 0 && TRACO.pontos.length){
+    const q0 = TRACO.pontos.map(c=>pxy(c[1], c[0]));
+    if(q0.length > 1)
+      g += '<path d="'+q0.map((q,k)=>(k?"L":"M")+n(q.x)+","+n(q.y)).join(" ")
+         + '" fill="none" stroke="#B00000" stroke-width="1.8"/>';
+    q0.forEach(q=>{ g += '<circle cx="'+n(q.x)+'" cy="'+n(q.y)+'" r="3.4" fill="#B00000" stroke="#fff" stroke-width="1.4"/>'; });
+  }
 
   /* Os setores com coordenada. */
   (estObj().setores||[]).forEach((s,i)=>{
@@ -633,6 +668,15 @@ function pintarEstadoMapa(vieram, total){
   else if(MAPA.falhas)
     partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
 
+  /* Quanto do teatro está delimitado. Um comandante que veja «412 ha de 1 260» sabe que
+     dois terços da área não têm setor a quem pertençam, que é informação de comando e não
+     de desenho. Só aparece quando há limites: sem eles a frase não diria nada. */
+  const haSet = areaSetorizadaHa();
+  if(haSet > 0){
+    const P0 = perimObj();
+    const total = P0 ? areaGeoJSON({ type:"Polygon", coordinates:P0.aneis }) : 0;
+    partes.push("Setorizado: "+haSet+" ha"+(total > 0 ? " de "+total+" ha da ZI" : "")+".");
+  }
   partes.push("Ampliação "+MAPA.z+" · "+gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z).toFixed(2)+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
@@ -656,8 +700,28 @@ function pintarAlvos(){
   sel.innerHTML = '<option value="">— clicar no mapa não marca nada —</option>'
     + '<option value="occ">Ponto da ocorrência (PCO)</option>'
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
+    + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
+        +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
   if([...sel.options].some(o=>o.value === antes)) sel.value = antes;
+}
+
+/**
+ * A barra do traçado em curso: quantos vértices há e o que se pode fazer com eles.
+ *
+ * Só aparece enquanto se traça. Uma barra de botões sempre visível para uma coisa que
+ * quase nunca está a acontecer é ruído no ecrã de quem está a comandar.
+ */
+function pintarTraco(){
+  const box = $("mapa-traco"); if(!box) return;
+  const ativo = TRACO.setor >= 0;
+  box.style.display = ativo ? "" : "none";
+  if(!ativo) return;
+  const n = TRACO.pontos.length;
+  $("mapa-traco-txt").textContent = "A traçar o limite do setor " + NOMES_SETOR[TRACO.setor]
+    + " — " + n + " vértice(s)" + (n < 3 ? ", faltam " + (3 - n) + " para fechar" : "");
+  $("mapa-traco-fechar").disabled = n < 3;
+  $("mapa-traco-desfazer").disabled = n < 1;
 }
 
 /** A lista do que está marcado, com o GDH e por quem, e um botão para retirar. */
@@ -665,11 +729,17 @@ function pintarPontos(){
   const el = $("mapa-pontos"); if(!el) return;
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
-  if(!L.length && !setores.length){
+  const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
+  if(!L.length && !setores.length && !limites.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = setores.map(({s,i})=>
+  el.innerHTML = limites.map(i=>
+      '<div class="mp-li"><b>Limite do setor '+esc(NOMES_SETOR[i])+'</b>'
+      + '<span class="hint">'+(limiteSetor(i).length-1)+' vértices</span>'
+      + '<span class="mono">'+areaSetorHa(i)+' ha</span>'
+      + '<button type="button" class="lk" data-apagar-limite="'+i+'">retirar o limite</button></div>').join("")
+    + setores.map(({s,i})=>
       '<div class="mp-li"><b>Setor '+esc(NOMES_SETOR[i])+'</b><span class="mono">'+esc(fmtDec(s.lat, s.lon))+'</span>'
       + '<button type="button" class="lk" data-desmarcar-setor="'+i+'">retirar a coordenada</button></div>').join("")
     + L.map(p=>
@@ -681,6 +751,11 @@ function pintarPontos(){
     const r = apagarPonto(b.dataset.apagarPonto);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     persistir(false); pintarPontos(); pintarMapa(); pintarCroqui();
+  }));
+  el.querySelectorAll("[data-apagar-limite]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarLimite(+b.dataset.apagarLimite);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarAlvos(); pintarMapa();
   }));
   el.querySelectorAll("[data-desmarcar-setor]").forEach(b=>b.addEventListener("click", ()=>{
     const s = estObj().setores[+b.dataset.desmarcarSetor];
@@ -709,6 +784,21 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("L:")){
+    /* Traçar não é marcar: um clique pousa um vértice e não grava nada. O limite só entra
+       no estado quando se fecha, e por isso aqui não se persiste — persistir a meio
+       gravava uma figura que ainda não existe. */
+    const i = +alvo.slice(2);
+    if(TRACO.setor !== i){
+      const r0 = iniciarTraco(i);
+      if(!r0.ok){ aviso("mapa-msg","err",r0.motivo); return; }
+    }
+    const r = pontoDoTraco(lat, lon);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    aviso("mapa-msg","ok","Limite do setor "+NOMES_SETOR[i]+": "+r.n+" vértice(s). "
+      + (r.n >= 3 ? "Já dá para fechar." : "Faltam "+(3-r.n)+" para poder fechar."));
+    pintarTraco(); pintarMapa();
+    return;
   } else {
     const t = defPonto(alvo.slice(2));
     const nome = String(($("mapa-nome")||{}).value || "").trim();
@@ -750,6 +840,25 @@ function ampliarMapa(d){
   MAPA.z = z; MAPA.cx = p.x; MAPA.cy = p.y;
   pintarMapa();
 }
+
+$("mapa-traco-fechar").addEventListener("click", ()=>{
+  const r = fecharTraco();
+  if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+  persistir(false);
+  aviso("mapa-msg","ok","Limite traçado: "+r.area+" ha.");
+  pintarTraco(); pintarAlvos(); pintarMapa();
+});
+
+$("mapa-traco-desfazer").addEventListener("click", ()=>{
+  desfazerTraco(); pintarTraco(); pintarMapa();
+});
+
+$("mapa-traco-largar").addEventListener("click", ()=>{
+  largarTraco();
+  if($("mapa-alvo")) $("mapa-alvo").value = "";
+  aviso("mapa-msg","ok","Traçado largado. Nada foi gravado.");
+  pintarTraco(); pintarMapa();
+});
 
 $("mapa-carregar").addEventListener("click", async ()=>{
   medirMapa();

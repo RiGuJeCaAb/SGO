@@ -18,7 +18,7 @@ na aplicação à data da r0066.
 | O que está na carta | Estado na Estação |
 |---|---|
 | Perímetro do ardido, com as manchas por arder lá dentro | **Feito.** `dados.perim`, com anéis interiores contados na área |
-| **Setor Alfa** e **Setor Bravo**, com os limites traçados | **Por fazer.** O setor tem um ponto, não tem limite. Falta desenhar áreas |
+| **Setor Alfa** e **Setor Bravo**, com os limites traçados | **Feito na r0070.** `Setor.limite`, anel fechado traçado no mapa. Dá área por setor, área setorizada do teatro, e diz em que setor cai cada ponto marcado |
 | Frentes ativas, com o símbolo militar de progressão | **Por fazer.** O estado do setor é texto; não há linha de frente com direção |
 | Linhas de contenção e de apoio, por tipo de traço | **Por fazer** |
 | Ponto de abastecimento de **água** e de **combustível** | **Feito.** `TIPOS_PONTO` — o de água ainda sem artigo confirmado |

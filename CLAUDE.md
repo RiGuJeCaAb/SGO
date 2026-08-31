@@ -87,7 +87,11 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   não chegaram aqui declaram-se em `app/RESERVADAS.md`, e a montagem salta-os. Sem isso
   nasceram duas `r0058` diferentes.
 - Estado novo em `O` tem de ser declarado em `novoEstado`, e toda a mudança de forma leva
-  uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um.
+  uma migração ao fim de `MIGRACOES` com `VERSAO_ESTADO` a subir um. **O fim da escada é no
+  fim de `04-modelo-de-celulas-e-turno.js`**, e não no literal de `03-versao-do-estado-gravado.js`:
+  a escada começa lá e continua por `MIGRACOES.push`. Um degrau posto no meio corre na
+  versão errada e desalinha todos os que vêm depois. O teste que o apanha é o que migra de
+  uma versão concreta e confere o campo que esse degrau introduz — não o que conta degraus.
 - Campo novo no formulário declara o seu caminho em `data-campo`; não se escreve leitura à
   mão. Campo derivado, sem campo no formulário, não precisa de nada — nada passa por ele.
 - Migração do pacote de canais faz-se em `carregarCanais`.
