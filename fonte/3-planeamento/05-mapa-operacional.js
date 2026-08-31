@@ -279,6 +279,7 @@ function enquadrarMapa(larg, altMax){
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
+  notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
   /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
      propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
@@ -688,6 +689,19 @@ function camadaMapa(){
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
   });
 
+  /* As notas. **O texto desenha-se por inteiro**, e não um símbolo com o texto escondido
+     atrás de um clique: uma nota que precise de ser clicada para se ler não é uma nota, é um
+     ponto. É assim que estão na carta anotada, escritas por cima do sítio a que dizem
+     respeito. Passa por `rotulo`, que escapa o texto — isto é escrita livre de quem regista,
+     e vai parar dentro de um SVG. */
+  notasLista().forEach(nt=>{
+    const d = defNota(nt.tipo);
+    const q = pxy(nt.lat, nt.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<circle cx="'+x0+'" cy="'+y0+'" r="3.2" fill="'+d.cor+'" stroke="#fff" stroke-width="1.4"/>';
+    g += '<path d="M'+x0+','+y0+' L'+n(x0+10)+','+n(y0-10)+'" stroke="'+d.cor+'" stroke-width="1.2"/>';
+    g += rotulo(x0 + 13, y0 - 8, nt.txt, 10, d.alerta);
+  });
+
   /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
      anotada e como se dizem na rádio. */
   meiosPosicionados().forEach(m=>{
@@ -853,6 +867,7 @@ function pintarAlvos(){
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
         +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
+    + TIPOS_NOTA.map(t=>'<option value="N:'+t.k+'">Nota — '+esc(t.n)+': '+esc(t.d)+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
@@ -911,12 +926,18 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados();
-  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length){
+  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados(), NT = notasLista();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length && !NT.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = MP.map(m=>
+  el.innerHTML = NT.map(nt=>
+      '<div class="mp-li"><b>'+esc(nt.txt)+'</b>'
+      + '<span class="hint">'+esc(defNota(nt.tipo).n)+(nt.setor? " · setor "+esc(nt.setor):"")+'</span>'
+      + '<span class="mono">'+esc(fmtDec(nt.lat, nt.lon))+'</span>'
+      + '<span class="hint">'+esc(nt.g)+(nt.por? " · "+esc(nt.por):"")+'</span>'
+      + '<button type="button" class="lk" data-apagar-nota="'+esc(nt.id)+'">retirar</button></div>').join("")
+    + MP.map(m=>
       '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
       + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
       + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
@@ -961,6 +982,11 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-apagar-nota]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarNota(b.dataset.apagarNota);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-despos-meio]").forEach(b=>b.addEventListener("click", ()=>{
     const r = despositionarMeio(b.dataset.desposMeio);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -1022,6 +1048,12 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("N:")){
+    const txt = String(($("mapa-nome")||{}).value || "").trim();
+    const r = escreverNota(alvo.slice(2), lat, lon, txt);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    if($("mapa-nome")) $("mapa-nome").value = "";
+    aviso("mapa-msg","ok",defNota(r.nota.tipo).n+" escrita em "+fmtDec(lat, lon)+".");
   } else if(alvo.startsWith("M:")){
     const r = posicionarMeio(alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }

@@ -1219,8 +1219,8 @@
         <div class="grid g2" style="margin-top:12px">
           <div><label for="mapa-alvo">Clicar no mapa marca</label>
             <select id="mapa-alvo"></select></div>
-          <div><label for="mapa-nome">Nome do ponto (opcional)</label>
-            <input id="mapa-nome" placeholder="ex.: charca de Cambres"></div>
+          <div><label for="mapa-nome">Nome do ponto, ou texto da nota</label>
+            <input id="mapa-nome" maxlength="120" placeholder="ex.: charca de Cambres · interdito a VFCI"></div>
         </div>
         <div class="msg" id="mapa-msg" style="display:none"></div>
         <div id="frente-op" style="margin-top:10px;display:none">
@@ -2037,14 +2037,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0072</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0072_202608311903_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0072</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0072_202608311923_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0072", FICHEIRO_APP = "CSREPCDouro_r0072_202608311903_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0072", FICHEIRO_APP = "CSREPCDouro_r0072_202608311923_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2199,7 +2199,7 @@ async function prepararArmazem(){
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 22;
+const VERSAO_ESTADO = 23;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2610,6 +2610,14 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 22 -> 23 · As notas escritas no mapa. Lista nova, vazia no que já existe: uma nota é o que
+   alguém viu e quis deixar dito, e não se deduz de campo nenhum. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.notas)) e.dados.notas = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -2620,7 +2628,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
@@ -3258,6 +3266,7 @@ const POSSE = [
       { p:"dados.setores",     r:"art. 17.º, n.º 1, al. a)", d:"Quadro geral do dispositivo (derivado)" },
       { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
       { p:"dados.linhas",      r:"art. 17.º, n.º 1, als. a) e b)", d:"Linhas de contenção e de apoio traçadas, com a largura útil" },
+      { p:"dados.notas",       r:"art. 17.º, n.º 1, als. a) e g)", d:"Notas de manobra escritas no mapa, na coordenada a que dizem respeito" },
       { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
       { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
     ] },
@@ -7310,6 +7319,7 @@ function enquadrarMapa(larg, altMax){
   frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
+  notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
   /* **O ponto da ocorrência sozinho chega para abrir o mapa.** O croqui recusa-o de
      propósito — um triângulo sozinho não é um croqui, não tem forma nem dimensão que valha
@@ -7719,6 +7729,19 @@ function camadaMapa(){
     g += rotulo(x0+13, y0+4, "Setor "+NOMES_SETOR[i], 10);
   });
 
+  /* As notas. **O texto desenha-se por inteiro**, e não um símbolo com o texto escondido
+     atrás de um clique: uma nota que precise de ser clicada para se ler não é uma nota, é um
+     ponto. É assim que estão na carta anotada, escritas por cima do sítio a que dizem
+     respeito. Passa por `rotulo`, que escapa o texto — isto é escrita livre de quem regista,
+     e vai parar dentro de um SVG. */
+  notasLista().forEach(nt=>{
+    const d = defNota(nt.tipo);
+    const q = pxy(nt.lat, nt.lon), x0 = n(q.x), y0 = n(q.y);
+    g += '<circle cx="'+x0+'" cy="'+y0+'" r="3.2" fill="'+d.cor+'" stroke="#fff" stroke-width="1.4"/>';
+    g += '<path d="M'+x0+','+y0+' L'+n(x0+10)+','+n(y0-10)+'" stroke="'+d.cor+'" stroke-width="1.2"/>';
+    g += rotulo(x0 + 13, y0 - 8, nt.txt, 10, d.alerta);
+  });
+
   /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
      anotada e como se dizem na rádio. */
   meiosPosicionados().forEach(m=>{
@@ -7884,6 +7907,7 @@ function pintarAlvos(){
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
         +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
+    + TIPOS_NOTA.map(t=>'<option value="N:'+t.k+'">Nota — '+esc(t.n)+': '+esc(t.d)+'</option>').join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
@@ -7942,12 +7966,18 @@ function pintarPontos(){
   const L = pontosLista(), e = estObj();
   const setores = (e.setores||[]).map((s,i)=>({s,i})).filter(x=>x.s.lat && x.s.lon);
   const limites = (e.setores||[]).map((s,i)=>i).filter(i=>limiteSetor(i));
-  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados();
-  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length){
+  const F = frentesLista(), LN = linhasLista(), MP = meiosPosicionados(), NT = notasLista();
+  if(!L.length && !setores.length && !limites.length && !F.length && !LN.length && !MP.length && !NT.length){
     el.innerHTML = '<p class="hint">Nada marcado. Escolhe o que marcar e clica no mapa.</p>';
     return;
   }
-  el.innerHTML = MP.map(m=>
+  el.innerHTML = NT.map(nt=>
+      '<div class="mp-li"><b>'+esc(nt.txt)+'</b>'
+      + '<span class="hint">'+esc(defNota(nt.tipo).n)+(nt.setor? " · setor "+esc(nt.setor):"")+'</span>'
+      + '<span class="mono">'+esc(fmtDec(nt.lat, nt.lon))+'</span>'
+      + '<span class="hint">'+esc(nt.g)+(nt.por? " · "+esc(nt.por):"")+'</span>'
+      + '<button type="button" class="lk" data-apagar-nota="'+esc(nt.id)+'">retirar</button></div>').join("")
+    + MP.map(m=>
       '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
       + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
       + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
@@ -7992,6 +8022,11 @@ function pintarPontos(){
   /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
      não em cinco sítios diferentes. */
   try{ pintarEvolucao(); }catch(e){}
+  el.querySelectorAll("[data-apagar-nota]").forEach(b=>b.addEventListener("click", ()=>{
+    const r = apagarNota(b.dataset.apagarNota);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    persistir(false); pintarPontos(); pintarMapa();
+  }));
   el.querySelectorAll("[data-despos-meio]").forEach(b=>b.addEventListener("click", ()=>{
     const r = despositionarMeio(b.dataset.desposMeio);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -8053,6 +8088,12 @@ function cliqueNoMapa(px, py){
     const r = marcarSetor(+alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
+  } else if(alvo.startsWith("N:")){
+    const txt = String(($("mapa-nome")||{}).value || "").trim();
+    const r = escreverNota(alvo.slice(2), lat, lon, txt);
+    if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
+    if($("mapa-nome")) $("mapa-nome").value = "";
+    aviso("mapa-msg","ok",defNota(r.nota.tipo).n+" escrita em "+fmtDec(lat, lon)+".");
   } else if(alvo.startsWith("M:")){
     const r = posicionarMeio(alvo.slice(2), lat, lon);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -10303,6 +10344,11 @@ function noCorredorDaFrente(f){
      outra é caminhar para uma equipa. */
   meiosPosicionados().forEach(m=>juntar(m.nome, "meio", m.it.lat, m.it.lon));
 
+  /* **Só os avisos.** Uma nota que diga «não ardido» à frente do fogo não é notícia; uma que
+     diga «interdito a VFCI» ou «incêndio subterrâneo» no caminho da frente é decisão, e tem
+     de sair aqui. As outras espécies ficam no mapa, que é onde se leem. */
+  avisosNoMapa().forEach(nt=>juntar(nt.txt, "aviso no mapa", nt.lat, nt.lon));
+
   return out.sort((a,b)=>a.m - b.m);
 }
 
@@ -10372,11 +10418,14 @@ function leituraDaFrente(f){
   const corredor = noCorredorDaFrente(f);
   /* Os meios no corredor saem à parte e primeiro. O resto do que está no caminho é
      património e terreno; isto são pessoas, e a decisão que gera é outra e é imediata. */
+  const dist = x => x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m";
   const meios = corredor.filter(x=>x.especie === "meio");
   if(meios.length)
     p.push("**No corredor de progressão desta frente: "
-      + meios.map(x=>x.nome + " a " + (x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m")).join("; ")
-      + ".**");
+      + meios.map(x=>x.nome + " a " + dist(x)).join("; ") + ".**");
+  const avisos = corredor.filter(x=>x.especie === "aviso no mapa");
+  if(avisos.length)
+    p.push("**Avisos anotados no caminho: " + avisos.map(x=>"«"+x.nome+"» a "+dist(x)).join("; ") + ".**");
 
   if(corredor.length){
     p.push("No corredor de progressão, do mais próximo para o mais longe: "
@@ -12655,6 +12704,90 @@ function contagemPosicionados(){
   const t = meiosDoDispositivo().length;
   return { total:t, postos:meiosPosicionados().length };
 }
+/* ================= OPERAÇÕES · notas no mapa =================
+   A carta anotada de Cabeça Boa está cheia de frases escritas à mão sobre o traçado:
+   «interdito a VFCI», «inversão de marcha», «estrada para entrada de meios», «não ardido»,
+   «incêndio subterrâneo», «descarga de MA com retardantes». Nenhuma cabe num campo de
+   formulário e nenhuma se deduz de coisa nenhuma — são o que quem esteve ali viu e quis
+   deixar dito, no sítio onde é verdade.
+
+   É a última coisa da carta que a aplicação não sabia fazer, e é a mais simples: texto
+   numa coordenada.
+
+   **Uma advertência sobre a classificação.** As três espécies abaixo não são doutrina e não
+   se apresentam como tal: são a maneira como a nota se lê no mapa. A doutrina classifica
+   pontos de água e zonas de concentração — não classifica bilhetes que alguém escreve na
+   margem de uma carta. Distinguem-se por uma razão prática e uma só: uma nota que restringe
+   ou avisa tem consequência para a segurança de quem lá vai, e tem de saltar à vista antes
+   de uma que apenas regista. */
+
+/**
+ * As espécies de nota, pela consequência que têm e não por doutrina nenhuma.
+ *
+ * `alerta` diz se a nota entra na leitura da evolução quando cai no caminho da frente: um
+ * aviso à frente do fogo é decisão; uma observação de que aquilo não ardeu não é.
+ */
+const TIPOS_NOTA = [
+  { k:"aviso",  n:"Aviso ou restrição", d:"Interdições, perigos, o que limita quem lá vai", cor:"#B00000", alerta:true },
+  { k:"manobra", n:"Manobra",           d:"Entradas, saídas, itinerários, o que fazer ali",  cor:"#1F4E79", alerta:false },
+  { k:"obs",    n:"Observação",         d:"O estado do terreno e o que já se fez",           cor:"#5A5A5A", alerta:false }
+];
+
+/** A definição de uma espécie de nota. O que não se reconhece cai em «observação». */
+function defNota(k){ return TIPOS_NOTA.find(t=>t.k === k) || TIPOS_NOTA[2]; }
+
+/** A lista de notas do teatro, criada à primeira vez que faz falta. */
+function notasLista(){
+  if(!Array.isArray(O.dados.notas)) O.dados.notas = [];
+  return O.dados.notas;
+}
+
+/** Quantos caracteres cabem numa nota. */
+const NOTA_MAX = 120;
+
+/**
+ * Escreve uma nota numa coordenada do mapa.
+ *
+ * O texto é obrigatório: uma nota vazia é um ponto sem informação, e o mapa já tem tipos de
+ * ponto para marcar sítios. O limite de comprimento não é decoração — o que se desenha sobre
+ * uma carta tem de caber sobre ela, e uma nota que precise de três linhas é um registo de
+ * evolução e não uma anotação.
+ */
+function escreverNota(tipo, lat, lon, txt){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de anotar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const t = String(txt||"").trim().replace(/\s+/g, " ");
+  if(!t) return { ok:false, motivo:"Uma nota sem texto não diz nada. Escreve o que há a dizer ali." };
+  if(!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok:false, motivo:"Coordenada inválida." };
+  const d = defNota(tipo);
+  const nota = {
+    id:"nt"+Date.now().toString(36),
+    tipo:d.k,
+    txt:t.slice(0, NOTA_MAX),
+    lat:+lat.toFixed(6), lon:+lon.toFixed(6),
+    setor:(()=>{ const i = setorDoPonto(lat, lon); return i >= 0 ? NOMES_SETOR[i] : ""; })(),
+    g:gdhAgora(), por:quemRegista()
+  };
+  notasLista().push(nota);
+  O.evolucao.push({ g:nota.g, tipo:"posit",
+    txt:d.n+" no mapa"+(nota.setor? ", setor "+nota.setor : "")+": «"+nota.txt+"»." });
+  fita(d.n+": "+nota.txt);
+  return { ok:true, nota };
+}
+
+/** Retira uma nota. O terreno muda, e uma nota que deixou de ser verdade sai da carta. */
+function apagarNota(id){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de alterar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const L = notasLista(), i = L.findIndex(x=>x.id === id);
+  if(i < 0) return { ok:false, motivo:"Nota não encontrada." };
+  const [x] = L.splice(i, 1);
+  O.evolucao.push({ g:gdhAgora(), tipo:"posit", txt:"Retirada a nota «"+x.txt+"»." });
+  return { ok:true, nota:x };
+}
+
+/** As notas que avisam de alguma coisa. São estas que entram na leitura da evolução. */
+function avisosNoMapa(){ return notasLista().filter(x=>defNota(x.tipo).alerta); }
 /* ================= LOGÍSTICA · canais SIRESP (art. 34.º) ================= */
 const PASTAS = {
   nacional:{t:"NACIONAL", d:"âmbito nacional — existe em qualquer teatro de operações"},

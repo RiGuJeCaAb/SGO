@@ -47,6 +47,7 @@ const POSSE = [
       { p:"dados.setores",     r:"art. 17.º, n.º 1, al. a)", d:"Quadro geral do dispositivo (derivado)" },
       { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
       { p:"dados.linhas",      r:"art. 17.º, n.º 1, als. a) e b)", d:"Linhas de contenção e de apoio traçadas, com a largura útil" },
+      { p:"dados.notas",       r:"art. 17.º, n.º 1, als. a) e g)", d:"Notas de manobra escritas no mapa, na coordenada a que dizem respeito" },
       { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
       { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
     ] },

@@ -7,7 +7,7 @@ entra numa revisão — e o `ESTADO.md` diz então em qual.
 Existe porque a lista de tarefas de uma sessão de trabalho morre com ela, e estas não devem
 morrer. Ordenado pelo que se ataca primeiro.
 
-## 1. A dívida cartográfica
+## 1. A dívida cartográfica — **saldada na r0072**
 
 O `docs/cartografia/LEIAME.md` compara a carta que o Ricardo anotou à mão no PCO de Cabeça
 Boa com o que a Estação sabe desenhar. Cinco linhas dessa tabela continuam por fazer, e são
@@ -19,7 +19,7 @@ estas cinco que separam o mapa da aplicação da carta que se usa.
 | ~~2~~ | ~~**Frentes ativas com direção**~~ | **Feito na r0070.** Linha traçada com secção e rumo de progressão. A composição de declive e vento propõe o rumo da cabeça; quem comanda decide se é aquele |
 | ~~3~~ | ~~**Linhas de contenção e de apoio**~~ | **Feito na r0070.** Com a largura útil confrontada com a que a intensidade exige, e o traço a distinguir o que está aberto do que está por abrir |
 | ~~4~~ | ~~**Meios no sítio onde estão**~~ | **Feito na r0072.** Coordenada na própria unidade do dispositivo, presa ao seu identificador. Falta ainda posicionar as nomeações — posto de meteorologia, 2.º comandante na torre |
-| 5 | **Anotação livre georreferenciada** | «Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo». Não há onde escrever isto no mapa |
+| ~~5~~ | ~~**Anotação livre georreferenciada**~~ | **Feito na r0072.** Texto numa coordenada, em três espécies que não se apresentam como doutrina. Os avisos entram na leitura da evolução |
 
 As duas primeiras estão feitas. Com elas, a previsão passa a ter de onde partir: há uma
 linha com direção e há áreas a que ela pode chegar. O que falta para a previsão geométrica

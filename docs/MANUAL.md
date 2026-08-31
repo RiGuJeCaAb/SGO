@@ -103,6 +103,24 @@ escreve no campo.
 
 A retaguarda não leva seta. Arde para trás do que já ardeu.
 
+### Escrever uma nota no mapa
+
+O que na carta se escreve à mão sobre o traçado: *interdito a VFCI*, *inversão de marcha*,
+*incêndio subterrâneo*, *não ardido*.
+
+1. No mapa, escolha *Nota* na lista, e a espécie: **aviso ou restrição**, **manobra** ou
+   **observação**.
+2. Escreva o texto no campo ao lado — o mesmo onde se escreve o nome de um ponto.
+3. Clique no sítio a que a nota diz respeito.
+
+A nota desenha-se por inteiro sobre a carta. Uma nota que precise de ser clicada para se
+ler não é uma nota, é um ponto.
+
+As três espécies **não são doutrina**: são a maneira como a nota se lê no mapa. Distinguem-se
+por uma razão prática — uma nota que restringe ou avisa tem consequência para a segurança de
+quem lá vai. Por isso **só os avisos entram na leitura da evolução** quando caem no caminho
+da frente: *não ardido* à frente do fogo não é notícia; *incêndio subterrâneo* é.
+
 ### Pôr um meio no mapa
 
 1. Atribua primeiro o meio a um setor, em Operações → **Setorização do TO e quadro de meios**.

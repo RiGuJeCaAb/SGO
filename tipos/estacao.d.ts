@@ -217,6 +217,24 @@ interface LinhaDeContencao {
   g: string; por: string; nota: string;
 }
 
+/**
+ * Uma nota escrita sobre o mapa, na coordenada a que diz respeito.
+ *
+ * As espécies — aviso, manobra, observação — **não são doutrina**: são a maneira como a nota
+ * se lê no mapa. Distinguem-se porque uma nota que restringe ou avisa tem consequência para
+ * a segurança de quem lá vai.
+ */
+interface NotaNoMapa {
+  id: string;
+  /** `aviso`, `manobra` ou `obs`. Ver TIPOS_NOTA. */
+  tipo: string;
+  txt: string;
+  lat: number; lon: number;
+  /** O setor em que a nota caiu, pelo nome. Vazio se não houver limites traçados. */
+  setor: string;
+  g: string; por: string;
+}
+
 /** A geometria do perímetro, simplificada e com a caixa envolvente já calculada. */
 interface PerimetroGravado {
   nome: string;
@@ -246,6 +264,8 @@ interface DadosOcorrencia {
   frentes: FrenteDeFogo[];
   /** As linhas de contenção e de apoio traçadas no mapa. */
   linhas: LinhaDeContencao[];
+  /** As notas escritas sobre o mapa, na coordenada a que dizem respeito. */
+  notas: NotaNoMapa[];
   /**
    * Comportamento do fogo: velocidade de propagação em m/h e carga de combustível
    * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os

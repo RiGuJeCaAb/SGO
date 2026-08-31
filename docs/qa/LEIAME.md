@@ -62,3 +62,13 @@ com as frentes, as duas linhas e o limite do setor Bravo.
 está na primeira alínea, a negrito: **«No corredor de progressão desta frente: GRIR Guarda a
 1,1 km; BRIR BSE a 2,2 km.»** E no fim, a ressalva que a torna honesta: dos 3 meios do
 dispositivo, 2 têm posição — o que a leitura diz sobre meios no caminho vale só para esses.
+
+## qa0024 — r0072, a dívida cartográfica saldada
+
+`qa0024_r0072_CartaCompleta_CLD.png` — as sete linhas da tabela de `docs/cartografia/`, na
+mesma carta: limite do setor Bravo, cabeça e flanco com seta de progressão, linha de
+contenção por abrir e linha de apoio, GRIR Guarda e BRIR BSE onde estão, pontos notáveis, e
+as três notas escritas por cima do sítio a que dizem respeito. O aviso a negrito, as outras
+não.
+
+`qa0024_r0072_LeituraCompleta_CLD.png` — a leitura da mesma ocorrência.

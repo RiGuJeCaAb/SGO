@@ -117,6 +117,51 @@ Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes d
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
 
+## A dívida cartográfica, saldada na r0072
+
+A carta que o Ricardo anotou à mão no PCO de Cabeça Boa abriu este trabalho: sete coisas que
+ela dizia e a Estação não sabia dizer. Estão as sete feitas.
+
+| | |
+|---|---|
+| Perímetro com as manchas por arder | Já estava |
+| Limites de setor | r0070 |
+| Frentes com direção de progressão | r0070 |
+| Linhas de contenção e de apoio | r0070 |
+| Pontos de água e de combustível | Já estava |
+| Meios no sítio onde estão | r0072 |
+| **Notas de manobra sobre o traçado** | **r0072** |
+
+### As notas, que eram a última
+
+«Interdito a VFCI», «inversão de marcha», «incêndio subterrâneo», «não ardido». Nenhuma cabe
+num campo de formulário e nenhuma se deduz de coisa nenhuma: são o que quem esteve ali viu e
+quis deixar dito, no sítio onde é verdade.
+
+O texto desenha-se **por inteiro** sobre a carta. Uma nota que precise de ser clicada para se
+ler não é uma nota, é um ponto.
+
+As três espécies — aviso, manobra, observação — **não são doutrina, e a aplicação não finge
+que sim**. A doutrina classifica pontos de água e zonas de concentração; não classifica
+bilhetes escritos na margem de uma carta. Distinguem-se por uma razão prática e uma só: uma
+nota que restringe ou avisa tem consequência para a segurança de quem lá vai. É por isso que
+**só os avisos entram na leitura da evolução** quando caem no caminho da frente — «não
+ardido» à frente do fogo não é notícia; «incêndio subterrâneo» é.
+
+Um teste confere que nenhuma das três cita artigo, ponto ou diretiva. Se algum dia alguém lhes
+quiser dar fundamento legal, tem de o ir buscar a uma fonte e não a este ficheiro.
+
+### A superfície mais exposta que se acrescentou
+
+É texto livre, escrito à mão por quem regista, desenhado por inteiro dentro de um SVG. Fica um
+teste que sopra os três venenos conhecidos do projeto e julga o resultado **depois de o
+navegador o interpretar** — não por procura de texto: o texto escapado contém a palavra
+«onerror» como texto, e isso é inofensivo; o que não pode existir é o atributo.
+
+### O que a carta ainda tem e a aplicação não
+
+A carta de fundo. Falta a decisão institucional sobre que serviço o posto tem direito a usar.
+
 ## Os meios onde estão, na r0072
 
 Na carta anotada do PCO os meios estão desenhados no sítio onde estão: GRIR Guarda, GRUATA

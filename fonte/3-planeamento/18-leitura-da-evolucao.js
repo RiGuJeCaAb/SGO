@@ -125,6 +125,11 @@ function noCorredorDaFrente(f){
      outra é caminhar para uma equipa. */
   meiosPosicionados().forEach(m=>juntar(m.nome, "meio", m.it.lat, m.it.lon));
 
+  /* **Só os avisos.** Uma nota que diga «não ardido» à frente do fogo não é notícia; uma que
+     diga «interdito a VFCI» ou «incêndio subterrâneo» no caminho da frente é decisão, e tem
+     de sair aqui. As outras espécies ficam no mapa, que é onde se leem. */
+  avisosNoMapa().forEach(nt=>juntar(nt.txt, "aviso no mapa", nt.lat, nt.lon));
+
   return out.sort((a,b)=>a.m - b.m);
 }
 
@@ -194,11 +199,14 @@ function leituraDaFrente(f){
   const corredor = noCorredorDaFrente(f);
   /* Os meios no corredor saem à parte e primeiro. O resto do que está no caminho é
      património e terreno; isto são pessoas, e a decisão que gera é outra e é imediata. */
+  const dist = x => x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m";
   const meios = corredor.filter(x=>x.especie === "meio");
   if(meios.length)
     p.push("**No corredor de progressão desta frente: "
-      + meios.map(x=>x.nome + " a " + (x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m")).join("; ")
-      + ".**");
+      + meios.map(x=>x.nome + " a " + dist(x)).join("; ") + ".**");
+  const avisos = corredor.filter(x=>x.especie === "aviso no mapa");
+  if(avisos.length)
+    p.push("**Avisos anotados no caminho: " + avisos.map(x=>"«"+x.nome+"» a "+dist(x)).join("; ") + ".**");
 
   if(corredor.length){
     p.push("No corredor de progressão, do mais próximo para o mais longe: "

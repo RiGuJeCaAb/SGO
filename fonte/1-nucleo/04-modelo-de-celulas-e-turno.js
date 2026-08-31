@@ -348,6 +348,14 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 22 -> 23 · As notas escritas no mapa. Lista nova, vazia no que já existe: uma nota é o que
+   alguém viu e quis deixar dito, e não se deduz de campo nenhum. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  if(!Array.isArray(e.dados.notas)) e.dados.notas = [];
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -358,7 +366,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
