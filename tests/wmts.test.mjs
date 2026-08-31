@@ -223,3 +223,91 @@ test('mas uma carta {z}/{x}/{y} continua a preencher os seus', semAplicacao, asy
   assert.equal(el('carta-zmax').value, '17');
   await janela.retirarCarta();
 });
+
+/* ---- os requisitos do §17 do relatório de cartografia ---- */
+
+test('a versão lê-se pelo nome da raiz, e um WMS colado por engano di-lo', semAplicacao, () => {
+  /* O engano provável: quem tem os dois endereços à mão cola o de WMS. Responder «raiz
+     WMT_MS_Capabilities» é verdade e não diz o que fazer a seguir. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMS_Capabilities version="1.3.0"><Service/></WMS_Capabilities>'), /WMS 1\.3\.0.*não um WMTS/s);
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMT_MS_Capabilities version="1.1.1"><Service/></WMT_MS_Capabilities>'), /WMS 1\.1\.1/);
+  /* e o atributo `version` não manda: aqui diz 1.3.0 e a raiz diz 1.1.1 */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<WMT_MS_Capabilities version="1.3.0"/>'), /WMS 1\.1\.1/, 'julgou pelo atributo em vez da raiz');
+});
+
+test('um documento com entidades próprias não é interpretado', semAplicacao, () => {
+  /* Entidades que se expandem uma na outra esgotam a memória antes de o documento acabar.
+     O navegador não resolve entidades externas, mas expande as internas. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<!DOCTYPE x [<!ENTITY a "aaaa"><!ENTITY b "&a;&a;&a;">]><Capabilities>&b;</Capabilities>'),
+    /entidades próprias/);
+});
+
+test('mas o DOCTYPE do WMS 1.1.1 é norma, e não se confunde com um ataque', semAplicacao, () => {
+  /* A primeira versão desta guarda recusava qualquer DOCTYPE. As nove capturas de WMS
+     1.1.1 trazem-no todas, por norma, e recebiam a mensagem errada. */
+  assert.throws(() => janela.lerCapacidadesWMTS(
+    '<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://x/wms.dtd"><WMT_MS_Capabilities/>'),
+    /WMS 1\.1\.1/, 'a guarda de entidades comeu o reconhecimento do protocolo');
+});
+
+test('o formato sai da lista da aplicação, não da que o serviço anuncia', semAplicacao, () => {
+  const c = daqui(cap());
+  const cam = c.camadas.find((x) => x.id === 'ortos');
+  cam.formatos = ['application/vnd.mapbox-vector-tile', 'image/tiff'];
+  const r = janela.wmtsCarta(c, 'ortos');
+  assert.equal(r.ok, false, 'adotou uma camada que não sabe desenhar');
+  assert.match(r.motivo, /mapbox-vector-tile/, 'devia dizer o que o serviço oferecia: ' + r.motivo);
+
+  /* e escolhe pela ordem de preferência declarada, não pela ordem do serviço */
+  cam.formatos = ['image/jpeg', 'image/png'];
+  assert.equal(janela.wmtsCarta(c, 'ortos').carta.formato, 'image/png', 'PNG antes de JPEG, para carta');
+});
+
+test('uma camada com eixo temporal é recusada, e não servida pelo valor por omissão', semAplicacao, () => {
+  /* Nas capturas de WMS do EFFIS as camadas declaram `time` com `default="2019-01-01"`.
+     Servir isso sem indicar a data mostrava 2019 a quem decide sobre hoje, em silêncio. */
+  const c = daqui(cap());
+  const cam = c.camadas.find((x) => x.id === 'ortos');
+  cam.dimensoes = [{ id: 'time', omissao: '2019-01-01' }];
+  const r = janela.wmtsCarta(c, 'ortos');
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /eixo «time»/);
+  assert.match(r.motivo, /2019-01-01/, 'devia dizer o que se veria em vez do que se procura');
+  /* e a camada aparece na lista com o motivo, em vez de desaparecer */
+  const L = janela.wmtsInventario(c);
+  assert.equal(L.find((x) => x.id === 'ortos').serve, false);
+});
+
+test('os parâmetros do pedido fundem-se com os do endereço, sem os repetir', semAplicacao, () => {
+  /* O MapServer publica `...?map=/caminho/servico.map&`. Colar os nossos a seguir deixava
+     o pedido com o parâmetro repetido, e qual vale é escolha do servidor. */
+  const u = janela.kvpFundido('http://s/cgi-bin/mapserv?map=/d/o.map', { SERVICE: 'WMTS', TILEROW: '3' });
+  assert.match(u, /map=/, 'perdeu o parâmetro que o serviço declarou');
+  assert.match(u, /SERVICE=WMTS/);
+  assert.equal(u.split('TILEROW=').length - 1, 1);
+
+  /* de igual nome, o nosso manda — e a chave KVP não distingue maiúsculas */
+  const v = janela.kvpFundido('http://s/w?service=WMS&x=1', { SERVICE: 'WMTS' });
+  assert.equal(v.split(/service=/i).length - 1, 1, 'ficou com SERVICE duas vezes: ' + v);
+  assert.match(v, /SERVICE=WMTS/);
+  assert.match(v, /x=1/, 'deitou fora um parâmetro do serviço');
+});
+
+test('o endereço da DGT sobrevive à fusão tal como o serviço o publica', semAplicacao, () => {
+  const u = janela.kvpFundido('http://cartografia.dgterritorio.gov.pt/ortos2018/service?', { SERVICE: 'WMTS' });
+  assert.equal(u, 'http://cartografia.dgterritorio.gov.pt/ortos2018/service?SERVICE=WMTS');
+});
+
+test('em file:// o http do serviço fica como está', semAplicacao, () => {
+  /* O relatório pedia promoção a HTTPS sempre. A DGT publica só em http, e promover às
+     cegas trocava um serviço que responde por um que não existe. Numa página segura o
+     navegador recusaria o http de qualquer modo, e aí promover é a única hipótese. */
+  assert.equal(janela.location.protocol, 'file:', 'este teste pressupõe file://');
+  assert.equal(janela.httpsSeForPreciso('http://cartografia.dgterritorio.gov.pt/x'),
+    'http://cartografia.dgterritorio.gov.pt/x');
+  assert.equal(janela.httpsSeForPreciso('https://x/y'), 'https://x/y');
+});

@@ -172,6 +172,14 @@ const GRELHAS = {
 const WMTS_PIXEL_OGC = 0.00028;
 
 /**
+ * Quantas camadas de um serviço se pintam de uma vez.
+ *
+ * Vinte cabem num ecrã de posto sem obrigar a percorrer a página. Acima disso aparece o
+ * campo de procura, e diz-se quantas ficaram de fora — que é diferente de não as ter.
+ */
+const WMTS_LISTA_MAX = 20;
+
+/**
  * A grelha em que o mapa está a trabalhar.
  *
  * Decide-a a carta: um serviço `{z}/{x}/{y}` é Web Mercator por definição, um WMTS traz a
@@ -881,15 +889,41 @@ function pintarCamadasWMTS(){
   sv.textContent = (WMTS_LIDO.titulo || "serviço sem título")
     + (WMTS_LIDO.atribuicao? " · " + WMTS_LIDO.atribuicao : "")
     + " · " + WMTS_LIDO.camadas.length + " camadas";
+  /* **Um catálogo grande não se resolve com uma lista branca de nomes.** O relatório de
+     cartografia propunha-a, e não se seguiu: escrever aqui os nomes das camadas que se
+     acha que um serviço tem é dar por assente o que não se confirmou, e é o que este
+     projeto não faz — além de esconder, sem o dizer, camadas que o serviço realmente
+     publica.
+
+     O problema que a proposta via é real: a base de dados geográfica do ICNF declara 385
+     camadas, e uma lista de 385 linhas num posto de comando não se lê. Resolve-se por
+     ordem e por procura, não por censura: as que servem primeiro, um campo para filtrar,
+     e um limite ao que se pinta de uma vez — com a conta do que ficou de fora à vista,
+     para ninguém supor que o serviço só tem aquilo. */
   const L = wmtsInventario(WMTS_LIDO);
-  el.innerHTML = L.map(c=>'<div class="wm-c">'
+  const filtro = ($("wm-filtro") && $("wm-filtro").value || "").trim().toLowerCase();
+  const linha = $("wm-filtro-linha");
+  if(linha) linha.style.display = L.length > WMTS_LISTA_MAX ? "" : "none";
+  const casa = c => !filtro || (c.titulo+" "+c.id).toLowerCase().includes(filtro);
+  const achadas = L.filter(casa).sort((a,b)=>(b.serve?1:0)-(a.serve?1:0));
+  const mostradas = achadas.slice(0, WMTS_LISTA_MAX);
+  const escondidas = achadas.length - mostradas.length;
+  el.innerHTML = mostradas.map(c=>'<div class="wm-c">'
     + '<span class="wm-t">'+esc(c.titulo)+'</span>'
     + '<span class="wm-id">'+esc(c.id)+'</span>'
     + (c.serve
         ? '<span class="hint" style="margin:0">ampliação '+c.zMin+' a '+c.zMax+'</span>'
           + '<button type="button" class="btn btn-g" data-wm-usar="'+esc(c.id)+'">Usar esta</button>'
         : '<span class="wm-nao">não serve — '+esc(c.motivo)+'</span>')
-    + '</div>').join("");
+    + '</div>').join("")
+    + (escondidas > 0
+        ? '<p class="hint" style="margin:8px 0 0 0">Mais '+escondidas+' camada(s) neste serviço, não mostradas. '
+          + 'Escreve parte do nome para as procurar.</p>'
+        : "")
+    + (achadas.length === 0
+        ? '<p class="hint" style="margin:8px 0 0 0">Nenhuma camada com «'+esc(filtro)+'» no nome, '
+          + 'de '+L.length+' que o serviço tem.</p>'
+        : "");
   el.querySelectorAll("[data-wm-usar]").forEach(b=>b.addEventListener("click", async ()=>{
     const r = wmtsCarta(WMTS_LIDO, b.getAttribute("data-wm-usar"));
     if(!r.ok){ aviso("wm-msg","err",r.motivo); return; }
@@ -927,6 +961,11 @@ $("wm-ler").addEventListener("click", async ()=>{
     aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
   }
 });
+
+/* A procura repinta a lista à medida que se escreve. Sem `debounce`: a lista já está em
+   memória, não se pede nada a ninguém, e um serviço com 385 camadas repinta-se num
+   instante. */
+$("wm-filtro").addEventListener("input", ()=>pintarCamadasWMTS());
 
 $("wm-fich").addEventListener("change", async ev=>{
   const f = ev.target.files && ev.target.files[0]; if(!f) return;

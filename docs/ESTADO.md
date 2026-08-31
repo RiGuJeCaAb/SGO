@@ -4,7 +4,7 @@ Atualizado em 2026-08-31.
 
 ## Situação atual
 
-A revisão em vigor é a **r0069**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0070**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -13,9 +13,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 69, das anteriores à convenção de nomes até à r0069 |
+| Entregas em `app/` | 71, das anteriores à convenção de nomes até à r0070 |
 | Módulos em `fonte/` | 60, em sete zonas, mais o molde |
-| Testes | 509, todos a passar |
+| Testes | 517, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -116,6 +116,73 @@ linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia nin
 Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
+
+## Os requisitos do §17, na r0070
+
+O relatório da sessão de cartografia fecha com catorze requisitos para o interpretador,
+independentes da opção de arquitetura. Foram todos percorridos. Seis mudaram
+comportamento, cinco já estavam cumpridos, dois não se aplicam a WMTS e **um seguiu-se por
+outro caminho**, com a razão registada.
+
+| § | Requisito | O que ficou |
+|---|---|---|
+| 1 | Versão pelo nome da raiz | **Feito.** E mais do que pedia: um documento de WMS colado por engano passa a dizer «isto é um WMS 1.1.1, não um WMTS», em vez de nomear a raiz. Das vinte e três capturas, dezoito são WMS: é o engano provável |
+| 2 | Erro com HTTP 200 | Já feito na r0069 |
+| 3 | Sem DTD nem entidades externas | **Feito**, com uma correção pelo caminho — ver abaixo |
+| 4 | Travessia por `localName` | Já feito |
+| 5 | Requisitabilidade pelo `Identifier` | Já feito |
+| 6 | CRS pela cadeia de ascendentes | **Não se aplica.** É a herança de camadas do WMS; no WMTS as camadas são planas e o sistema vem do conjunto de matrizes |
+| 7 | Endereço fundido, promovido a HTTPS | **Feito o primeiro, o segundo com condição** — ver abaixo |
+| 8 | Formatos por lista da aplicação | **Feito.** `WMTS_FORMATOS` declara o que o mapa desenha. Uma camada só em mosaico vetorial ou GeoTIFF é recusada a dizer o que oferecia, em vez de ser adotada e falhar ao desenhar |
+| 9 | Escalas como números, `ScaleHint` à parte | Já feito. `ScaleHint` é do WMS e não entra aqui |
+| 10 | Dimensões temporais | **Feito.** Ver abaixo: é o requisito com risco operacional real |
+| 11 | Catálogo por lista branca | **Seguiu-se por outro caminho** — ver abaixo |
+| 12 | Conferir o CRS antes de compor pedidos | Já feito, em `wmtsCompativel` |
+| 13 | Zero camadas é erro reportável | Já feito |
+| 14 | Versão fixada por camada | **Não se aplica.** O WMTS tem uma versão só, a 1.0.0 |
+
+### O eixo do tempo, que é o que mais podia doer
+
+Uma camada pode ter um eixo além do espaço. Nas capturas de WMS do EFFIS as camadas
+declaram `<Dimension name="time" units="ISO8601" default="2019-01-01">`. Um pedido que
+omita o tempo recebe o que o serviço escolheu por omissão — e nenhum aviso.
+
+Num incêndio ativo, mostrar imagem de 2019 a quem está a decidir sobre hoje, sem o dizer,
+é pior do que não ter carta nenhuma: a carta em falta vê-se, a carta errada não. O
+construtor de endereços desta aplicação não preenche dimensões, e por isso **uma camada
+que declare uma é recusada** — com o motivo, e a dizer que data se veria se fosse servida.
+
+### O DOCTYPE, e a guarda que estava a recusar mal
+
+A guarda contra entidades recusava qualquer declaração de tipo de documento. Estava errada,
+e foram as capturas que o mostraram: **o WMS 1.1.1 declara um por norma** — as nove capturas
+de 1.1.1 trazem todas `<!DOCTYPE WMT_MS_Capabilities SYSTEM ...>`. Quem colasse um endereço
+de WMS 1.1.1 recebia «declara entidades próprias», que é obscuro e falso quanto à intenção.
+
+Lê-se agora o **nome** da declaração: os nomes conhecidos seguem para a mensagem que explica
+o protocolo, e só o resto é recusado.
+
+### Onde não se seguiu o relatório
+
+**§7, a promoção a HTTPS.** O relatório pede-a sempre. Não se fez sempre, e a razão está nas
+capturas: a DGT publica o serviço em `http://` e só em `http://`. Promover às cegas trocava
+um serviço que responde por um que não existe.
+
+A regra ficou pela consequência. Numa página servida por HTTPS o navegador recusa conteúdo
+em claro de qualquer modo, e aí promover é a única hipótese de a carta aparecer; num ficheiro
+aberto de `file://`, que é como esta aplicação se usa no posto, o `http://` funciona. É a
+diferença entre a entrega local e a pré-visualização do Netlify: na segunda, a cartografia da
+DGT não carrega, e não é defeito do código.
+
+**§11, o catálogo por lista branca.** O problema é real — a base de dados geográfica do ICNF
+declara **385 camadas**, e uma lista de 385 linhas num posto de comando não se lê. A solução
+proposta não se seguiu: escrever no código os nomes das camadas que se acha que um serviço
+tem é dar por assente o que não se confirmou, que é a restrição que este projeto tem em
+primeiro lugar — e esconde, sem o dizer, camadas que o serviço realmente publica.
+
+Resolveu-se por ordem e por procura: as camadas que servem primeiro, um campo para filtrar
+que aparece quando a lista passa de vinte, e a conta do que ficou de fora à vista. Quem
+procura encontra; quem não procura não fica a supor que o serviço só tem vinte camadas.
 
 ## Desenhar na projeção portuguesa, na r0069
 
