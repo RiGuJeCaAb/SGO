@@ -1317,9 +1317,27 @@
         </div>
 
         <div class="sub" style="margin-top:12px"><span class="stit">Carta pré-descarregada</span>
-          <p class="hint" style="margin:0 0 10px 0">Uma pasta com a árvore <span class="mono-sm">{z}/{x}/{y}.png</span>.
-          Fica no dispositivo e serve sem rede.</p>
-          <input type="file" id="carta-fich" multiple accept="image/png,image/jpeg,image/webp">
+          <p class="hint" style="margin:0 0 10px 0">Escolhe a <b>pasta</b> que contém a árvore
+          <span class="mono-sm">{z}/{x}/{y}</span> — a pasta inteira, não os ficheiros um a um. Aceita
+          <span class="mono-sm">.png</span>, <span class="mono-sm">.jpg</span> e <span class="mono-sm">.webp</span>,
+          e ignora o que não seguir a árvore. Fica no dispositivo e serve sem rede.</p>
+          <p class="hint" style="margin:0 0 10px 0"><b>Um ficheiro de imagem solto não é carta.</b> Um quadrado
+          tem 256×256 pixéis e cobre exatamente o território que o seu <span class="mono-sm">z/x/y</span>
+          designa; uma captura de ecrã não cobre coisa nenhuma que a aplicação possa saber, e seria esticada
+          para dentro de um quadrado a que não corresponde. Mosaicos geram-se com ferramenta própria.</p>
+          <div class="grid g2">
+            <div><label for="carta-loc-grelha">Projeção da árvore</label>
+              <select id="carta-loc-grelha">
+                <option value="mercator">Web Mercator (EPSG:3857) — esquema {z}/{x}/{y}</option>
+                <option value="pttm06">PT-TM06 / ETRS89 (EPSG:3763) — conjunto PTTM_06 da DGT</option>
+              </select></div>
+            <div><label for="carta-loc-atrib">Origem da carta, a mostrar</label>
+              <input id="carta-loc-atrib" placeholder="ex.: Ortos 2018, Direção-Geral do Território"></div>
+          </div>
+          <p class="hint" style="margin:8px 0 10px 0">A projeção não se adivinha pelos nomes dos ficheiros: as duas
+          árvores são numeradas do mesmo modo e só a aritmética difere. Declarada errada, a carta aparece e fica
+          fora do sítio sem dizer nada — que é pior do que não aparecer.</p>
+          <input type="file" id="carta-fich" webkitdirectory directory multiple>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
         </div>
       </div>

@@ -4,7 +4,7 @@ Atualizado em 2026-08-31.
 
 ## Situação atual
 
-A revisão em vigor é a **r0070**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0072**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só.
 
@@ -116,6 +116,34 @@ linha de estado dizia «ampliação 8 a 18 a 310002AGO26» quando não havia nin
 Provado em navegador de ponta a ponta: doze mosaicos pedidos com a linha antes da coluna,
 `.../EPSG:3857:14/6135/7835.png`, guardados no arquivo, sem um erro. Prova em `docs/qa/`
 (`qa0021`).
+
+## A carta pré-descarregada, que ninguém conseguia carregar — absorvido da r0071
+
+A linhagem paralela mandou a r0071 com dois defeitos desta linhagem, e ambos são reais.
+
+**O campo não pedia uma pasta.** Sem o atributo `webkitdirectory`, o navegador não preenche
+`webkitRelativePath`, o código cai em `f.name` — que nunca traz barras — e `mosaicoDoCaminho`
+recusa **cem por cento** dos ficheiros. A funcionalidade era impossível de satisfazer por
+qualquer utilizador, por muito bem que preparasse a carta.
+
+O que interessa aqui não é o atributo: é **porque é que os testes desta linhagem não o
+apanharam**. O teste que existia construía o `webkitRelativePath` à mão, com
+`Object.defineProperty`, e assim provava que o filtro funcionava sem provar que alguém lá
+chegava. Um teste que fabrica aquilo que a interface deveria fornecer testa o código e não o
+caminho. Ficam os dois: o do filtro, e um que confere que o campo pede a pasta.
+
+**A grelha da árvore local não se declarava.** Defeito meu, e consequência direta de ter
+passado a portuguesa a grelha por omissão: uma árvore do OpenStreetMap carregada sem serviço
+declarado era desenhada com a aritmética de PT-TM06 — carta no ecrã, tudo fora do sítio, e
+nada a assinalá-lo. As duas grelhas numeram os quadrados do mesmo modo, e por isso a projeção
+**não se adivinha pelos ficheiros**: declara-se, e fica gravada com os quadrados que descreve.
+
+Acrescentou-se ainda a atribuição da carta local — o próprio código dizia que não havia onde
+a declarar — e a mensagem de falha passou a ser diagnóstica: mostra o primeiro caminho que
+leu, porque é isso que diz onde está o erro.
+
+Absorvido em `fonte/`; a r0071 fica em `app/` ao lado das outras. As 22 verificações do
+`t0017` passam contra esta fonte, e estão traduzidas para `tests/mapa.test.mjs`.
 
 ## O teste de esforço, e a travessia que era quadrática
 

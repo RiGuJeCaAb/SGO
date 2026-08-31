@@ -59,6 +59,15 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   /* O serviço de mosaicos é definição do posto, guardada no dispositivo como o tema:
      lê-se ao arranque, para o mapa saber a quem pode pedir carta. */
   try{ await carregarCarta(); pintarCarta(); await pintarArquivoMapa(); }catch(e){}
+  /* A carta pré-descarregada também é definição do posto: sem esta leitura, a grelha da
+     árvore guardada perdia-se ao fechar a página e o mapa voltava a desenhá-la errada. */
+  try{
+    await carregarCartaLocal();
+    if(CARTA_LOCAL){
+      if($("carta-loc-grelha")) $("carta-loc-grelha").value = CARTA_LOCAL.grelha;
+      if($("carta-loc-atrib") && !$("carta-loc-atrib").value) $("carta-loc-atrib").value = CARTA_LOCAL.atrib||"";
+    }
+  }catch(e){}
   if(ARMAZEM.modo==="sessao"){
     fita("AVISO: armazenamento indisponivel neste ambiente — o estado perde-se ao fechar a pagina");
     /* Aviso permanente, não uma mensagem que passa: aqui a exportação deixa de ser

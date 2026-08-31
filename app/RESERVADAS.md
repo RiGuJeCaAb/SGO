@@ -11,12 +11,17 @@ cumpre se os números que já saíram de outro sítio forem conhecidos aqui.
 Uma linha por reserva, com o número mais alto conhecido e a data em que se soube.
 
     r0063 · 2026-08-30 · linhagem paralela: «os r já vão na r0063»
+    r0071 · 2026-08-31 · linhagem paralela: p0017, carta pré-descarregada — **chegada e absorvida**
 
 A r0063b — o `b` é sufixo de trabalho da linhagem paralela, não um número novo — chegou
 com o croqui do teatro de operações e os cartões dobráveis, e está em `app/` ao lado das
 outras. **Foi absorvida em `fonte/` na r0066**: o croqui vive em
 `fonte/3-planeamento/03-croqui-do-teatro-de-operacoes.js` e os dobráveis em
 `fonte/1-nucleo/16-arrumacao-da-casa-por-celula.js`.
+
+A r0071 chegou em ficheiro e **está absorvida em `fonte/`**: corrigiu dois defeitos da
+r0070 — o campo da carta pré-descarregada não pedia uma pasta, e a grelha da árvore local não
+se declarava. Está em `app/` ao lado das outras, e o próximo número desta linhagem é o r0072.
 
 Quando as revisões chegarem e forem absorvidas em `fonte/`, ficam em `app/` como as
 outras e a linha correspondente pode sair.

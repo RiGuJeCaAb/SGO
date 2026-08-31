@@ -44,6 +44,48 @@
 let CARTA = null;
 const CARTA_CHAVE = "peaapp:carta";
 
+/**
+ * A carta pré-descarregada que está no arquivo deste dispositivo.
+ *
+ * Não é um serviço: é uma árvore de mosaicos que alguém pôs cá dentro de propósito. Mas
+ * precisa de duas coisas que um serviço declara e ela não: **em que projeção está** e
+ * **de quem é**.
+ *
+ * A projeção não é detalhe. Uma árvore do esquema `{z}/{x}/{y}` é Web Mercator; o conjunto
+ * `PTTM_06` da Direção-Geral do Território é PT-TM06 e numera os quadrados exatamente do
+ * mesmo modo. Sem a declaração, `grelhaAtual` devolvia a portuguesa sempre que não houvesse
+ * serviço — e uma árvore do OpenStreetMap era desenhada com a aritmética errada: carta no
+ * ecrã, tudo fora do sítio, e nada a assinalá-lo.
+ *
+ * @type {null|{grelha:string, atrib:string, por:string, g:string}}
+ */
+let CARTA_LOCAL = null;
+const CARTA_LOCAL_CHAVE = "peaapp:cartalocal";
+
+/** Lê a declaração da carta pré-descarregada deste dispositivo. */
+async function carregarCartaLocal(){
+  try{
+    const r = await ARMAZEM.get(CARTA_LOCAL_CHAVE);
+    const c = JSON.parse(r.value);
+    if(c && GRELHAS[c.grelha]) CARTA_LOCAL = c;
+  }catch(e){ CARTA_LOCAL = null; }
+  return CARTA_LOCAL;
+}
+
+/** Declara a projeção e a origem da carta pré-descarregada. */
+async function declararCartaLocal(grelha, atrib){
+  if(!GRELHAS[grelha]) return null;
+  CARTA_LOCAL = { grelha, atrib:String(atrib||"").trim(), por:quemRegista(), g:gdhAgora() };
+  try{ await ARMAZEM.set(CARTA_LOCAL_CHAVE, JSON.stringify(CARTA_LOCAL)); }catch(e){}
+  return CARTA_LOCAL;
+}
+
+/** Esquece a declaração, quando se esquecem os quadrados a que dizia respeito. */
+async function esquecerCartaLocal(){
+  CARTA_LOCAL = null;
+  try{ await ARMAZEM.del(CARTA_LOCAL_CHAVE); }catch(e){}
+}
+
 /** Lê o serviço configurado neste dispositivo. */
 async function carregarCarta(){
   try{
@@ -189,6 +231,10 @@ const WMTS_LISTA_MAX = 20;
 function grelhaAtual(){
   if(CARTA && CARTA.grelha && GRELHAS[CARTA.grelha]) return GRELHAS[CARTA.grelha];
   if(CARTA && CARTA.tipo === "xyz") return GRELHAS.mercator;
+  /* Sem serviço, quem manda é a carta que está no arquivo — se houver alguma e se a sua
+     projeção tiver sido declarada. É o único sítio onde essa informação existe: os
+     ficheiros não a trazem e a numeração dos quadrados é igual nas duas grelhas. */
+  if(CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]) return GRELHAS[CARTA_LOCAL.grelha];
   return GRELHAS.pttm06;
 }
 
@@ -376,22 +422,27 @@ async function guardarMosaico(z, x, y, b){
  * as ferramentas de exportação as escrevem.
  *
  * @param {FileList|File[]} ficheiros
- * @returns {Promise<{n:number, ignorados:number, semArquivo:number, niveis:number[]}>}
+ * @returns {Promise<{n:number, ignorados:number, semArquivo:number, exemplo:string, niveis:number[]}>}
  */
 async function carregarMosaicosLocais(ficheiros){
   const L = Array.from(ficheiros||[]);
-  let n = 0, semArvore = 0, semArquivo = 0;
+  let n = 0, semArvore = 0, semArquivo = 0, exemplo = "";
   const niveis = new Set();
   for(const f of L){
-    const t = mosaicoDoCaminho(f.webkitRelativePath || f.name);
-    if(!t){ semArvore++; continue; }
+    const c = f.webkitRelativePath || f.name;
+    const t = mosaicoDoCaminho(c);
+    /* Guarda-se um caminho recusado para o poder mostrar. Uma mensagem que diz «nenhum
+       ficheiro seguia a árvore» sem dizer o que leu obriga quem está ao teclado a adivinhar;
+       com o exemplo à vista vê-se num segundo se falta um nível, se a extensão é outra, ou
+       se o caminho veio vazio por não ser uma pasta. */
+    if(!t){ semArvore++; if(!exemplo) exemplo = c; continue; }
     if(!IDB){ semArquivo++; continue; }
     try{
       await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaico(t.z, t.x, t.y)));
       niveis.add(t.z); n++;
     }catch(e){ semArquivo++; }
   }
-  return { n, ignorados:semArvore, semArquivo, niveis:[...niveis].sort((a,b)=>a-b) };
+  return { n, ignorados:semArvore, semArquivo, exemplo, niveis:[...niveis].sort((a,b)=>a-b) };
 }
 
 /**
@@ -738,8 +789,11 @@ function pintarEstadoMapa(vieram, total){
   const partes = [];
   if(CARTA) partes.push(CARTA.atrib + (CARTA.termos? " — " + CARTA.termos : "")
     + (CARTA.tipo === "wmts"? " · " + CARTA.camadaTitulo + " (WMTS)" : ""));
-  else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo."
-    + " A atribuição é a de quem a forneceu — não há serviço declarado que a possa dizer aqui.");
+  else if(MAPA.pronto) partes.push("Carta pré-descarregada, do arquivo deste dispositivo"
+    + (CARTA_LOCAL && CARTA_LOCAL.atrib? " — " + CARTA_LOCAL.atrib : "")
+    + (CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]? " · " + GRELHAS[CARTA_LOCAL.grelha].n
+        + " (" + GRELHAS[CARTA_LOCAL.grelha].crs + "), declarado por quem a carregou" : "")
+    + (CARTA_LOCAL && CARTA_LOCAL.atrib? "." : ". Sem origem declarada: carta de terceiros mostra-se com a atribuição de quem a forneceu."));
   else partes.push("Sem serviço de mosaicos configurado. A carta declara-se abaixo, ou carrega-se de ficheiro.");
 
   if(MAPA.recusados >= 3)
@@ -1072,6 +1126,9 @@ $("mapa-menos").addEventListener("click", ()=>ampliarMapa(-1));
 $("mapa-enquadrar").addEventListener("click", ()=>{ medirMapa(); enquadrarMapa(MAPA.larg, MAPA.alt); pintarMapa(); });
 $("mapa-esquecer").addEventListener("click", async ()=>{
   const n = await esquecerMosaicos();
+  /* A declaração ia com os quadrados. Deixá-la para trás punha a grelha de uma carta que já
+     não existe a decidir como se desenha a seguinte. */
+  await esquecerCartaLocal();
   await pintarArquivoMapa();
   aviso("mapa-msg","ok", n? n+" quadrados de carta esquecidos." : "Não havia carta guardada.");
 });
@@ -1121,12 +1178,29 @@ $("carta-fich").addEventListener("change", async ev=>{
   if(!IDB){ el.textContent = "Este navegador não deu base de dados local: a carta pré-descarregada não pode ficar guardada."; return; }
   el.textContent = "A guardar...";
   const r = await carregarMosaicosLocais(ev.target.files);
-  el.textContent = r.n
-    ? r.n+" quadrados guardados, ampliações "+r.niveis.join(", ")
+
+  if(r.n){
+    /* A projeção grava-se com os quadrados, não depois: são eles que ela descreve, e uma
+       declaração feita a seguir a uma carga que falhou não descreve coisa nenhuma. */
+    const g = ($("carta-loc-grelha") && $("carta-loc-grelha").value) || "mercator";
+    await declararCartaLocal(g, $("carta-loc-atrib")? $("carta-loc-atrib").value : "");
+    el.textContent = r.n+" quadrados guardados, ampliações "+r.niveis.join(", ")
+      + " · lidos como "+(GRELHAS[g]? GRELHAS[g].n : g)
       + (r.ignorados? " · "+r.ignorados+" ficheiros ignorados por não seguirem {z}/{x}/{y}" : "")
-      + " — servem sem rede."
-    : "Nenhum ficheiro seguia a árvore {z}/{x}/{y}. Nada foi guardado.";
-  if(r.n) fita("Carta pré-descarregada: "+r.n+" quadrados guardados no dispositivo");
+      + " — servem sem rede.";
+    fita("Carta pré-descarregada: "+r.n+" quadrados em "+(GRELHAS[g]? GRELHAS[g].crs : g)
+      +" guardados no dispositivo"+($("carta-loc-atrib") && $("carta-loc-atrib").value? " — "+$("carta-loc-atrib").value : ""));
+  }else{
+    /* Diagnóstico, não veredicto: mostra-se o que se leu, porque é isso que diz onde está o
+       erro. Caminho vazio é ficheiro solto em vez de pasta; caminho sem os três níveis é a
+       pasta errada; extensão diferente é outro formato. */
+    el.textContent = "Nenhum ficheiro seguia a árvore {z}/{x}/{y}. Nada foi guardado."
+      + (r.ignorados? " Foram lidos "+r.ignorados+" ficheiros." : " Não veio ficheiro nenhum.")
+      + (r.exemplo? " O primeiro que li foi «"+r.exemplo+"»." : "")
+      + (r.exemplo && r.exemplo.indexOf("/") < 0
+          ? " Não traz caminho nenhum: foram escolhidos ficheiros soltos, e é preciso escolher a pasta."
+          : " Esperava-se .../{z}/{x}/{y} com extensão .png, .jpg ou .webp, e z entre 0 e 22.");
+  }
   await pintarArquivoMapa();
   if(r.n) pintarMapa();
 });

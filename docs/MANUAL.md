@@ -139,6 +139,15 @@ Há três caminhos:
   atribuição e termos de uso, e regista quem o declarou.
 - **Carta pré-descarregada** — para trabalhar sem rede. Prepare-se no gabinete.
 
+  Escolha a **pasta** que contém a árvore `{z}/{x}/{y}`, não os ficheiros um a um: o campo
+  pede uma pasta, e é do caminho dentro dela que a aplicação sabe que quadrado é cada
+  imagem. Um ficheiro de imagem solto — uma captura de ecrã, por exemplo — não é carta:
+  não cobre território nenhum que a aplicação possa saber.
+
+  E **declare a projeção da árvore**. As duas grelhas numeram os quadrados exatamente do
+  mesmo modo e só a aritmética difere: declarada errada, a carta aparece e fica fora do
+  sítio sem dizer nada, que é pior do que não aparecer.
+
 ---
 
 ## Relevo, meteorologia e comportamento do fogo
