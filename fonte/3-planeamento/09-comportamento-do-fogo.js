@@ -73,12 +73,18 @@ function razaoFogo(eps, beta){
 /**
  * Compõe declive e vento. Sem ε informado devolve só o que a geometria dá.
  *
- * @param {{orient:string, rumoVento:number, eps?:number}} entrada
+ * @param {{orient:string, rumoVento:number, eps?:number|string}} entrada
  */
 function comportamentoFogo(entrada){
   const g = betaFogo(entrada.orient, entrada.rumoVento);
   if(!g) return null;
-  const eps = Number(entrada.eps);
+  /* **A vírgula decimal é a portuguesa, e o campo é preenchido por portugueses.**
+     `Number("1,5")` é NaN, e o efeito era pior do que um erro: a razão declive/vento
+     entrava como se estivesse por preencher, e a aplicação dizia «sem ε informado» a quem
+     acabara de a informar. Sem aviso, sem sinal, e com o desvio da cabeça por calcular. */
+  const eps = typeof entrada.eps === "string"
+    ? parseFloat(entrada.eps.replace(",", "."))
+    : Number(entrada.eps);
   const temEps = Number.isFinite(eps) && eps >= 0;
   const fora = { beta: g.beta, subida: g.subida, empurra: g.empurra, eps: temEps? eps : null };
 

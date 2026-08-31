@@ -103,8 +103,8 @@ function fecharFrente(){
     linha,
     /* `rumo` é o que se mostra; `rumoFonte` diz de onde veio, e é o que impede uma
        sugestão de passar por observação três turnos depois. */
-    rumo: d.avanca ? (rumoDado !== null && isFinite(rumoDado) ? rumoDado : sugerido) : null,
-    rumoFonte: !d.avanca ? "" : (rumoDado !== null && isFinite(rumoDado) ? "indicado" : "sugerido pelo traçado"),
+    rumo: d.avanca ? (rumoDado !== null && Number.isFinite(rumoDado) ? rumoDado : sugerido) : null,
+    rumoFonte: !d.avanca ? "" : (rumoDado !== null && Number.isFinite(rumoDado) ? "indicado" : "sugerido pelo traçado"),
     setor: (()=>{ const i = setorDoPonto(linha[0][1], linha[0][0]); return i >= 0 ? NOMES_SETOR[i] : ""; })(),
     m: comprimentoLinhaM(linha),
     g: gdhAgora(), por: quemRegista(), nota: ""
@@ -143,7 +143,7 @@ function rumoDaFrente(id, graus){
   if(!f) return { ok:false, motivo:"Frente não encontrada." };
   if(!defFrente(f.tipo).avanca) return { ok:false, motivo:"A retaguarda não tem direção de progressão." };
   const g = normalizarGraus(parseFloat(String(graus).replace(",", ".")));
-  if(!isFinite(g)) return { ok:false, motivo:"Rumo não numérico." };
+  if(!Number.isFinite(g)) return { ok:false, motivo:"Rumo não numérico." };
   f.rumo = g; f.rumoFonte = "indicado";
   O.evolucao.push({ g:gdhAgora(), tipo:"posit",
     txt:defFrente(f.tipo).n+": rumo de progressão corrigido para "+Math.round(g)+"°." });
@@ -167,7 +167,7 @@ function rumoPrevistoDaCabeca(){
      relevo faz para a sua leitura. Duas escolhas diferentes dariam dois rumos diferentes
      para a mesma cabeça, no mesmo ecrã. */
   const hora = (SERIE||[]).reduce((a,b)=>(b && a && b.ws > a.ws)? b : a, (SERIE||[])[0] || null);
-  if(!t.orient || !hora || !isFinite(hora.wd)) return null;
-  const c = comportamentoFogo({ orient:t.orient, rumoVento:hora.wd, eps: t.eps === "" ? undefined : +t.eps });
-  return c && isFinite(c.cabeca) ? { rumo:c.cabeca, hora:hora.h, eps:t.eps, delta:c.delta } : null;
+  if(!t.orient || !hora || !Number.isFinite(hora.wd)) return null;
+  const c = comportamentoFogo({ orient:t.orient, rumoVento:hora.wd, eps: t.eps });
+  return c && Number.isFinite(c.cabeca) ? { rumo:c.cabeca, hora:hora.h, eps:t.eps, delta:c.delta } : null;
 }

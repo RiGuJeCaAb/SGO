@@ -187,8 +187,14 @@ test('o rumo previsto é proposta, e não se escreve em lado nenhum', semAplicac
   const O = avaliar(janela, 'O');
   O.dados.topo.orient = 'S';
   janela.eval('SERIE = [{h:"14:00", ws:30, wd:315}]');
+  /* Com exposição e vento mas **sem a razão declive/vento**, continua a não haver previsão:
+     a composição de Viegas não dá o desvio da cabeça sem ε, e devolver zero graus seria
+     apontar a norte por não se saber apontar. Este teste passava antes por engano, porque
+     o `isFinite` global aceitava o `null` como um rumo de 0°. */
+  assert.equal(janela.rumoPrevistoDaCabeca(), null, 'previu um rumo sem ε');
+  O.dados.topo.eps = '1,5';
   const p = janela.rumoPrevistoDaCabeca();
-  assert.ok(p && isFinite(p.rumo), JSON.stringify(p));
+  assert.ok(p && Number.isFinite(p.rumo), JSON.stringify(p));
   assert.equal(p.hora, '14:00');
   /* e nada disto tocou no estado */
   assert.deepEqual(daqui(O.dados.frentes), []);

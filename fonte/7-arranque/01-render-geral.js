@@ -6,6 +6,9 @@ function pintarTudo(){
   try{ pintarEvoCtx(); }catch(e){}
   try{ pintarGuia(); }catch(e){}
   try{ pintarAvisos(); }catch(e){}
+  /* A leitura da evolução depende das frentes, dos limites, do relevo e da série: repinta-se
+     aqui porque é o único sítio por onde passam todas as quatro. */
+  try{ pintarEvolucao(); pintarIntensidade(); }catch(e){}
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
   /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */

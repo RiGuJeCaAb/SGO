@@ -598,6 +598,11 @@
   .wm-c .wm-t{font-weight:600}
   .wm-c .wm-id{font-family:var(--mono);font-size:11px;color:var(--tx3)}
   .wm-c .wm-nao{color:var(--tx3);font-style:italic;flex-basis:100%;font-size:11.5px}
+  /* A leitura da evolução. O parágrafo dos limites distingue-se por cor e por regra à
+     esquerda, e não por tamanho: é para se ler, não para se saltar. */
+  .ev-f{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--fogo);padding-left:9px}
+  .ev-g{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--agua);padding-left:9px}
+  .ev-lim{margin:0;font-size:12px;line-height:1.5;color:var(--tx2);border-left:3px solid var(--line);padding-left:9px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1236,6 +1241,16 @@
           </div>
         </div>
         <div id="mapa-pontos" style="margin-top:10px"></div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
+          <p class="hint" style="margin:0 0 8px 0">A seta no mapa diz para onde a frente aponta. Isto diz o que se
+          segue — e diz também o que a aplicação não pode afirmar, e porquê.</p>
+          <div id="evol-txt"></div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
+          </div>
+        </div>
+
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
           <span class="hint" id="mapa-arquivo"></span>
@@ -1379,6 +1394,24 @@
             <div class="hint" style="margin-top:4px">Razão entre a propagação que o declive induz e a que o vento induz, na aceção de Viegas (2004). Sem ela a app não calcula o desvio da cabeça — e não o inventa.</div></div>
           <div><label for="t-obs">Observações do relevo</label><input id="t-obs" data-campo="dados.topo.obs" placeholder="linhas de água, cumeadas, obstáculos"></div>
         </div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Comportamento do fogo — intensidade da frente</span>
+        <p class="hint" style="margin:0 0 10px 0">Dois números que a aplicação <b>não estima</b>: exigiriam um modelo
+        de combustível calibrado para a vegetação do Douro, e não existe. Dados eles, saem a intensidade da frente, o
+        comprimento da chama, a distância de segurança, a largura de contenção necessária e se o ataque direto à cabeça
+        é admissível.</p>
+        <div class="grid g2">
+          <div><label for="fg-r">Velocidade de propagação (m/h)</label>
+            <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">
+            <div class="hint" style="margin-top:4px">Observada no terreno, ou de fogo experimental em vegetação
+            comparável. Varia de 1,5 m/h a cerca de 14 km/h em floresta (Alexander 2000, via Fernandes 2003).</div></div>
+          <div><label for="fg-w">Carga de combustível consumida (t/ha)</label>
+            <input id="fg-w" data-campo="dados.fogo.w" inputmode="decimal" placeholder="ex.: 12">
+            <div class="hint" style="margin-top:4px">A que arde <b>na frente de chamas</b>, e não a carga total do
+            povoamento.</div></div>
+        </div>
+        <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
         <div class="row" style="margin:12px 0 8px">
           <button class="btn btn-b" id="b-relevo" type="button">Analisar relevo automaticamente (coordenadas da ocorrência)</button>
           <span class="hint" style="margin:0" id="t-relevo-info">Amostra 25 cotas reais em 8 rumos até 1200 m do ponto e preenche orientação e declive.</span>

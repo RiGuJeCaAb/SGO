@@ -33,6 +33,7 @@ const POSSE = [
       { p:"dados.sensiveis",  r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e pontos sensíveis" },
       { p:"dados.anexos",     r:"art. 28.º",                d:"Anexos do quadro de informações" },
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },
+      { p:"dados.fogo",       r:"art. 28.º",                d:"Velocidade de propagação e carga de combustível, para a intensidade da frente" },
       { p:"dados.perfil",     r:"art. 28.º",                d:"Perfil de elevação do eixo" }
     ] },
   { k:"operacoes", n:"Operações", r:"Despacho n.º 4067/2024, arts. 16.º a 25.º",

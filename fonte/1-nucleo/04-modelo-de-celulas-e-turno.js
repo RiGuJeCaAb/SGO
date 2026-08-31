@@ -312,6 +312,16 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 19 -> 20 · A velocidade de propagação e a carga de combustível, que destrancam a
+   intensidade da frente e tudo o que ela decide na manobra. Campos novos, sem valor que se
+   possa presumir: ficam vazios. A aplicação não os estima — exigiriam um modelo de
+   combustível calibrado para a vegetação do território, e não existe. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.fogo = Object.assign({r:"", w:""}, e.dados.fogo||{});
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -322,7 +332,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},

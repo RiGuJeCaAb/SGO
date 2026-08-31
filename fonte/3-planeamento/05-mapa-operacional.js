@@ -219,8 +219,33 @@ let MAPA_URLS = [];
  * @returns {boolean} se houve por onde enquadrar
  */
 function enquadrarMapa(larg, altMax){
-  const Q = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
-  if(!Q) return false;
+  /* A caixa do croqui é o ponto de partida — é lá que está a regra da extensão mínima —,
+     mas **não chega**: o croqui não desenha frentes nem limites de setor, e o mapa desenha.
+     Uma frente traçada fora daquela caixa ficava fora do ecrã, e o cartão do mapa nem
+     abria numa ocorrência que só tivesse frentes traçadas. Alarga-se aqui, num sítio só. */
+  const Q0 = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
+  const Q = Q0 || { minLat:Infinity, maxLat:-Infinity, minLon:Infinity, maxLon:-Infinity };
+  const juntar = (la, lo)=>{
+    if(!Number.isFinite(la) || !Number.isFinite(lo)) return;
+    if(la < Q.minLat) Q.minLat = la; if(la > Q.maxLat) Q.maxLat = la;
+    if(lo < Q.minLon) Q.minLon = lo; if(lo > Q.maxLon) Q.maxLon = lo;
+  };
+  frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
+  if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
+  /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
+     frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
+  if(!Q0){
+    const MIN = 2000, mLat = 111320, mLon = 111320*Math.cos((Q.minLat+Q.maxLat)/2*Math.PI/180);
+    const abrir = (min, max, mPorGrau)=>{
+      const falta = MIN - (max-min)*mPorGrau;
+      if(falta <= 0) return [min, max];
+      const meio = (min+max)/2, meia = MIN/2/mPorGrau;
+      return [meio-meia, meio+meia];
+    };
+    [Q.minLat, Q.maxLat] = abrir(Q.minLat, Q.maxLat, mLat);
+    [Q.minLon, Q.maxLon] = abrir(Q.minLon, Q.maxLon, mLon);
+  }
   MAPA.larg = larg || MAPA.larg || 640;
   /* A altura segue a proporção do teatro, e não uma proporção fixa. Um incêndio quase
      quadrado numa tela deitada obrigava a afastar até caber na altura, e metade do mapa
@@ -530,8 +555,14 @@ function camadaMapa(){
            + '" stroke="'+d.cor+'" stroke-width="2.4" stroke-linecap="round"/>';
       });
     }
-    const p0 = q[0];
-    g += rotulo(p0.x + 8, p0.y - 6, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
+    /* O rótulo vai para **trás** da frente, do lado que já ardeu, e não para o vértice
+       inicial: duas frentes que comecem perto uma da outra punham dois rótulos em cima um
+       do outro, e atrás da frente não há nada para tapar. */
+    const meio0 = q[Math.floor(q.length/2)];
+    const recuo = (f.rumo !== null && Number.isFinite(f.rumo) && d.avanca)
+      ? { x:-Math.cos((f.rumo-90)*Math.PI/180)*16, y:-Math.sin((f.rumo-90)*Math.PI/180)*16 }
+      : { x:8, y:-6 };
+    g += rotulo(meio0.x + recuo.x, meio0.y + recuo.y, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
   });
 
   /* Os pontos notáveis marcados à mão. */
@@ -713,7 +744,9 @@ function pintarEstadoMapa(vieram, total){
 /** Mostra ou esconde o cartão do mapa consoante haja o que enquadrar. */
 function pintarMapaCartao(){
   const box = $("mapa-box"); if(!box) return;
-  const ha = !!enquadrarCroqui(640, 420);
+  /* Pergunta-se ao enquadramento do mapa, e não ao do croqui: o mapa mostra coisas que o
+     croqui não mostra, e o cartão tem de abrir para elas. */
+  const ha = !!enquadrarMapa(MAPA.larg||640, MAPA.alt||420);
   box.style.display = ha? "block" : "none";
   if(!ha){ MAPA.pronto = false; return; }
   pintarAlvos();
@@ -811,6 +844,9 @@ function pintarPontos(){
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     persistir(false); pintarPontos(); pintarMapa(); pintarCroqui();
   }));
+  /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
+     não em cinco sítios diferentes. */
+  try{ pintarEvolucao(); }catch(e){}
   el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarFrente(b.dataset.apagarFrente);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }

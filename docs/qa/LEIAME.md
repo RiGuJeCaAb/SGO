@@ -38,3 +38,17 @@ data e ficam como vieram: renumerá-los partiria a referência dos documentos qu
 Não substituem `npm run visual`, que corre sem olhos e apanha transbordo e exceções às
 quatro larguras e nos dois temas. Servem para o que a auditoria automática não vê: se o
 que está no ecrã é o que se queria.
+
+## qa0022 — r0070, frentes com direção e leitura da evolução
+
+`qa0022_r0070_FrentesComDirecao_CLD.png` — duas frentes traçadas sobre a grelha portuguesa,
+sem carta de fundo: uma cabeça a 175° e um flanco a 53°, cada uma com a sua seta de
+progressão, o limite do setor Bravo a tracejado e os pontos marcados. Os rótulos ficam
+atrás da frente, do lado que já ardeu: a primeira versão punha-os no vértice inicial e duas
+frentes que começassem perto punham dois rótulos em cima um do outro.
+
+`qa0022_r0070_LeituraDaEvolucao_CLD.png` — a mesma ocorrência, lida por escrito. Diz para
+onde cada frente progride e de onde veio o rumo, assinala a divergência de 144° entre o
+rumo declarado e o que a composição de declive e vento dá, lista o que está no corredor por
+distância, dá a intensidade e o que ela decide na manobra, e fecha com o que a leitura
+**não** afirma.

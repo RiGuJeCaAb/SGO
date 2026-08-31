@@ -47,7 +47,13 @@ peninsular —, não para vista de setor. Para vista de setor a via é a API de 
 FIRMS, que devolve coordenadas e não mosaicos: um ponto reprojeta-se para PT-TM06, um
 mosaico já desenhado não.
 
-## 3. Intensidade da frente, e o que ela decide
+## 3. Intensidade da frente, e o que ela decide — **feito na r0070**
+
+Os dois campos existem agora em Planeamento, «Comportamento do fogo — intensidade da
+frente», e a leitura sai por baixo deles e dentro da leitura da evolução. O que continua
+por resolver é o de sempre, e está no fim desta secção: **R para os combustíveis do Douro**.
+
+### O que ficou feito
 
 Os quatro documentos de comportamento do fogo chegados a 31 de agosto — ver `FONTES.md`,
 secção `FOGOINT` — desbloqueiam metade do problema. Com a velocidade de propagação e a carga

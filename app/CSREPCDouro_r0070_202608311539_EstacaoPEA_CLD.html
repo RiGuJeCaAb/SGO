@@ -598,6 +598,11 @@
   .wm-c .wm-t{font-weight:600}
   .wm-c .wm-id{font-family:var(--mono);font-size:11px;color:var(--tx3)}
   .wm-c .wm-nao{color:var(--tx3);font-style:italic;flex-basis:100%;font-size:11.5px}
+  /* A leitura da evolução. O parágrafo dos limites distingue-se por cor e por regra à
+     esquerda, e não por tamanho: é para se ler, não para se saltar. */
+  .ev-f{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--fogo);padding-left:9px}
+  .ev-g{margin:0 0 8px 0;font-size:13px;line-height:1.5;border-left:3px solid var(--agua);padding-left:9px}
+  .ev-lim{margin:0;font-size:12px;line-height:1.5;color:var(--tx2);border-left:3px solid var(--line);padding-left:9px}
   .tchip{display:inline-flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-family:var(--mono);font-size:12.5px}
   .tchip b{color:var(--agua);font-family:var(--mono)}
   .tchip .ent{font-size:11px;color:var(--tx3)}
@@ -1236,6 +1241,16 @@
           </div>
         </div>
         <div id="mapa-pontos" style="margin-top:10px"></div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Leitura da evolução das frentes</span>
+          <p class="hint" style="margin:0 0 8px 0">A seta no mapa diz para onde a frente aponta. Isto diz o que se
+          segue — e diz também o que a aplicação não pode afirmar, e porquê.</p>
+          <div id="evol-txt"></div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn btn-b" type="button" id="evol-copiar">Copiar a leitura</button>
+          </div>
+        </div>
+
         <div class="row" style="margin-top:10px">
           <button class="btn btn-b" type="button" id="mapa-esquecer">Esquecer a carta guardada</button>
           <span class="hint" id="mapa-arquivo"></span>
@@ -1379,6 +1394,24 @@
             <div class="hint" style="margin-top:4px">Razão entre a propagação que o declive induz e a que o vento induz, na aceção de Viegas (2004). Sem ela a app não calcula o desvio da cabeça — e não o inventa.</div></div>
           <div><label for="t-obs">Observações do relevo</label><input id="t-obs" data-campo="dados.topo.obs" placeholder="linhas de água, cumeadas, obstáculos"></div>
         </div>
+      </div>
+
+      <div class="sub" style="margin-top:12px"><span class="stit">Comportamento do fogo — intensidade da frente</span>
+        <p class="hint" style="margin:0 0 10px 0">Dois números que a aplicação <b>não estima</b>: exigiriam um modelo
+        de combustível calibrado para a vegetação do Douro, e não existe. Dados eles, saem a intensidade da frente, o
+        comprimento da chama, a distância de segurança, a largura de contenção necessária e se o ataque direto à cabeça
+        é admissível.</p>
+        <div class="grid g2">
+          <div><label for="fg-r">Velocidade de propagação (m/h)</label>
+            <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">
+            <div class="hint" style="margin-top:4px">Observada no terreno, ou de fogo experimental em vegetação
+            comparável. Varia de 1,5 m/h a cerca de 14 km/h em floresta (Alexander 2000, via Fernandes 2003).</div></div>
+          <div><label for="fg-w">Carga de combustível consumida (t/ha)</label>
+            <input id="fg-w" data-campo="dados.fogo.w" inputmode="decimal" placeholder="ex.: 12">
+            <div class="hint" style="margin-top:4px">A que arde <b>na frente de chamas</b>, e não a carga total do
+            povoamento.</div></div>
+        </div>
+        <div id="fg-leitura" class="ev-f" style="margin-top:10px"></div>
         <div class="row" style="margin:12px 0 8px">
           <button class="btn btn-b" id="b-relevo" type="button">Analisar relevo automaticamente (coordenadas da ocorrência)</button>
           <span class="hint" style="margin:0" id="t-relevo-info">Amostra 25 cotas reais em 8 rumos até 1200 m do ponto e preenche orientação e declive.</span>
@@ -1975,14 +2008,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311505_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0070</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0070_202608311539_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311505_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0070", FICHEIRO_APP = "CSREPCDouro_r0070_202608311539_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2137,7 +2170,7 @@ async function prepararArmazem(){
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 19;
+const VERSAO_ESTADO = 20;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2512,6 +2545,16 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 19 -> 20 · A velocidade de propagação e a carga de combustível, que destrancam a
+   intensidade da frente e tudo o que ela decide na manobra. Campos novos, sem valor que se
+   possa presumir: ficam vazios. A aplicação não os estima — exigiriam um modelo de
+   combustível calibrado para a vegetação do território, e não existe. */
+MIGRACOES.push(e => {
+  e.dados = e.dados || {};
+  e.dados.fogo = Object.assign({r:"", w:""}, e.dados.fogo||{});
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -2522,7 +2565,7 @@ MIGRACOES.push(e => {
 function novoEstado(){
   return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
-    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], setores:"", sensiveis:"", anexos:[],
+    dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], fogo:{r:"", w:""}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
@@ -3146,6 +3189,7 @@ const POSSE = [
       { p:"dados.sensiveis",  r:"art. 28.º; art. 27.º, n.º 1, al. b)", d:"Aglomerados e pontos sensíveis" },
       { p:"dados.anexos",     r:"art. 28.º",                d:"Anexos do quadro de informações" },
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },
+      { p:"dados.fogo",       r:"art. 28.º",                d:"Velocidade de propagação e carga de combustível, para a intensidade da frente" },
       { p:"dados.perfil",     r:"art. 28.º",                d:"Perfil de elevação do eixo" }
     ] },
   { k:"operacoes", n:"Operações", r:"Despacho n.º 4067/2024, arts. 16.º a 25.º",
@@ -7150,8 +7194,33 @@ let MAPA_URLS = [];
  * @returns {boolean} se houve por onde enquadrar
  */
 function enquadrarMapa(larg, altMax){
-  const Q = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
-  if(!Q) return false;
+  /* A caixa do croqui é o ponto de partida — é lá que está a regra da extensão mínima —,
+     mas **não chega**: o croqui não desenha frentes nem limites de setor, e o mapa desenha.
+     Uma frente traçada fora daquela caixa ficava fora do ecrã, e o cartão do mapa nem
+     abria numa ocorrência que só tivesse frentes traçadas. Alarga-se aqui, num sítio só. */
+  const Q0 = enquadrarCroqui(larg||MAPA.larg||640, altMax||MAPA.alt||420);
+  const Q = Q0 || { minLat:Infinity, maxLat:-Infinity, minLon:Infinity, maxLon:-Infinity };
+  const juntar = (la, lo)=>{
+    if(!Number.isFinite(la) || !Number.isFinite(lo)) return;
+    if(la < Q.minLat) Q.minLat = la; if(la > Q.maxLat) Q.maxLat = la;
+    if(lo < Q.minLon) Q.minLon = lo; if(lo > Q.maxLon) Q.maxLon = lo;
+  };
+  frentesLista().forEach(f=>(f.linha||[]).forEach(c=>juntar(c[1], c[0])));
+  (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
+  if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
+  /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
+     frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
+  if(!Q0){
+    const MIN = 2000, mLat = 111320, mLon = 111320*Math.cos((Q.minLat+Q.maxLat)/2*Math.PI/180);
+    const abrir = (min, max, mPorGrau)=>{
+      const falta = MIN - (max-min)*mPorGrau;
+      if(falta <= 0) return [min, max];
+      const meio = (min+max)/2, meia = MIN/2/mPorGrau;
+      return [meio-meia, meio+meia];
+    };
+    [Q.minLat, Q.maxLat] = abrir(Q.minLat, Q.maxLat, mLat);
+    [Q.minLon, Q.maxLon] = abrir(Q.minLon, Q.maxLon, mLon);
+  }
   MAPA.larg = larg || MAPA.larg || 640;
   /* A altura segue a proporção do teatro, e não uma proporção fixa. Um incêndio quase
      quadrado numa tela deitada obrigava a afastar até caber na altura, e metade do mapa
@@ -7461,8 +7530,14 @@ function camadaMapa(){
            + '" stroke="'+d.cor+'" stroke-width="2.4" stroke-linecap="round"/>';
       });
     }
-    const p0 = q[0];
-    g += rotulo(p0.x + 8, p0.y - 6, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
+    /* O rótulo vai para **trás** da frente, do lado que já ardeu, e não para o vértice
+       inicial: duas frentes que comecem perto uma da outra punham dois rótulos em cima um
+       do outro, e atrás da frente não há nada para tapar. */
+    const meio0 = q[Math.floor(q.length/2)];
+    const recuo = (f.rumo !== null && Number.isFinite(f.rumo) && d.avanca)
+      ? { x:-Math.cos((f.rumo-90)*Math.PI/180)*16, y:-Math.sin((f.rumo-90)*Math.PI/180)*16 }
+      : { x:8, y:-6 };
+    g += rotulo(meio0.x + recuo.x, meio0.y + recuo.y, d.n + (f.rumo !== null? " "+Math.round(f.rumo)+"°" : ""), 10);
   });
 
   /* Os pontos notáveis marcados à mão. */
@@ -7644,7 +7719,9 @@ function pintarEstadoMapa(vieram, total){
 /** Mostra ou esconde o cartão do mapa consoante haja o que enquadrar. */
 function pintarMapaCartao(){
   const box = $("mapa-box"); if(!box) return;
-  const ha = !!enquadrarCroqui(640, 420);
+  /* Pergunta-se ao enquadramento do mapa, e não ao do croqui: o mapa mostra coisas que o
+     croqui não mostra, e o cartão tem de abrir para elas. */
+  const ha = !!enquadrarMapa(MAPA.larg||640, MAPA.alt||420);
   box.style.display = ha? "block" : "none";
   if(!ha){ MAPA.pronto = false; return; }
   pintarAlvos();
@@ -7742,6 +7819,9 @@ function pintarPontos(){
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     persistir(false); pintarPontos(); pintarMapa(); pintarCroqui();
   }));
+  /* A leitura da evolução lê exatamente o que esta lista mostra: repinta-se com ela, e
+     não em cinco sítios diferentes. */
+  try{ pintarEvolucao(); }catch(e){}
   el.querySelectorAll("[data-apagar-frente]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarFrente(b.dataset.apagarFrente);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
@@ -8698,12 +8778,18 @@ function razaoFogo(eps, beta){
 /**
  * Compõe declive e vento. Sem ε informado devolve só o que a geometria dá.
  *
- * @param {{orient:string, rumoVento:number, eps?:number}} entrada
+ * @param {{orient:string, rumoVento:number, eps?:number|string}} entrada
  */
 function comportamentoFogo(entrada){
   const g = betaFogo(entrada.orient, entrada.rumoVento);
   if(!g) return null;
-  const eps = Number(entrada.eps);
+  /* **A vírgula decimal é a portuguesa, e o campo é preenchido por portugueses.**
+     `Number("1,5")` é NaN, e o efeito era pior do que um erro: a razão declive/vento
+     entrava como se estivesse por preencher, e a aplicação dizia «sem ε informado» a quem
+     acabara de a informar. Sem aviso, sem sinal, e com o desvio da cabeça por calcular. */
+  const eps = typeof entrada.eps === "string"
+    ? parseFloat(entrada.eps.replace(",", "."))
+    : Number(entrada.eps);
   const temEps = Number.isFinite(eps) && eps >= 0;
   const fora = { beta: g.beta, subida: g.subida, empurra: g.empurra, eps: temEps? eps : null };
 
@@ -9865,6 +9951,451 @@ async function produzirOrdens(p){
 
 
 /* ██████ OPERAÇÕES ██████ */
+/* ================= PLANEAMENTO · leitura da evolução das frentes =================
+   A seta no mapa diz para onde a frente aponta. Não diz o que se segue.
+
+   Este módulo escreve o que se segue, e a primeira coisa a fixar é **o que não se pode
+   escrever**. A aplicação não sabe a velocidade de propagação: exige a velocidade básica
+   do combustível, que Viegas (2004) remete para outra fonte e que nenhum dos documentos
+   arquivados dá para os combustíveis do Douro. Sem ela não há distância percorrida, não há
+   hora de chegada e não há área ardida prevista. Escrever qualquer um desses números seria
+   inventar, e um número inventado num PEA é pior do que uma lacuna assumida.
+
+   O que se pode escrever, e que não é pouco:
+
+   1. **Para onde aponta**, agora, pela composição de declive e vento — Viegas (2004),
+      validada na forma da resposta por Weise e Biging (1997).
+   2. **Para onde vai passar a apontar**, hora a hora, porque a série meteorológica traz o
+      rumo do vento de cada hora e a composição refaz-se para cada uma. É previsão de
+      direção no tempo, e essa a aplicação sustenta.
+   3. **O que está no caminho** — que setores, que aglomerados, que pontos sensíveis, a que
+      distância e a que rumo. É geometria sobre o que já está no estado.
+   4. **Onde o rumo declarado e o previsto divergem**, que é a pergunta que se faz a quem
+      está no terreno: mudou o vento, ou o rumo precisa de ser revisto?
+
+   A leitura sai por frente e sai em texto corrido, para poder ser lida em voz alta num
+   ponto de situação e para poder entrar no PEA sem ser reescrita. */
+
+/**
+ * A meia-abertura do corredor de progressão, em graus.
+ *
+ * **É uma janela de leitura, não uma afirmação sobre a largura da frente.** Escolheu-se 30°
+ * de cada lado para não deixar de fora o que está próximo do rumo sem encher a leitura com
+ * o que está a noventa graus dela. Cada item sai com o seu rumo real ao lado, precisamente
+ * para quem lê poder julgar por si em vez de confiar na janela.
+ */
+const CORREDOR_GRAUS = 30;
+
+/** A diferença angular entre dois rumos, sempre entre 0 e 180. */
+function difRumo(a, b){
+  const d = Math.abs(normalizarGraus(a) - normalizarGraus(b)) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+/**
+ * Distância entre dois pontos em metros, pela fórmula do semiverseno.
+ *
+ * A esta escala a diferença para a planar é de centímetros, mas esta não precisa de
+ * correção de latitude e não há por onde a esquecer.
+ */
+function distanciaM(lat1, lon1, lat2, lon2){
+  const r = Math.PI/180, R = 6371008.8;
+  const dφ = (lat2-lat1)*r, dλ = (lon2-lon1)*r;
+  const a = Math.sin(dφ/2)**2 + Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dλ/2)**2;
+  return Math.round(2*R*Math.asin(Math.min(1, Math.sqrt(a))));
+}
+
+/**
+ * O ponto da frente mais próximo de um alvo, e a distância a ele.
+ *
+ * Mede-se do vértice mais próximo e não do meio da linha: uma frente de dois quilómetros
+ * medida pelo meio poria a mil metros o que está encostado à ponta.
+ */
+function pontaMaisProxima(linha, lat, lon){
+  let melhor = null;
+  linha.forEach(c=>{
+    const d = distanciaM(c[1], c[0], lat, lon);
+    if(!melhor || d < melhor.d) melhor = { d, lat:c[1], lon:c[0] };
+  });
+  return melhor;
+}
+
+/**
+ * O que está no corredor de progressão de uma frente.
+ *
+ * Junta o que a aplicação já sabe do teatro: setores delimitados, aglomerados e sensíveis
+ * detetados na consulta ao terreno, e pontos notáveis marcados à mão. Cada um sai com a
+ * distância e o rumo a que está, e ordenado do mais próximo para o mais longe — que é a
+ * ordem por que se decide.
+ */
+function noCorredorDaFrente(f){
+  const out = [];
+  if(!f || !Array.isArray(f.linha) || !f.linha.length || f.rumo === null || !Number.isFinite(f.rumo)) return out;
+
+  const juntar = (nome, especie, lat, lon)=>{
+    if(!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const p = pontaMaisProxima(f.linha, lat, lon);
+    if(!p || p.d < 1) return;
+    const rumo = rumoEntre(p.lat, p.lon, lat, lon);
+    if(difRumo(rumo, f.rumo) > CORREDOR_GRAUS) return;
+    out.push({ nome, especie, m:p.d, rumo });
+  };
+
+  /* Os setores entram pelo vértice do limite que estiver mais à frente no corredor: um
+     setor grande pode ter o centro fora do corredor e a esquina dentro dele. */
+  const e = estObj();
+  (e.setores||[]).forEach((s,i)=>{
+    const anel = limiteSetor(i); if(!anel) return;
+    if(f.setor === NOMES_SETOR[i]) return;   /* o setor onde a frente já está não está «à frente» */
+    let perto = null;
+    anel.slice(0, -1).forEach(c=>{
+      const p = pontaMaisProxima(f.linha, c[1], c[0]);
+      if(!p) return;
+      const rumo = rumoEntre(p.lat, p.lon, c[1], c[0]);
+      if(difRumo(rumo, f.rumo) > CORREDOR_GRAUS) return;
+      if(!perto || p.d < perto.m) perto = { m:p.d, rumo };
+    });
+    if(perto) out.push({ nome:"Setor "+NOMES_SETOR[i], especie:"setor", m:perto.m, rumo:perto.rumo });
+  });
+
+  /* Aglomerados e sensíveis vêm por distância e rumo ao ponto da ocorrência: recoloca-se
+     cada um em coordenada com a mesma conta do croqui, que é a mesma informação. */
+  const lat0 = parseFloat(String(O.meta.lat).replace(",", ".")),
+        lon0 = parseFloat(String(O.meta.lon).replace(",", "."));
+  if(Number.isFinite(lat0) && Number.isFinite(lon0)){
+    const det = (O.dados.sensDet && Array.isArray(O.dados.sensDet.itens))? O.dados.sensDet.itens : [];
+    det.forEach(x=>{
+      const p = pontoPorRumo(lat0, lon0, +x.dist, x.rumo);
+      if(p) juntar(x.nome, x.sens? "sensível" : "aglomerado", p.lat, p.lon);
+    });
+  }
+
+  pontosLista().forEach(p=>juntar(p.nome, defPonto(p.tipo).n.toLowerCase(), p.lat, p.lon));
+
+  return out.sort((a,b)=>a.m - b.m);
+}
+
+/**
+ * Como o rumo da cabeça se move ao longo da série meteorológica.
+ *
+ * É a parte da previsão que a aplicação **sustenta**: não diz quando o fogo chega a lado
+ * nenhum, mas diz para onde vai estar a apontar de hora a hora, porque a série traz o rumo
+ * do vento de cada hora e a composição de declive e vento refaz-se para cada uma.
+ *
+ * @returns {null|{pontos:any[], de:number, para:number, giro:number, sentido:string}}
+ */
+function giroDaCabeca(){
+  const t = O.dados.topo;
+  if(!t.orient || !(SERIE||[]).length) return null;
+  const pontos = [];
+  SERIE.forEach(s=>{
+    if(!s || !Number.isFinite(s.wd)) return;
+    const c = comportamentoFogo({ orient:t.orient, rumoVento:s.wd, eps: t.eps });
+    /* **`Number.isFinite` e não o `isFinite` global.** O global converte antes de decidir, e
+       `Number(null)` é zero: sem a razão declive/vento informada `cabeca` vem a `null`, e o
+       global deixava passar um rumo de 0°. A leitura chegou a escrever «a cabeça mantém-se
+       a norte» quando a verdade era que não havia com que a calcular. */
+    if(c && Number.isFinite(c.cabeca)) pontos.push({ h:s.h, d:s.d, rumo:c.cabeca, vento:s.ws, rumoVento:s.wd, xi:c.xi });
+  });
+  if(pontos.length < 2) return null;
+  const de = pontos[0].rumo, para = pontos[pontos.length-1].rumo;
+  /* O giro com sinal: positivo roda no sentido dos ponteiros (para leste), negativo ao
+     contrário. Tomar o valor absoluto perdia justamente a informação que interessa. */
+  let giro = normalizarGraus(para - de);
+  if(giro > 180) giro -= 360;
+  return { pontos, de, para, giro, sentido: giro > 0 ? "no sentido dos ponteiros" : "no sentido contrário aos ponteiros" };
+}
+
+/**
+ * A leitura escrita de uma frente: para onde aponta, para onde vai apontar, o que apanha.
+ *
+ * Cada frase diz de onde vem o que afirma. Onde a aplicação não pode afirmar, di-lo e diz
+ * o que lhe faltaria para poder — que é informação útil para quem a pode ir buscar.
+ */
+function leituraDaFrente(f){
+  const d = defFrente(f.tipo);
+  const p = [];
+
+  p.push(d.n + (f.setor? " no setor "+f.setor : "") + ", " + f.m + " m de extensão.");
+
+  if(!d.avanca){
+    p.push("A retaguarda arde para trás do que já ardeu: não tem direção de progressão, e é a secção de menor intensidade — Fernandes (2003).");
+    return p.join(" ");
+  }
+
+  p.push("Progride para " + card(f.rumo) + " (" + Math.round(f.rumo) + "°), rumo " + f.rumoFonte + ".");
+
+  /* O confronto entre o que está declarado e o que a composição prevê. É a pergunta que se
+     faz a quem está no terreno, e não uma correção automática: quem vê o fogo tem razões
+     que o modelo não tem. */
+  const prev = rumoPrevistoDaCabeca();
+  if(prev && f.tipo === "cabeca"){
+    const dif = Math.round(difRumo(f.rumo, prev.rumo));
+    if(dif <= 20)
+      p.push("A composição de declive e vento dá " + Math.round(prev.rumo) + "°, que confirma o rumo declarado.");
+    else
+      p.push("**A composição de declive e vento dá " + Math.round(prev.rumo) + "°, a " + dif
+        + "° do rumo declarado.** Ou o vento mudou desde que a frente foi traçada, ou o rumo precisa de ser revisto no terreno.");
+  }
+
+  const corredor = noCorredorDaFrente(f);
+  if(corredor.length){
+    p.push("No corredor de progressão, do mais próximo para o mais longe: "
+      + corredor.slice(0, 6).map(x=>x.nome + " (" + x.especie + ") a " + (x.m >= 1000
+          ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m") + ", " + card(x.rumo)).join("; ") + "."
+      + (corredor.length > 6 ? " E mais " + (corredor.length - 6) + "." : ""));
+  } else {
+    p.push("Nada do que a aplicação conhece cai no corredor de progressão — o que significa que nada foi marcado nem detetado ali, e não que o terreno esteja livre.");
+  }
+
+  return p.join(" ");
+}
+
+/**
+ * A leitura de todo o teatro: as frentes, o giro previsto e o que fica por dizer.
+ *
+ * Devolve as frases já compostas, para que o ecrã e o PEA mostrem exatamente o mesmo texto.
+ * Duas redações da mesma análise em dois sítios acabariam a divergir, e num PEA aprovado a
+ * divergência não se corrige.
+ */
+function leituraDaEvolucao(){
+  const F = frentesLista();
+  const out = { frentes:[], giro:"", intensidade:"", limites:[], vazio:!F.length };
+  if(!F.length) return out;
+
+  out.frentes = F.map(f=>({ id:f.id, tipo:f.tipo, texto:leituraDaFrente(f) }));
+
+  const g = giroDaCabeca();
+  if(g){
+    const gr = Math.abs(Math.round(g.giro));
+    const primeiro = g.pontos[0], ultimo = g.pontos[g.pontos.length-1];
+    out.giro = gr < 10
+      ? "Ao longo da série, o rumo da cabeça mantém-se em " + card(g.de) + " (" + Math.round(g.de) + "°): o vento não roda o suficiente para o mudar."
+      : "Ao longo da série, o rumo da cabeça roda " + gr + "° " + g.sentido + ", de " + card(g.de)
+        + " (" + hh(primeiro.h) + ") para " + card(g.para) + " (" + hh(ultimo.h) + "). "
+        + "É a direção que muda, não a hora de chegada: essa a aplicação não a sabe.";
+    /* A hora de vento mais forte é a que dita a leitura de referência, e é a mesma escolha
+       que o painel de relevo faz. Vale a pena estar dita, porque é nela que a frente mais
+       depressa se afasta do que se previu para as outras horas. */
+    const forte = g.pontos.reduce((a,b)=>(b.vento > a.vento? b : a), g.pontos[0]);
+    out.giro += " Vento mais forte às " + hh(forte.h) + " (" + forte.vento + " km/h de " + card(forte.rumoVento)
+      + "), com a cabeça a " + Math.round(forte.rumo) + "°.";
+  }
+
+  /* A intensidade, quando há com que a calcular. Entra aqui e não numa leitura à parte
+     porque é a mesma decisão: para onde vai a frente e o que se lhe pode fazer. */
+  out.intensidade = leituraDaIntensidade();
+
+  /* O que fica por dizer, sempre e por escrito. Uma leitura que não declare os seus limites
+     lê-se como se os não tivesse. */
+  out.limites.push("Não há velocidade de propagação: exige a velocidade básica do combustível, que Viegas (2004) remete para outra fonte e que nenhuma das fontes arquivadas dá para os combustíveis do Douro. Sem ela não há distância percorrida, hora de chegada nem área prevista.");
+  if(!O.dados.topo.eps)
+    out.limites.push("Sem a razão declive/vento informada, o desvio da cabeça é o que a geometria dá sozinha. Preenchê-la em «Relevo» aperta a previsão de direção.");
+  if(!(SERIE||[]).length)
+    out.limites.push("Sem série meteorológica carregada não há evolução no tempo: só o rumo declarado em cada frente.");
+  if(!(estObj().setores||[]).some((_,i)=>limiteSetor(i)))
+    out.limites.push("Sem limites de setor traçados, a leitura não diz que setores a frente atinge.");
+  return out;
+}
+
+/* ---- ao ecrã ---- */
+
+/**
+ * Pinta a leitura da evolução.
+ *
+ * O destaque a negrito é o da divergência entre o rumo declarado e o previsto, e é o único:
+ * marcar tudo o que é importante é não marcar nada. Sai por `esc`, e o negrito repõe-se
+ * depois — o texto vem de nomes que podem ter vindo de um ficheiro importado.
+ */
+function pintarEvolucao(){
+  const el = $("evol-txt"); if(!el) return;
+  const L = leituraDaEvolucao();
+  const negrito = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  if(L.vazio){
+    el.innerHTML = '<p class="hint">Nenhuma frente traçada. Traça uma frente no mapa para haver evolução que ler.</p>';
+    return;
+  }
+  el.innerHTML = L.frentes.map(f=>'<p class="ev-f">'+negrito(f.texto)+'</p>').join("")
+    + (L.giro? '<p class="ev-g">'+negrito(L.giro)+'</p>' : "")
+    + (L.intensidade? '<p class="ev-g">'+negrito(L.intensidade)+'</p>' : "")
+    + (L.limites.length
+        ? '<p class="ev-lim"><b>O que esta leitura não afirma:</b> '+L.limites.map(x=>esc(x)).join(" ")+'</p>'
+        : "");
+}
+
+/** A leitura em texto simples, para sair da aplicação como está no ecrã. */
+function evolucaoEmTexto(){
+  const L = leituraDaEvolucao();
+  if(L.vazio) return "";
+  const limpo = t => String(t).replace(/\*\*/g, "");
+  return [...L.frentes.map(f=>limpo(f.texto)), L.giro? limpo(L.giro) : "",
+    L.intensidade? limpo(L.intensidade) : "",
+    L.limites.length? "O que esta leitura não afirma: "+L.limites.join(" ") : ""]
+    .filter(Boolean).join("\n\n");
+}
+
+$("evol-copiar").addEventListener("click", async ()=>{
+  const t = evolucaoEmTexto();
+  if(!t){ aviso("mapa-msg","err","Não há leitura para copiar: nenhuma frente traçada."); return; }
+  /* `navigator.clipboard` não existe em `file://` em todos os navegadores. A alternativa é
+     mostrar o texto para ser copiado à mão, que é feio e funciona sempre — melhor do que um
+     botão que não faz nada e não diz porquê. */
+  try{
+    await navigator.clipboard.writeText(t);
+    aviso("mapa-msg","ok","Leitura copiada.");
+  }catch(e){
+    const el = $("evol-txt");
+    const pre = document.createElement("textarea");
+    pre.value = t; pre.rows = 8; pre.style.width = "100%";
+    el.appendChild(pre); pre.select();
+    aviso("mapa-msg","ok","O navegador não deixa copiar de um ficheiro local. O texto está aí em baixo, selecionado.");
+  }
+});
+/* ================= PLANEAMENTO · intensidade da frente e limites de manobra =================
+   Este módulo faz uma coisa e recusa fazer outra.
+
+   O que faz: a partir da **velocidade de propagação** e da **carga de combustível
+   consumida**, dá a intensidade da frente de chamas, o comprimento da chama e, daí, o que
+   isso decide na manobra — se o ataque direto à cabeça é admissível, que largura tem de ter
+   uma linha de contenção, e a que distância ninguém pode estar.
+
+   O que recusa: **calcular a velocidade de propagação.** Exige um modelo de combustível
+   calibrado para a vegetação do território, e não existe. Viegas (2004) remete-a para outra
+   fonte; o sistema canadiano tem-na para pícea boreal e pinheiro *jack*; Scott e Burgan
+   (2005) têm quarenta modelos dos Estados Unidos; e a dissertação de Paixão (2014) mediu,
+   em fogos reais portugueses, que os modelos importados descrevem pior a vegetação do que
+   os customizados. Ver `docs/FONTES.md`, `FOGOINT` e `FOGOMOD`.
+
+   Por isso a velocidade entra à mão, e a aplicação diz sempre que entrou à mão. É a mesma
+   decisão que já se tinha tomado para a razão declive/vento, e pela mesma razão. */
+
+/**
+ * Intensidade da frente de chamas, em kW/m — a intensidade de Byram.
+ *
+ * `I = R·w / 2`, com R em metros por hora e w em toneladas por hectare. A forma reduzida é
+ * a que Fernandes (2003) publica; sai da definição de Byram (1959), `I = h·w·R`, com poder
+ * calorífico de 18 000 kJ/kg e as unidades convertidas.
+ *
+ * @param {number} rMh velocidade de propagação, m/h
+ * @param {number} wTha carga de combustível consumida na frente, t/ha
+ * @returns {number|null} kW/m, ou nada se faltar um dos dois
+ */
+function intensidadeByram(rMh, wTha){
+  const r = Number(rMh), w = Number(wTha);
+  if(!Number.isFinite(r) || !Number.isFinite(w) || r <= 0 || w <= 0) return null;
+  return r * w / 2;
+}
+
+/**
+ * Comprimento da chama, em metros, a partir da intensidade.
+ *
+ * `I = 300·L²`, aproximação geral publicada por Fernandes (2003). Confere com a outra
+ * formulação corrente, `I = 258·L^2,17`, dentro de poucos por cento na gama que interessa —
+ * as duas dão cerca de 3,6 m para os 4 000 kW/m do limite de ataque direto.
+ */
+function comprimentoDaChama(kWm){
+  const i = Number(kWm);
+  return Number.isFinite(i) && i > 0 ? Math.sqrt(i/300) : null;
+}
+
+/**
+ * As classes de dificuldade de controlo, por intensidade da frente.
+ *
+ * Tabela clássica de interpretação para supressão. **A proveniência do documento que a traz
+ * está por confirmar** — os diapositivos não declaram autoria —, e por isso o limite que a
+ * aplicação usa para decidir é o dos 4 000 kW/m de Alexander (2000), citado por Fernandes
+ * (2003), que tem fonte identificada. Esta tabela serve para descrever, não para decidir.
+ */
+const CLASSES_INTENSIDADE = [
+  { ate:350,   chama:"< 1,2 m",   t:"Ataque à cabeça possível com ferramentas manuais. Linha de contenção manual eficaz." },
+  { ate:1700,  chama:"1,2–2,4 m", t:"Demasiado intenso para ataque manual. Autotanques; bulldozer para abrir linha." },
+  { ate:3450,  chama:"2,4–3,4 m", t:"Controlo muito difícil. Podem ocorrer fogos de copas e emissão de faúlhas. Ataque à cabeça provavelmente ineficaz." },
+  { ate:Infinity, chama:"> 3,4 m", t:"Comportamentos extremos. Ataque à cabeça ineficaz. Alguma eficácia do ataque aéreo." }
+];
+
+/** O limite acima do qual atacar diretamente a cabeça é desaconselhado — Alexander (2000). */
+const LIMITE_ATAQUE_DIRETO = 4000;
+
+/** A classe de dificuldade em que uma intensidade cai. */
+function classeDaIntensidade(kWm){
+  return CLASSES_INTENSIDADE.find(c=>kWm < c.ate) || CLASSES_INTENSIDADE[CLASSES_INTENSIDADE.length-1];
+}
+
+/**
+ * O que a intensidade decide na manobra.
+ *
+ * Cada número sai com a sua fonte primária, e todas vêm por Fernandes (2003):
+ * a distância de segurança de Butler e Cohen (1998), a largura de contenção de Byram (1959)
+ * e o limite de ataque direto de Alexander (2000).
+ *
+ * @returns {null|{i:number, chama:number, classe:any, seguranca:number, contencao:number, direto:boolean}}
+ */
+function limitesDeManobra(rMh, wTha){
+  const i = intensidadeByram(rMh, wTha);
+  if(i === null) return null;
+  const chama = comprimentoDaChama(i);
+  return {
+    i, chama,
+    classe: classeDaIntensidade(i),
+    /* Quatro vezes a **altura** da chama. Em terreno plano e sem vento a altura é o
+       comprimento; com vento a chama inclina-se e a altura é menor, pelo que usar o
+       comprimento é o lado seguro do erro. */
+    seguranca: Math.ceil(4 * chama),
+    /* Uma vez e meia o comprimento da chama, assumindo que não há projeção de faúlhas com
+       capacidade de ignição — condição que Byram (1959) põe e que se repete aqui porque é
+       ela que falha primeiro num incêndio de verão no Douro. */
+    contencao: Math.ceil(1.5 * chama * 10) / 10,
+    direto: i < LIMITE_ATAQUE_DIRETO
+  };
+}
+
+/**
+ * A leitura escrita da intensidade, ou o que falta para a haver.
+ *
+ * Dizer o que falta é metade do trabalho: quem lê fica a saber que a aplicação não se
+ * calou por não ter nada a dizer, mas por lhe faltarem dois números que alguém pode ir
+ * buscar.
+ */
+function leituraDaIntensidade(){
+  /* Direto, sem o `|| {}` defensivo: o ramo é declarado em `novoEstado` e garantido pela
+     migração, e o objeto vazio de reserva apagava o tipo. Já me tinha custado isto uma vez. */
+  const f = O.dados.fogo;
+  const L = limitesDeManobra(f.r, f.w);
+  if(!L){
+    const falta = [];
+    if(!f.r) falta.push("a velocidade de propagação (m/h)");
+    if(!f.w) falta.push("a carga de combustível consumida (t/ha)");
+    return "Sem " + (falta.join(" e ") || "os dados de comportamento") + " não há intensidade da frente — e sem ela"
+      + " não há comprimento de chama, distância de segurança nem largura de contenção."
+      + " Preenche em «Comportamento do fogo — intensidade da frente». A aplicação não os"
+      + " estima: exigiriam um modelo de combustível calibrado para a vegetação do Douro, e não existe.";
+  }
+  const p = [];
+  p.push("Com " + f.r + " m/h e " + f.w + " t/ha, a intensidade da frente é de "
+    + Math.round(L.i).toLocaleString("pt-PT") + " kW/m e a chama mede cerca de "
+    + L.chama.toFixed(1).replace(".", ",") + " m (Byram 1959, via Fernandes 2003).");
+  p.push(L.classe.t);
+  p.push(L.direto
+    ? "Abaixo dos 4 000 kW/m: o ataque direto à cabeça é admissível (Alexander 2000)."
+    : "**Acima dos 4 000 kW/m: atacar diretamente a cabeça é perigoso e inconsequente** (Alexander 2000). O ataque à cabeça faz-se por meios aéreos ou indiretamente.");
+  p.push("Ninguém a menos de " + L.seguranca + " m da frente — quatro vezes a altura da chama, para uma tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998). "
+    + "Uma linha de contenção precisa de pelo menos " + String(L.contencao).replace(".", ",")
+    + " m de largura, e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).");
+  return p.join(" ");
+}
+
+/** Pinta a leitura da intensidade, por baixo dos dois campos que a produzem. */
+function pintarIntensidade(){
+  const el = $("fg-leitura"); if(!el) return;
+  el.innerHTML = esc(leituraDaIntensidade()).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+}
+
+/* Repinta-se ao escrever nos campos, e não só ao gravar: os dois números são de
+   tentativa e erro — «e se forem trezentos metros por hora?» — e ver a resposta a mudar
+   enquanto se escreve é metade do valor que isto tem. */
+["fg-r","fg-w"].forEach(id=>{
+  const el = $(id); if(el) el.addEventListener("input", ()=>{ try{ pintarIntensidade(); }catch(e){} });
+});
 /* ================= OPERAÇÕES · setorização do TO (art. 17.º, al. d)) ================= */
 /**
  * Muda o estado de um setor pelo caminho único, seja qual for a porta por onde a
@@ -11552,8 +12083,8 @@ function fecharFrente(){
     linha,
     /* `rumo` é o que se mostra; `rumoFonte` diz de onde veio, e é o que impede uma
        sugestão de passar por observação três turnos depois. */
-    rumo: d.avanca ? (rumoDado !== null && isFinite(rumoDado) ? rumoDado : sugerido) : null,
-    rumoFonte: !d.avanca ? "" : (rumoDado !== null && isFinite(rumoDado) ? "indicado" : "sugerido pelo traçado"),
+    rumo: d.avanca ? (rumoDado !== null && Number.isFinite(rumoDado) ? rumoDado : sugerido) : null,
+    rumoFonte: !d.avanca ? "" : (rumoDado !== null && Number.isFinite(rumoDado) ? "indicado" : "sugerido pelo traçado"),
     setor: (()=>{ const i = setorDoPonto(linha[0][1], linha[0][0]); return i >= 0 ? NOMES_SETOR[i] : ""; })(),
     m: comprimentoLinhaM(linha),
     g: gdhAgora(), por: quemRegista(), nota: ""
@@ -11592,7 +12123,7 @@ function rumoDaFrente(id, graus){
   if(!f) return { ok:false, motivo:"Frente não encontrada." };
   if(!defFrente(f.tipo).avanca) return { ok:false, motivo:"A retaguarda não tem direção de progressão." };
   const g = normalizarGraus(parseFloat(String(graus).replace(",", ".")));
-  if(!isFinite(g)) return { ok:false, motivo:"Rumo não numérico." };
+  if(!Number.isFinite(g)) return { ok:false, motivo:"Rumo não numérico." };
   f.rumo = g; f.rumoFonte = "indicado";
   O.evolucao.push({ g:gdhAgora(), tipo:"posit",
     txt:defFrente(f.tipo).n+": rumo de progressão corrigido para "+Math.round(g)+"°." });
@@ -11616,9 +12147,9 @@ function rumoPrevistoDaCabeca(){
      relevo faz para a sua leitura. Duas escolhas diferentes dariam dois rumos diferentes
      para a mesma cabeça, no mesmo ecrã. */
   const hora = (SERIE||[]).reduce((a,b)=>(b && a && b.ws > a.ws)? b : a, (SERIE||[])[0] || null);
-  if(!t.orient || !hora || !isFinite(hora.wd)) return null;
-  const c = comportamentoFogo({ orient:t.orient, rumoVento:hora.wd, eps: t.eps === "" ? undefined : +t.eps });
-  return c && isFinite(c.cabeca) ? { rumo:c.cabeca, hora:hora.h, eps:t.eps, delta:c.delta } : null;
+  if(!t.orient || !hora || !Number.isFinite(hora.wd)) return null;
+  const c = comportamentoFogo({ orient:t.orient, rumoVento:hora.wd, eps: t.eps });
+  return c && Number.isFinite(c.cabeca) ? { rumo:c.cabeca, hora:hora.h, eps:t.eps, delta:c.delta } : null;
 }
 /* ================= LOGÍSTICA · canais SIRESP (art. 34.º) ================= */
 const PASTAS = {
@@ -13036,6 +13567,9 @@ function pintarTudo(){
   try{ pintarEvoCtx(); }catch(e){}
   try{ pintarGuia(); }catch(e){}
   try{ pintarAvisos(); }catch(e){}
+  /* A leitura da evolução depende das frentes, dos limites, do relevo e da série: repinta-se
+     aqui porque é o único sítio por onde passam todas as quatro. */
+  try{ pintarEvolucao(); pintarIntensidade(); }catch(e){}
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
   /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */

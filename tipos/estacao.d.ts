@@ -222,6 +222,12 @@ interface DadosOcorrencia {
   pontos: PontoNotavel[];
   /** As frentes de fogo traçadas no mapa, com a direção em que progridem. */
   frentes: FrenteDeFogo[];
+  /**
+   * Comportamento do fogo: velocidade de propagação em m/h e carga de combustível
+   * consumida na frente em t/ha. **Introduzidos à mão, sempre.** A aplicação não os
+   * estima: exigiriam um modelo de combustível calibrado para a vegetação do território.
+   */
+  fogo: { r: string; w: string };
   anexos: string[];
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */
