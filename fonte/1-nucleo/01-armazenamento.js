@@ -49,26 +49,61 @@ const ARMAZEM = (()=>{
    `diario` é o registo append-only do posto; `copias` são os instantâneos de recuperação;
    `mosaicos` são os quadrados de carta já descarregados, que é o que faz o mapa continuar
    a existir quando a ligação de dados cai — e num PCO cai. */
-const IDB_NOME = "peaapp", IDB_VERSAO = 2;
+const IDB_NOME = "peaapp";
+const IDB_LOJAS = [["chaves", null], ["diario", {keyPath:"n"}], ["copias", {keyPath:"id"}], ["mosaicos", null]];
 let IDB = null;
 
-/** Abre a base, ou devolve `null` se este navegador não a der em `file://`. */
+/** Cria as lojas que faltarem. Corre dentro do `onupgradeneeded`, que é o único sítio onde
+    isso é possível. */
+function criarLojasIDB(db){
+  IDB_LOJAS.forEach(([nome, opc])=>{
+    if(!db.objectStoreNames.contains(nome)) db.createObjectStore(nome, opc || undefined);
+  });
+}
+
+/**
+ * Abre a base, ou devolve `null` se este navegador não a der em `file://`.
+ *
+ * **Abre-se pela versão que a base tiver, e nunca por um número fixo.** Havia aqui um
+ * `indexedDB.open(IDB_NOME, 2)`, e um número fixo só funciona enquanto uma única linhagem
+ * escrever na base. A linhagem paralela subiu a dela para 3 com uma loja `folhas`, e quem
+ * corresse as duas entregas no mesmo navegador levava com um `VersionError` — «The
+ * requested version (2) is less than the existing version (3)» — que chega pelo `onerror`
+ * e aqui virava um `null`. A partir daí não havia diário, não havia cópias de recuperação
+ * e não havia mosaicos de carta guardados, **e nada no ecrã dizia porquê**: só o painel da
+ * carta pré-descarregada se queixa quando não há base.
+ *
+ * A regra passa a ser: adota-se a versão existente; se faltar alguma loja, sobe-se um
+ * degrau acima do que lá está para a criar. Assim uma base mais recente do que a que esta
+ * entrega conhece serve na mesma, e a versão nunca desce.
+ */
 function abrirIDB(){
   return new Promise(res=>{
     if(typeof indexedDB === "undefined") return res(null);
-    let p;
-    try{ p = indexedDB.open(IDB_NOME, IDB_VERSAO); }catch(e){ return res(null); }
-    p.onupgradeneeded = ()=>{
-      const db = p.result;
-      if(!db.objectStoreNames.contains("chaves")) db.createObjectStore("chaves");
-      if(!db.objectStoreNames.contains("diario")) db.createObjectStore("diario", {keyPath:"n"});
-      if(!db.objectStoreNames.contains("copias")) db.createObjectStore("copias", {keyPath:"id"});
-      if(!db.objectStoreNames.contains("mosaicos")) db.createObjectStore("mosaicos");
+    let respondido = false;
+    const responder = v=>{ if(!respondido){ respondido = true; res(v); } };
+    /* Um único prazo para a operação inteira, e não um por tentativa: nem sempre há erro,
+       às vezes não há resposta nenhuma. */
+    setTimeout(()=>responder(null), 3000);
+
+    const tentar = versao=>{
+      let p;
+      try{ p = versao? indexedDB.open(IDB_NOME, versao) : indexedDB.open(IDB_NOME); }
+      catch(e){ return responder(null); }
+      p.onupgradeneeded = ()=>criarLojasIDB(p.result);
+      p.onsuccess = ()=>{
+        const db = p.result;
+        if(IDB_LOJAS.every(([nome])=>db.objectStoreNames.contains(nome))) return responder(db);
+        /* Base de outra linhagem, sem as lojas desta. Sobe-se um degrau e criam-se — subir
+           é sempre legítimo, descer é que não é. */
+        const seguinte = db.version + 1;
+        db.close();
+        tentar(seguinte);
+      };
+      p.onerror = ()=>responder(null);
+      p.onblocked = ()=>responder(null);
     };
-    p.onsuccess = ()=>res(p.result);
-    p.onerror = ()=>res(null);
-    p.onblocked = ()=>res(null);
-    setTimeout(()=>res(null), 3000);   /* nem sempre há erro: às vezes não há resposta */
+    tentar(0);
   });
 }
 

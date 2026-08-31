@@ -2457,3 +2457,48 @@ fechar; a r0075 fecha-o.
 ### `entrada/`
 
 A pasta para largar o que chega de fora, criada na sessão anterior, continua vazia à espera.
+
+## r0076 — o recado do outro lado, e o defeito que ele revelou
+
+Chegou ponto de situação da linhagem paralela. Duas coisas dele exigiram trabalho já.
+
+### A base local abria por um número fixo, e isso partia contra a base deles
+
+O recado diz que **a base IndexedDB subiu de 2 para 3** do lado de lá, com a loja `folhas` do
+`p0018`. Esta entrega abria com `indexedDB.open("peaapp", 2)`, e um número fixo só funciona
+enquanto uma única linhagem escrever na base. **A base é partilhada por origem, não por
+entrega**: quem corresse a entrega deles e depois esta, no mesmo navegador, ficava sem base.
+
+O defeito foi reproduzido antes de ser corrigido, em Chromium a sério: abrir na 2 uma base que
+está na 3 dá `VersionError — The requested version (2) is less than the existing version (3)`,
+que chega pelo `onerror` e aqui virava `res(null)`. A partir daí **não havia diário, não havia
+cópias de recuperação e não havia mosaicos de carta guardados, e nada no ecrã dizia porquê**:
+de todos os sítios que usam a base, só o painel da carta pré-descarregada se queixa quando ela
+falta. Num PCO com a rede em baixo, é exatamente o que não pode acontecer em silêncio.
+
+A correção: **adota-se a versão que a base tiver**, e sobe-se um degrau acima dela só quando
+falta alguma loja. Uma base mais recente do que a que esta entrega conhece serve como está, as
+lojas da outra linhagem não se perdem, e a versão nunca desce. Provado no mesmo Chromium —
+abre na 4, com `chaves`, `copias`, `diario`, `folhas` e `mosaicos`, e escreve.
+
+Fica `ferramentas/prova-idb.mjs` no repositório. Não entra no `npm run tudo` porque precisa de
+navegador e de origem HTTP — o Chromium não dá IndexedDB em `file://` —, mas corre-se à mão
+quando se mexer na abertura da base. É ela que confere a fidelidade do `indexedDB` de imitação
+usado em `tests/armazem-idb.test.mjs`: um teste contra uma imitação prova a lógica, não prova
+que a imitação é fiel.
+
+### Existem duas r0074
+
+Como já houve duas r0058. A desta linhagem é a absorção do motor de propagação, das 21h54; a
+da paralela é o `p0020` sobre a r0070, e soube-se dela por recado depois de a nossa ter saído.
+**A reserva só evita a colisão quando o número é declarado antes de ser usado.** Ficam ambas,
+distintas pelo carimbo, com a razão escrita em `app/RESERVADAS.md`. O número livre seguinte é
+o **r0077**: esta linhagem já usou a r0075 e a r0076.
+
+### O que fica pendente do recado
+
+Em `docs/POREXECUTAR.md`, com detalhe. O essencial: **o `p0020` não chegou** e sem ele não há
+o que absorver; a escada de migrações divergiu (eles na versão de estado 22, esta na 25), pelo
+que um degrau do `p0020` terá de entrar no fim da escada daqui e não com o número que traz; e
+as missões do PEA por alinhar com as propostas ficam para quando esse ficheiro chegar, porque é
+provável que mexam no mesmo sítio.
