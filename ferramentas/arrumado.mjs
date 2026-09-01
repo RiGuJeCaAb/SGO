@@ -53,6 +53,16 @@ const PASTAS = [
     excecoes: [],
   },
   {
+    /* As transcrições de conversa. Ficam com a convenção do projeto porque são documentos
+       deste projeto, ainda que o texto seja de outra sessão. */
+    pasta: 'docs/conversas',
+    catalogo: 'docs/conversas/LEIAME.md',
+    forma: /^CSREPCDouro_\d{12}_[A-Za-z0-9_]+_CLD\.md$/,
+    diz: 'CSREPCDouro_AAAAMMDDHHMM_Assunto_CLD.md',
+    ignora: ['LEIAME.md'],
+    excecoes: [],
+  },
+  {
     /* Os PEA emitidos num incêndio real. Ficam com o nome com que saíram do posto de
        comando — renomeá-los para a convenção deste projeto faria passar por nosso um
        documento que não é. O que se exige é que cada um esteja no catálogo. */

@@ -161,6 +161,113 @@ O outro lado deixou ponto de situação. Fica aqui o que dele nos toca, e o que 
 
 1. ~~**O `p0020` não chegou.**~~ **Chegou e está absorvido na r0077** — ver `docs/ESTADO.md`.
 
+## Quatro defeitos apontados pela linhagem paralela — **confirmados no código**
+
+Chegaram a 1 de setembro, no ponto de situação de 31AGO26. **Não são relatos aceites: cada um
+foi conferido contra a `r0077` antes de entrar nesta lista.** Três são de código que esta
+linhagem escreveu ou absorveu.
+
+### 1. O motor de propagação não vigia a saída — **o mais grave**
+
+Os sinalizadores `fora` do `21-modelos-de-combustivel.js` vigiam o domínio das **entradas**.
+**Ninguém vigia o valor que sai.** Confirmado: não existe em toda a fonte uma única
+referência a um tecto de propagação.
+
+A fonte primária destes quadros — Fernandes (2001), *Fire spread prediction in shrub fuels in
+Portugal* — declara que, dada a escassez de dados acima de **6 m/min**, não é aconselhável
+usar as equações fora da gama de comportamento baixo. Seis metros por minuto são **360 m/h**.
+
+| | m/min | m/h |
+|---|---|---|
+| Tecto declarado pelo autor | 6 | 360 |
+| Propagação mais rápida medida no conjunto de 2001 | 20 | 1 200 |
+| Célula extrema do Quadro 3.4.1 | 38 | 2 280 |
+| Após altura 3,0 m e declive 50 % | **247** | **14 820** |
+
+**Uma combinação dentro de todos os domínios de entrada entrega quinze mil metros por hora
+sem uma palavra de reserva** — quarenta vezes o tecto da fonte.
+
+**E há aqui um erro meu que é preciso dizer.** O `tests/propagacao.test.mjs` tem uma asserção
+que valida o extremo do domínio contra Alexander (2000), «1,5 m/h a ~14 km/h **em floresta**».
+Estes quadros são de **matos**, e de fogo controlado de Outono e Primavera. Validei o tecto
+contra a fonte errada, e o teste passou por isso mesmo: `assert.ok(max < 20000)` é verdadeiro
+e não significa nada.
+
+*Correção:* marca de saída em dois degraus — acima de 360 m/h, `EXTRAPOLAÇÃO`; acima de
+1 200 m/h, `ALÉM DE QUALQUER FOGO MEDIDO` — que acompanha o valor até ao PEA impresso. E a
+asserção do teste corrigida para o tecto que a fonte destes quadros declara.
+
+### 2. Identidade instável das propostas
+
+`fonte/3-planeamento/16-pea-em-vigor.js:52` faz `k: x.id || "P"`, e os `id` são renumerados
+por posição no fim do `detDecisao`. **Confirmado.**
+
+Fui eu que descobri que os `id` são decorativos, e não vi a consequência: **P3 no PEA n.º 4
+não é a mesma proposta que P3 no PEA n.º 5.** Basta uma proposta cair entre planos — a reserva
+constitui-se, a linha estreita é alargada — para tudo o que está por baixo subir uma posição.
+«Cumprimos a P2» deixa de ter significado estável entre versões de um documento que é
+aprovado, executado e auditado.
+
+Era inofensivo enquanto as propostas eram genéricas. **Deixou de ser quando o `p0020` as fez
+depender de dados que mudam de hora a hora.**
+
+*Correção:* chave estável declarada em cada regra, separada do `id` de apresentação.
+
+### 3. O buraco estrutural reabriu — e a culpa é desta linhagem
+
+O `p0020` corrigiu a falha de onze painéis que não chegavam ao PEA. **Na mesma sessão, esta
+linhagem acrescentou notas do mapa e focos de calor VIIRS/FIRMS, e nenhum dos dois entra no
+`retratoDoFogo()` nem no `contexto()`.** Confirmado por pesquisa: nem `notas` nem `focos`
+aparecem em `22-ambiente-de-fogo.js` ou em `14-elaboracao-assistida-do-pea.js`.
+
+Um foco de calor a norte do perímetro é exatamente o género de facto que um plano tem de
+citar.
+
+*Correção, e é a que interessa mais do que o remendo:* **o colector tem de ser regra, não
+correção pontual.** Nenhum painel novo fecha sem declarar o que contribui. O `auditarPosse()`
+já é o sítio: um ramo de `O.dados` com dono declarado e sem contributo para nenhum dos três
+colectores é um painel que escreve para o vazio.
+
+### 4. Uma chamada a CDN na linha 7 da entrega
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed…">
+```
+
+**Confirmado na `r0077`.** A primeira restrição não negociável do projeto diz «sem
+dependências, sem módulos externos: CSS, JS e tipos de letra por CDN **dentro do ficheiro**»,
+e está violada na sétima linha. Num arranque `file://` sem rede, isto bloqueia o render até
+dar *timeout*: a aplicação não parte, porque as famílias têm alternativa no CSS, mas o
+primeiro ecrã no VCOC com a Starlink em baixo demora segundos a aparecer.
+
+*Correção:* ou se embutem as fontes em base64, ou se apaga a linha. **É decisão do
+utilizador**, porque muda o aspeto da aplicação — as alternativas do CSS não são o Barlow.
+
+## Defeitos apontados e ainda por conferir
+
+Não entram na lista acima porque **não os verifiquei**. Ficam nomeados para não se perderem:
+
+- **As missões discordam das propostas.** A ação decisiva continua a dizer «dominar as frentes
+  ativas e fechar o perímetro» mesmo quando as propostas já dizem que a cabeça não se ataca.
+- **Avisos IPMA, três defeitos:** distrito escolhido por proximidade à capital devolve Vila
+  Real para a zona de Moimenta da Beira, que é Viseu; o filtro «em vigor» é `endTime >= agora`
+  e não olha ao `startTime`, pelo que inclui avisos futuros; e `new Date(a.endTime)` sobre
+  marca sem fuso dá **uma hora de deriva no Verão** — erro zero no Inverno, o que torna isto
+  mais traiçoeiro.
+- **A distância de segurança pode estar curta.** `Math.ceil(4 * chama)` cita Butler e Cohen
+  (1998); a revisão de Butler (2014) mexeu nisto, e em encosta com vento a favor o fator 4
+  ficaria curto.
+
+## Ordem proposta pela linhagem paralela, e o que penso dela
+
+Eles propõem: `t0020` e correção do `t0019`; identidade estável das propostas; notas e focos
+no colector com a regra de auditoria; missões alinhadas; avisos IPMA; caixas dobráveis; e o
+`p0018` por fim.
+
+**Concordo com a ordem, com uma emenda: o tecto de saída vem primeiro.** É o único destes que
+faz a aplicação afirmar um número falso sobre uma manobra real, e é o único que já está a
+correr no terreno. Os outros corrompem o registo ou omitem informação — este afirma.
+
 ## Folhas calibradas — o próximo trabalho de absorção
 
 **O guião chegou a 1 de setembro** e está em

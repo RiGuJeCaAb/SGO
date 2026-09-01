@@ -2657,3 +2657,67 @@ adivinhar:
 A `entrada/` volta ao que tem de ser: **vazia, com o seu `README.md` e mais nada.** É a
 condição que o próprio ficheiro impõe — uma entrada que não esvazia deixa de dizer o que quer
 que seja.
+
+## Cinco registos de conversa do outro lado, e quatro defeitos que eles apontam
+
+Chegaram cinco documentos: quatro transcrições integrais e um ponto de situação. As
+transcrições ficaram em `docs/conversas/`, pasta nova com catálogo e regra de verificação; o
+ponto de situação em `docs/`, porque é documento e não conversa.
+
+**Nenhum defeito apontado foi aceite de palavra.** Os quatro que entraram no
+`docs/POREXECUTAR.md` foram conferidos contra a `r0077` primeiro, e os três que não consegui
+conferir ficam nomeados à parte, como por conferir. O detalhe está lá; aqui fica o que muda
+a leitura do projeto.
+
+### O tecto de saída, e um erro meu no teste
+
+O motor de propagação vigia o domínio das entradas e **não vigia o valor que sai**. A fonte
+primária destes quadros — Fernandes (2001) — declara um tecto de **6 m/min**, que são 360 m/h,
+acima do qual desaconselha usar as equações. Uma combinação dentro de todos os domínios de
+entrada entrega **14 820 m/h**, quarenta vezes esse tecto, sem uma palavra de reserva.
+
+E há um erro meu por trás disto. O `tests/propagacao.test.mjs` valida o extremo do domínio
+com `assert.ok(max < 20000)`, citando Alexander (2000), «1,5 m/h a ~14 km/h **em floresta**».
+**Estes quadros são de matos, e de fogo controlado de Outono e Primavera.** Validei o tecto
+contra a fonte errada. A asserção é verdadeira e não significa nada — que é a pior espécie de
+teste, porque parece cobertura.
+
+### O buraco estrutural reabriu na mesma sessão em que foi tapado
+
+O `p0020` corrigiu a falha de onze painéis que não chegavam ao PEA. **Na mesma sessão, esta
+linhagem acrescentou notas do mapa e focos de calor, e nenhum dos dois entra no colector.**
+Confirmado. A lição do outro lado é melhor do que o remendo: o colector tem de ser **regra**,
+verificada no `auditarPosse()`, e não correção pontual.
+
+### A identidade das propostas
+
+Fui eu que descobri que os `id` das propostas são decorativos, porque o `detDecisao` renumera
+tudo por posição. **Não vi a consequência**, e eles viram: `controloMissoes` faz `k: x.id ||
+"P"`, logo P3 no PEA n.º 4 não é a mesma proposta que P3 no PEA n.º 5. Era inofensivo enquanto
+as propostas eram genéricas; deixou de ser quando passaram a depender de dados que mudam de
+hora a hora.
+
+### E uma chamada a CDN na linha 7
+
+`fonts.googleapis.com`, na sétima linha da entrega, contra a primeira restrição não negociável
+do projeto. Num arranque `file://` sem rede bloqueia o render até dar *timeout*. Fica por
+decidir com o utilizador, porque apagá-la muda o aspeto da aplicação.
+
+### O que os registos trazem além dos defeitos
+
+Três decisões de fundo que valem a pena estar escritas onde se encontrem:
+
+- **O ficheiro único não morre — passa a modo degradado.** Autenticação a sério e base
+  documental partilhada não existem num HTML local, mas o ficheiro continua a ser a rede de
+  segurança para quando o servidor morre ou o VCOC não está no TO.
+- **Contra quem mexe no código, a resposta não é impedir: é detetar.** Digest do código em
+  memória, e `BUILD NÃO VERIFICADO` carimbado no PEA em vez de recusa de arranque — *«às três
+  da manhã num TO, uma aplicação que se auto-bloqueia por integridade é uma aplicação
+  inútil»*.
+- **Três registos distintos, e não um:** fita do tempo (curada, o que aconteceu na
+  ocorrência), efetivo do PCO (quem ocupava que função), auditoria (quem escreveu o quê).
+  Fundi-los destrói o primeiro.
+
+E duas perguntas que **são decisão de comando e não têm resposta técnica**: se as células
+escrevem diretamente na fita do tempo ou propõem para validação por Operações; e se as
+rendições acontecem posto a posto ou a EPCO roda em bloco. Ficam no `docs/conversas/LEIAME.md`.

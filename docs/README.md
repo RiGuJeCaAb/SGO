@@ -35,6 +35,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608281930_d_ExportacaoDeConversa_CLD.json` | **Exportação de uma conversa** onde o projeto foi analisado. Não é documento do projeto: é o registo de onde saíram algumas das decisões. Traz identificadores da plataforma de origem |
 | `CSREPCDouro_202608310900_d_AnaliseGetCapabilitiesDGT_CLD.md` | Análise do `GetCapabilities` da DGT, ficheiro a ficheiro. É o trabalho de detalhe que antecedeu o relatório da sessão de cartografia |
 | `CSREPCDouro_202608312145_d_CompositoVentoDeclive_CLD.md` | A composição vetorial de vento e declive, desenvolvida por escrito. É o documento que sustenta o que `betaFogo` faz |
+| `CSREPCDouro_202609010900_d_PontoSituacao31AGO26_CLD.md` | **O ponto de situação da linhagem paralela** sobre a sessão de 31 de agosto: o que entregaram, o que absorvemos, os defeitos que deixaram abertos e a ordem que propõem. É o documento a ler antes de retomar |
 | `CSREPCDouro_202608311242_d_RelatorioFontesInternacionais_CLD.md` | **Continuação do anterior**: que fonte internacional dá o que nenhuma nacional dá. Conclui que é imagem fresca e deteção de fogo ativo, seleciona o NASA GIBS e acrescenta cinco requisitos ao interpretador. Traz a distinção que desbloqueia o impasse do sistema de coordenadas: **os focos de calor são pontos, não mosaicos**, e um ponto reprojeta-se |
 
 ## `interop/` — a ligação à Gestão PCO
@@ -54,6 +55,12 @@ validar uma exportação.
 | `CSREPCDouro_202608281930_RecadoDeVolta_CLD.md` | **A resposta da linhagem paralela** sobre o contrato e a especificação. É o outro lado da conversa que produziu a v1.2 |
 | `CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md` | Arquivado. Escrito a analisar um esboço anterior; o seu autor corrigiu-se. Dele vieram os três acréscimos da v1.2 |
 | `exemplos/` | Um ficheiro por envelope que o importador lê, e o validador que os confere |
+
+## `conversas/` — porque é que uma decisão foi tomada
+
+Transcrições integrais das conversas que produziram decisões, vindas da linhagem paralela.
+Não são doutrina nem sustentam nada na aplicação. O `ESTADO.md` diz o que se fez; estas dizem
+**o que se pesou antes, e o que se recusou fazer**. Ver `conversas/LEIAME.md`.
 
 ## `pea-reais/` — os planos de um incêndio a sério
 
