@@ -160,9 +160,49 @@ O outro lado deixou ponto de situação. Fica aqui o que dele nos toca, e o que 
 ### Por fazer, e depende deles
 
 1. ~~**O `p0020` não chegou.**~~ **Chegou e está absorvido na r0077** — ver `docs/ESTADO.md`.
-   Ficou de fora o ramo das folhas calibradas (`FOLHAS`, `folhaCalibrada`), que é trabalho
-   deles e não existe aqui: **quando essas folhas forem absorvidas, a cartografia do
-   `retratoDoFogo` volta a nomeá-las**.
+
+## Folhas calibradas — o próximo trabalho de absorção
+
+**O guião chegou a 1 de setembro** e está em
+`ferramentas/historico/CSREPCDouro_p0018_202608312030_FolhaCalibrada_CLD.py`, com os seus
+testes (`t0018` do mesmo carimbo), o guião de captura (`q0018`) e duas provas em
+`docs/qa/`. **Não está absorvido.**
+
+### O que resolve
+
+O problema que ele põe assim: *«Uma imagem não é um mosaico. Uma captura de ecrã da carta
+militar, uma exportação do QGIS, uma fotografia de um extrato em papel: nenhuma delas cabe na
+árvore `{z}/{x}/{y}` e todas elas são o que existe às três da manhã.»*
+
+Isto é diferente da carta pré-descarregada que já temos. A nossa exige uma árvore de mosaicos
+com a estrutura de um serviço; esta aceita **uma imagem qualquer**, e dá-lhe a ligação aos
+pixéis do terreno por dois caminhos que convergem na mesma representação — dois pontos, cada
+um com pixel e coordenada:
+
+- **World file** (`.pgw`, `.jgw`, `.wld`) ao lado da imagem, que é o que o QGIS escreve.
+- **Dois pontos de controlo** clicados na imagem, com a coordenada escrita à mão.
+
+A camada desenha-se **por cima dos mosaicos e por baixo do traçado**: uma folha da carta
+militar vale mais do que um fundo de serviço, e nenhuma das duas pode tapar as frentes.
+
+### Porque importa a esta linhagem em particular
+
+É o que fecha a dívida cartográfica do lado que ainda está aberto. A pasta
+`docs/cartografia/` tem três cartas de uma ocorrência real — Cabeça Boa — anotadas à mão no
+PCO, e **é sobre imagens assim que o mapa tem de conseguir desenhar**. Sem isto, uma carta
+militar anotada continua a ser um ficheiro que se olha, não um fundo sobre o qual se trabalha.
+
+### O que a absorção exige
+
+- O ramo das folhas em `fonte/3-planeamento/22-ambiente-de-fogo.js` — `FOLHAS` e
+  `folhaCalibrada` — **foi retirado na r0077 por apontar para o vazio**. Volta a entrar, e a
+  cartografia do `retratoDoFogo` passa a nomear as folhas calibradas em uso.
+- **A base IndexedDB deles subiu para 3 com a loja `folhas` por causa deste trabalho.** A
+  nossa abertura já adota a versão que a base tiver (r0076), portanto não há conflito a
+  resolver: há uma loja a criar.
+- Migração da forma do estado, no fim da escada, com `VERSAO_ESTADO` a subir de 25 para 26.
+- Cuidado com a projeção: os pontos de controlo entram e saem **em par**, como tudo o resto
+  que passa por `gPara` e `gDe`.
 2. **A escada de migrações divergiu.** Eles vão na versão de estado 22, esta linhagem na 25.
    Não é erro de nenhum dos lados — são degraus diferentes, postos por ordens diferentes. O
    que importa é a consequência: **um degrau do `p0020` não pode ser copiado com o número que
