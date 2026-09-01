@@ -2632,3 +2632,28 @@ numeradas `(1)` a `(3)` pelo descarregador. Das montagens de trabalho da linhage
 quatro `r0066`, quatro `r0072`, três `r0070`, uma `r0060` e uma `r0064` — fica **uma por
 número**, que é a regra do projeto; as outras vivem no histórico do `main`. E o `LEIAME.md` da
 pasta de exemplos que veio no descarregamento é a versão da v1.1, anterior à que aqui está.
+
+
+## O `main` alinhado, sem perder o que lá estava
+
+O descarregamento tinha ficado no `main`, com 255 ficheiros na raiz e na `entrada/`. Ficou
+alinhado com o trabalho, e **por merge e não por reescrita**: o `main` já continha esta
+linhagem até à `r0077`, e divergia só nos onze commits do descarregamento. Trazê-lo para cá e
+depois avançar o `main` mantém todos esses commits alcançáveis — apontar o `main` para outro
+sítio teria órfão o que eles trouxeram.
+
+Antes de apagar seja o que for, conferiu-se **ficheiro a ficheiro, por resumo SHA-256**, que o
+conteúdo estava guardado noutro sítio. Dos 255, **226 estavam já arrumados byte a byte**. Os
+restantes 30 são descartes deliberados, e ficam nomeados aqui para que ninguém tenha de os
+adivinhar:
+
+| O que é | Quantos | Porquê se descarta |
+|---|---|---|
+| Montagens de trabalho da linhagem paralela — quatro `r0066`, quatro `r0072`, duas `r0070`, uma `r0060`, uma `r0064` | 12 | Fica uma por número, que é a regra do projeto. Continuam alcançáveis no histórico |
+| Instantâneos anteriores de três documentos já arrumados — a especificação de 27 de agosto, a proposta da v1.2 e a triagem da análise clínica | 3 | As cópias em `docs/` são as posteriores e mais completas: trazem as notas de arquivo e os achados corrigidos que estas não têm |
+| `LEIAME.md` da pasta de exemplos | 1 | É a versão da v1.1, anterior à que está em `docs/interop/exemplos/` |
+| `scott-burgan-2005.pdf` | 1 | Outra digitalização do Scott e Burgan (2005), que já está em `docs/fontes/` |
+
+A `entrada/` volta ao que tem de ser: **vazia, com o seu `README.md` e mais nada.** É a
+condição que o próprio ficheiro impõe — uma entrada que não esvazia deixa de dizer o que quer
+que seja.
