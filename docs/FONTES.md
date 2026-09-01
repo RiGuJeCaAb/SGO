@@ -323,14 +323,18 @@ isso e só isso que se mostra.
 Chave invocada por `fonte/3-planeamento/21-modelos-de-combustivel.js`, que traz o motor de
 propagação, e pelo painel de estimativa em `19-intensidade-da-frente.js`.
 
-São dois documentos, e **o repositório não tem nenhum deles**:
+São dois documentos. **O primeiro chegou a 1 de setembro e está em `docs/fontes/`; o
+segundo continua em falta:**
 
-- FERNANDES, P.M., BOTELHO, H.S., LOUREIRO, C., 2002b. *Manual de Formação para a Técnica
-  do Fogo Controlado.* UTAD, Vila Real. Daqui vêm o Quadro 3.2.1 (humidade do combustível
-  morto fino), o 3.3.1 (vento à superfície), os 3.4.1 a 3.4.3 (propagação em matos) e os
-  7.1 e 7.2 (propagação em pinheiro bravo).
+- FERNANDES, P.M., BOTELHO, H.S., LOUREIRO, C., 2002. *Manual de Formação para a Técnica
+  do Fogo Controlado.* UTAD. **Em
+  `docs/fontes/Manual_de_Formacao_para_a_Tecnica_do_Fogo_Controlado_Fernandes_Botelho_Loureiro_2002.pdf`**,
+  144 páginas. A capa e a folha de rosto foram lidas e conferem: os três autores por esta
+  ordem, UTAD, 2002. Daqui vêm o Quadro 3.2.1 (humidade do combustível morto fino), o 3.3.1
+  (vento à superfície), os 3.4.1 a 3.4.3 (propagação em matos) e os 7.1 e 7.2 (propagação em
+  pinheiro bravo).
 - FERNANDES, P.M., LOUREIRO, C., 2021. Os 18 modelos de combustível para Portugal, com o
-  intervalo de carga fina de cada um.
+  intervalo de carga fina de cada um. **Continua em falta.**
 
 ### O que está confirmado, e o que não está
 
@@ -344,11 +348,22 @@ todas as células, os fatores de altura e declive comportam-se como fatores, o e
 superior fica dentro do que Alexander (2000) reconhece para floresta, e nenhuma combinação
 produz velocidade negativa.
 
-**Não está confirmada a transcrição contra o impresso.** É preciso dizê-lo sem rodeios:
-uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento do fogo
-errado com toda a confiança do mundo. Os números destes quadros chegaram por transcrição, de
-documentos que ninguém aqui abriu, e ficam a valer sob essa reserva até que os dois
-documentos entrem em `docs/fontes/` e alguém confira célula a célula.
+**Continua por confirmar a transcrição contra o impresso.** É preciso dizê-lo sem
+rodeios: uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento
+do fogo errado com toda a confiança do mundo.
+
+Até 1 de setembro isto era impossível de resolver, porque o manual não existia aqui. **Agora
+existe**, e a reserva passa de «não há como conferir» a «está por conferir», que é outra
+coisa. Duas notas práticas sobre o que essa conferência exige:
+
+- **O PDF é digitalizado e não tem camada de texto.** Não há como extrair os quadros por
+  máquina nem comparar cadeias de caracteres: conferir significa abrir cada página de quadro
+  e ler célula a célula.
+- São seis quadros — 3.2.1, 3.3.1, 3.4.1, 3.4.2, 3.4.3, 7.1 e 7.2 — e algumas centenas de
+  células. É trabalho de uma sessão dedicada, não de um aparte.
+
+Enquanto não estiver feito, **o que muda é a natureza da dúvida, não a sua existência**, e os
+números continuam a valer para ordem de grandeza e comparação de cenários.
 
 **Não está confirmada a atribuição dos modelos de 2021.** Os 18 códigos, descrições e
 cargas foram transcritos com a referência acima; a referência não foi verificada contra
@@ -377,9 +392,33 @@ não está a discordar de nenhuma das duas fontes.
 
 ### O que fica pedido
 
-Os dois documentos, em PDF, para `docs/fontes/`. Enquanto não chegarem, todo o número que
-sai deste motor é bom para ordem de grandeza e para comparar cenários entre si — não para
-sustentar sozinho uma decisão de ataque direto.
+**Fernandes e Loureiro (2021)**, os 18 modelos de combustível, que é o que falta. E a
+conferência dos quadros do manual de 2002 contra o impresso, agora que ele cá está.
+
+Enquanto isso não estiver feito, todo o número que sai deste motor é bom para ordem de
+grandeza e para comparar cenários entre si — não para sustentar sozinho uma decisão de ataque
+direto.
+
+## `PTFIRESPRD` — velocidades de propagação medidas em incêndios portugueses reais
+
+**Benali, A., Guiomar, N., Gonçalves, H., Mota, B., Silva, F., Fernandes, P.M., Mota, C.,
+Penha, A., Santos, J., Pereira, J.M.C., Sá, A.C.L. (2023), *The Portuguese Large Wildfire
+Spread database (PT-FireSprd)*, Earth System Science Data 15, 3791-3818.** Em
+`docs/fontes/PT-FireSprd_Portuguese_Large_Wildfire_Spread_database_Benali_2023.pdf`.
+
+**Chegou a 1 de setembro e ainda não foi lido com atenção. Nada na aplicação o invoca**, e
+esta entrada existe para o declarar, não para autorizar seja o que for.
+
+Fica registado porque é, à primeira vista, o documento que responde à objeção que
+atravessa todo este ficheiro. As outras fontes de propagação são ou de fora (`SCOTT2005`,
+`FBP1996`, `WEISE1997`) ou de fogo controlado, de Outono e Primavera e de baixa intensidade
+(`FOGOPT`). Esta é **medição de propagação em grandes incêndios portugueses**, com Paulo
+Fernandes entre os autores — o mesmo autor dos quadros que a aplicação já usa.
+
+O que isso permitiria, se se confirmar na leitura: confrontar o que o motor de fogo
+controlado estima com o que se mediu em incêndios de verão a sério. **Não é o mesmo que
+validar o motor** — e a diferença entre as duas coisas é precisamente o que esta aplicação
+não pode confundir.
 
 ## Recebidos e por ler
 

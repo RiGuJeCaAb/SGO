@@ -35,6 +35,7 @@ entregas da linhagem paralela, que verifica em navegador e junta a prova.
 | `CSREPCDouro_qa0012_202608291830_Logistica_CLD.png` | r0057 | Logística com um só quadro de rendições |
 | `CSREPCDouro_qa0013_202608291930_PEAImpresso_CLD.pdf` | r0058 (paralela) | O PEA impresso no formato do modelo .docx aceite |
 | `CSREPCDouro_qa0014_202608292000_PEAImpresso_CLD.pdf` | r0059 (paralela) | O mesmo, com uma folha por célula |
+| `CSREPCDouro_qa0015_202608301600_CroquiPEA_CLD.pdf` | r0062 (paralela) | O croqui do teatro de operações no PEA impresso |
 | `CSREPCDouro_qa0015_..._AprovacaoCOS_CLD.png` | r0060 | Os três estados da proposta, com a aprovação registada e as ordens produzidas |
 | `CSREPCDouro_qa0016_..._QuemRegista_CLD.png` | r0064 | A identidade declarada e os perfis, com a recusa a explicar-se |
 | `CSREPCDouro_qa0017_..._CopiasEDiario_CLD.png` | r0064 | As cópias de recuperação e o diário do posto, com o IndexedDB a servir |
@@ -81,6 +82,30 @@ posto pode trabalhar com a rede em baixo.
 
 `CSREPCDouro_qa0021_202608310007_WmtsLeituraDoServico_CLD.png` — a leitura de um serviço
 oficial a partir do que ele próprio declara, e não de endereços escritos à mão.
+
+## qa0018 — r0072 da linhagem paralela, folha calibrada
+
+`CSREPCDouro_qa0018_202608312030_Calibracao_CLD.png` — o painel que georreferencia uma carta
+em imagem por pontos de controlo.
+
+`CSREPCDouro_qa0018_202608312030_MapaComFolha_CLD.png` — a mesma folha desenhada por baixo do
+mapa operacional.
+
+Repetem o número `qa0018` que esta linhagem já tinha usado a 30 de agosto, e distinguem-se
+pelo carimbo. **O trabalho que provam ainda não está absorvido deste lado** — ver
+`docs/POREXECUTAR.md`.
+
+## qa0019 — r0073 da linhagem paralela, propagação
+
+`CSREPCDouro_qa0019_202608312230_PropagacaoClaro_CLD.png` — o painel de estimativa da
+velocidade de propagação, tema claro.
+
+`CSREPCDouro_qa0019_202608312230_Recusa25C_CLD.png` — a recusa da estimativa da humidade acima
+de 25 °C, que é o que o Quadro 3.2.1 traz impresso. É a prova de que a aplicação recusa em vez
+de avisar.
+
+Também repetem um `qa0019` desta linhagem, de 30 de agosto. Mesmo critério: fica o carimbo a
+distinguir.
 
 ## qa0022 — r0070, frentes com direção e leitura da evolução
 

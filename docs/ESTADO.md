@@ -2560,3 +2560,75 @@ Sem migração: o `p0020` não muda a forma do estado. A versão continua na 25.
 O guião chegou, está absorvido e arquivado. Continuam a existir duas r0074, e continua a estar
 escrito porquê. Esta linhagem já usou a r0075, a r0076 e a r0077: **o número seguinte livre é o
 r0078**.
+
+## 1 de setembro — a grande arrumação, e o Manual que chegou
+
+Chegaram **255 ficheiros** num descarregamento para o ramo `main`. Destes, **144 já cá
+estavam byte a byte** e 111 eram conteúdo novo. Ficaram todos arrumados por natureza, e o
+`npm run arrumado` passou a cobrir seis pastas em vez de cinco.
+
+### O achado que interessa mais do que a arrumação
+
+**O Manual de Formação para a Técnica do Fogo Controlado está em `docs/fontes/`.** É o
+documento que a chave `FOGOPT` dizia que este repositório não tinha, e de onde saíram todos os
+quadros do motor de propagação. A capa e a folha de rosto foram lidas: *Paulo Fernandes,
+Hermínio Botelho, Carlos Loureiro, UTAD, 2002*, 144 páginas. É exatamente a referência que a
+bibliografia do Fernandes (2003) cita.
+
+**O que isto muda, e o que não muda.** Muda a natureza da reserva: até aqui era «não há como
+conferir a transcrição», agora é «está por conferir», que é outra coisa. Não muda os números:
+continuam a valer sob reserva enquanto ninguém abrir o manual e comparar célula a célula. E há
+uma dificuldade prática registada na `FOGOPT`: **o PDF é digitalizado e não tem camada de
+texto**, pelo que a conferência não se faz por máquina — são seis quadros e algumas centenas
+de células, à vista.
+
+Chegou também a **PT-FireSprd** (Benali et al., 2023), a base de velocidades de propagação
+medidas em grandes incêndios portugueses, com Paulo Fernandes entre os autores. Declarada em
+`FONTES.md` como recebida e por ler. É, à primeira vista, o que permitiria confrontar o que o
+motor de fogo controlado estima com o que se mediu em incêndios de verão — **o que não é o
+mesmo que validá-lo**, e a diferença entre as duas coisas é a que esta aplicação não pode
+confundir.
+
+### O buraco do histórico fechou-se
+
+O `app/README.md` dizia que **a série `r0007` a `r0013` não existia em nenhuma origem
+conhecida**. Existe: chegou inteira. A numeração corre agora sem falhas da `r0005` à `r0077`.
+Continua a faltar só a `r0004`. Vieram também vinte e cinco montagens anteriores à convenção
+de revisões, duas delas anteriores ao próprio nome do projeto.
+
+### O resto, por pasta
+
+| Onde | O que entrou |
+|---|---|
+| `app/` | A série que faltava, mais `r0061` a `r0063`, a `r0070`, as pré-convenção, e a **`r0074` da linhagem paralela** — a gémea da colisão |
+| `ferramentas/historico/` | Oito guiões: croqui (`p0016`, `p0017`), **folha calibrada (`p0018`)**, e os guiões de captura `q0018` e `q0020` |
+| `docs/qa/` | Cinco provas: o croqui no PEA impresso, a calibração da folha, e a propagação com a recusa acima de 25 °C |
+| `docs/fontes/` | O Manual de 2002 e a PT-FireSprd |
+| `docs/` | Duas versões da especificação, a análise do GetCapabilities da DGT, o composto vento-declive, o `ESTADO.md` da linhagem paralela e uma exportação de conversa |
+| `docs/interop/` | O recado de volta que produziu a v1.2 |
+| **`docs/pea-reais/`** (nova) | **Cinco PEA emitidos no Castedo a 17 de agosto**, no formato oficial, por quem estava no PCO |
+| `tests/fixtures/` | Uma previsão SpotWx verdadeira, de dez dias |
+
+### A numeração dos guiões também tinha colidido
+
+Existem **dois `p0017`** (croqui com escala a 30 de agosto, carta pré-descarregada a 31), dois
+`t0017`, e **dois `p0018`** (cartões dobráveis a 30, folha calibrada a 31). Ficam ambos,
+distintos pelo carimbo, pela mesma razão das duas `r0058` e das duas `r0074`. Fica escrito no
+`ferramentas/historico/README.md`.
+
+### O que se acrescentou de verificação
+
+- `docs/pea-reais/` entrou no `npm run arrumado`, com forma de nome e catálogo próprios.
+- `tests/previsao-real.test.mjs`, cinco testes contra a previsão verdadeira: 240 horas lidas
+  sem perder nenhuma, nenhum campo a sair `NaN` — **uma hora com `NaN` não rebenta nada,
+  desenha-se em branco e desaparece da análise, que é a forma mais silenciosa de perder
+  previsão** —, a série a atravessar a mudança de mês sem se desordenar, e o meteograma a
+  desenhar dez dias sem uma coordenada inválida.
+
+### O que ficou de fora, e porquê
+
+Nove `.docx` chegaram e ficaram seis: **quatro eram cópias byte a byte** do mesmo `PEA02rev2`,
+numeradas `(1)` a `(3)` pelo descarregador. Das montagens de trabalho da linhagem paralela —
+quatro `r0066`, quatro `r0072`, três `r0070`, uma `r0060` e uma `r0064` — fica **uma por
+número**, que é a regra do projeto; as outras vivem no histórico do `main`. E o `LEIAME.md` da
+pasta de exemplos que veio no descarregamento é a versão da v1.1, anterior à que aqui está.

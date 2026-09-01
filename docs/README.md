@@ -29,6 +29,12 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608291530_TriagemAnaliseClinica_CLD.md` | Triagem, achado a achado e com a prova em código, da análise clínica externa ao r0050 |
 | `202608292108_AnaliseClinicaExterna.pdf` | **Documento externo**, não escrito aqui: a análise clínica à r0051 e à r0057, que abriu a fase de robustecimento. Chegou como `202608292108_Analise_clinica_do_projeto.pdf` e foi renomeado para dizer o que é; o conteúdo não se tocou |
 | `CSREPCDouro_202608310914_d_RelatorioSessaoCartografia_CLD.md` | **Relatório da sessão de captura** dos `GetCapabilities` reais, escrito noutra sessão. É o documento que abriu o trabalho de cartografia: diz o que se tentou, o que falhou e porquê, e é dele que veio o §17 com os requisitos do interpretador. As capturas que descreve estão em `tests/fixtures/capacidades/` |
+| `CSREPCDouro_202608272137_PromptEstacaoPEA_CLD.md` | Quarta versão da especificação dessa noite. Mesma condição das outras: instantâneo de trabalho, não a que está em vigor |
+| `CSREPCDouro_202608272151_PromptEstacaoPEA_CLD.md` | Quinta e última dessa noite |
+| `CSREPCDouro_202608281200_d_EstadoLinhagemParalela_CLD.md` | **O `ESTADO.md` da linhagem paralela** a 28 de agosto, tal como estava do lado de lá. Não substitui o nosso: é o retrato de como o outro lado via o projeto nessa data |
+| `CSREPCDouro_202608281930_d_ExportacaoDeConversa_CLD.json` | **Exportação de uma conversa** onde o projeto foi analisado. Não é documento do projeto: é o registo de onde saíram algumas das decisões. Traz identificadores da plataforma de origem |
+| `CSREPCDouro_202608310900_d_AnaliseGetCapabilitiesDGT_CLD.md` | Análise do `GetCapabilities` da DGT, ficheiro a ficheiro. É o trabalho de detalhe que antecedeu o relatório da sessão de cartografia |
+| `CSREPCDouro_202608312145_d_CompositoVentoDeclive_CLD.md` | A composição vetorial de vento e declive, desenvolvida por escrito. É o documento que sustenta o que `betaFogo` faz |
 | `CSREPCDouro_202608311242_d_RelatorioFontesInternacionais_CLD.md` | **Continuação do anterior**: que fonte internacional dá o que nenhuma nacional dá. Conclui que é imagem fresca e deteção de fogo ativo, seleciona o NASA GIBS e acrescenta cinco requisitos ao interpretador. Traz a distinção que desbloqueia o impasse do sistema de coordenadas: **os focos de calor são pontos, não mosaicos**, e um ponto reprojeta-se |
 
 ## `interop/` — a ligação à Gestão PCO
@@ -45,8 +51,16 @@ validar uma exportação.
 | `CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md` | A proposta que deu origem à v1.2. Arquivada: o que propunha está no documento em vigor |
 | `CSREPCDouro_202608271109_EspecificacaoExportacaoJSON_CLD.md` | v1.0, a primeira. Arquivada |
 | `CSREPCDouro_r0001_202608271615_EspecificacaoExportacaoJSON_CLD.md` | A mesma v1.0 carimbada com revisão. Arquivada |
+| `CSREPCDouro_202608281930_RecadoDeVolta_CLD.md` | **A resposta da linhagem paralela** sobre o contrato e a especificação. É o outro lado da conversa que produziu a v1.2 |
 | `CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md` | Arquivado. Escrito a analisar um esboço anterior; o seu autor corrigiu-se. Dele vieram os três acréscimos da v1.2 |
 | `exemplos/` | Um ficheiro por envelope que o importador lê, e o validador que os confere |
+
+## `pea-reais/` — os planos de um incêndio a sério
+
+Cinco PEA emitidos no Castedo a 17 de agosto de 2026, no formato oficial, por quem estava no
+posto de comando. Não foram produzidos por esta aplicação. Servem para conferir o que ela
+emite contra o que se emite mesmo, e para ler o ritmo a que um plano é refeito numa ocorrência
+real. Ver `pea-reais/LEIAME.md`. **Não se editam.**
 
 ## `cartografia/` — o alvo do mapa
 

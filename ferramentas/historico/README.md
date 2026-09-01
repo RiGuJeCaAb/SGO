@@ -40,12 +40,27 @@ nada além do que os patches dizem.
 | `CSREPCDouro_p0019_..._PropagacaoModelos_CLD.py` | Velocidade de propagação e modelos de combustível. **Absorvido** em `fonte/3-planeamento/21-modelos-de-combustivel.js` | r0073 |
 | `CSREPCDouro_t0019_..._Propagacao_CLD.js` | Testes dessa alteração. **Portados** para `tests/propagacao.test.mjs` | — |
 | `CSREPCDouro_q0019_..._Propagacao_CLD.js` | Guião de captura da prova em navegador | — |
+| `CSREPCDouro_p0016_..._CroquiTO_CLD.py` | Croqui do teatro de operações, desenhado a partir do estado | r0062 |
+| `CSREPCDouro_t0016_..._CroquiTO_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_p0017_202608301730_CroquiEscala_CLD.py` | Escala e orientação no croqui. **Não confundir com o outro `p0017`**, de 31 de agosto, que é a carta pré-descarregada: são dois trabalhos com o mesmo número | r0063 |
+| `CSREPCDouro_t0017_202608301730_CroquiEscala_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_p0018_202608312030_FolhaCalibrada_CLD.py` | **Folha calibrada**: carta em imagem, georreferenciada por pontos de controlo, desenhada por baixo do mapa. **Não confundir com o outro `p0018`**, de 30 de agosto, que são os cartões dobráveis. **Por absorver** | r0072 (paralela) |
+| `CSREPCDouro_t0018_202608312030_FolhaCalibrada_CLD.js` | Testes dessa alteração | — |
+| `CSREPCDouro_q0018_202608312030_FolhaCalibrada_CLD.js` | Guião de captura das provas `qa0018` de 31 de agosto | — |
+| `CSREPCDouro_q0020_..._RetratoDoFogo_CLD.js` | Guião de captura da prova do ambiente de fogo | — |
 | `CSREPCDouro_p0020_..._RetratoDoFogo_CLD.py` | O ambiente de fogo entra no plano: terceiro coletor, propostas fundadas na intensidade. **Absorvido** em `fonte/3-planeamento/22-ambiente-de-fogo.js` | r0074 (paralela) |
 | `patch_r0016.py`, `teste.js` | Versões anteriores dos mesmos guiões | r0016 |
 
-Os seis guiões de 31 de agosto — `p0017`, `t0017`, `q0017`, `p0019`, `t0019`, `q0019` —
-chegaram com os campos do nome trocados, `CSREPCDouro_AAAAMMDDHHMM_p0017_...`, e foram postos
-na ordem da convenção. Só o nome mudou; o conteúdo é o que veio.
+Os guiões que chegaram com os campos do nome trocados —
+`CSREPCDouro_AAAAMMDDHHMM_p0017_...` em vez de `CSREPCDouro_p0017_AAAAMMDDHHMM_...` — foram
+postos na ordem da convenção. Só o nome mudou; o conteúdo é o que veio.
+
+**A numeração dos guiões colidiu, como colidiu a das revisões.** Existem dois `p0017` (croqui
+com escala, a 30 de agosto; carta pré-descarregada, a 31), dois `t0017`, e dois `p0018`
+(cartões dobráveis, a 30; folha calibrada, a 31), com os respetivos `t0018`. Distinguem-se
+pelo carimbo de data e ficam ambos, pela mesma razão por que ficam as duas `r0058` e as duas
+`r0074`: foram ambos entregues, e renumerá-los partiria a referência dos documentos que os
+citam. Ver `app/RESERVADAS.md`.
 
 **Não são o método deste lado.** A fonte vive em `fonte/`, um módulo por subsistema, e a
 entrega produz-se com `npm run montar`. Alterar a aplicação aqui é alterar o módulo

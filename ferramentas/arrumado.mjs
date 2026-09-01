@@ -53,6 +53,17 @@ const PASTAS = [
     excecoes: [],
   },
   {
+    /* Os PEA emitidos num incêndio real. Ficam com o nome com que saíram do posto de
+       comando — renomeá-los para a convenção deste projeto faria passar por nosso um
+       documento que não é. O que se exige é que cada um esteja no catálogo. */
+    pasta: 'docs/pea-reais',
+    catalogo: 'docs/pea-reais/LEIAME.md',
+    forma: /^\d{12}_PEA\d{2}[A-Za-z0-9]*_[A-Za-z]+(_v\d)?_CLD\.(docx|pdf)$/,
+    diz: 'AAAAMMDDHHMM_PEAnn_Local_CLD.docx',
+    ignora: ['LEIAME.md'],
+    excecoes: [],
+  },
+  {
     /* Os documentos de terceiros ficam com o nome com que foram publicados: renomeá-los
        dificultaria dar com o original. O que se exige é que estejam declarados. */
     pasta: 'docs/fontes',
@@ -68,8 +79,9 @@ const PASTAS = [
 const APP = {
   pasta: 'app',
   forma: /^CSREPCDouro_r\d{4}[a-z]?_\d{12}_EstacaoPEA_CLD\.html$/,
-  /* Anteriores à numeração de revisões. O `app/README.md` explica-as e não se renomeiam. */
-  antigas: /^CSREPCDouro_\d{12}_EstacaoPEA_CLD\.html$/,
+  /* Anteriores à numeração de revisões. O `app/README.md` explica-as e não se renomeiam.
+     As duas de 23 de agosto são anteriores até ao nome do projeto. */
+  antigas: /^(CSREPCDouro_\d{12}_EstacaoPEA_CLD|\d{12}_SGO_PEA)\.html$/,
   ignora: ['README.md', 'RESERVADAS.md'],
 };
 
