@@ -17,7 +17,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 126, das anteriores à convenção de nomes até à r0087 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 835, todos a passar |
+| Testes | 837, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -270,6 +270,28 @@ Isso é pior do que falhar: é ruído com aparência de sinal, e é assim que se
 ignorar testes vermelhos. Na v2, contrato quebrado sai com código 2 e a frase «nenhuma
 conclusão doutrinária foi tirada»; divergência doutrinária sai com 1. São coisas diferentes
 e passam a ler-se como tal.
+
+## A montagem passou a ter verificação própria — o achado do ramo #005
+
+Ficou por responder dois dias, e era o mais importante dos cinco: **a montagem é o
+componente de maior risco do sistema e era o que tinha menos verificação própria.** É a peça
+que transforma módulos corretos num ficheiro que arranca num PCO às três da manhã.
+
+O teste da reprodução byte a byte não chegava, e a razão é subtil ao ponto de eu não a ter
+visto: monta a partir de `lerModulos()` e compara com uma entrega montada a partir de
+`lerModulos()`. **Um módulo que o leitor deixe cair é deixado cair dos dois lados**, os bytes
+batem, e o teste passa sobre uma entrega a que falta código.
+
+E o leitor deixa cair: `lerModulos` percorre uma camada de pastas e apanha `.js`. Um módulo
+numa subpasta de zona, ou com extensão `.mjs`, sai sem uma palavra. Não é hipótese
+académica — é como um módulo se perde numa reorganização.
+
+Dois testes novos confrontam a entrega **com o disco** e não com a lista que a própria
+montagem produziu. Provado a esconder um módulo numa subpasta e a renomear outro para
+`.mjs`: vermelho nos dois casos.
+
+O terceiro pedido do #005 — que a aplicação arranque de `file://` sem exceções na consola —
+já estava coberto: `npm run visual` escuta `pageerror` a quatro larguras e nos dois temas.
 
 ## Decisões tomadas
 

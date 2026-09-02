@@ -79,3 +79,52 @@ test('o index.html da raiz é a entrega mais recente, byte a byte', semRevisao, 
   assert.equal(servido, entregue,
     'o index.html não é a entrega mais recente — correr `npm run montar`');
 });
+
+/* ---- o que a comparação byte a byte não pode apanhar ---- */
+
+/* Apontado pelo ramo #005 a 2 de setembro, e a leitura estava certa: **a montagem é o
+   componente de maior risco do sistema e era o que tinha menos verificação própria.** É a
+   peça que transforma módulos corretos num ficheiro que arranca num PCO às três da manhã.
+
+   O teste da reprodução byte a byte não chega, e a razão é subtil: monta a partir de
+   `lerModulos()` e compara com uma entrega montada a partir de `lerModulos()`. **Um módulo
+   que o leitor deixe cair é deixado cair dos dois lados**, os bytes batem, e o teste passa
+   sobre uma entrega a que falta código. Só um confronto com o disco o vê. */
+
+async function ficheirosDeFonte(pasta = 'fonte') {
+  const { readdir } = await import('node:fs/promises');
+  const entradas = await readdir(pasta, { withFileTypes: true });
+  const out = [];
+  for (const e of entradas) {
+    const caminho = pasta + '/' + e.name;
+    if (e.isDirectory()) out.push(...(await ficheirosDeFonte(caminho)));
+    else if (/\.(js|mjs|cjs)$/i.test(e.name)) out.push(caminho);
+  }
+  return out;
+}
+
+test('todo o módulo que está no disco entra na montagem', semRevisao, async () => {
+  /* Percorre `fonte/` até ao fim, e não uma camada só. `lerModulos` lê as zonas e os `.js`
+     lá dentro: um módulo numa subpasta de zona, ou com extensão `.mjs`, é ignorado sem uma
+     palavra. Não é hipótese académica — é como um módulo se perde numa reorganização. */
+  const noDisco = (await ficheirosDeFonte()).sort();
+  const { nomes } = await lerModulos();
+  const lidos = nomes.map((n) => 'fonte/' + n).sort();
+  assert.deepEqual(lidos, noDisco,
+    'a montagem não leu tudo o que está em fonte/, ou leu o que lá não está');
+});
+
+test('o código de cada módulo está mesmo dentro da entrega', semRevisao, async () => {
+  /* A verificação que o ramo #005 pediu: pegar no artefacto final e confirmar que cada
+     módulo declarado está presente. Confronta-se contra o disco, e não contra a lista que
+     a própria montagem produziu — de outro modo seria a montagem a certificar-se a si. */
+  const entregue = await readFile(recente, 'utf8');
+  const ficheiros = await ficheirosDeFonte();
+  const faltam = [];
+  for (const f of ficheiros) {
+    const corpo = (await readFile(f, 'utf8')).trim();
+    if (corpo && !entregue.includes(corpo)) faltam.push(f);
+  }
+  assert.equal(faltam.join(', '), '', 'módulos ausentes da entrega');
+  assert.ok(ficheiros.length >= 70, 'só ' + ficheiros.length + ' módulos — a leitura falhou');
+});
