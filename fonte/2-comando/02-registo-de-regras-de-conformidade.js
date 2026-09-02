@@ -322,7 +322,9 @@ const REGRAS_DON = [
           r:"Despacho n.º 4067/2024, art. 39.º e Anexo I"});
       }
       const lim = (FASES_SGO.find(f=>f.k === decl)||{}).ate;
-      if(lim && c.op > lim) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
+      /* O mesmo sinal que sugere o núcleo de especialistas na lista de nomeação. Lê-se do
+         mesmo sítio para que os dois não possam discordar sobre o que é exceder. */
+      if(excedeReferenciaDaFase()) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
         s:"Estão registados "+c.op+" operacionais, acima da referência de "+lim+" da fase "+O.meta.fase+" declarada em Comando.",
         f:"O COS deve garantir o reforço da organização do PCO e da capacidade de comando e controlo sempre que o número de meios humanos e materiais mobilizados ultrapasse a capacidade de comando e controlo implementada. O aumento dessa capacidade deve ser acompanhado pelo aumento da capacidade de análise e planeamento, através da ativação do núcleo de especialistas na célula de planeamento.",
         a:"Rever a fase declarada, reforçar as células do PCO e ponderar a solicitação de EPCO, e de EAUF da FEPC ou EGFR do ICNF ao CNEPC.",

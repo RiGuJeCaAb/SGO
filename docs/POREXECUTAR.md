@@ -170,15 +170,17 @@ campo de referência a citar um artigo que nada diz sobre fases. O campo separou
 `faseLei`, que traz a alínea obrigatória, e `faseSug`, que assume ser prática do posto.
 `funcoesExigiveis()` passa a devolver só o que a lei impõe.
 
-**Fica por confirmar por C. Abreu:** os valores de `faseSug` continuam a ser os que lá
-estavam. São heurísticas plausíveis e ninguém as verificou. Deixaram de mentir sobre a sua
-proveniência; não deixaram de ser palpites.
+**Saldado na r0087.** Os valores de `faseSug` eram palpites com etiqueta de palpite, e o
+ramo #006 provou que oito dos nove não tinham fonte nenhuma e o nono tinha um gatilho que
+não é uma fase. Os números saíram; os núcleos propõem-se a partir da fase II, por
+art. 13.º, n.º 2, e o de especialistas pelo seu gatilho da DON n.º 2.
 
-**Fica também por resolver o Despacho não estar no repositório.** Não há cópia em
+**Fica por resolver o Despacho não estar no repositório.** Não há cópia em
 `docs/fontes/`, e não foi possível obtê-la deste ambiente. Toda a citação do articulado
 nesta matéria assenta na transcrição do ramo #006, o que é revisão por terceiro e não
 leitura primária. Uma cópia do Diário da República, 2.ª série, n.º 74, de 15-04-2024,
-fecharia isto.
+fecharia isto — e o ramo #006 diz que o PDF está nos ficheiros do projeto de C. Abreu, o que
+faz disto um descarregamento para `entrada/` e não uma investigação.
 
 ## 6-ter. O fundamento da transição de fase fora de banda
 

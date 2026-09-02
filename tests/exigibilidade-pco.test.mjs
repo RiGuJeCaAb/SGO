@@ -58,9 +58,22 @@ test('toda a fase declarada como legal traz a alínea que a impõe', semAplicaca
   });
 });
 
-test('nenhuma função tem as duas fases ao mesmo tempo', semAplicacao, () => {
+test('nenhuma função é exigência legal e sugestão ao mesmo tempo', semAplicacao, () => {
   tabela().forEach((x) => {
-    assert.ok(!(x.faseLei && x.faseSug), x.f + ' declara faseLei e faseSug — escolher uma');
+    assert.ok(!(x.faseLei && x.nucleo), x.f + ' declara faseLei e nucleo — escolher um');
+  });
+});
+
+test('nenhum núcleo leva número de fase, porque a lei não lho dá', semAplicacao, () => {
+  /* A separação da r0084 pôs-lhes a etiqueta certa e deixou-lhes o número errado, e um
+     palpite com etiqueta de palpite continua a ordenar um ecrã. O ramo #006 procurou a
+     fonte nas três oficiais do projeto e não a encontrou: o Despacho não indexa ativação de
+     núcleos a fases; o documento de ferramentas do SGO não tem uma ocorrência da palavra
+     «fase»; e a DON n.º 2 remete para «o previsto no SGO para a fase aplicável», que nada
+     prevê. Este teste existe para que nenhum número volte a entrar sem uma alínea. */
+  tabela().filter((x) => x.nucleo).forEach((x) => {
+    assert.equal(x.faseSug, undefined, x.f + ' voltou a levar um número de fase sem fonte');
+    assert.equal(x.faseLei, undefined, x.f + ' — se tem norma que o imponha, declara aLei');
   });
 });
 
@@ -70,7 +83,7 @@ test('os núcleos sem fase na lei não entram nas funções exigíveis, em fase 
   /* Os arts. 23.º a 25.º, 28.º a 30.º e 33.º a 35.º não fixam fase: a ativação dos núcleos
      é competência do oficial da célula «em função da natureza da ocorrência e das
      necessidades» — arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3. Achado do ramo #006. */
-  const sugeridos = tabela().filter((x) => x.faseSug).map((x) => x.f);
+  const sugeridos = tabela().filter((x) => x.nucleo).map((x) => x.f);
   assert.equal(sugeridos.length, 9, 'nove núcleos sem imposição legal de fase');
   ['II', 'III', 'IV', 'V', 'VI'].forEach((fase) => {
     janela.eval('O = novoEstado()');
@@ -87,7 +100,7 @@ test('o núcleo de monitorização e controlo é o único com fase na lei, e man
      campo de referência dizia mesmo o que a norma diz. */
   const x = acha('Núcleo de Monitorização e Controlo');
   assert.equal(x.faseLei, 4);
-  assert.equal(x.faseSug, undefined);
+  assert.equal(x.nucleo, undefined);
   janela.eval('O = novoEstado()');
   avaliar(janela, 'O').meta.fase = 'IV';
   assert.ok(janela.funcoesExigiveis().some((y) => y.f === x.f));
@@ -135,4 +148,91 @@ test('meios especiais em quantidade não fazem uma função passar por exigida p
   assert.ok(!/OPESP|COPESP/.test(exig), 'um limiar por analogia não é uma exigência legal');
   /* E continua a ser proposto, na prateleira certa: retirar da lei não é esconder. */
   assert.equal(janela.prioridadeFuncao(acha('OPESP — Oficial de Operações de Meios Especiais')), 's');
+});
+
+/* ---- a despromoção: a regressão que a separação tornou possível ---- */
+
+test('uma exigência legal despromovida a sugestão sai de funcoesExigiveis, e isso apanha-se', semAplicacao, () => {
+  /* Nomeada pelo ramo #006 na v2 do seu guião, e a leitura está certa: a separação
+     `faseLei`/`nucleo` resolveu o achado dos nove núcleos e criou uma classe de defeito que
+     antes não existia. Uma das sete funções do art. 14.º perder o `faseLei` passa de
+     exigência legal a palpite, sai das funções exigíveis e **deixa de alimentar as
+     pendências, o briefing, a passagem de turno e a conformidade** — silenciosamente,
+     porque nada no ecrã diz que uma obrigação deixou de ser contada.
+
+     O que este teste prende é o efeito e não o campo: é o efeito que magoa. */
+  janela.eval('O = novoEstado()');
+  avaliar(janela, 'O').meta.fase = 'IV';
+  const antes = janela.funcoesExigiveis().map((x) => x.f);
+  POR_ARTICULADO.forEach((r) => {
+    assert.ok(antes.includes(r.f), r.f + ' devia ser exigível na fase IV — ' + r.a);
+  });
+
+  /* Despromovida à mão, o efeito tem de aparecer. */
+  janela.eval('__guardado = FUNCOES_PCO.find(x => x.f === "Adjunto de Segurança");'
+    + ' __lei = __guardado.faseLei; delete __guardado.faseLei; __guardado.nucleo = true');
+  const depois = janela.funcoesExigiveis().map((x) => x.f);
+  assert.ok(!depois.includes('Adjunto de Segurança'),
+    'a despromoção tinha de a tirar das exigíveis, e o teste não estaria a provar nada');
+  janela.eval('delete __guardado.nucleo; __guardado.faseLei = __lei');
+  assert.ok(janela.funcoesExigiveis().map((x) => x.f).includes('Adjunto de Segurança'),
+    'o estado tem de ficar como estava');
+});
+
+test('a alínea gravada aponta para o artigo que sustenta aquele valor, não para outro', semAplicacao, () => {
+  /* O teste que já cá estava confere a alínea inteira, letra a letra, contra a verificada —
+     que é mais estrito do que confrontar a assinatura artigo/número/alínea. Este confere o
+     que falta: que nenhuma outra entrada com `faseLei` cite uma norma que não fale de
+     fases. Uma proveniência que aponta para a norma errada é pior do que campo vazio,
+     porque parece tê-la. */
+  const FASES_QUE_IMPOEM = { 41: 2, 42: 3, 43: 4, 44: 5, 45: 6, 18: 4 };
+  tabela().filter((x) => x.faseLei).forEach((x) => {
+    const art = /art\.\s*(\d+)\.º/.exec(String(x.aLei || ''));
+    assert.ok(art, x.f + ' — aLei ilegível: ' + x.aLei);
+    const imposta = FASES_QUE_IMPOEM[Number(art[1])];
+    assert.ok(imposta !== undefined,
+      x.f + ' cita o art. ' + art[1] + '.º, que não é dos que fixam composição por fase');
+    assert.equal(x.faseLei, imposta,
+      x.f + ' declara a fase ' + x.faseLei + ' e cita ' + x.aLei + ', que é da fase ' + imposta);
+  });
+});
+
+/* ---- o gatilho que é doutrina e não é fase ---- */
+
+test('o núcleo de especialistas sugere-se pelo seu gatilho, e não por uma fase', semAplicacao, () => {
+  /* DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27): a ativação acompanha o aumento da capacidade
+     de comando e controlo. É gatilho doutrinário a sério, e não é uma fase — foi o único
+     dos nove a que o ramo #006 encontrou fundamento. Liga-se ao sinal que a regra de
+     conformidade já mede: o efetivo a exceder a referência da fase declarada. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.fase = 'II';
+  assert.equal(janela.excedeReferenciaDaFase(), false, 'sem dispositivo não há excesso');
+  const esp = acha('Núcleo de Especialistas');
+  assert.equal(esp.gatilho, 'c2');
+  assert.equal(esp.faseSug, undefined, 'o gatilho substitui o número, não o acompanha');
+
+  /* Fase II comporta 40 operacionais. Com 120, a referência é excedida. */
+  O.dados.est.setores = [{ estado: 'Em curso (ativo)', cmd: '', m: '30', o: '120' }];
+  assert.equal(janela.excedeReferenciaDaFase(), true);
+  assert.equal(janela.prioridadeFuncao(esp), 's', 'o gatilho tem de o propor');
+});
+
+test('sem fase declarada não há referência que se possa exceder', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  avaliar(janela, 'O').dados.est.setores = [{ estado: 'Em curso (ativo)', cmd: '', m: '90', o: '400' }];
+  assert.equal(janela.excedeReferenciaDaFase(), false);
+});
+
+test('os núcleos não se sugerem antes de haver posto de comando onde os alojar', semAplicacao, () => {
+  /* Art. 13.º, n.º 2 — o PCO instala-se a partir da fase II. Um núcleo é de uma célula, e
+     não há célula antes do posto. É a única regra de fase que sobra para os nove, e tem
+     fonte, ao contrário dos números que substituiu. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  const nucleos = tabela().filter((x) => x.nucleo && x.gatilho === undefined);
+  O.meta.fase = 'I';
+  nucleos.forEach((x) => assert.notEqual(janela.prioridadeFuncao(x), 's', x.f + ' na fase I'));
+  O.meta.fase = 'II';
+  nucleos.forEach((x) => assert.equal(janela.prioridadeFuncao(x), 's', x.f + ' na fase II'));
 });

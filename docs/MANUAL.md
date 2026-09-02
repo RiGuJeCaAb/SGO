@@ -433,7 +433,7 @@ peso, e as quatro prateleiras dizem de onde vem cada uma:
 |---|---|
 | «Essencial — exigível por lei nesta fase» | O articulado impõe-a na fase declarada. O motivo cita a alínea |
 | «Recomendada — a lei exige na fase seguinte, ou o limiar está próximo» | Ainda não é obrigação, mas está a uma fase de o ser |
-| «Sugerida pela prática — sem imposição legal nesta fase» | Prática do posto. **A lei não fixa fase para isto** |
+| «Sugerida pela prática — sem imposição legal nesta fase» | Núcleos de célula. **A lei não fixa fase para os ativar**: são propostos assim que há posto de comando |
 | «De menor importância neste momento» | Matéria de escolha |
 
 **A terceira prateleira nasceu na r0084 e é a razão de esta secção existir.** Até lá havia
@@ -442,6 +442,14 @@ que nenhum artigo estabelece. A ativação dos núcleos é competência do ofici
 célula, "em função da natureza da ocorrência e das necessidades"; a lei não diz a partir de
 que fase. Quem comandava não conseguia distinguir o que a lei impunha naquele momento do que
 a aplicação achava prudente.
+
+**E na r0087 os números desapareceram de vez.** A etiqueta certa não chegava: um palpite
+continuava a ordenar o ecrã por uma escala que ninguém tinha escrito. Os nove núcleos são
+agora propostos a partir da fase II, e por uma razão só, que tem fonte — um núcleo é de uma
+célula, e não há célula antes de haver posto de comando, art. 13.º, n.º 2. Um deles tem
+gatilho próprio: o **núcleo de especialistas** é proposto quando o efetivo no TO excede a
+referência da fase declarada, porque é isso que a DON n.º 2 liga à sua ativação, e não uma
+fase.
 
 Só o que está na primeira prateleira conta como falta: é o que aparece na lista de
 pendências, no briefing de passagem de comando, na passagem de turno e na conformidade. Um

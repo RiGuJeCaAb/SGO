@@ -33,5 +33,21 @@ function faseParaEfetivo(op){
   const f = FASES_SGO.find(x=>op <= x.ate);
   return (f || FASES_SGO[FASES_SGO.length-1]).k;
 }
+/**
+ * O efetivo no TO excede a referência da fase declarada?
+ *
+ * **Não é um limiar de bloqueio, e o art. 39.º, n.º 3 é a razão:** a passagem de fase pode
+ * ser determinada independentemente do número de operacionais empenhados. Isto é um sinal,
+ * não uma barreira — e é o mesmo sinal em dois sítios, que é por isso que vive aqui e não
+ * em cada um deles. A regra de conformidade da fase usa-o para avisar; a lista de nomeação
+ * usa-o para sugerir o núcleo de especialistas, cuja ativação a DON n.º 2 liga ao aumento
+ * da capacidade de comando e controlo — pontos 7.d.(25)(d) e 7.d.(27) — e não a uma fase.
+ *
+ * Falso quando não há fase declarada: sem fase não há referência que se possa exceder.
+ */
+function excedeReferenciaDaFase(){
+  const lim = (FASES_SGO.find(f=>f.k === (O.meta.fase||""))||{}).ate;
+  return !!lim && isFinite(lim) && contarDispositivo().op > lim;
+}
 /** Posição de uma fase na escala, para se poderem comparar. -1 se não for fase nenhuma. */
 function ordemFase(k){ return FASES_SGO.findIndex(x=>x.k === k); }

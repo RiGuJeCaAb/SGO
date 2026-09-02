@@ -132,3 +132,24 @@ O ramo #001 registou no próprio ficheiro dois erros seus, apanhados a verificar
 assumir: o acesso por `window.X`, que teria dado vermelho a código já implementado porque um
 `const` de topo não cria propriedade em `window`; e um `E7` que verificava a fixture
 construída pelo próprio teste e passava a verde sem tocar na aplicação.
+
+## `006_CSREPCDouro_202609021552_t02_FasesExigibilidadePCOv2_CLD.js`
+
+A segunda versão do guião das fases, e substitui a anterior como guião a correr — a v1 fica
+pelo registo do achado. Verde contra a r0087, saída 0.
+
+**Não é a alteração de uma linha que eu tinha proposto**, e o ramo #006 tem razão em não a
+ter feito. Eu tinha visto metade da lição: o campo mudou de nome. A outra metade é que o
+guião **reportou a mudança de nome como sete divergências doutrinárias** — sete `undefined`
+com forma de achado sobre a lei. Isso é pior do que falhar: é ruído com aparência de sinal,
+e é assim que se treina quem lê a ignorar testes vermelhos. Na v2, contrato quebrado sai com
+código 2 e a frase «nenhuma conclusão doutrinária foi tirada»; divergência sai com 1.
+
+Traz duas verificações que a separação `faseLei`/`nucleo` tornou necessárias: a
+**despromoção** de uma exigência do art. 14.º a sugestão, que é agora a regressão mais
+perigosa deste bloco e é silenciosa por natureza; e a confirmação de que a alínea gravada em
+`aLei` é a que sustenta aquele valor, e não apenas de que existe alguma.
+
+O ramo registou também um erro seu, no mesmo espírito: a primeira versão do guarda de
+contrato engolia a despromoção — reportava-a como forma quebrada em vez de como o achado que
+o guião existe para apanhar. Estava a comer precisamente o caso que devia deixar passar.

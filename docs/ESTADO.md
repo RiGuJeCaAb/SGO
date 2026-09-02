@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0086**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0087**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 125, das anteriores à convenção de nomes até à r0086 |
+| Entregas em `app/` | 126, das anteriores à convenção de nomes até à r0087 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 829, todos a passar |
+| Testes | 835, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -223,6 +223,53 @@ o que a conta não faz.
 É a terceira vez esta semana que uma asserção certifica menos do que o seu nome dizia: o meu
 tecto de matos validado contra fonte de floresta, o `E7` do ramo #001 a verificar a própria
 fixture, e agora esta. As três foram apanhadas, e nenhuma por leitura.
+
+## Os números que sobravam, tirados — r0087
+
+A separação `faseLei`/`faseSug` da r0084 pôs aos nove núcleos a etiqueta certa e deixou-lhes
+o número errado. O ramo #006 fez o trabalho que faltava: foi procurar a fonte nas três
+oficiais do projeto e não a encontrou em nenhuma.
+
+O Despacho não indexa ativação de núcleos a fases — arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º,
+n.º 3 entregam-na ao oficial da célula «em função da natureza da ocorrência e das
+necessidades». O documento de ferramentas do SGO não tem **uma única ocorrência da palavra
+«fase»**. E a DON n.º 2 fecha o círculo: define a EPCO como capacitada para prover células e
+núcleos «de acordo com o previsto no SGO para a fase aplicável», e remete assim para um
+diploma que nada prevê.
+
+**Oito dos nove sem fonte nenhuma. O nono com gatilho, e o gatilho não é uma fase.**
+
+O argumento do ramo é o que decidiu: um `faseSug` sem fonte continua a ser um palpite, só
+que agora com etiqueta de palpite — melhor do que estava, e ainda a ordenar um ecrã. Os
+números saíram. O que ficou é uma regra só, com uma fonte só: **um núcleo é de uma célula, e
+não há célula antes de haver posto de comando** — art. 13.º, n.º 2, que o instala a partir
+da fase II.
+
+O núcleo de especialistas ganhou o gatilho que tem mesmo: a DON n.º 2, pontos 7.d.(25)(d) e
+7.d.(27), liga a sua ativação ao aumento da capacidade de comando e controlo, que é o sinal
+que a regra de conformidade da fase já media. `excedeReferenciaDaFase()` passou a viver num
+sítio só, junto de `FASES_SGO`, e é lido pelos dois — a regra que avisa e a lista que sugere
+não podem discordar sobre o que é exceder.
+
+### A regressão que a separação tornou possível
+
+O ramo #006 nomeou-a e tem razão: uma das sete funções do art. 14.º perder o `faseLei` passa
+de exigência legal a palpite, sai de `funcoesExigiveis()` e **deixa de alimentar as
+pendências, o briefing, a passagem de turno e a conformidade** — sem que nada o assinale. É
+a regressão mais perigosa deste bloco e é silenciosa por construção. Há teste, e prende o
+efeito e não o campo, que é o que magoa.
+
+### E uma lição sobre testes, que era minha e ficou por aprender
+
+Eu tinha proposto ao ramo a alteração de uma linha — trocar `fase` por `faseLei` no guião.
+O ramo recusou, e a razão é a metade da lição que eu não tinha visto: o problema não foi só
+o campo mudar de nome, foi **o guião ter reportado a mudança de nome como sete divergências
+doutrinárias**. Sete `undefined` com forma de achado sobre a lei.
+
+Isso é pior do que falhar: é ruído com aparência de sinal, e é assim que se treina quem lê a
+ignorar testes vermelhos. Na v2, contrato quebrado sai com código 2 e a frase «nenhuma
+conclusão doutrinária foi tirada»; divergência doutrinária sai com 1. São coisas diferentes
+e passam a ler-se como tal.
 
 ## Decisões tomadas
 

@@ -2,21 +2,37 @@
 /**
  * As funções do posto de comando, e a partir de quando cada uma se exige.
  *
- * **Dois campos, e a diferença entre eles é a razão de existirem.** `faseLei` é a fase em
- * que o articulado torna a função exigível, e traz em `aLei` a alínea que o diz. `faseSug`
- * é uma sugestão de prática, sem imposição legal — a lei não fixa fase para a ativação dos
- * núcleos, que é competência do oficial da célula «em função da natureza da ocorrência e
- * das necessidades» (arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3).
+ * **`faseLei` é a lei; o resto não finge sê-la.** `faseLei` é a fase em que o articulado
+ * torna a função exigível, e traz em `aLei` a alínea que o diz. Um núcleo leva `nucleo`,
+ * sem número nenhum, porque **a lei não fixa fase para a ativação dos núcleos**: é
+ * competência do oficial da respetiva célula «em função da natureza da ocorrência e das
+ * necessidades», arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
  *
- * Até à r0083 havia um campo só, `fase`, e nove núcleos levavam lá dentro números sem
- * fonte nenhuma. Passavam pelo mesmo comparador e saíam no ecrã com a mesma etiqueta
- * «Essencial — exigível por lei nesta fase» e a mesma cor que as exigências do art. 14.º,
- * com um `r:` a citar um artigo que nada diz sobre fases. **Um número sem proveniência é
- * mau; com a proveniência de outro número é pior, porque parece tê-la.** Quem comanda
- * ficava sem poder distinguir o que a lei impõe agora do que nós achamos prudente agora.
- * Apontado pelo ramo #006 a 2 de setembro, ao ler o bloco inteiro.
+ * Duas correções, ambas do ramo #006 e ambas em 2 de setembro.
  *
- * Os cinco valores do art. 14.º foram corrigidos na mesma leitura — ver `aLei` de cada um.
+ * **A primeira, na r0084.** Até à r0083 havia um campo só, `fase`, e nove núcleos levavam
+ * lá dentro números sem fonte nenhuma. Passavam pelo mesmo comparador e saíam no ecrã com
+ * a mesma etiqueta «Essencial — exigível por lei nesta fase» e a mesma cor que as
+ * exigências do art. 14.º, com um `r:` a citar um artigo que nada diz sobre fases. Um
+ * número sem proveniência é mau; com a proveniência de outro número é pior, porque parece
+ * tê-la. Separou-se então `faseLei` de `faseSug`.
+ *
+ * **A segunda, aqui.** `faseSug` deixava-lhes a etiqueta certa e o número errado — e um
+ * palpite com etiqueta de palpite continua a ordenar um ecrã. O ramo foi procurar a fonte
+ * nas três oficiais do projeto e não a encontrou em nenhuma: o Despacho não indexa
+ * ativação de núcleos a fases, o documento de ferramentas do SGO não tem uma única
+ * ocorrência da palavra «fase», e a DON n.º 2 remete a composição da EPCO para «o previsto
+ * no SGO para a fase aplicável» — que nada prevê. Oito dos nove sem fonte nenhuma.
+ *
+ * O nono tem gatilho, e não é uma fase: a ativação do núcleo de especialistas acompanha o
+ * aumento da capacidade de comando e controlo — DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27) —,
+ * que é o que a regra de conformidade da fase já mede. Está ligado a esse, em `gatilho`.
+ *
+ * O que sobra é uma regra só, com uma fonte só: **um núcleo é de uma célula, e não há
+ * célula antes de haver posto de comando** — art. 13.º, n.º 2, que o instala a partir da
+ * fase II. É esse o limiar, e é o mesmo para os nove.
+ *
+ * Os cinco valores do art. 14.º foram corrigidos na r0084 — ver `aLei` de cada um.
  */
 const FUNCOES_PCO = [
   {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", faseLei:4, aLei:"art. 43.º, n.º 2, al. b)"},
@@ -31,16 +47,16 @@ const FUNCOES_PCO = [
   {f:"COPAR-A — Coordenador a bordo", r:"art. 20.º, n.º 7 · DON 2, 7.d.(20)", g:"Meios aéreos", cond:"copara", condLei:true},
   {f:"OPESP — Oficial de Operações de Meios Especiais", r:"art. 21.º", g:"Meios especiais", cond:"opesp"},
   {f:"COPESP — Coordenador de Meios Especiais", r:"art. 22.º · DON 2, 7.d.(23)", g:"Meios especiais", cond:"copesp"},
-  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", faseSug:4},
-  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", faseSug:4},
-  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", faseSug:5},
+  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", nucleo:true},
   {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", faseLei:4, aLei:"art. 18.º, n.º 1"},
-  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", faseSug:3, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
-  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", faseSug:4, ext:"INEM, I.P.", extC:"INEM"},
-  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", faseSug:5, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
-  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", faseSug:4},
-  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", faseSug:4},
-  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", faseSug:4},
+  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", nucleo:true, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
+  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", nucleo:true, ext:"INEM, I.P.", extC:"INEM"},
+  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", nucleo:true, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
+  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", nucleo:true, gatilho:"c2"},
   {f:"Oficial de ligação de entidade", r:"art. 37.º, n.º 2", g:"Ligação"},
   {f:"Outra função", r:"—", g:"Ligação"}
 ];
@@ -110,7 +126,12 @@ function prioridadeFuncao(x, exigiveis){
   if(x.faseLei && fase+1 >= x.faseLei) return "r";
   if(x.cond==="copart" && c.arComb>0) return "r";
   if(x.cond==="copara" && c.arComb>2) return "r";
-  if(x.faseSug && fase >= x.faseSug) return "s";
+  /* Um núcleo sugere-se a partir do momento em que há posto de comando onde o alojar —
+     art. 13.º, n.º 2 —, e não a partir de uma fase que ninguém escreveu. O gatilho do
+     núcleo de especialistas é o único com norma própria, e é o efetivo a exceder a
+     referência da fase declarada, não a fase em si. */
+  if(x.gatilho === "c2" && fase >= ORDEM_FASE.II && excedeReferenciaDaFase()) return "s";
+  if(x.nucleo && fase >= ORDEM_FASE.II) return "s";
   /* Sem limiar na lei — arts. 19.º, 21.º e 22.º regulam a quem se reporta, não a partir de
      quantos meios se nomeia. Os números abaixo são leitura do posto, por analogia com a
      regra aérea do art. 20.º, e é por isso que saem em `s` e não em `e`. */
