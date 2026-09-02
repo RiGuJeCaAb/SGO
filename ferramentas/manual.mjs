@@ -72,6 +72,9 @@ const RENDIDOS = [
   { rotulo: 'Recomendada — a lei exige na fase seguinte, ou o limiar está próximo', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
   { rotulo: 'Sugerida pela prática — sem imposição legal nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
   { rotulo: 'De menor importância neste momento', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  /* Cabeçalho do bloco das propostas retiradas, escrito no PEA depois de o plano estar
+     composto — não existe no molde e a leitura estática não o alcança. */
+  { rotulo: 'Retirado por proposta mais específica', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
 ];
 
 /** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */

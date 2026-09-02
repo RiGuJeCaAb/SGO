@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0087**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0089**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 126, das anteriores à convenção de nomes até à r0087 |
+| Entregas em `app/` | 127, das anteriores à convenção de nomes até à r0089 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 837, todos a passar |
+| Testes | 848, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -292,6 +292,53 @@ montagem produziu. Provado a esconder um módulo numa subpasta e a renomear outr
 
 O terceiro pedido do #005 — que a aplicação arranque de `file://` sem exceções na consola —
 já estava coberto: `npm run visual` escuta `pageerror` a quatro larguras e nos dois temas.
+
+## As missões com identidade, e as genéricas que saem — r0089
+
+Duas coisas ficaram por fazer quando as missões se alinharam com as propostas, e são as duas
+metades do mesmo trabalho.
+
+**A primeira: as missões continuavam identificadas pela posição.** M1, M2, M3 — que é
+exatamente o defeito corrigido nas propostas e deixado por corrigir aqui. Uma missão
+condicional — a rotação, os meios aéreos, o ponto de trânsito — aparece e desaparece
+conforme o dispositivo, e a entrada de uma empurrava todas as seguintes para outra
+identidade. A M4 do PEA n.º 4 não era a M4 do n.º 5, e a resposta a «cumprimos aquilo?»
+apontava para outra coisa. Cada missão declara agora a sua chave; `ord` continua posicional,
+porque é o que se lê no papel.
+
+**A segunda: as genéricas não se retiravam.** Um plano com sete prioridades em que duas
+dizem o mesmo por palavras diferentes não é mais completo — é mais difícil de executar, e
+quem o lê às três da manhã tem de decidir qual manda. Pior quando a genérica **contradiz** a
+específica, que é o caso dos dois pares declarados em `SUBSTITUICOES`:
+
+- «Postura defensiva fora da janela» diz, por contraste, que dentro da janela a postura não
+  é defensiva. Com a cabeça interdita acima dos 4 000 kW/m isso é falso a qualquer hora, e a
+  genérica enfraquecia a interdição em vez de a acompanhar.
+- «Rendições faseadas no início e fecho da janela» é a cadência normal. Havendo equipas com
+  o tempo já vencido, é mandar manter no terreno quem devia ter saído.
+
+**A retirada não é silenciosa, e essa é a parte que importa.** Uma proposta que desaparece
+sem rasto é indistinguível de uma que ninguém pensou, e o plano passaria a dizer menos do
+que sabe. O que sai fica em `retiradas` e é escrito no documento com a específica que a
+substituiu e o porquê — que é auditado, para isto não virar um sítio onde se apaga uma
+proposta incómoda com aparência de método.
+
+Três cuidados que os testes prendem: a numeração refaz-se **depois** da retirada, ou o papel
+saltava de P2 para P4; a lista de segurança **não** perde a regra do ataque descendente que
+a genérica também dizia; e a proposta das vigias encolhe em vez de sair, porque as vigias e
+a cadência de pontos de situação não dependem das rendições.
+
+E uma correção que não é de arrumação: a missão dos aglomerados **passa a nomeá-los**. Uma
+ação que manda defender «os aglomerados expostos» sem nomear nenhum não é uma ação
+específica — art. 46.º, n.º 1 — e passa por cumprida sem nunca o ter sido. Não havendo
+nenhum registado, diz isso e manda reconhecê-los.
+
+### Um teste que prendia o defeito
+
+`tests/identidade-das-propostas.test.mjs` fixava a chave das missões em «M1,M2». Estava a
+prender exatamente o que havia a corrigir. Foi reescrito para separar o que sobrevive — `ord`
+posicional — do que mudou, e não apagado: um teste que fixa uma frase obsoleta é um sinal, e
+apagá-lo perde-o.
 
 ## Decisões tomadas
 

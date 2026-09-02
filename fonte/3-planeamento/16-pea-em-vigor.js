@@ -65,11 +65,81 @@ function baseVigor(){
  */
 function controloMissoes(ops){
   const out = [];
-  (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), ord:"M"+(i+1),
+  /* A chave da missão é declarada, como a da proposta, e não a sua posição na lista. Uma
+     missão condicional — a rotação, os meios aéreos, o ponto de trânsito — aparece e
+     desaparece conforme o dispositivo, e com chave posicional a M4 do PEA n.º 4 não era a
+     M4 do n.º 5. Era o mesmo defeito que se corrigiu nas propostas, deixado por corrigir
+     aqui. O recurso ao texto fica para as missões que uma pessoa escreveu à mão. */
+  (ops.missoes||[]).forEach((x,i)=>out.push({k:x.ch || chaveDoTexto(x.texto||""), ord:"M"+(i+1),
     tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
   (ops.propostas||[]).forEach(x=>out.push({k:x.ch || chaveDoTexto(x.texto||""), ord:x.id||"P",
     tipo:"Proposta", texto:x.texto||"", estado:0}));
   return out;
+}
+
+/**
+ * As propostas genéricas que uma proposta específica torna dispensável — ou faz mentir.
+ *
+ * Um PEA com sete prioridades táticas em que duas dizem a mesma coisa por palavras
+ * diferentes não é um plano mais completo: é um plano mais difícil de executar, e quem o lê
+ * às três da manhã tem de decidir qual das duas manda. Pior ainda quando a genérica
+ * **contradiz** a específica, que é o caso das duas abaixo.
+ *
+ * A retirada **não é silenciosa**. Uma proposta que desaparece sem rasto é indistinguível
+ * de uma que ninguém pensou, e o plano passa a dizer menos do que sabe. O que sai fica
+ * registado em `retiradas` e é escrito no documento, com a específica que a substituiu.
+ *
+ * **Cada par declara o seu porquê, e o porquê é auditado.** Sem isso, isto seria um sítio
+ * onde alguém apaga uma proposta incómoda com aparência de método.
+ */
+const SUBSTITUICOES = [
+  { gen:"DEFENSIVA", esp:"LIM-INTERDITO",
+    porque:"«Postura defensiva fora da janela» diz, por contraste, que dentro da janela a "
+      +"postura não é defensiva. Com a cabeça interdita acima dos 4 000 kW/m não há postura "
+      +"ofensiva à cabeça a hora nenhuma, e a genérica enfraquece a interdição em vez de a "
+      +"acompanhar. A segunda metade — sem ataque direto descendente com vento de drenagem "
+      +"— já está por extenso na lista de segurança, e essa não se retira." },
+  { gen:"M-RENDICOES", esp:"RENDICAO-VENCIDA",
+    porque:"«Rendições faseadas no início e fecho da janela» é a cadência normal. Havendo "
+      +"equipas com o tempo de empenhamento já vencido, mandar esperar pelo fecho da janela "
+      +"é mandar manter no terreno quem devia já ter saído. A proposta específica nomeia-as "
+      +"e manda rendê-las agora." },
+];
+
+/**
+ * Retira as genéricas que uma específica presente substitui, e diz quais foram.
+ *
+ * As chaves procuram-se nas duas listas ao mesmo tempo — uma proposta pode substituir uma
+ * missão e vice-versa, porque a redundância não conhece a fronteira entre o plano e as
+ * ordens. É a mesma fronteira do art. 46.º, e ela reparte o documento, não o raciocínio.
+ */
+function retirarGenericas(propostas, missoes){
+  const presentes = new Set(propostas.concat(missoes).map(x=>x.ch).filter(Boolean));
+  const retiradas = [];
+  const filtra = lista => lista.filter(x=>{
+    const sub = SUBSTITUICOES.find(y=>y.gen === x.ch && presentes.has(y.esp));
+    if(!sub) return true;
+    retiradas.push({ ch:x.ch, esp:sub.esp, porque:sub.porque, texto:x.texto });
+    return false;
+  });
+  return { propostas:filtra(propostas), missoes:filtra(missoes), retiradas };
+}
+
+/**
+ * A linha que diz o que foi retirado do plano e porquê.
+ *
+ * **Existe para que a retirada seja uma decisão visível e não um desaparecimento.** Quem lê
+ * o PEA impresso tem de poder verificar que a genérica saiu porque outra a cobre melhor, e
+ * não porque alguém a achou incómoda. Vazio quando não se retirou nada — uma secção sempre
+ * presente e quase sempre vazia treina quem lê a saltá-la.
+ */
+function textoRetiradas(retiradas){
+  const R = Array.isArray(retiradas)? retiradas : [];
+  if(!R.length) return "";
+  return '<div class="pd-ret"><b>Retirado por proposta mais específica</b>'
+    + R.map(x=>'<p>' + esc(x.texto) + ' <span class="fund">Substituída por ' + esc(x.esp)
+        + ': ' + esc(x.porque) + '</span></p>').join("")
+    + '</div>';
 }
 
 /**
@@ -315,7 +385,7 @@ function detDecisao(novas, anterior){
     const partes = (m.t_max.d||"").split("/");
     const sufixo = partes.length===3 ? MES[(+partes[1])-1]+partes[2].slice(2) : "";
     return partes[0]+fimJ.replace("h","").padStart(2,"0")+"00"+sufixo; })();
-  return {
+  const bruto = {
     propostas:[
       /* Limite de manobra antes de tudo o resto. O número existe, tem fonte e tem origem
          declarada; deixá-lo fora do plano para repetir uma regra genérica era a falha que
@@ -365,7 +435,12 @@ function detDecisao(novas, anterior){
       m.rotacoes.length&&{id:"P3", ch:"ROTACAO",texto:`Liquidação de pontos quentes concluída antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`,fundamento:"Após a rotação, o bordo a sotavento pode virar cabeça."},
       {id:"P4", ch:"SENSIVEIS-PLANO",texto:`Defesa perimétrica dos pontos sensíveis (${O.dados.sensiveis||"a validar pelo ERAS"}), confinamento/evacuação em articulação com SMPC, INEM, CVP e GNR.`,fundamento:"Art. 8.º, n.º 2, als. l) e m) do Despacho 4067/2024."},
       m.convectivo.length&&{id:"P5", ch:"CONVECTIVO",texto:`Vigilância convectiva desde 2 h antes de ${m.convectivo[0].h}; retirada de zonas alinhadas se confirmada trovoada.`,fundamento:"Precipitação residual com rotação — assinatura convectiva."},
-      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,/* Sem previsão carregada, `t_max` vem a «—» e o fundamento saía «Máxima de — °C em
+      /* A cláusula das rendições sai quando há equipas com o tempo já vencido: mandar
+         esperar pelo fecho da janela seria contradizer a proposta que manda rendê-las
+         agora. As vigias e a cadência de pontos de situação não dependem disso e ficam —
+         é por isso que esta se estreita em vez de ser retirada por `SUBSTITUICOES`. */
+      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas`
+        +(r.excedidas.length? "." : "; rendições no início e fecho da janela."),/* Sem previsão carregada, `t_max` vem a «—» e o fundamento saía «Máxima de — °C em
            — — a fase crítica exige equipas frescas», num documento aprovado. Um fundamento
            que não se lê é pior do que um fundamento genérico: parece que houve leitura. */
         fundamento: m.t_max.v === "—"
@@ -377,7 +452,7 @@ function detDecisao(novas, anterior){
        declarada na regra e atravessa revisões — é ela que responde a «cumprimos aquilo?»
        quando o plano já vai na quinta versão. Confundir as duas foi o defeito: o controlo
        de execução usava o número da posição, e P3 no PEA n.º 4 não era P3 no n.º 5. */
-    ].filter(Boolean).map((p,i)=>({...p, id:"P"+(i+1)})),
+    ].filter(Boolean),
     objetivo: r.reativados.length
       ? `${P.verbo} a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${P.fecho? " "+P.fecho:""}${jan? ", com empenho da reserva na janela "+jan.inicio+"–"+jan.fim:""}.`
       : (r.nAtivos===0 && r.setores.length
@@ -385,7 +460,7 @@ function detDecisao(novas, anterior){
         : (jan? `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro${P.fecho? " "+P.fecho:""} até às ${jan.fim} de ${m.t_max.d}, com empenho da reserva na janela ${jan.inicio}–${jan.fim}.`
               : `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""}${P.fecho? ", "+P.fecho+",":""} e proteger aglomerados até revisão do PEA.`)),
     missoes:[
-      {tipo:"Ação decisiva",
+      {tipo:"Ação decisiva", ch:"M-DECISIVA",
         /* O verbo e o modo de fecho vêm da postura, e a razão vai com eles: quem lê a ação
            decisiva tem de saber porque é «conter» e não «dominar», sem ter de a cruzar com
            as propostas mais abaixo. */
@@ -397,11 +472,18 @@ function detDecisao(novas, anterior){
         atribuida: r.reativados.length? "Setor"+(r.reativados.length>1?"es":"")+" "+nomes(r.reativados)+" + Reserva"
                  : (r.ativos.length? "Setor"+(r.ativos.length>1?"es":"")+" "+nomes(r.ativos)+" + Reserva" : "Setores empenhados + Reserva"),
         gdh:gdhLim},
-      {tipo:"Ação de moldagem", texto:"Defesa preventiva dos aglomerados expostos; contenção defensiva no período noturno.", atribuida:"Setor da frente ativa + meios de proteção civil", gdh: jan? gdhLim:"______"},
-      m.rotacoes.length? {tipo:"Ação de moldagem", texto:`Liquidação dos pontos quentes antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`, atribuida:"Setores em consolidação", gdh:"______"}:null,
-      r.aereos? {tipo:"Ação de moldagem", texto:`Meios aéreos (${r.aereos} no TO): último ciclo nas frentes ativas até ao ocaso; reativação ao nascer do sol.`, atribuida:"Meios aéreos — OPAR/COPAR", gdh:"______"}:null,
-      r.PT.des? {tipo:"Ação de moldagem", texto:`Controlo das entradas e saídas pelo ponto de trânsito em ${r.PT.des}; missão atribuída a cada equipa nos primeiros 15 minutos.`, atribuida:r.PT.resp||"Ponto de trânsito", gdh:"______"}:null,
-      {tipo:"Ação de moldagem", texto:"Rendições faseadas com meios frescos no início e fecho da janela; reposicionamento antes da rotação.", atribuida:"Todos os setores + Reserva", gdh:"______"}
+      /* Uma ação que não nomeia ninguém não é uma ação específica — art. 46.º, n.º 1.
+         Os aglomerados vêm do que está registado; não havendo nada registado, diz-se isso
+         em vez de se mandar defender «os expostos», que não identifica coisa nenhuma. */
+      {tipo:"Ação de moldagem", ch:"M-AGLOMERADOS",
+        texto: (O.dados.sensiveis||"").trim()
+          ? `Defesa preventiva de ${String(O.dados.sensiveis).trim()}; contenção defensiva no período noturno.`
+          : "Reconhecimento e listagem dos aglomerados expostos antes de lhes atribuir defesa preventiva: nenhum está registado na ocorrência. Contenção defensiva no período noturno.",
+        atribuida:"Setor da frente ativa + meios de proteção civil", gdh: jan? gdhLim:"______"},
+      m.rotacoes.length? {tipo:"Ação de moldagem", ch:"M-ROTACAO", texto:`Liquidação dos pontos quentes antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`, atribuida:"Setores em consolidação", gdh:"______"}:null,
+      r.aereos? {tipo:"Ação de moldagem", ch:"M-AEREOS", texto:`Meios aéreos (${r.aereos} no TO): último ciclo nas frentes ativas até ao ocaso; reativação ao nascer do sol.`, atribuida:"Meios aéreos — OPAR/COPAR", gdh:"______"}:null,
+      r.PT.des? {tipo:"Ação de moldagem", ch:"M-PONTO-TRANSITO", texto:`Controlo das entradas e saídas pelo ponto de trânsito em ${r.PT.des}; missão atribuída a cada equipa nos primeiros 15 minutos.`, atribuida:r.PT.resp||"Ponto de trânsito", gdh:"______"}:null,
+      {tipo:"Ação de moldagem", ch:"M-RENDICOES", texto:"Rendições faseadas com meios frescos no início e fecho da janela; reposicionamento antes da rotação.", atribuida:"Todos os setores + Reserva", gdh:"______"}
     ].filter(Boolean),
     seguranca:["Protocolo LACES e EPI florestal obrigatórios em todos os setores.",
       /* A distância deixa de ser princípio e passa a ser número. É a diferença entre uma
@@ -415,6 +497,18 @@ function detDecisao(novas, anterior){
       "Trabalho noturno: iluminação individual, movimentação em equipa, atenção a árvores enfraquecidas."],
     validade: jan? `Validade até ${jan.fim}; revisão obrigatória no fecho da janela, a cada rotação observada e a cada agravamento registado.` : "Validade máxima 6 h; revisão a cada alteração do vento."
   };
+  /* As genéricas saem depois de tudo composto, e não durante: uma específica pode nascer de
+     um ramo que só se avalia mais abaixo na lista, e filtrar a meio deixaria passar a
+     genérica por a específica ainda não existir no momento do teste. */
+  const limpo = retirarGenericas(bruto.propostas, bruto.missoes);
+  /* A numeração de apresentação refaz-se **depois** da retirada. `P3` tem de ser o terceiro
+     item do documento impresso; com a renumeração antes, ficava um buraco onde a genérica
+     esteve e o papel saltava de P2 para P4. */
+  return Object.assign(bruto, {
+    propostas: limpo.propostas.map((p,i)=>({...p, id:"P"+(i+1)})),
+    missoes: limpo.missoes,
+    retiradas: limpo.retiradas,
+  });
 }
 
 /* Repartição determinística pela fronteira do Despacho n.º 4067/2024: tudo o que é
@@ -423,7 +517,8 @@ function detCompleto(novas, anterior){
   const a = detSituacao(novas, anterior), b = detDecisao(novas, anterior);
   return {
     pea: {situacao:a.situacao, analise_zi:a.analise_zi, previsao:a.previsao,
-          objetivo:b.objetivo, propostas:b.propostas, seguranca:b.seguranca, validade:b.validade},
+          objetivo:b.objetivo, propostas:b.propostas, retiradas:b.retiradas,
+          seguranca:b.seguranca, validade:b.validade},
     ordens: {missoes:b.missoes}
   };
 }

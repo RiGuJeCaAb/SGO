@@ -536,6 +536,25 @@ propostas mais abaixo.
 **Sem intensidade determinada, nada disto se impõe.** A aplicação não inventa restrições onde
 não tem número: o plano diz o que sempre disse.
 
+### Quando uma proposta é retirada, e porquê
+
+Uma proposta genérica sai do plano quando uma específica a torna dispensável — ou a faz
+mentir. São dois casos hoje, e ambos aparecem por escrito no documento em «Retirado por
+proposta mais específica», com a que a substituiu e a razão.
+
+| Sai | Quando entra | Porquê |
+|---|---|---|
+| A postura defensiva fora da janela | A interdição de ataque direto à cabeça | "Defensiva fora da janela" dá a entender que dentro da janela não é defensiva. Com a cabeça interdita acima dos 4 000 kW/m isso é falso a qualquer hora |
+| As rendições faseadas no fecho da janela | A rendição imediata de equipas com o tempo vencido | Mandar esperar pelo fecho da janela é mandar manter no terreno quem já devia ter saído |
+
+**A retirada nunca é silenciosa.** Uma proposta que desaparece sem rasto é indistinguível de
+uma que ninguém pensou, e o plano passaria a dizer menos do que sabe. A numeração refaz-se
+depois de sair, para que o papel não salte de P2 para P4.
+
+A proposta das vigias é caso à parte: não sai, encolhe. Havendo rendições vencidas, larga a
+cláusula que mandava render no fecho da janela e mantém as vigias e a cadência de pontos de
+situação, que não dependem disso.
+
 ### Os números das propostas, e o que os identifica
 
 No PEA impresso as propostas vão numeradas por ordem de leitura — P1, P2, P3. **Dentro de um
