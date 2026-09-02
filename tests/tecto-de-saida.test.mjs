@@ -19,22 +19,34 @@ after(() => janela?.close());
 
 /* ---- os três tectos, e a razão de cada um ---- */
 
-test('os tectos estão declarados, e em ordem', semAplicacao, () => {
-  const baixo = avaliar(janela, 'TECTO_BAIXO');
-  const medido = avaliar(janela, 'TECTO_MEDIDO');
-  const quadro = avaliar(janela, 'TECTO_QUADRO');
-  assert.equal(baixo, 360, '6 m/min, Fernandes (2001)');
-  assert.equal(medido, 1200, '20 m/min, o mais rápido dos 29 fogos');
-  assert.equal(quadro, 2280, '38 m/min, a célula mais rápida do Quadro 3.4.1');
-  assert.ok(baixo < medido && medido < quadro, 'a ordem dos tectos é a ordem da reserva');
+test('os tectos estão declarados, com a fonte de cada um', semAplicacao, () => {
+  // **A fonte vai na linha da asserção, e não no cabeçalho do ficheiro.** É a regra que o
+  // ramo #001 pediu, e tem razão: foi exatamente a forma anterior — fontes no topo,
+  // constantes nuas nas asserções — que deixou passar um tecto de matos validado contra
+  // Alexander (2000) em floresta. Um teste verde a certificar um valor errado.
+  assert.equal(avaliar(janela, 'TECTO_BAIXO'), 360,
+    'matos · Fernandes (2001), For. Ecol. Manage. 144:67-74, secção 3: «not advisable to use '
+    + 'the equations outside the low fire behaviour range» acima de 6 m/min · 6 × 60 = 360 m/h');
+  assert.equal(avaliar(janela, 'TECTO_MEDIDO'), 1200,
+    'matos · Fernandes (2001), Tabela 1, «Range of values»: R máximo do conjunto de 29 fogos '
+    + '= 20,0 m/min · 20 × 60 = 1 200 m/h');
+  assert.equal(avaliar(janela, 'TECTO_QUADRO'), 2280,
+    'matos · Fernandes, Botelho e Loureiro (2002), Manual de Formação para a Técnica do Fogo '
+    + 'Controlado, guia E1, página E_10, Quadro 3.4.1: célula de vento 30 km/h e humidade 8 % '
+    + '= 38,0 m/min · conferida contra o impresso · 38 × 60 = 2 280 m/h');
+  assert.ok(avaliar(janela, 'TECTO_BAIXO') < avaliar(janela, 'TECTO_MEDIDO')
+    && avaliar(janela, 'TECTO_MEDIDO') < avaliar(janela, 'TECTO_QUADRO'),
+    'a ordem dos tectos é a ordem da reserva');
 });
 
 test('o tecto do quadro é mesmo a célula mais rápida do Quadro 3.4.1', semAplicacao, () => {
-  // Conferido contra o impresso: 38,0 m/min a 30 km/h de vento e 8 % de humidade.
   const R = avaliar(janela, 'Q_MAT_R');
   const max = Math.max(...R.flat());
-  assert.equal(Math.round(max * 60), avaliar(janela, 'TECTO_QUADRO'));
-  assert.equal(max, 38, 'a célula do canto vale 38 m/min no impresso');
+  assert.equal(max, 38,
+    'matos · Manual de Formação para a Técnica do Fogo Controlado (Fernandes, Botelho e '
+    + 'Loureiro, 2002), guia E1, p. E_10, Quadro 3.4.1, canto inferior esquerdo: 38,0 m/min');
+  assert.equal(Math.round(max * 60), avaliar(janela, 'TECTO_QUADRO'),
+    'e o tecto declarado no código é essa célula, em m/h');
 });
 
 /* ---- a marca ---- */
@@ -77,8 +89,10 @@ test('o caso que motivou tudo isto sai marcado', semAplicacao, () => {
 
 test('o declive acima de 5 % assinala-se, porque a tabela base é de terreno plano',
   semAplicacao, () => {
-    // Conferido no impresso: «velocidades de propagação de fogos a favor do vento em terreno
-    // plano (declive <5%) para matos com 1 m de altura».
+    // matos · duas fontes independentes dizem o mesmo:
+    //   Manual (2002), guia E1, p. E_10, rodapé do Quadro 3.4.1 — «velocidades de propagação
+    //   de fogos a favor do vento em terreno plano (declive <5%) para matos com 1 m de altura»
+    //   Fernandes (2001), Tabela 1 — declive do conjunto: mínimo 0 %, máximo 5 %, média 1 %
     const plano = janela.propagacaoMatos(10, 12, 1, 0);
     assert.equal(plano.fora.some((x) => /terreno plano/.test(x)), false);
     const encosta = janela.propagacaoMatos(10, 12, 1, 30);

@@ -1,25 +1,27 @@
 # Estado do projeto
 
-Atualizado em 2026-08-31.
+Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0072**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0083**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
-história só.
+história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
+alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
+doutrina — ver `docs/CSREPCDouro_202609021600_d_RespostaAosRamos_CLD.md`.
 
 **A repartição por células está completa.** Todos os ramos do estado estão na célula a
 quem a lei atribui a matéria, e o mapa de posse não declara um único movimento pendente.
 
 | | |
 |---|---|
-| Entregas em `app/` | 71, das anteriores à convenção de nomes até à r0070 |
-| Módulos em `fonte/` | 60, em sete zonas, mais o molde |
-| Testes | 520, todos a passar |
+| Entregas em `app/` | 122, das anteriores à convenção de nomes até à r0083 |
+| Módulos em `fonte/` | 70, em sete zonas, mais o molde |
+| Testes | 791, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 17 |
+| Versão do estado gravado | 26 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -37,6 +39,48 @@ porém, que vieram os três acréscimos que a v1.2 acolheu.
 O importador lê os quatro envelopes — v1.2, v1.1 e v1.0, contrato e esboço antigo — e
 normaliza-os numa forma só. Ler mais do que um envelope não é hesitar sobre qual manda: é
 o que um adaptador faz, porque quem importa não escolhe o que lhe chega às mãos.
+
+## Avisos do IPMA, na r0083 — três afirmações que a aplicação não podia fazer
+
+Os três defeitos são da mesma família: o painel afirmava mais do que sabia, e afirmava-o
+com o mesmo ar de certeza com que afirmava o que sabia bem.
+
+**Primeiro, o distrito.** O módulo escolhia o distrito cujo ponto de referência do IPMA
+estava mais perto da ocorrência. Esse ponto é o da capital de distrito, e a capital mais
+próxima não é o distrito: Moimenta da Beira é de Viseu e fica a cerca de 35 km de Vila Real
+e a 45 km de Viseu, pelo que a aplicação mostrava os avisos de Vila Real — sem o dizer.
+E fazia-o **tendo o distrito certo à mão**: `meta.distrito` já é determinado por
+geocodificação inversa desde a r0032, e o módulo ignorava-o. Agora é esse que vale, e a
+proximidade é o recurso de último caso, marcada no ecrã como presumida.
+
+**Segundo, «em vigor».** O filtro era `endTime >= agora` e não olhava para o `startTime`.
+Um aviso vermelho que começava no dia seguinte aparecia como estando a decorrer. Passam a
+distinguir-se três prateleiras: em vigor, previsto, e por confirmar.
+
+**Terceiro, a hora — e este não se corrigiu, delimitou-se.** As marcas do IPMA vêm sem
+designador de fuso (`2026-09-02T18:00:00`), e `new Date` sobre uma marca dessas lê hora
+local. **Não há fonte consultável que diga qual é a convenção do serviço**, e a
+`api.ipma.pt` não é alcançável do ambiente onde esta revisão foi construída — comprovado,
+`403` no CONNECT do proxy. Escolher UTC seria inventar uma hora tão certa quanto a que lá
+estava. Por isso:
+
+- as horas mostram-se **como o serviço as publica, sem conversão** — a única coisa que se
+  sabe ao certo são os algarismos;
+- o instante de cada marca é tratado como um **intervalo entre as duas leituras
+  possíveis**, e um aviso cuja fronteira caia dentro desse intervalo sai como «por
+  confirmar» em vez de ser dado por findo ou por vigente;
+- se um dia o serviço passar a declarar designador, o intervalo colapsa num ponto e tudo
+  degrada para o comportamento exato **sem uma linha de código a mudar**.
+
+**Fica por fazer, e depende de quem tem rede:** confirmar num posto do CSREPC se as marcas
+de `warnings_www.json` trazem designador e, se não trouxerem, qual a convenção. É o mesmo
+bloco de verificação da secção 5 do `POREXECUTAR.md` e resolve-se com um pedido.
+
+**E ficou uma verificação nova.** O `npm run manual` lia só o HTML estático, e por isso não
+via os rótulos que um módulo escreve depois de a aplicação correr — o painel dos avisos
+nasce vazio. Passa a haver `RENDIDOS` em `ferramentas/manual.mjs`: cada rótulo desses
+declara em que módulo é escrito, e o texto tem de lá estar tal e qual. Provado a renomear
+um botão: a verificação falha, com código de saída 1.
 
 ## Decisões tomadas
 

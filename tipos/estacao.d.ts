@@ -314,10 +314,26 @@ interface DadosOcorrencia {
   [outro: string]: any;
 }
 
+/** Um aviso meteorológico do IPMA, reduzido ao que a Estação mostra e exporta. */
+interface AvisoIPMA {
+  tipo: string; nivel: string; ini: string; fim: string;
+  /** `vigor`, `previsto` ou `margem` — ver estadoDoAviso. */
+  est: string;
+  txt: string;
+}
+
 /** O estado completo de uma ocorrência, tal como é gravado e exportado. */
 interface Estado {
   meta: MetaOcorrencia;
-  avisos: any;
+  /**
+   * Os avisos do IPMA da última consulta. `lista` são os que estão em vigor; `margem` os
+   * que a incerteza do fuso não deixa afirmar; `previstos` os que ainda não começaram.
+   */
+  avisos: null | {
+    distrito: string; cod: string; g: string;
+    porProximidade: boolean; semFuso: boolean;
+    lista: AvisoIPMA[]; previstos: AvisoIPMA[]; margem: AvisoIPMA[];
+  };
   dados: DadosOcorrencia;
   /** Comando: as nomeações do art. 14.º, e mais nada, desde a versão 6. */
   pco: { funcoes: FuncaoPCO[] };

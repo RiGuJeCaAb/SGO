@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSREPC DOURO — Estação PEA</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Sem chamada a CDN. Estava aqui um `<link>` ao Google Fonts, e três ramos da revisão
+     apanharam-no em separado: viola a primeira restrição não negociável do projeto — «CSS, JS
+     e tipos de letra por CDN **dentro do ficheiro**» — e num arranque `file://` sem rede
+     bloqueia o render até dar tempo-limite. A aplicação não partia, porque as famílias têm
+     alternativa; mas o primeiro ecrã no VCOC com a Starlink em baixo demorava segundos a
+     aparecer, e é aí que o custo se paga. As famílias caem para `system-ui` e `ui-monospace`,
+     que existem em qualquer máquina. Quem quiser o Barlow de volta embute-o em base64. -->
 <style>
   :root{
     /* ÁGUA profunda — modo escuro (suavizado) */
@@ -523,6 +529,8 @@
   .av-c.lr{background:rgba(226,145,84,.14);border-color:var(--laranja);color:var(--laranja)}
   .av-c.vm{background:rgba(224,104,92,.14);border-color:var(--fogo);color:var(--fogo)}
   .av-c small{font-family:var(--mono);font-weight:500;font-size:11px;opacity:.85}
+  .av-c.marg{border-style:dashed}
+  .av-c.prev{opacity:.66;font-weight:500}
   .av-ok{color:var(--madeira);font-size:13.5px}
   .av-atual{background:none;border:none;color:var(--agua);font-size:12.5px;cursor:pointer;text-decoration:underline;margin-left:10px}
   .rel-chips{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 10px}

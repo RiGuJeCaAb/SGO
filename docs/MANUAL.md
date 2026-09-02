@@ -238,6 +238,31 @@ Planeamento → **Previsão meteorológica**. Carregue um CSV, ou use «Obter pr
 É a série que dá a evolução no tempo: com ela, a aplicação diz para onde a cabeça vai estar a
 apontar de hora a hora.
 
+### Os avisos do IPMA
+
+No topo de Planeamento, por cima da previsão. Chegam sozinhos com a previsão automática, e
+há «Consultar agora» e «Atualizar» para os pedir à mão.
+
+O painel mostra os avisos acima de verde do distrito do teatro, e distingue três coisas que
+até à r0083 andavam misturadas:
+
+| No painel | O que quer dizer |
+|---|---|
+| Chip a cheio | **Em vigor agora.** Conta para a manobra em curso |
+| Chip a tracejado, «por confirmar» | O início ou o fim caem dentro da margem de incerteza do fuso horário. Pode já estar em vigor; confirme em ipma.pt |
+| Chip esbatido, «previsto» | Ainda não começou. Conta para o planeamento do turno seguinte |
+
+**O distrito é o que foi determinado pelas coordenadas da ocorrência**, em Comando. Se ainda
+não estiver determinado, a aplicação escolhe o distrito cujo ponto de referência do IPMA
+está mais perto — e escreve «distrito presumido» ao lado do nome, porque esse ponto é o da
+capital de distrito e pode não ser o distrito do teatro. Preencha as coordenadas e o aviso
+de presunção desaparece.
+
+**As horas aparecem tal como o IPMA as publica, sem conversão.** As marcas de tempo do
+serviço não trazem designador de fuso horário e a convenção não está confirmada em fonte
+nenhuma consultável por este projeto; converter seria escolher uma hora sem base. O painel
+diz isso, e é dessa incerteza que nasce o estado «por confirmar».
+
 ### A intensidade da frente
 
 Planeamento → **Comportamento do fogo — intensidade da frente**.

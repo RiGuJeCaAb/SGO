@@ -118,6 +118,28 @@ Repetir uma amostra a partir de um posto da rede do CSREPC Douro e do VCOC ligad
 Starlink. Se os resultados divergirem, a mesma aplicação comporta-se de maneira diferente
 conforme o local — e isso é requisito de desenho, não contratempo.
 
+### E agora também: a convenção de fuso das marcas do IPMA
+
+Acrescentado a 2 de setembro, com a r0083. Não é a mesma questão da acessibilidade, mas
+resolve-se no mesmo bloco de verificação e com o mesmo pedido.
+
+As marcas de tempo de `api.ipma.pt/open-data/forecast/warnings/warnings_www.json` vêm sem
+designador de fuso. **Nenhuma fonte deste projeto diz se são UTC ou hora legal**, e o
+serviço não é alcançável do ambiente onde as revisões são construídas — o proxy responde
+`403` ao CONNECT. Enquanto assim for, a Estação mostra as horas tal como o serviço as
+publica, sem converter, e marca como «por confirmar» os avisos cuja fronteira caia dentro
+da margem de uma hora que separa as duas leituras possíveis.
+
+Duas perguntas a fazer no posto, com o mesmo `curl.exe`:
+
+1. Um `startTime` ou `endTime` real traz `Z`, ou `+01:00`, ou nada?
+2. Se não trouxer designador, a hora bate com a hora legal portuguesa ou está uma hora
+   atrás?
+
+Basta a primeira responder «traz designador» para o problema desaparecer sozinho: o código
+já trata esse caso com exatidão, e a margem colapsa. A segunda só é precisa se a resposta
+for «nada».
+
 ## 6. Depende de terceiros
 
 - **Que serviço de cartografia o posto tem direito a usar.** A aplicação sabe ler um WMTS;

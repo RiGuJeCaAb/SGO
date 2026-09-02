@@ -187,3 +187,18 @@ Vale por três razões. É a **primeira prova do PEA impresso fora deste ambient
 cabeçalho, a marca de RESERVADO, o quadro do PCO e o meteograma tabulado. Mostra a cadeia de
 substituição a funcionar — «Substitui o PEA: N.º 3». E traz os números de proposta tal como
 aparecem no papel, o que é matéria do trabalho da identidade estável das propostas.
+
+
+## qa0029 — os avisos do IPMA, com os três estados à vista
+
+`CSREPCDouro_qa0029_202609021545_AvisosIPMATemaEscuro_CLD.png` e
+`CSREPCDouro_qa0029_202609021545_AvisosIPMATemaClaro_CLD.png` — o painel de avisos da r0083,
+nos dois temas, com um estado construído de propósito para trazer os quatro casos ao mesmo
+tempo: dois avisos em vigor, um por confirmar, um previsto, e o distrito escolhido por
+proximidade.
+
+Prova três coisas que o código sozinho não mostra. Que o estado de cada aviso se lê **por
+palavras** e não só pelo traço do contorno — «por confirmar ·» e «previsto ·» estão
+escritos dentro do chip. Que a marca «distrito presumido» ficou fora do rótulo em versaletes,
+onde antes se lia "VILA REAL PRESUMIDO" como se fosse o nome do distrito. E que as quatro
+notas de rodapé cabem no painel nos dois temas, sem transbordo.

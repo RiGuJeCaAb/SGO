@@ -57,8 +57,13 @@ const PASTAS = [
        deste projeto, ainda que o texto seja de outra sessão. */
     pasta: 'docs/conversas',
     catalogo: 'docs/conversas/LEIAME.md',
-    forma: /^CSREPCDouro_\d{12}_[A-Za-z0-9_]+_CLD\.md$/,
-    diz: 'CSREPCDouro_AAAAMMDDHHMM_Assunto_CLD.md',
+    /* O prefixo `00N_` identifica o ramo da conversa do lado CLD, e é opcional porque os
+       registos anteriores a 2 de setembro não o têm. **É `00N_` e não `#00N_`**: os cinco
+       ramos chegaram a essa conclusão em separado e pela mesma razão — `#` inicia comentário
+       em bash e em PowerShell, e é delimitador de fragmento em URL, pelo que um nome não
+       citado se parte em silêncio nesse ponto. */
+    forma: /^(\d{3}_)?CSREPCDouro_\d{12}_[A-Za-z0-9_]+_CLD\.md$/,
+    diz: '00N_CSREPCDouro_AAAAMMDDHHMM_Assunto_CLD.md, com o 00N do ramo',
     ignora: ['LEIAME.md'],
     excecoes: [],
   },
