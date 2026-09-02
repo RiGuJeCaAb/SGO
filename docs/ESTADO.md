@@ -2861,3 +2861,55 @@ A captura da prova mostrou-as, e ambas são da mesma família do erro acima:
   onde se estima.
 
 Prova em `docs/qa/`, `qa0027`.
+
+## 2 de setembro — chegaram os três documentos que faltavam
+
+Trinta ficheiros no descarregamento, dez deles já cá estavam byte a byte. Entre os vinte
+novos vinham **os três documentos que o `FONTES.md` dava por em falta**, e os dois buracos de
+proveniência que eu tinha declarado na véspera fecharam-se no mesmo dia.
+
+### Fernandes (2001) — os tectos deixam de ser de segunda mão
+
+*Fire spread prediction in shrub fuels in Portugal*, Forest Ecology and Management 144: 67-74.
+A `r0079` usava dois tectos relatados pela linhagem paralela e declarados como tal. Estão
+lidos, e **não foi preciso mudar um número** — o relato estava certo:
+
+> «given the scarce data availability for rates of spread above 6 m min⁻¹, it is not advisable
+> to use the equations outside the low fire behaviour range»
+
+A Tabela 1 dá o domínio dos 29 fogos: R de 0,7 a **20,0 m/min**, e **declive de 0 a 5 %**. O
+que confirma, por segunda via independente, o rodapé impresso do Quadro 3.4.1.
+
+**E traz uma ressalva que ninguém tinha relatado:** as equações são enviesadas para as
+comunidades `EU-CT` — urzal de *Erica* com *Chamaespartium tridentatum* —, que deram mais de
+dois terços dos dados. Fica em `FONTES.md`, chave `FOGOSHRUB`. Note-se que é formação do
+Nordeste, a nossa região, pelo que o enviesamento até pode jogar a favor do Douro; **mas isso
+é hipótese e não leitura**, e nada na aplicação o deve afirmar.
+
+### Fernandes e Loureiro (2021) — o documento dos 18 modelos
+
+*Modelos de combustível florestal para Portugal, documento de referência, versão de 2021.*
+Era o único que o `FONTES.md` dizia não estar em lado nenhum aberto. **A transcrição dos 18
+modelos e das cargas continua por conferir contra ele** — mas agora é possível, e é o próximo
+trabalho de conferência.
+
+### Rossa e Davim (2024) — o candidato a substituir o `I = 300·L²`
+
+*Field-based generic empirical flame length–fireline intensity relationships*, IJWF 33,
+WF23127. Inclui dados de fogo de alta intensidade, que é onde a relação de Byram é mais fraca.
+**Correção de autoria:** um dos registos de conversa atribuía-o a «Fernandes et al. (2024)»; é
+de **Rossa e Davim**.
+
+### O que mais entrou
+
+Em `docs/fontes/`: a dissertação de Nóbrega (UTAD) sobre folhada de caducifólias — que é o
+modelo `F-FOL`, um dos que não têm motor português; Rossa, Davim e Fernandes sobre razão
+superfície/massa; o clássico Schroeder e Buck (1970); e **a dissertação de Geraldes sobre redes
+de comunicações de emergência**, que pode responder à pergunta das pastas SIRESP por
+sub-região, aberta desde agosto e que a aplicação recusa deduzir. Por ler.
+
+Em `docs/qa/`, `qa0028`: **um PEA impresso pelo utilizador no seu computador** — proposta n.º 4
+da ocorrência de Paraduça. É a primeira prova do PEA impresso fora deste ambiente, e mostra a
+cadeia de substituição a funcionar.
+
+Em `docs/pea-reais/`: o `PEA02rev2` do Castedo em PDF, na forma em que circulou.

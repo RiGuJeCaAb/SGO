@@ -175,3 +175,15 @@ de altura e de declive lá chegam.»
 
 É a prova de que o número deixou de sair sozinho. Antes desta revisão, a mesma combinação
 devolvia os 14 820 m/h sem uma palavra de reserva.
+
+
+## qa0028 — um PEA impresso pelo utilizador, no seu computador
+
+`CSREPCDouro_qa0028_202609020000_PEAImpressoDoUtilizador_CLD.pdf` — **proposta de PEA n.º 4**,
+ocorrência 202608251000, Paraduça — Leomil — Moimenta da Beira, impressa da aplicação a correr
+no computador do CSREPC. Não foi produzida aqui: chegou no descarregamento de 2 de setembro.
+
+Vale por três razões. É a **primeira prova do PEA impresso fora deste ambiente**, com o
+cabeçalho, a marca de RESERVADO, o quadro do PCO e o meteograma tabulado. Mostra a cadeia de
+substituição a funcionar — «Substitui o PEA: N.º 3». E traz os números de proposta tal como
+aparecem no papel, o que é matéria do trabalho da identidade estável das propostas.

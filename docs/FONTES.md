@@ -323,8 +323,8 @@ isso e só isso que se mostra.
 Chave invocada por `fonte/3-planeamento/21-modelos-de-combustivel.js`, que traz o motor de
 propagação, e pelo painel de estimativa em `19-intensidade-da-frente.js`.
 
-São dois documentos. **O primeiro chegou a 1 de setembro e está em `docs/fontes/`; o
-segundo continua em falta:**
+**Os dois documentos chegaram — o manual a 1 de setembro, os modelos a 2 — e estão em
+`docs/fontes/`:**
 
 - FERNANDES, P.M., BOTELHO, H.S., LOUREIRO, C., 2002. *Manual de Formação para a Técnica
   do Fogo Controlado.* UTAD. **Em
@@ -333,8 +333,12 @@ segundo continua em falta:**
   ordem, UTAD, 2002. Daqui vêm o Quadro 3.2.1 (humidade do combustível morto fino), o 3.3.1
   (vento à superfície), os 3.4.1 a 3.4.3 (propagação em matos) e os 7.1 e 7.2 (propagação em
   pinheiro bravo).
-- FERNANDES, P.M., LOUREIRO, C., 2021. Os 18 modelos de combustível para Portugal, com o
-  intervalo de carga fina de cada um. **Continua em falta.**
+- FERNANDES, P.M., LOUREIRO, C., 2021. *Modelos de combustível florestal para Portugal —
+  documento de referência, versão de 2021.* Departamento de Ciências Florestais e Arquitetura
+  Paisagista, UTAD; financiado pelo projeto POCI/AGR/61164/2004. Em
+  `docs/fontes/Modelos_de_combustivel_florestal_para_Portugal_Fernandes_Loureiro_2021.pdf`,
+  17 páginas. **Chegou a 2 de setembro. A transcrição dos 18 modelos e das cargas continua
+  por conferir contra ele** — é o próximo trabalho de conferência, e agora é possível.
 
 ### O que está confirmado, e o que não está
 
@@ -416,9 +420,12 @@ têm a mesma proveniência, e a diferença fica escrita no código:
 
 | Tecto | O que é | Proveniência |
 |---|---|---|
-| **2 280 m/h** | 38 m/min, a célula mais rápida do Quadro 3.4.1 | **Conferida contra o impresso.** Acima disto só as correções lá chegam |
-| **360 m/h** | 6 m/min, acima dos quais Fernandes (2001) desaconselha usar as equações, por escassez de dados | **O artigo não está aqui.** O número chegou pela linhagem paralela, que o leu na fonte |
-| **1 200 m/h** | 20 m/min, o fogo mais rápido dos 29 do conjunto de 2001 | A mesma, com a mesma reserva |
+| **2 280 m/h** | 38 m/min, a célula mais rápida do Quadro 3.4.1 | **Conferida contra o impresso** a 2 de setembro. Acima disto só as correções lá chegam |
+| **360 m/h** | 6 m/min, acima dos quais a fonte desaconselha usar as equações | **Conferido em primeira mão** — ver `FOGOSHRUB`, abaixo |
+| **1 200 m/h** | 20 m/min, o fogo mais rápido do conjunto de 29 fogos | **Conferido em primeira mão**, na Tabela 1 do mesmo artigo |
+
+**Os três tectos deixaram de ser de segunda mão a 2 de setembro**, quando o artigo de 2001
+chegou. Estiveram um dia declarados como relatados; agora estão lidos.
 
 **Os tectos são dos matos e ficam nos matos.** O guia E2, do pinheiro bravo, não tem tecto
 declarado que se conheça, e emprestar-lhe o dos matos seria atribuir a uma fonte o que ela não
@@ -426,9 +433,9 @@ diz. Fica sem marca, e dito porquê.
 
 ### O que fica pedido
 
-**Fernandes e Loureiro (2021)**, os 18 modelos de combustível. **Fernandes (2001)**, *Fire
-spread prediction in shrub fuels in Portugal*, para fechar a proveniência dos dois tectos que
-hoje são de segunda mão. E a conferência dos seis quadros que faltam.
+Nada de documentos: **os três que faltavam chegaram todos.** O que fica é trabalho de
+conferência — os seis quadros do manual que ainda não foram lidos contra o impresso, e os 18
+modelos de combustível contra o documento de 2021.
 
 Enquanto isso não estiver feito, todo o número que sai deste motor é bom para ordem de
 grandeza e para comparar cenários entre si — não para sustentar sozinho uma decisão de ataque
@@ -455,6 +462,57 @@ controlado estima com o que se mediu em incêndios de verão a sério. **Não é
 validar o motor** — e a diferença entre as duas coisas é precisamente o que esta aplicação
 não pode confundir.
 
+## `FOGOSHRUB` — o artigo de onde saem os tectos, lido em primeira mão
+
+**Fernandes, P.A.M. (2001), *Fire spread prediction in shrub fuels in Portugal*, Forest
+Ecology and Management 144: 67-74.** UTAD, Quinta de Prados, Vila Real. Em
+`docs/fontes/Fire_spread_prediction_in_shrub_fuels_in_Portugal_Fernandes_2001.pdf`.
+
+Chegou a 2 de setembro, e fecha a proveniência dos tectos de saída que a `r0079` já usava.
+**Não foi preciso mudar um número:** o que a linhagem paralela tinha relatado está correto.
+
+### O que está lido, e onde
+
+**O tecto dos 6 m/min**, palavra por palavra do artigo:
+
+> «given the scarce data availability for rates of spread above 6 m min⁻¹, it is not advisable
+> to use the equations outside the low fire behaviour range»
+
+**O domínio de ajustamento**, da Tabela 1 — 29 fogos experimentais e de fogo controlado:
+
+| | R (m/min) | U a 2 m (km/h) | T (°C) | HR (%) | Md (%) | Declive (%) |
+|---|---|---|---|---|---|---|
+| Média | 4,4 | 9 | 14 | 53 | 21 | **1** |
+| Mínimo | 0,7 | 1 | 6 | 30 | 10 | **0** |
+| Máximo | **20,0** | 27 | 22 | 93 | 40 | **5** |
+
+Daqui saem os dois tectos que a aplicação usa: **6 m/min = 360 m/h** para a marca de
+extrapolação, **20 m/min = 1 200 m/h** para o «além de qualquer fogo medido». E o declive
+máximo de **5 %** confirma, por segunda via, o que o rodapé impresso do Quadro 3.4.1 já dizia:
+a tabela base é de terreno plano.
+
+### Uma terceira ressalva, que ninguém tinha relatado
+
+O artigo declara também um **enviesamento de composição**:
+
+> «the equations may be biased towards the EU±CT communities, which provided more than
+> two-thirds of the data for the modelling work»
+
+`EU-CT` é urzal de *Erica* com *Chamaespartium tridentatum*. Dois terços dos dados vêm dessa
+formação. **Isto não está na aplicação** e fica registado aqui: quem usar a estimativa noutro
+tipo de mato está a aplicar um modelo maioritariamente ajustado a um urzal.
+
+Vale a pena notar que essa é uma formação do Nordeste de Portugal — a nossa região. O
+enviesamento pode jogar a favor do Douro em vez de contra, mas **isso é uma hipótese e não uma
+leitura**: o artigo não desagrega o subconjunto, e nada aqui o deve afirmar sem que alguém o
+confirme com o autor, que está em Vila Real.
+
+### O que o artigo dá e a aplicação não usa
+
+As três equações contínuas de propagação, com os erros-padrão. A aplicação usa os **quadros**
+do manual de 2002, não estas equações. Correr as duas e usar a divergência como banda de
+incerteza medida é uma possibilidade registada em `docs/POREXECUTAR.md`, e não está feita.
+
 ## Recebidos e por ler
 
 Documentos que estão em `docs/fontes/` e **não sustentam nada na aplicação**. Chegaram, foram
@@ -472,6 +530,13 @@ volte a haver um documento nesta pasta sem uma linha aqui.
 | `ModelosPropagaFogos2.pdf` | Os mesmos autores (2002), *Parte II: Modelos Globais e Sistemas Informáticos*, Silva Lusitana 10(2): 217-233 | A segunda metade do mesmo artigo |
 | `FirePropagationCanyons.pdf` | Viegas, D.X. e Pita, L.P., *Fire Spread in Canyons*, Universidade de Coimbra e ADAI | **Vales encaixados.** O teatro do Douro é isso, e a aplicação não diz nada sobre o que o vale faz à propagação |
 | `Field_Guide_for_Predicting_Fire_Behaviour_in_Ontarios_Tallgrass_Prairie.pdf` | Kidnie, S.M., Wotton, B.M. e Droog, W.N., *Field Guide for Predicting Fire Behaviour in Ontario's Tallgrass Prairie* | Formações herbáceas, que é justamente onde os guias portugueses não têm motor. **Mas é do Ontário**, e a objeção de transponibilidade da `SCOTT2005` aplica-se por inteiro |
+| `Flame_length_fireline_intensity_relationships_Rossa_Davim_2024_WF23127.pdf` | Rossa, C.G. e Davim, D.A. (2024), *Field-based generic empirical flame length–fireline intensity relationships for wildland surface fires*, IJWF 33, WF23127 | **É o candidato a substituir o `I = 300·L²` que a aplicação usa hoje.** Inclui dados de fogo de alta intensidade, que é onde a relação de Byram (1959) é mais fraca. Nota: a autoria é de **Rossa e Davim**, e não de Fernandes como um dos registos de conversa dizia |
+| `Particle_Surface_Area_to_Mass_Ratio_Rossa_Davim_Fernandes.pdf` | Rossa, Davim e Fernandes, sobre razão superfície/massa, tempo de residência da chama e taxa de perda de massa | Matéria do leito de combustível, a montante do que a aplicação faz |
+| `Variacao_sazonal_do_fogo_em_folhada_de_caducifolias_Nobrega_UTAD.pdf` | Nóbrega, C.J.M., dissertação de mestrado em Engenharia Florestal, UTAD | Folhada de caducifólias — o modelo `F-FOL`, que é dos que **não têm motor português** |
+| `Redes_de_Comunicacoes_de_Emergencia_e_Seguranca_Geraldes_dissertacao.pdf` | Geraldes, C.J.B., *Redes de Comunicações de Emergência e Segurança*, dissertação de mestrado | **Pode responder à pergunta que está em aberto desde agosto**: a composição das pastas SIRESP por sub-região, que a aplicação recusa deduzir por não estar confirmada em fonte. Por ler |
+| `Fire_Weather_Guide_for_Application_of_Meteorological_Information_Schroeder_Buck_1970.pdf` | Schroeder e Buck (1970), o clássico do serviço florestal norte-americano | Meteorologia de incêndio. Não é português e não é doutrina daqui |
+| `Prescribed_Fire_Weather_Module_OSU_Extension_EM9385.pdf` | Módulo de extensão da Oregon State University sobre meteorologia para fogo controlado | Formação, não fonte |
+| `NWCG_PMS412_Origin_and_Cause_Determination_References.pdf` | Lista de referências do guia NWCG de determinação de origem e causa | É uma bibliografia, não um documento de fundo |
 | `LIVRO_Florestas_e_Legislacao_planos_municipais_de_defesa_da_floresta_contra_incendios.pdf` | Antunes, M.J., Lopes, D. e Oliveira, C. (coord.), *Florestas e Legislação: Planos Municipais da Defesa da Floresta Contra Incêndios* | Matéria jurídica de defesa da floresta. Não é doutrina de comando, e não se lhe viu ainda ligação a nenhuma regra do motor de conformidade |
 
 ## Como acrescentar
