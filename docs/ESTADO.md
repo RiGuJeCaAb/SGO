@@ -2721,3 +2721,67 @@ Três decisões de fundo que valem a pena estar escritas onde se encontrem:
 E duas perguntas que **são decisão de comando e não têm resposta técnica**: se as células
 escrevem diretamente na fita do tempo ou propõem para validação por Operações; e se as
 rendições acontecem posto a posto ou a EPCO roda em bloco. Ficam no `docs/conversas/LEIAME.md`.
+
+## r0078 — os cartões dobram, e o cabeçalho fechado diz o que falta
+
+Os painéis cresceram até deixarem de se ler: trinta e um cartões, milhares de pixéis, e a
+informação que a aplicação produz enterrada lá dentro. Todos passam a dobrar.
+
+### A regra que torna isto seguro
+
+**O cabeçalho fechado é linha de estado, não título.** É o contrário do que um acordeão faz,
+e é obrigatório aqui: a aplicação inteira está construída para dizer o que falta, e um
+dobrável comum esconderia o conteúdo deixando só o nome. Quem fechasse um cartão deixaria de
+ver que lá dentro há dois obrigatórios por preencher, e emitiria o PEA convencido de que
+estava completo. **Fechar ganha espaço, não silêncio.**
+
+Daí três regras, e a terceira é a que faz a diferença:
+
+1. Todo o cartão fechado diz o seu estado, e **um cartão sem nada a assinalar di-lo também**
+   — «nada a assinalar» distingue-se de um cabeçalho mudo, que não diz se alguém verificou ou
+   se ninguém olhou.
+2. O recomendado assinala-se mas não obriga a abrir. Se obrigasse, tudo ficaria sempre aberto
+   e o mecanismo não serviria para nada.
+3. **O que tem obrigatório em falta abre sozinho, e fechá-lo não fica guardado.** Guardar essa
+   preferência seria deixar o utilizador esconder de si próprio o que a aplicação existe para
+   lhe dizer.
+
+A preferência vive no `ARMAZEM`, **nunca no estado da ocorrência**: ter um cartão fechado é
+conveniência de quem está ao teclado, não facto da ocorrência, e não tem que viajar na
+exportação nem na passagem de turno.
+
+### Como a linha de estado se compõe
+
+Não há tabela a dizer «este campo pertence àquele cartão». Cada pendência de `pendencias()`
+declara **um elemento**, e o cartão descobre-se no DOM por `closest(".card")`. Um campo que
+mude de cartão leva a pendência com ele; uma tabela escrita à mão seria mais uma coisa a
+desalinhar-se em silêncio.
+
+### Três coisas que se corrigiram pelo caminho
+
+- **A exceção que eu tinha feito não se defendia.** Deixei de fora a identificação da
+  ocorrência, com o argumento de que é o cartão de que tudo depende. Vista no ecrã, era o
+  cartão mais alto da aplicação e ocupava o primeiro ecrã inteiro — que é exatamente a queixa
+  que trouxe este trabalho. E era desnecessária: a regra da pendência já o mantém aberto
+  enquanto lhe faltar um obrigatório. **Não há exceções.**
+- **Um recuo para `{}`** em `dobrarCartao` alargava o tipo até o verificador deixar de saber
+  que o cartão declarado tem `cnt` — o mesmo defeito que eu tinha criticado na absorção do
+  `p0020`, cometido por mim três semanas depois. Apanhado pelo `npm run tipos`.
+- **A linha de estado transbordava a 380 e 480 px**, porque a regra do ecrã estreito força
+  `nowrap`. Passa a quebrar para linha própria: das duas saídas possíveis — cortar o texto ou
+  deixá-lo passar à linha seguinte — só uma é aceitável, porque cortar esconderia precisamente
+  aquilo que o mecanismo existe para mostrar.
+
+### O que se conferiu
+
+`tests/dobraveis-estado.test.mjs`, doze testes. O que verificam não é que os cartões dobram:
+é que **dobrar não esconde uma lacuna** — nenhum cabeçalho fica mudo, a falta aparece com o
+número e por extenso, a cor não é o único sinal, o cartão com pendência reabre sozinho, e
+fechá-lo não fica guardado. O teste que prova que o clique chega mesmo é o par do anterior:
+sem pendência, fechar **fica** guardado.
+
+Um teste antigo — «cada cabeçalho tem uma contagem só» — passou a falhar, e com razão: guarda
+o defeito de duas contagens a dizer o mesmo lado a lado. Ficou mais afiado em vez de ser
+afrouxado: agora exige um de cada papel, e recusa que o estado e a contagem digam o mesmo.
+
+Provas em `docs/qa/`, `qa0026`.

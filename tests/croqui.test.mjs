@@ -208,9 +208,22 @@ test('em ecrã estreito a contagem não é escondida com a etiqueta legal', semA
     'a regra do cabeçalho estreito devia poupar a contagem');
 });
 
-test('cada cabeçalho tem uma contagem só', semAplicacao, () => {
+test('cada cabeçalho tem uma contagem só, e um estado só', semAplicacao, () => {
+  /* O defeito que isto guarda é o original: **duas contagens a dizer o mesmo lado a
+     lado**. Desde que o cabeçalho fechado passou a ser linha de estado, há dois papéis
+     distintos — a contagem do que lá está dentro e o estado do que falta — e podem
+     coexistir. O que não pode é haver dois do mesmo papel. */
   ['Fita do tempo', 'Linha de evolução'].forEach((h) => {
-    assert.equal(cartao(h).querySelectorAll(':scope > h2 > .cd-cnt').length, 1, h);
+    const c = cartao(h);
+    const todos = [...c.querySelectorAll(':scope > h2 > .cd-cnt')];
+    const estado = todos.filter((e) => e.classList.contains('cd-est'));
+    const contagem = todos.filter((e) => !e.classList.contains('cd-est'));
+    assert.equal(contagem.length, 1, `${h}: contagens a mais ou a menos`);
+    assert.ok(estado.length <= 1, `${h}: mais do que uma linha de estado`);
+    if (estado.length) {
+      assert.notEqual(estado[0].textContent.trim(), contagem[0].textContent.trim(),
+        `${h}: o estado e a contagem dizem o mesmo, que é o defeito que isto guarda`);
+    }
   });
 });
 

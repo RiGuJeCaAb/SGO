@@ -26,6 +26,35 @@ Cinco separadores no topo, e são as células do posto de comando:
 
 ---
 
+## Os cartões dobram, e o cabeçalho fechado diz o que falta
+
+Cada cartão da aplicação abre e fecha ao clique no seu título — ou com Enter, se lá chegar
+pelo teclado. Ao fim de umas horas de ocorrência os painéis têm dezenas de cartões e milhares
+de pixéis, e sem isto nada se encontra.
+
+**O que interessa é o que o cabeçalho diz quando o cartão está fechado.** Não é o título: é o
+estado.
+
+| O que lê no cabeçalho | O que significa |
+|---|---|
+| "2 obrigatórios em falta", a vermelho | Faltam campos sem os quais não se emite a proposta de PEA. **O cartão abre-se sozinho e não fica fechado** |
+| "1 recomendado por preencher" | Falta coisa útil, mas nada que bloqueie. O cartão fica como o deixou |
+| "nada a assinalar" | Está tudo preenchido neste cartão |
+| "14 registos", "sem registos" | Cartões que crescem — a fita do tempo, a linha de evolução — dizem quanto têm lá dentro |
+
+Três coisas que convém saber:
+
+- **Um cartão com obrigatório em falta não se deixa fechar.** Pode fechá-lo, mas volta a abrir
+  e a aplicação não guarda essa preferência. É de propósito: fechar não pode servir para
+  esconder de si próprio o que falta.
+- **A cor não é o único sinal.** Diz "obrigatórios em falta" por extenso, para quem não
+  distinga o vermelho do âmbar ler exatamente a mesma coisa.
+- **O que abre e fecha fica guardado neste computador, e não na ocorrência.** Não viaja na
+  exportação nem na passagem de turno: é conveniência de quem está ao teclado, não facto da
+  ocorrência.
+
+---
+
 ## Antes de tudo: dizer quem está ao teclado
 
 Comando → **Quem regista**. Escreva o nome e carregue em «Assumir o teclado».

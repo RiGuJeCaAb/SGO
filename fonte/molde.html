@@ -558,6 +558,14 @@
   /* etiqueta reaproveitada como contagem: perde a moldura, para não se ler como
      duas coisas diferentes lado a lado */
   .card.dobravel > h2.cd-cab .cd-cnt-ex{border:none;padding:0;background:none}
+  /* A linha de estado. Quando o cartão já traz contagem própria, o estado vem a seguir e
+     não em vez dela — e não se cola à outra. */
+  .card.dobravel > h2.cd-cab .cd-est{margin-left:0}
+  /* Obrigatório em falta lê-se à distância; recomendado assinala-se sem gritar. A cor não
+     é o único sinal: o texto diz «obrigatórios em falta» por extenso, porque quem não
+     distingue as duas cores continua a ler a mesma coisa. */
+  .card.dobravel > h2.cd-cab .cd-cnt.cd-falta{color:var(--fogo);font-weight:600}
+  .card.dobravel > h2.cd-cab .cd-cnt.cd-rec{color:var(--terra)}
   /* Em ecrã estreito o cabeçalho tem título, etiqueta legal e contagem: sem isto a
      contagem cai para linha própria e o cabeçalho fechado passa dos cem pixéis, que
      é o oposto do que se quer. A contagem alinha à direita na linha do título. */
@@ -569,6 +577,16 @@
        quando está fechado. */
     .card.dobravel > h2.cd-cab .tag:not(.cd-cnt){display:none}
     .card.dobravel > h2.cd-cab .cd-cnt{white-space:nowrap;flex:none}
+    /* A linha de estado é a exceção ao `nowrap`. «2 obrigatórios em falta» não cabe a
+       380 px ao lado de um título, e das duas saídas possíveis — cortar o texto ou
+       deixá-lo passar para a linha seguinte — só uma é aceitável: **num ecrã pequeno o
+       que falta importa mais do que um cabeçalho de uma linha.** Cortar aqui seria
+       esconder exatamente aquilo que este mecanismo existe para mostrar. */
+    .card.dobravel > h2.cd-cab{flex-wrap:wrap}
+    .card.dobravel > h2.cd-cab .cd-est,
+    .card.dobravel > h2.cd-cab .cd-cnt.cd-falta,
+    .card.dobravel > h2.cd-cab .cd-cnt.cd-rec{white-space:normal;flex:1 0 100%;
+      margin-left:0;margin-top:2px;text-align:left}
   }
   .card.dobravel > .cd-corpo{display:none;margin-top:16px}
   .card.dobravel.aberto > .cd-corpo{display:block}

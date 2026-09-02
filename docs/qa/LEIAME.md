@@ -146,3 +146,17 @@ não.
 `CSREPCDouro_qa0025_..._FocosDeCalor_CLD.png` — cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
 **por baixo** de tudo o que o posto desenhou à mão: são observação de satélite, e o que o
 posto traçou tem precedência de leitura sobre o que a máquina viu.
+
+
+## qa0026 — r0078, os dobráveis com linha de estado
+
+`CSREPCDouro_qa0026_202609021032_PlaneamentoDobrado_CLD.png` — o separador de Planeamento com
+tudo dobrado. Num ecrã lê-se: «Dados operacionais da ocorrência — **1 obrigatório em falta**»,
+aberto; «Leitura do terreno — 1 recomendado por preencher», fechado; «Perfil de elevação —
+nada a assinalar», fechado; «Previsão meteorológica — **1 obrigatório em falta**», aberto.
+
+É a prova da regra que torna isto seguro: **fechar não esconde a lacuna.** Antes, o mesmo
+painel eram milhares de pixéis onde era preciso descer para descobrir o que faltava.
+
+`CSREPCDouro_qa0026_202609021032_DobraveisComEstado_CLD.png` — o mesmo em Comando, com a
+identificação da ocorrência aberta e a dizer «3 recomendados por preencher» no cabeçalho.
