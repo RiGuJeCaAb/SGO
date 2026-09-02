@@ -386,6 +386,32 @@ onde precisar.
 
 ---
 
+## Nomear as funções do posto de comando
+
+Comando → **Estrutura do posto de comando**. A lista de funções por nomear vem ordenada por
+peso, e as quatro prateleiras dizem de onde vem cada uma:
+
+| Prateleira | O que quer dizer |
+|---|---|
+| «Essencial — exigível por lei nesta fase» | O articulado impõe-a na fase declarada. O motivo cita a alínea |
+| «Recomendada — a lei exige na fase seguinte, ou o limiar está próximo» | Ainda não é obrigação, mas está a uma fase de o ser |
+| «Sugerida pela prática — sem imposição legal nesta fase» | Prática do posto. **A lei não fixa fase para isto** |
+| «De menor importância neste momento» | Matéria de escolha |
+
+**A terceira prateleira nasceu na r0084 e é a razão de esta secção existir.** Até lá havia
+três, e nove núcleos apareciam na primeira — a das obrigações legais — com números de fase
+que nenhum artigo estabelece. A ativação dos núcleos é competência do oficial da respetiva
+célula, "em função da natureza da ocorrência e das necessidades"; a lei não diz a partir de
+que fase. Quem comandava não conseguia distinguir o que a lei impunha naquele momento do que
+a aplicação achava prudente.
+
+Só o que está na primeira prateleira conta como falta: é o que aparece na lista de
+pendências, no briefing de passagem de comando, na passagem de turno e na conformidade. Um
+núcleo que ninguém é obrigado a ativar continua a ser proposto, mas não é assinalado como
+falta.
+
+---
+
 ## O dispositivo e os setores
 
 Operações → **Setorização do TO e quadro de meios**. Declare quantos setores há e o que está

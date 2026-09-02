@@ -149,30 +149,36 @@ for «nada».
 - **Confrontar o importador com uma exportação real da Gestão PCO.** Testado contra os
   documentos; falta o que a aplicação de origem produz de facto.
 
-## 6-bis. Cinco divergências de uma fase na exigibilidade das funções do PCO
+## 6-bis. As fases de exigibilidade do PCO — **saldado na r0084**
 
-Achado a 2 de setembro, ao verificar o `d01` do ramo #006 contra a r0083. **Não corrigido:**
-a correção entra com as famílias A, B e C do inventário, num movimento só e com um teste por
-asserção, e depende da decisão do ponto 1 do `d01`.
+Cinco valores de `fase:` divergiam do articulado, e o ramo #006 verificou-os contra o texto
+e devolveu um guião vermelho. **Nenhum estava certo no código.** Corrigidos, com a alínea
+gravada ao lado de cada número em `aLei`:
 
-O campo `fase:` de `FUNCOES_PCO` diz a partir de que fase cada função é exigível. Cinco
-valores divergem em uma fase face às alíneas C06 a C10 do `d01` — que é a fonte aqui usada,
-porque o articulado não foi relido para o confronto:
+| Função | Era | É | Alínea |
+|---|---|---|---|
+| Adjunto de Segurança | III | **II** | art. 41.º, n.º 2, al. b) |
+| Oficial de Planeamento | II | **III** | art. 42.º, n.º 2, al. b) |
+| Oficial de Logística e Finanças | II | **III** | art. 42.º, n.º 2, al. b) |
+| Adjunto de Ligação | IV | **III** | art. 42.º, n.º 2, al. b) |
+| Coordenador do PCO | III | **IV** | art. 43.º, n.º 2, al. b) |
 
-| Função | `fase:` | Pelo `d01` |
-|---|---|---|
-| Oficial de Planeamento | 2 | III |
-| Oficial de Logística e Finanças | 2 | III |
-| Coordenador do PCO | 3 | IV |
-| **Adjunto de Segurança** | **3** | **II** |
-| **Adjunto de Ligação** | **4** | **III** |
+**E veio um achado maior, que o ramo #006 encontrou a ler o bloco inteiro.** Nove núcleos
+levavam um `fase:` sem fonte normativa nenhuma, no mesmo campo e pelo mesmo comparador das
+exigências do art. 14.º — e portanto com a mesma etiqueta e a mesma cor no ecrã, e com um
+campo de referência a citar um artigo que nada diz sobre fases. O campo separou-se em
+`faseLei`, que traz a alínea obrigatória, e `faseSug`, que assume ser prática do posto.
+`funcoesExigiveis()` passa a devolver só o que a lei impõe.
 
-As três primeiras pedem antes do que a lei pede: conservador, mas põe em «Essencial —
-exigível agora» o que a norma ainda não exige. **As duas últimas erram no sentido perigoso**
-— numa fase II a Estação não assinala a falta de quem tem a autoridade do art. 36.º n.º 2
-para mandar cessar os trabalhos.
+**Fica por confirmar por C. Abreu:** os valores de `faseSug` continuam a ser os que lá
+estavam. São heurísticas plausíveis e ninguém as verificou. Deixaram de mentir sobre a sua
+proveniência; não deixaram de ser palpites.
 
-Ver `CSREPCDouro_202609021630_d_VerificacaoComposicaoPCO_CLD.md`, secção 4.
+**Fica também por resolver o Despacho não estar no repositório.** Não há cópia em
+`docs/fontes/`, e não foi possível obtê-la deste ambiente. Toda a citação do articulado
+nesta matéria assenta na transcrição do ramo #006, o que é revisão por terceiro e não
+leitura primária. Uma cópia do Diário da República, 2.ª série, n.º 74, de 15-04-2024,
+fecharia isto.
 
 ## 6-ter. O fundamento da transição de fase fora de banda
 

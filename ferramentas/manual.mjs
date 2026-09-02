@@ -66,6 +66,12 @@ const RENDIDOS = [
   { rotulo: 'por confirmar',     ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
   { rotulo: 'previsto',          ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
   { rotulo: 'distrito presumido', ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  /* Rótulos dos grupos da lista de funções por nomear. São `label` de `<optgroup>` composto
+     em tempo de execução, e a leitura estática não os alcança de forma nenhuma. */
+  { rotulo: 'Essencial — exigível por lei nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'Recomendada — a lei exige na fase seguinte, ou o limiar está próximo', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'Sugerida pela prática — sem imposição legal nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'De menor importância neste momento', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
 ];
 
 /** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */

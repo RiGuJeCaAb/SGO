@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0083**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0084**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 122, das anteriores à convenção de nomes até à r0083 |
+| Entregas em `app/` | 123, das anteriores à convenção de nomes até à r0084 |
 | Módulos em `fonte/` | 70, em sete zonas, mais o molde |
-| Testes | 791, todos a passar |
+| Testes | 802, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -98,6 +98,48 @@ Passa a ser reescrita por `npm run montar`, sempre que a entrega vai para `app/`
 montagem de trabalho com `--saida` não lhe toca. E há um teste que confere que é igual à
 entrega mais recente, byte a byte, provado a acrescentar um comentário ao ficheiro. **Não se
 edita à mão**, tal como as entregas de `app/`.
+
+## As fases do PCO, na r0084 — e um número com a proveniência de outro
+
+O ramo #006 verificou contra o articulado as cinco divergências de fase que a leitura do
+`d01` tinha levantado, e devolveu um guião que corria vermelho contra a r0083. **Nenhuma
+das cinco estava certa no código.** Foram corrigidas, e cada número passa a levar ao lado
+a alínea que o sustenta — `aLei`, obrigatório, com um teste que o exige.
+
+Duas erravam no sentido perigoso: o adjunto de segurança é exigível na fase II, art. 41.º,
+n.º 2, al. b), e a aplicação só o dava por exigível na III. Numa fase II não assinalava a
+falta de quem tem a autoridade do art. 36.º, n.º 2, para mandar cessar os trabalhos.
+
+**Mas o achado que interessa é outro, e veio de ler o bloco todo em vez da lista de cinco.**
+Nove núcleos levavam um número de fase sem fonte normativa nenhuma — a lei não fixa fase
+para a ativação dos núcleos, que é competência do oficial da célula em função das
+necessidades. E esses números viviam no mesmo campo, passavam pelo mesmo comparador e saíam
+no ecrã com a mesma etiqueta «Essencial — exigível agora» e a mesma cor que as exigências do
+art. 14.º, com um campo de referência a citar um artigo que nada diz sobre fases.
+
+**Um número sem proveniência é mau; com a proveniência de outro número é pior, porque
+parece tê-la.** Um COS a olhar para o ecrã não conseguia distinguir o que a lei impõe agora
+do que nós achamos prudente agora — e é essa distinção que o projeto inteiro existe para
+manter.
+
+O campo separou-se em dois: `faseLei`, com a alínea obrigatória, e `faseSug`, que assume ser
+prática do posto. `funcoesExigiveis()` estreitou-se à lei, e é a fronteira que alimenta
+pendências, briefing, passagem de turno e conformidade — quatro sítios onde «em falta»
+passa a querer dizer «a lei pede e não está lá». A lista de nomeação ganhou uma quarta
+prateleira, «Sugerida pela prática — sem imposição legal nesta fase». Mesmo tratamento nos
+limiares de meios: os do art. 20.º, n.os 6 e 7, ficam como lei; os de OPAR, COPESP e OPESP
+são analogia com a regra aérea e passam a sugestão.
+
+**O que fica por resolver.** Os valores de `faseSug` são os que lá estavam: deixaram de
+mentir sobre a proveniência, não deixaram de ser palpites por confirmar. E o Despacho não
+está em `docs/fontes/` — toda a citação do articulado nesta matéria assenta na transcrição
+do ramo #006, que é revisão por terceiro e não leitura primária.
+
+**Uma lição de contrato, e é do ramo #004.** O guião do #006 lê o literal `FUNCOES_PCO` de
+dentro da entrega compilada. A separação do campo renomeou `fase` e o guião passou a
+devolver sete divergências falsas. Corrigido esse nome, corre verde. O contrato é o ficheiro
+compilado, mas um guião que alcança um literal lá dentro depende do nome do campo — **um
+nome que muda tem de ser anunciado ao ramo que o lê.**
 
 ## Decisões tomadas
 

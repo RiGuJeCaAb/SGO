@@ -69,3 +69,18 @@ respetivo, não escrever um guião que remende o HTML montado.
 Não se apagam porque documentam o percurso, e porque a cadeia é reproduzível — aplicar
 `p0006` a `p0009` sobre a r0034 reproduz a r0038, o que prova que a entrega não traz nada
 que os patches não digam. Não devem ser usados nem atualizados.
+
+## `006_CSREPCDouro_202609021523_t01_FasesExigibilidadePCO_CLD.js`
+
+**Não é um patch.** É o guião de verificação do ramo #006 que apanhou as cinco divergências
+de fase nas funções do art. 14.º, n.º 1 — o primeiro trabalho produzido sob a divisão de
+2 de setembro, em que os ramos entregam revisão e testes e não remendos.
+
+Corre com `node <guião> <entrega.html>`, sem dependências e sem rede. Contra a r0083 dava
+vermelho, saída 1: duas LACUNA e três EXCESSO. Fica aqui como prova de proveniência do
+achado; quem impede a regressão é `tests/exigibilidade-pco.test.mjs`.
+
+**Está desatualizado por construção, e é essa a lição que traz:** lê `entrada.fase`, campo
+que a correção separou em `faseLei` e `faseSug`. Corrigido esse nome, corre verde contra a
+r0084. O contrato com os ramos é o ficheiro compilado, mas um guião que alcança um literal
+lá dentro depende do nome do campo — e um nome de campo que muda tem de ser anunciado.

@@ -38,8 +38,14 @@ const PASTAS = [
   {
     pasta: 'ferramentas/historico',
     catalogo: 'ferramentas/historico/README.md',
-    forma: /^CSREPCDouro_[pqt]\d{4}_\d{12}_[A-Za-z0-9]+_CLD\.(py|js)$/,
-    diz: 'CSREPCDouro_pNNNN_AAAAMMDDHHMM_Nome_CLD.py',
+    /* O prefixo `00N_` identifica o ramo que produziu o guião, a partir de 2 de setembro:
+       cinco ramos a escrever guiões com séries próprias colidiam sem ele. */
+    /* Duas formas, porque há duas convenções em uso. A desta linhagem põe a série antes da
+       data — `CSREPCDouro_p0016_…`. A dos ramos, a partir de 2 de setembro, põe o número do
+       ramo à cabeça e a série depois da data — `006_CSREPCDouro_202609021523_t01_…`, que é
+       o que os identifica sem se abrir o ficheiro. */
+    forma: /^(CSREPCDouro_[pqt]\d{4}_\d{12}|\d{3}_CSREPCDouro_\d{12}_[pqt]\d{2,4})_[A-Za-z0-9]+_CLD\.(py|js)$/,
+    diz: 'CSREPCDouro_pNNNN_AAAAMMDDHHMM_Nome_CLD.py, ou 00N_CSREPCDouro_AAAAMMDDHHMM_tNN_Nome_CLD.js vindo de um ramo',
     ignora: ['README.md'],
     /* Anteriores à convenção, e o README diz o que são. */
     excecoes: ['patch_r0016.py', 'teste.js'],
