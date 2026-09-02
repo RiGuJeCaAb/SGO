@@ -558,6 +558,17 @@
   /* etiqueta reaproveitada como contagem: perde a moldura, para não se ler como
      duas coisas diferentes lado a lado */
   .card.dobravel > h2.cd-cab .cd-cnt-ex{border:none;padding:0;background:none}
+  /* A linha de estado. Quando o cartão já traz contagem própria, o estado vem a seguir e
+     não em vez dela — e não se cola à outra. */
+  .card.dobravel > h2.cd-cab .cd-est{margin-left:0}
+  /* A marca de saída da propagação. Lê-se antes do número, e por isso destaca-se dele. */
+  .marca-extra{color:var(--terra)}
+  .marca-alem{color:var(--fogo)}
+  /* Obrigatório em falta lê-se à distância; recomendado assinala-se sem gritar. A cor não
+     é o único sinal: o texto diz «obrigatórios em falta» por extenso, porque quem não
+     distingue as duas cores continua a ler a mesma coisa. */
+  .card.dobravel > h2.cd-cab .cd-cnt.cd-falta{color:var(--fogo);font-weight:600}
+  .card.dobravel > h2.cd-cab .cd-cnt.cd-rec{color:var(--terra)}
   /* Em ecrã estreito o cabeçalho tem título, etiqueta legal e contagem: sem isto a
      contagem cai para linha própria e o cabeçalho fechado passa dos cem pixéis, que
      é o oposto do que se quer. A contagem alinha à direita na linha do título. */
@@ -569,6 +580,16 @@
        quando está fechado. */
     .card.dobravel > h2.cd-cab .tag:not(.cd-cnt){display:none}
     .card.dobravel > h2.cd-cab .cd-cnt{white-space:nowrap;flex:none}
+    /* A linha de estado é a exceção ao `nowrap`. «2 obrigatórios em falta» não cabe a
+       380 px ao lado de um título, e das duas saídas possíveis — cortar o texto ou
+       deixá-lo passar para a linha seguinte — só uma é aceitável: **num ecrã pequeno o
+       que falta importa mais do que um cabeçalho de uma linha.** Cortar aqui seria
+       esconder exatamente aquilo que este mecanismo existe para mostrar. */
+    .card.dobravel > h2.cd-cab{flex-wrap:wrap}
+    .card.dobravel > h2.cd-cab .cd-est,
+    .card.dobravel > h2.cd-cab .cd-cnt.cd-falta,
+    .card.dobravel > h2.cd-cab .cd-cnt.cd-rec{white-space:normal;flex:1 0 100%;
+      margin-left:0;margin-top:2px;text-align:left}
   }
   .card.dobravel > .cd-corpo{display:none;margin-top:16px}
   .card.dobravel.aberto > .cd-corpo{display:block}
@@ -1471,8 +1492,10 @@
         <div class="grid g2">
           <div><label for="fg-r">Velocidade de propagação (m/h)</label>
             <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">
-            <div class="hint" style="margin-top:4px">Observada no terreno, ou de fogo experimental em vegetação
-            comparável. Varia de 1,5 m/h a cerca de 14 km/h em floresta (Alexander 2000, via Fernandes 2003).</div></div>
+            <div class="hint" style="margin-top:4px">Observada no terreno, de fogo experimental em vegetação
+            comparável, ou estimada no painel abaixo. Em matos, o Quadro 3.4.1 vai de 24 a 2280 m/h em terreno
+            plano, e as correções de altura e declive passam disso — acima dos 360 m/h a estimativa sai marcada
+            como extrapolação.</div></div>
           <div><label for="fg-w">Carga de combustível consumida (t/ha)</label>
             <input id="fg-w" data-campo="dados.fogo.w" inputmode="decimal" placeholder="ex.: 12">
             <div class="hint" style="margin-top:4px">A que arde <b>na frente de chamas</b>, e não a carga total do

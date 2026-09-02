@@ -15,6 +15,7 @@ revisão para a seguinte quando a situação evolui.
 | `202608172000_PEA02_Castedo_CLD.docx` | O segundo PEA |
 | `202608172100_PEA02rev_Castedo_CLD.docx` | Revisão do segundo |
 | `202608172200_PEA02rev2_Castedo_CLD.docx` | Segunda revisão do segundo |
+| `202608172200_PEA02rev2_Castedo_CLD.pdf` | O mesmo `PEA02rev2` em PDF, tal como foi impresso e circulou. Vale por si: é a forma em que o documento saiu, e não a forma em que foi escrito |
 | `202608172200_PEA02rev2b_Castedo_CLD.docx` | Uma variante do mesmo carimbo, com conteúdo diferente. Chegou como `(4)` do descarregador; o `b` no nome distingue-a sem lhe mexer no conteúdo |
 
 Chegaram nove ficheiros: **quatro eram cópias byte a byte** do mesmo `PEA02rev2`, do

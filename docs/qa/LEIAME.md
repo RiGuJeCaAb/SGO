@@ -146,3 +146,44 @@ não.
 `CSREPCDouro_qa0025_..._FocosDeCalor_CLD.png` — cinco focos VIIRS sobre o mesmo teatro, em losango e com a cor a dizer a confiança. Ficam
 **por baixo** de tudo o que o posto desenhou à mão: são observação de satélite, e o que o
 posto traçou tem precedência de leitura sobre o que a máquina viu.
+
+
+## qa0026 — r0078, os dobráveis com linha de estado
+
+`CSREPCDouro_qa0026_202609021032_PlaneamentoDobrado_CLD.png` — o separador de Planeamento com
+tudo dobrado. Num ecrã lê-se: «Dados operacionais da ocorrência — **1 obrigatório em falta**»,
+aberto; «Leitura do terreno — 1 recomendado por preencher», fechado; «Perfil de elevação —
+nada a assinalar», fechado; «Previsão meteorológica — **1 obrigatório em falta**», aberto.
+
+É a prova da regra que torna isto seguro: **fechar não esconde a lacuna.** Antes, o mesmo
+painel eram milhares de pixéis onde era preciso descer para descobrir o que faltava.
+
+`CSREPCDouro_qa0026_202609021032_DobraveisComEstado_CLD.png` — o mesmo em Comando, com a
+identificação da ocorrência aberta e a dizer «3 recomendados por preencher» no cabeçalho.
+
+
+## qa0027 — r0079, o tecto de saída
+
+`CSREPCDouro_qa0027_202609021058_TectoDeSaida_CLD.png` — o caso que motivou este trabalho:
+vento a 45 km/h, humidade do combustível a 8 %, mato de 3 m, declive de 50 %. **Tudo dentro
+dos domínios de entrada**, e o resultado são 14 820 m/h.
+
+A leitura abre com a marca, a vermelho e antes do número: «ALÉM DE QUALQUER FOGO MEDIDO — os
+14 820 m/h estão acima dos 1 200 m/h do fogo mais rápido do conjunto de 29 fogos que originou
+estes quadros, e acima dos 2 280 m/h da célula mais rápida do Quadro 3.4.1 — só as correções
+de altura e de declive lá chegam.»
+
+É a prova de que o número deixou de sair sozinho. Antes desta revisão, a mesma combinação
+devolvia os 14 820 m/h sem uma palavra de reserva.
+
+
+## qa0028 — um PEA impresso pelo utilizador, no seu computador
+
+`CSREPCDouro_qa0028_202609020000_PEAImpressoDoUtilizador_CLD.pdf` — **proposta de PEA n.º 4**,
+ocorrência 202608251000, Paraduça — Leomil — Moimenta da Beira, impressa da aplicação a correr
+no computador do CSREPC. Não foi produzida aqui: chegou no descarregamento de 2 de setembro.
+
+Vale por três razões. É a **primeira prova do PEA impresso fora deste ambiente**, com o
+cabeçalho, a marca de RESERVADO, o quadro do PCO e o meteograma tabulado. Mostra a cadeia de
+substituição a funcionar — «Substitui o PEA: N.º 3». E traz os números de proposta tal como
+aparecem no papel, o que é matéria do trabalho da identidade estável das propostas.

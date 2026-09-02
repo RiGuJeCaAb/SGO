@@ -148,7 +148,8 @@ function renderQuadroTurno(){
      visível e não se via em lado nenhum. Passa a acender o mesmo aviso que a posse. */
   try{
     const a = auditarPosse(O), c = auditarArrumacao(), d = auditarDobraveis(),
-          f = auditarFechoDeEscrita(), av = document.getElementById("tn-orfaos");
+          f = auditarFechoDeEscrita(), k = auditarContributos(),
+          av = document.getElementById("tn-orfaos");
     if(av){
       const partes = [];
       if(a.orfaos.length) partes.push(a.orfaos.length+" ramo(s) do estado sem célula atribuída — "+a.orfaos.slice(0,6).join(", "));
@@ -166,6 +167,23 @@ function renderQuadroTurno(){
       /* Um controlo declarado livre do fecho à escrita que não exista não isenta
          ninguém: fica bloqueado com a ocorrência encerrada e ninguém dá por isso. */
       if(f.semControlo.length) partes.push("controlo declarado livre do fecho que não existe — "+f.semControlo.join(", "));
+      /* Um ramo do estado com dono e sem contributo declarado para o plano é um painel
+         que escreve para o vazio: alguém preenche, a aplicação guarda, e o PEA nunca o
+         cita. Foi o que aconteceu às notas do mapa e aos focos de calor, e passa a
+         acender o mesmo aviso que o resto. */
+      if(k.semDeclaracao.length) partes.push(k.semDeclaracao.length+" ramo(s) sem contributo declarado para o plano — "+k.semDeclaracao.slice(0,6).join(", "));
+      if(k.orfas.length) partes.push("contributo declarado para ramo que já não existe — "+k.orfas.join(", "));
+      /* Um plano que se contradiz a si próprio é pior do que qualquer das partes estar
+         sozinha errada: quem executa escolhe uma, e não há como saber qual. A postura
+         única já o impede por construção — isto apanha a missão que alguém escreva sem a
+         consultar. */
+      try{
+        const pv = peaVigor();
+        if(pv && pv.json && pv.json.pea){
+          const co = coerenciaDoPlano(Object.assign({}, pv.json.pea, pv.json.ordens||{}), retratoDoFogo());
+          if(co.falhas.length) partes.push("o PEA em vigor contradiz-se — "+co.falhas.join("; "));
+        }
+      }catch(e){}
       if(f.semRazao.length) partes.push("controlo livre do fecho sem razão declarada — "+f.semRazao.join(", "));
       av.style.display = partes.length? "block" : "none";
       av.className = "msg err";

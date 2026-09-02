@@ -26,6 +26,35 @@ Cinco separadores no topo, e são as células do posto de comando:
 
 ---
 
+## Os cartões dobram, e o cabeçalho fechado diz o que falta
+
+Cada cartão da aplicação abre e fecha ao clique no seu título — ou com Enter, se lá chegar
+pelo teclado. Ao fim de umas horas de ocorrência os painéis têm dezenas de cartões e milhares
+de pixéis, e sem isto nada se encontra.
+
+**O que interessa é o que o cabeçalho diz quando o cartão está fechado.** Não é o título: é o
+estado.
+
+| O que lê no cabeçalho | O que significa |
+|---|---|
+| "2 obrigatórios em falta", a vermelho | Faltam campos sem os quais não se emite a proposta de PEA. **O cartão abre-se sozinho e não fica fechado** |
+| "1 recomendado por preencher" | Falta coisa útil, mas nada que bloqueie. O cartão fica como o deixou |
+| "nada a assinalar" | Está tudo preenchido neste cartão |
+| "14 registos", "sem registos" | Cartões que crescem — a fita do tempo, a linha de evolução — dizem quanto têm lá dentro |
+
+Três coisas que convém saber:
+
+- **Um cartão com obrigatório em falta não se deixa fechar.** Pode fechá-lo, mas volta a abrir
+  e a aplicação não guarda essa preferência. É de propósito: fechar não pode servir para
+  esconder de si próprio o que falta.
+- **A cor não é o único sinal.** Diz "obrigatórios em falta" por extenso, para quem não
+  distinga o vermelho do âmbar ler exatamente a mesma coisa.
+- **O que abre e fecha fica guardado neste computador, e não na ocorrência.** Não viaja na
+  exportação nem na passagem de turno: é conveniência de quem está ao teclado, não facto da
+  ocorrência.
+
+---
+
 ## Antes de tudo: dizer quem está ao teclado
 
 Comando → **Quem regista**. Escreva o nome e carregue em «Assumir o teclado».
@@ -260,10 +289,31 @@ cadeia inteira — chama, segurança, contenção, ataque direto — recalcula-s
   pinheiro bravo, e mais nada. Nesses modelos a aplicação diz que a velocidade tem de ser
   observada.
 
-Os quadros foram transcritos de dois documentos que o projeto não tem em mão. Ver
-`docs/FONTES.md`, chave FOGOPT, para o que está confirmado e o que não está. Enquanto assim
-for, o número serve para ordem de grandeza e para comparar cenários — não para sustentar
-sozinho uma decisão de ataque direto.
+### Quando o número sai marcado
+
+A estimativa pode devolver uma velocidade **fora do que alguma vez foi medido**, e quando isso
+acontece a leitura abre com a marca, antes do número:
+
+| Marca | Quando aparece | O que quer dizer |
+|---|---|---|
+| **EXTRAPOLAÇÃO** | acima de 360 m/h (6 m/min) | É o valor acima do qual a fonte destes quadros desaconselha usá-los, por escassez de dados |
+| **ALÉM DE QUALQUER FOGO MEDIDO** | acima de 1 200 m/h (20 m/min) | Passou o fogo mais rápido dos 29 que originaram os quadros. Acima de 2 280 m/h passou também a célula mais rápida da tabela, e só as correções de altura e declive lá chegam |
+
+**A marca não impede o cálculo.** Recusar deixaria quem está no PCO sem estimativa nenhuma,
+que é pior. A marca acompanha o número: aparece no painel, vai com ele para a fita do tempo, e
+entra na proposta de PEA.
+
+Repare ainda numa nota que aparece sempre que o declive passa dos 5 %: o quadro base foi
+medido **em terreno plano**, e a correção do declive aplica-se fora dessas condições. Num vale
+de socalcos é essa correção que domina o resultado.
+
+O pinheiro bravo não leva marca — os limites acima são de matos, e emprestá-los a outro
+combustível seria atribuir à fonte o que ela não diz.
+
+Os quadros foram transcritos de dois documentos, e um deles já cá está. **O Quadro 3.4.1 está
+conferido contra o impresso, célula a célula.** Os outros não. Ver `docs/FONTES.md`, chave
+FOGOPT. Enquanto assim for, o número serve para ordem de grandeza e para comparar cenários —
+não para sustentar sozinho uma decisão de ataque direto.
 
 ---
 
@@ -359,11 +409,52 @@ fogo, e isso muda três coisas no documento:
 |---|---|
 | Análise da zona de intervenção | O combustível e a carga, a intensidade e o comprimento da chama, o terreno e o perfil, a idade da previsão e a cartografia em uso — **ou o que falta de cada um** |
 | Propostas | A primeira proposta decorre da intensidade da frente, quando ela é conhecida: interdição de ataque à cabeça, ataque com apoio aéreo, ataque direto admissível, ou supressão manual, conforme a faixa |
+| Análise da zona de intervenção | Os avisos que escreveu no mapa, por extenso; as notas de manobra e observação, contadas; e os focos de calor de satélite, com a confiança e a origem |
 | Medidas de segurança | A distância mínima à frente de chamas **em metros**, e não como princípio |
 
 Cada fundamento traz o valor e **a origem da prova** — se a velocidade de propagação foi
 observada no teatro ou estimada pelos guias de fogo controlado. A proposta não se enfraquece
 por ser estimada: quem aprova é o COS, e o que lhe cabe saber é o que está a aprovar.
+
+### O plano diz o mesmo em todo o lado
+
+O objetivo, a ação decisiva e as propostas **derivam todos da mesma leitura da intensidade**.
+Não é uma questão de estilo: até à r0080 o mesmo documento podia dizer "dominar as frentes
+ativas e fechar o perímetro" no objetivo e "interdição de ataque direto à cabeça" três linhas
+abaixo. Quem executa escolhe uma das duas, e não há como saber qual.
+
+Conforme a intensidade da frente, o plano assume uma de quatro posturas:
+
+| Intensidade | O objetivo diz | Como se fecha o perímetro |
+|---|---|---|
+| acima de 4 000 kW/m | **Conter** | pelos flancos e pela retaguarda |
+| 2 000 a 4 000 | Dominar | com apoio aéreo na cabeça |
+| 500 a 2 000 | Dominar | com meios terrestres sob pressão de água |
+| abaixo de 500 | Dominar | com equipamento de sapador |
+
+A ação decisiva traz a razão com ela — "Intensidade frontal de 31 920 kW/m: acima dos 4 000
+kW/m o controlo frontal é impossível" — para que quem a lê não tenha de a cruzar com as
+propostas mais abaixo.
+
+**Sem intensidade determinada, nada disto se impõe.** A aplicação não inventa restrições onde
+não tem número: o plano diz o que sempre disse.
+
+### Os números das propostas, e o que os identifica
+
+No PEA impresso as propostas vão numeradas por ordem de leitura — P1, P2, P3. **Dentro de um
+documento isso é claro; entre documentos não é.** Quando uma proposta deixa de fazer sentido —
+a reserva constitui-se, a linha estreita é alargada — ela desaparece, e tudo o que estava por
+baixo sobe uma posição. A P2 do PEA n.º 5 não é a P2 do n.º 4.
+
+Por isso o **controlo de execução** — a lista de missões e propostas que se marca como
+cumpridas, e que acompanha a passagem de turno — não usa esse número. Usa uma identidade
+própria de cada proposta, e mostra ao lado o número com que ela saiu no papel:
+
+> `LINHA-ESTREITA · P3 no papel · Proposta`
+
+Assim "cumprimos a LINHA-ESTREITA" quer dizer a mesma coisa em qualquer versão do plano, e
+continua a poder confrontar-se com o documento que o COS aprovou. **Um PEA já emitido nunca é
+reetiquetado**: fica com os números com que saiu.
 
 Além disso, o plano passa a pedir o que falta: uma linha de contenção estreita de mais para a
 chama calculada, uma linha sem largura declarada, uma frente cujo rumo foi deduzido do traçado

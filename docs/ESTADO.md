@@ -2657,3 +2657,368 @@ adivinhar:
 A `entrada/` volta ao que tem de ser: **vazia, com o seu `README.md` e mais nada.** É a
 condição que o próprio ficheiro impõe — uma entrada que não esvazia deixa de dizer o que quer
 que seja.
+
+## Cinco registos de conversa do outro lado, e quatro defeitos que eles apontam
+
+Chegaram cinco documentos: quatro transcrições integrais e um ponto de situação. As
+transcrições ficaram em `docs/conversas/`, pasta nova com catálogo e regra de verificação; o
+ponto de situação em `docs/`, porque é documento e não conversa.
+
+**Nenhum defeito apontado foi aceite de palavra.** Os quatro que entraram no
+`docs/POREXECUTAR.md` foram conferidos contra a `r0077` primeiro, e os três que não consegui
+conferir ficam nomeados à parte, como por conferir. O detalhe está lá; aqui fica o que muda
+a leitura do projeto.
+
+### O tecto de saída, e um erro meu no teste
+
+O motor de propagação vigia o domínio das entradas e **não vigia o valor que sai**. A fonte
+primária destes quadros — Fernandes (2001) — declara um tecto de **6 m/min**, que são 360 m/h,
+acima do qual desaconselha usar as equações. Uma combinação dentro de todos os domínios de
+entrada entrega **14 820 m/h**, quarenta vezes esse tecto, sem uma palavra de reserva.
+
+E há um erro meu por trás disto. O `tests/propagacao.test.mjs` valida o extremo do domínio
+com `assert.ok(max < 20000)`, citando Alexander (2000), «1,5 m/h a ~14 km/h **em floresta**».
+**Estes quadros são de matos, e de fogo controlado de Outono e Primavera.** Validei o tecto
+contra a fonte errada. A asserção é verdadeira e não significa nada — que é a pior espécie de
+teste, porque parece cobertura.
+
+### O buraco estrutural reabriu na mesma sessão em que foi tapado
+
+O `p0020` corrigiu a falha de onze painéis que não chegavam ao PEA. **Na mesma sessão, esta
+linhagem acrescentou notas do mapa e focos de calor, e nenhum dos dois entra no colector.**
+Confirmado. A lição do outro lado é melhor do que o remendo: o colector tem de ser **regra**,
+verificada no `auditarPosse()`, e não correção pontual.
+
+### A identidade das propostas
+
+Fui eu que descobri que os `id` das propostas são decorativos, porque o `detDecisao` renumera
+tudo por posição. **Não vi a consequência**, e eles viram: `controloMissoes` faz `k: x.id ||
+"P"`, logo P3 no PEA n.º 4 não é a mesma proposta que P3 no PEA n.º 5. Era inofensivo enquanto
+as propostas eram genéricas; deixou de ser quando passaram a depender de dados que mudam de
+hora a hora.
+
+### E uma chamada a CDN na linha 7
+
+`fonts.googleapis.com`, na sétima linha da entrega, contra a primeira restrição não negociável
+do projeto. Num arranque `file://` sem rede bloqueia o render até dar *timeout*. Fica por
+decidir com o utilizador, porque apagá-la muda o aspeto da aplicação.
+
+### O que os registos trazem além dos defeitos
+
+Três decisões de fundo que valem a pena estar escritas onde se encontrem:
+
+- **O ficheiro único não morre — passa a modo degradado.** Autenticação a sério e base
+  documental partilhada não existem num HTML local, mas o ficheiro continua a ser a rede de
+  segurança para quando o servidor morre ou o VCOC não está no TO.
+- **Contra quem mexe no código, a resposta não é impedir: é detetar.** Digest do código em
+  memória, e `BUILD NÃO VERIFICADO` carimbado no PEA em vez de recusa de arranque — *«às três
+  da manhã num TO, uma aplicação que se auto-bloqueia por integridade é uma aplicação
+  inútil»*.
+- **Três registos distintos, e não um:** fita do tempo (curada, o que aconteceu na
+  ocorrência), efetivo do PCO (quem ocupava que função), auditoria (quem escreveu o quê).
+  Fundi-los destrói o primeiro.
+
+E duas perguntas que **são decisão de comando e não têm resposta técnica**: se as células
+escrevem diretamente na fita do tempo ou propõem para validação por Operações; e se as
+rendições acontecem posto a posto ou a EPCO roda em bloco. Ficam no `docs/conversas/LEIAME.md`.
+
+## r0078 — os cartões dobram, e o cabeçalho fechado diz o que falta
+
+Os painéis cresceram até deixarem de se ler: trinta e um cartões, milhares de pixéis, e a
+informação que a aplicação produz enterrada lá dentro. Todos passam a dobrar.
+
+### A regra que torna isto seguro
+
+**O cabeçalho fechado é linha de estado, não título.** É o contrário do que um acordeão faz,
+e é obrigatório aqui: a aplicação inteira está construída para dizer o que falta, e um
+dobrável comum esconderia o conteúdo deixando só o nome. Quem fechasse um cartão deixaria de
+ver que lá dentro há dois obrigatórios por preencher, e emitiria o PEA convencido de que
+estava completo. **Fechar ganha espaço, não silêncio.**
+
+Daí três regras, e a terceira é a que faz a diferença:
+
+1. Todo o cartão fechado diz o seu estado, e **um cartão sem nada a assinalar di-lo também**
+   — «nada a assinalar» distingue-se de um cabeçalho mudo, que não diz se alguém verificou ou
+   se ninguém olhou.
+2. O recomendado assinala-se mas não obriga a abrir. Se obrigasse, tudo ficaria sempre aberto
+   e o mecanismo não serviria para nada.
+3. **O que tem obrigatório em falta abre sozinho, e fechá-lo não fica guardado.** Guardar essa
+   preferência seria deixar o utilizador esconder de si próprio o que a aplicação existe para
+   lhe dizer.
+
+A preferência vive no `ARMAZEM`, **nunca no estado da ocorrência**: ter um cartão fechado é
+conveniência de quem está ao teclado, não facto da ocorrência, e não tem que viajar na
+exportação nem na passagem de turno.
+
+### Como a linha de estado se compõe
+
+Não há tabela a dizer «este campo pertence àquele cartão». Cada pendência de `pendencias()`
+declara **um elemento**, e o cartão descobre-se no DOM por `closest(".card")`. Um campo que
+mude de cartão leva a pendência com ele; uma tabela escrita à mão seria mais uma coisa a
+desalinhar-se em silêncio.
+
+### Três coisas que se corrigiram pelo caminho
+
+- **A exceção que eu tinha feito não se defendia.** Deixei de fora a identificação da
+  ocorrência, com o argumento de que é o cartão de que tudo depende. Vista no ecrã, era o
+  cartão mais alto da aplicação e ocupava o primeiro ecrã inteiro — que é exatamente a queixa
+  que trouxe este trabalho. E era desnecessária: a regra da pendência já o mantém aberto
+  enquanto lhe faltar um obrigatório. **Não há exceções.**
+- **Um recuo para `{}`** em `dobrarCartao` alargava o tipo até o verificador deixar de saber
+  que o cartão declarado tem `cnt` — o mesmo defeito que eu tinha criticado na absorção do
+  `p0020`, cometido por mim três semanas depois. Apanhado pelo `npm run tipos`.
+- **A linha de estado transbordava a 380 e 480 px**, porque a regra do ecrã estreito força
+  `nowrap`. Passa a quebrar para linha própria: das duas saídas possíveis — cortar o texto ou
+  deixá-lo passar à linha seguinte — só uma é aceitável, porque cortar esconderia precisamente
+  aquilo que o mecanismo existe para mostrar.
+
+### O que se conferiu
+
+`tests/dobraveis-estado.test.mjs`, doze testes. O que verificam não é que os cartões dobram:
+é que **dobrar não esconde uma lacuna** — nenhum cabeçalho fica mudo, a falta aparece com o
+número e por extenso, a cor não é o único sinal, o cartão com pendência reabre sozinho, e
+fechá-lo não fica guardado. O teste que prova que o clique chega mesmo é o par do anterior:
+sem pendência, fechar **fica** guardado.
+
+Um teste antigo — «cada cabeçalho tem uma contagem só» — passou a falhar, e com razão: guarda
+o defeito de duas contagens a dizer o mesmo lado a lado. Ficou mais afiado em vez de ser
+afrouxado: agora exige um de cada papel, e recusa que o estado e a contagem digam o mesmo.
+
+Provas em `docs/qa/`, `qa0026`.
+
+## r0079 — o tecto de saída, e o Quadro 3.4.1 conferido
+
+O motor de propagação vigiava o domínio das **entradas** e não vigiava o **valor que sai**.
+Uma combinação dentro de todos os domínios — vento 30 km/h à superfície, humidade 8 %, mato de
+3 m, declive de 50 % — devolvia **14 820 m/h** sem uma palavra de reserva. Quarenta e uma vezes
+o tecto que a fonte declara.
+
+### Antes de construir, conferi os números deles
+
+Os quatro que a linhagem paralela apresentou batem exatamente contra os meus próprios quadros:
+célula base mais rápida 38 m/min = 2 280 m/h a vento 30 e humidade 8; fator máximo de altura
+2,5; de declive 2,6; máximo do domínio 14 820 m/h. Nenhum foi aceite de palavra.
+
+### E depois fui ao Manual, que agora temos
+
+**O Quadro 3.4.1 está conferido contra o impresso — 252 células, todas certas.** Página `E_10`
+do guia E1: 21 linhas de vento por 12 colunas de humidade, mais os dois eixos. Não falhou uma.
+
+E o rodapé impresso do quadro vale tanto como os números:
+
+> «Velocidades de propagação de fogos a favor do vento em **terreno plano (declive <5%)** para
+> matos com 1 m de altura.»
+
+Isto **confirma em primeira mão** o que a linhagem paralela citava do artigo de 2001, que não
+temos: a tabela base foi medida em terreno plano. A correção de declive, que chega a ×2,6 aos
+50 %, aplica-se fora das condições da medição — e num vale de socalcos o declive é a variável
+dominante. A aplicação passou a dizê-lo em cada estimativa com declive acima de 5 %.
+
+### A marca, e a proveniência de cada tecto
+
+Três números, e **não têm a mesma proveniência** — o que fica escrito no código e no
+`FONTES.md`:
+
+| Tecto | O que é | Proveniência |
+|---|---|---|
+| 2 280 m/h | a célula mais rápida do Quadro 3.4.1 | **conferida contra o impresso** |
+| 360 m/h | 6 m/min, acima dos quais Fernandes (2001) desaconselha usar as equações | **o artigo não está aqui**; veio pela linhagem paralela |
+| 1 200 m/h | 20 m/min, o mais rápido dos 29 fogos desse conjunto | a mesma, com a mesma reserva |
+
+A marca **não impede o cálculo**: recusar deixaria quem está no PCO sem estimativa nenhuma, que
+é pior. Acompanha o número — aparece à cabeça da leitura e não em rodapé, vai com ele para a
+fita do tempo, e entra no `retratoDoFogo()`, logo na proposta de PEA.
+
+**Duas decisões que valem a pena registar:**
+
+- **O pinheiro bravo não leva marca.** Os tectos são de Fernandes (2001), que é sobre matos.
+  Emprestá-los ao guia E2 seria o mesmo erro de fonte trocada que este trabalho veio corrigir.
+  Fica sem marca e dito porquê; o domínio inteiro do pinhal não passa dos 514 m/h.
+- **Um R observado não leva marca.** Um fogo medido a 5 000 m/h não é extrapolação nenhuma: é
+  um fogo a andar depressa, e dizer-lhe «além de qualquer fogo medido» seria desmentir quem o
+  mediu. Os tectos são dos quadros, não do terreno. A marca só se aplica quando o R veio da
+  estimativa **e** o motor é o dos matos.
+
+### O erro meu, corrigido
+
+A asserção do `tests/propagacao.test.mjs` validava o extremo do domínio contra Alexander
+(2000), «1,5 m/h a ~14 km/h **em floresta**», com `max < 20000` — verdadeira, e sem significar
+nada. Estes quadros são de **matos**. Passa a aferir contra a célula mais rápida do próprio
+quadro, que está conferida, e a exigir que o que a ultrapassa saia marcado.
+
+### Duas frases no ecrã que tinham deixado de ser verdade
+
+A captura da prova mostrou-as, e ambas são da mesma família do erro acima:
+
+- A dica do campo da velocidade dizia «varia de 1,5 m/h a cerca de 14 km/h **em floresta**
+  (Alexander 2000)» — a fonte errada, dita ao utilizador. Passa a citar o domínio do Quadro
+  3.4.1 e a avisar do que sai marcado.
+- A leitura da intensidade dizia «**a aplicação não os estima**: exigiriam um modelo de
+  combustível calibrado para a vegetação do Douro, e não existe» — escrita antes da r0074 e
+  desatualizada desde então. Mandava procurar no terreno o que o painel logo abaixo dava.
+  **E havia um teste a exigir essa frase**, o que transformou texto obsoleto em requisito
+  durante cinco revisões. O teste passa a exigir o contrário: que a leitura encaminhe para
+  onde se estima.
+
+Prova em `docs/qa/`, `qa0027`.
+
+## 2 de setembro — chegaram os três documentos que faltavam
+
+Trinta ficheiros no descarregamento, dez deles já cá estavam byte a byte. Entre os vinte
+novos vinham **os três documentos que o `FONTES.md` dava por em falta**, e os dois buracos de
+proveniência que eu tinha declarado na véspera fecharam-se no mesmo dia.
+
+### Fernandes (2001) — os tectos deixam de ser de segunda mão
+
+*Fire spread prediction in shrub fuels in Portugal*, Forest Ecology and Management 144: 67-74.
+A `r0079` usava dois tectos relatados pela linhagem paralela e declarados como tal. Estão
+lidos, e **não foi preciso mudar um número** — o relato estava certo:
+
+> «given the scarce data availability for rates of spread above 6 m min⁻¹, it is not advisable
+> to use the equations outside the low fire behaviour range»
+
+A Tabela 1 dá o domínio dos 29 fogos: R de 0,7 a **20,0 m/min**, e **declive de 0 a 5 %**. O
+que confirma, por segunda via independente, o rodapé impresso do Quadro 3.4.1.
+
+**E traz uma ressalva que ninguém tinha relatado:** as equações são enviesadas para as
+comunidades `EU-CT` — urzal de *Erica* com *Chamaespartium tridentatum* —, que deram mais de
+dois terços dos dados. Fica em `FONTES.md`, chave `FOGOSHRUB`. Note-se que é formação do
+Nordeste, a nossa região, pelo que o enviesamento até pode jogar a favor do Douro; **mas isso
+é hipótese e não leitura**, e nada na aplicação o deve afirmar.
+
+### Fernandes e Loureiro (2021) — o documento dos 18 modelos
+
+*Modelos de combustível florestal para Portugal, documento de referência, versão de 2021.*
+Era o único que o `FONTES.md` dizia não estar em lado nenhum aberto. **A transcrição dos 18
+modelos e das cargas continua por conferir contra ele** — mas agora é possível, e é o próximo
+trabalho de conferência.
+
+### Rossa e Davim (2024) — o candidato a substituir o `I = 300·L²`
+
+*Field-based generic empirical flame length–fireline intensity relationships*, IJWF 33,
+WF23127. Inclui dados de fogo de alta intensidade, que é onde a relação de Byram é mais fraca.
+**Correção de autoria:** um dos registos de conversa atribuía-o a «Fernandes et al. (2024)»; é
+de **Rossa e Davim**.
+
+### O que mais entrou
+
+Em `docs/fontes/`: a dissertação de Nóbrega (UTAD) sobre folhada de caducifólias — que é o
+modelo `F-FOL`, um dos que não têm motor português; Rossa, Davim e Fernandes sobre razão
+superfície/massa; o clássico Schroeder e Buck (1970); e **a dissertação de Geraldes sobre redes
+de comunicações de emergência**, que pode responder à pergunta das pastas SIRESP por
+sub-região, aberta desde agosto e que a aplicação recusa deduzir. Por ler.
+
+Em `docs/qa/`, `qa0028`: **um PEA impresso pelo utilizador no seu computador** — proposta n.º 4
+da ocorrência de Paraduça. É a primeira prova do PEA impresso fora deste ambiente, e mostra a
+cadeia de substituição a funcionar.
+
+Em `docs/pea-reais/`: o `PEA02rev2` do Castedo em PDF, na forma em que circulou.
+
+## r0080 — a identidade das propostas, e o buraco do colector fechado por regra
+
+As duas que a linhagem paralela dizia serem prioritárias, «porque são as que fazem o plano
+dizer coisas que não são verdade sobre si próprio».
+
+### A identidade das propostas
+
+`controloMissoes` fazia `k: x.id || "P"`, e o `id` é renumerado por posição no fim do
+`detDecisao`. **P3 no PEA n.º 4 não era a mesma proposta que P3 no n.º 5.** Bastava uma
+proposta cair entre planos para tudo o que estava por baixo subir uma posição, e «cumprimos a
+P2» deixava de ter significado estável num documento que é aprovado, executado e auditado.
+
+Cada regra passa a declarar a sua **chave estável** — `LIM-INTERDITO`, `LINHA-ESTREITA`,
+`RESERVA` —, e são 24. O `id` continua posicional, porque dentro de um documento «P2» é o
+segundo item e é assim que se lê no papel; o item de controlo guarda os dois, e mostra
+«`LINHA-ESTREITA · P3 no papel`».
+
+**As quatro faixas de intensidade levam chaves distintas, de propósito.** «Interditar o ataque
+à cabeça» e «ataque direto admissível» são instruções opostas: partilhar chave faria uma
+aparecer como cumprida quando a outra nunca chegou a ser dada.
+
+A via do modelo de linguagem não tem regras, e as propostas que ela produz recebem chave
+derivada do próprio texto, com prefixo `T-`. **Estável enquanto o texto não mudar, que é a
+única promessa honesta que se pode fazer sobre ela** — e o prefixo diz de onde veio, para
+ninguém a confundir com uma chave declarada.
+
+Os PEA já emitidos não são reetiquetados: ficam com os números com que saíram. Reescrevê-los
+falsificaria um documento que foi aprovado.
+
+### As notas e os focos no colector — e a regra, que vale mais
+
+Entraram no `retratoDoFogo()`. Os avisos escritos no mapa vão por extenso para a análise da
+zona de intervenção — a distinção entre aviso e observação já estava em `TIPOS_NOTA` e é
+operacional; as notas de manobra e observação contam-se, para não desaparecerem. Os focos de
+calor entram com a contagem, a confiança, a origem e a hora, e com a ressalva de que **não
+substituem o que o posto traçou**.
+
+Mas o remendo é o menos importante. **A falha tinha-se repetido enquanto a correção do `p0020`
+ainda estava fresca**, e isso diz que o problema é estrutural. Passa a haver `CONTRIBUI`: cada
+ramo de `O.dados` com dono declarado em `POSSE` diz **o que leva ao plano, ou porque não leva**.
+São 21, e quatro deles estão declarados como não contribuindo, com a razão escrita. Um ramo
+sem declaração faz falhar a auditoria e acende o aviso na passagem de turno, ao lado das outras.
+
+O teste prova que a auditoria vê, e não que passa por não olhar: acrescenta um ramo à `POSSE`,
+confere que é apanhado, e repõe.
+
+### O verificador de tipos apanhou um defeito que o meu teste não apanhou
+
+O campo de uma nota é `txt`, não `texto`. Escrevi `x.texto||""` no colector, e **o teste passou
+porque inventou a mesma forma errada nos dados de ensaio**. Sem o verificador, um aviso de
+linha de média tensão sobre o caminho chegaria ao PEA como «Avisos escritos no mapa: .»
+
+É a segunda vez que fabrico a forma em vez de usar a real — a primeira foi o
+`webkitRelativePath` com `defineProperty`. O teste passa a usar a forma declarada em
+`tipos/estacao.d.ts` e a exigir que o texto chegue mesmo.
+
+## r0081 — as missões alinhadas com as propostas
+
+O plano contradizia-se, e reproduzi-o antes de lhe mexer. Com janela de consolidação e uma
+frente de 31 920 kW/m, o mesmo documento dizia:
+
+> **Objetivo:** «Dominar as frentes ativas em Alfa e fechar o perímetro até às 09h.»
+> **Ação decisiva:** «Dominar as frentes ativas em Alfa e fechar o perímetro na janela 02h–09h.»
+> **Proposta:** «Interdição de ataque direto à cabeça… a cabeça só se ataca por meios aéreos.»
+
+Duas partes do mesmo documento aprovado em contradição são piores do que qualquer delas estar
+sozinha errada: **quem executa escolhe uma, e não há como saber qual.**
+
+### A causa era estrutural, não de redação
+
+**Havia dois blocos a decidir a mesma coisa por critérios diferentes.** As missões olhavam à
+janela meteorológica e ao dispositivo; as propostas olhavam à intensidade. Corrigir o texto de
+um deles deixaria o defeito pronto a voltar à primeira alteração — que é exatamente o que
+aconteceu com o colector, duas revisões antes.
+
+Passa a haver uma **postura de manobra** calculada num sítio só, `posturaDeManobra()`, de que
+o objetivo, a ação decisiva e as propostas de limite derivam. **Não podem discordar porque não
+decidem nada: leem.**
+
+| Postura | O objetivo diz | Como se fecha o perímetro |
+|---|---|---|
+| `interdito` — acima de 4 000 kW/m | **Conter** | pelos flancos e pela retaguarda |
+| `aereo` — 2 000 a 4 000 | Dominar | com apoio aéreo na cabeça |
+| `terrestre` — 500 a 2 000 | Dominar | com meios terrestres sob pressão de água |
+| `manual` — abaixo de 500 | Dominar | com equipamento de sapador |
+| `sem-dados` | Dominar | — nada se impõe onde não há número |
+
+A ação decisiva passa a trazer a razão com ela, e não só o verbo: quem a lê sabe porque é
+«conter» sem ter de a cruzar com as propostas mais abaixo.
+
+### E uma auditoria por cima, porque a garantia por construção tem prazo
+
+`coerenciaDoPlano()` confere que nenhuma missão promete dominar uma frente cuja cabeça está
+interdita. É redundante enquanto tudo derivar da postura — e deixa de o ser no dia em que
+alguém escrever uma missão nova sem a consultar. Acende o mesmo aviso da passagem de turno que
+as outras auditorias.
+
+O teste prova que ela vê: forja uma missão a prometer «dominar as frentes ativas» com a cabeça
+interdita e confere que é apanhada. E prova que **não** apanha a frase da própria proposta —
+«o ataque direto à cabeça é inadmissível» contém as palavras e é o contrário de uma promessa.
+Uma auditoria que a apanhasse acusaria o plano de se contradizer sempre que estivesse correto.
+
+### Um fundamento que não se lia
+
+`[VIGIA]` saía com «Máxima de — °C em — — a fase crítica exige equipas frescas» quando não
+havia previsão carregada. Num documento aprovado. **Um fundamento que não se lê é pior do que
+um genérico: parece que houve leitura e não houve.** Passa a dizer que não há máxima do ciclo
+e que a vigilância não depende dela.

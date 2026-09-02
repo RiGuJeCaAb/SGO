@@ -130,8 +130,15 @@ test('sair do domínio publicado não inventa: extrapola preso e diz que saiu', 
   assert.equal(p.r, q.r, 'preso ao extremo quer dizer preso: não cresce para lá do quadro');
 });
 
-test('a propagação em matos fica no domínio que a literatura reconhece', semAplicacao, () => {
-  // Alexander (2000) por Fernandes (2003): de cerca de 1,5 m/h a cerca de 14 km/h.
+test('o domínio dos matos é o do quadro, e não o de uma fonte de floresta', semAplicacao, () => {
+  // **Esta asserção estava errada.** Validava o extremo contra Alexander (2000), «1,5 m/h a
+  // ~14 km/h em floresta», e passava com `max < 20000` — verdadeira, e sem significar nada.
+  // Estes quadros são de **matos**, e de fogo controlado de Outono e Primavera: a fonte era
+  // a errada, e por isso o teste não via os 14 820 m/h que o domínio inteiro produz.
+  //
+  // O que se afere agora sai do próprio quadro, que está conferido contra o impresso: a
+  // célula mais rápida vale 38 m/min, e é ela — não uma fonte de floresta — que diz até
+  // onde a tabela base chega. O que ultrapassa isso é obra das correções, e leva marca.
   const eixoU = avaliar(janela, 'Q_MAT_U'), eixoH = avaliar(janela, 'Q_MAT_H');
   let min = Infinity, max = 0;
   for (const u of eixoU) for (const h of eixoH) {
@@ -139,7 +146,13 @@ test('a propagação em matos fica no domínio que a literatura reconhece', semA
     min = Math.min(min, r); max = Math.max(max, r);
   }
   assert.ok(min >= 0, 'nenhuma célula do quadro é negativa');
-  assert.ok(max < 20000, `${max} m/h passa o que a literatura reconhece em floresta`);
+  assert.equal(Math.round(max), avaliar(janela, 'TECTO_QUADRO'),
+    'a 1 m de altura e em terreno plano, o máximo é a célula do canto do quadro');
+
+  // E o que as correções fazem por cima disso não passa sem marca.
+  const extremo = janela.propagacaoMatos(30, 8, 3.0, 50);
+  assert.ok(extremo.r > max, 'as correções passam o quadro');
+  assert.ok(extremo.marca, 'e o que passa o quadro não sai sem marca');
 });
 
 /* ---- a propagação em pinhal ---- */

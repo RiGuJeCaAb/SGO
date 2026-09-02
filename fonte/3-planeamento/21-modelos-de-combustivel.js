@@ -238,6 +238,61 @@ function humidadeCombustivel(hr, dias, tempC){
   return { v:r.v, fora:r.fora };
 }
 
+/* ---- o tecto de saída ------------------------------------------------------------
+   Os sinalizadores `fora` vigiam o **domínio das entradas**. Durante três revisões
+   ninguém vigiou o **valor que sai**, e a diferença não é académica: uma combinação
+   dentro de todos os domínios de entrada — vento 30 km/h, humidade 8 %, mato de 3 m,
+   declive de 50 % — devolve **14 820 m/h** sem uma palavra de reserva. São quarenta e uma
+   vezes o tecto que a fonte primária declara.
+
+   Os três números, e a proveniência de cada um, porque não é a mesma:
+
+   · **2 280 m/h** é a célula mais rápida do Quadro 3.4.1 (38 m/min, vento 30, humidade 8).
+     **Conferida contra o impresso** — ver `docs/FONTES.md`, chave `FOGOPT`. Acima disto,
+     nenhuma célula do quadro lá chega: só as correções de altura e declive lá põem.
+   · **360 m/h** (6 m/min) é o tecto acima do qual Fernandes (2001) desaconselha usar as
+     equações, por escassez de dados. **O artigo não está neste repositório**: o número
+     chegou pela linhagem paralela, que o leu na fonte. Fica declarado como tal.
+   · **1 200 m/h** (20 m/min) é a propagação mais rápida medida no conjunto de 29 fogos
+     desse artigo. Mesma proveniência, mesma reserva.
+
+   E há o que **está conferido em primeira mão** e pesa mais do que os três: o rodapé
+   impresso do Quadro 3.4.1 diz que são «velocidades de propagação de fogos a favor do
+   vento em **terreno plano (declive <5%)** para matos com 1 m de altura». A correção de
+   declive do Quadro 3.4.3, que chega a ×2,6 aos 50 %, aplica-se portanto **fora das
+   condições em que a tabela base foi medida** — e num vale de socalcos o declive é a
+   variável dominante.
+
+   A marca não impede o cálculo nem recusa: **acompanha o número**. Recusar aqui seria
+   deixar quem está no PCO sem estimativa nenhuma, que é pior; deixar passar sem marca é o
+   que estava a acontecer. */
+const TECTO_BAIXO = 360;      /* 6 m/min — Fernandes (2001), fonte não retida aqui */
+const TECTO_MEDIDO = 1200;    /* 20 m/min — o mais rápido dos 29 fogos desse conjunto */
+const TECTO_QUADRO = 2280;    /* 38 m/min — a célula mais rápida do Quadro 3.4.1, conferida */
+
+/**
+ * A marca que acompanha uma velocidade de propagação, ou vazio se estiver dentro do medido.
+ *
+ * Devolve o grau e a frase, e não só um rótulo: quem lê o PEA impresso não tem como saber
+ * o que «EXTRAPOLAÇÃO» quer dizer se a frase não for com ela.
+ */
+function marcaDeSaida(rMh){
+  if(!Number.isFinite(rMh) || rMh <= TECTO_BAIXO) return null;
+  /* Milhares separados como no resto da aplicação: catorze mil e oitocentos lê-se de
+     relance, «14820» conta-se pelos dedos. */
+  const n = v => Math.round(v).toLocaleString("pt-PT");
+  if(rMh > TECTO_MEDIDO) return { grau:"alem", r:"ALÉM DE QUALQUER FOGO MEDIDO",
+    d:"Os "+n(rMh)+" m/h estão acima dos "+n(TECTO_MEDIDO)+" m/h do fogo mais rápido do conjunto"
+      +" de 29 fogos que originou estes quadros"
+      +(rMh > TECTO_QUADRO? ", e acima dos "+n(TECTO_QUADRO)+" m/h da célula mais rápida do Quadro 3.4.1 —"
+        +" só as correções de altura e de declive lá chegam" : "")
+      +". Não é uma propagação prevista: é uma extrapolação para fora de tudo o que foi medido." };
+  return { grau:"extra", r:"EXTRAPOLAÇÃO",
+    d:"Os "+n(rMh)+" m/h estão acima dos "+n(TECTO_BAIXO)+" m/h (6 m/min) acima dos quais a fonte"
+      +" destes quadros desaconselha usá-los, por escassez de dados. O número serve para ordem de"
+      +" grandeza e para comparar cenários; não para sustentar sozinho uma decisão de manobra." };
+}
+
 /**
  * Velocidade de propagação em matos, em m/h.
  *
@@ -253,7 +308,13 @@ function propagacaoMatos(u2, hcm, altura, declive){
   if(base.fora) fora.push("vento ou humidade fora do Quadro 3.4.1 (vento 0,5–30 km/h a 2 m; humidade 8–40 %)");
   if(fa.fora)   fora.push("altura da vegetação fora do Quadro 3.4.2 (0,2–3,0 m)");
   if(fd.fora)   fora.push("declive fora do Quadro 3.4.3 (−40 % a 50 %)");
-  return { r: base.v * fa.v * fd.v * 60, rBase:base.v, fAlt:fa.v, fDecl:fd.v, fora };
+  const r = base.v * fa.v * fd.v * 60;
+  /* O rodapé impresso do Quadro 3.4.1 põe a tabela base em terreno plano, abaixo de 5 %.
+     Acima disso a correção de declive trabalha fora das condições da medição, e num vale
+     de socalcos é ela que domina o resultado. */
+  if(declive > 5) fora.push("declive de "+Math.round(declive)+" %: o Quadro 3.4.1 foi medido"
+    + " em terreno plano (declive <5 %), e a correção do Quadro 3.4.3 aplica-se fora dessas condições");
+  return { r, rBase:base.v, fAlt:fa.v, fDecl:fd.v, fora, marca: marcaDeSaida(r) };
 }
 
 /**
@@ -273,7 +334,14 @@ function propagacaoPinhal(u2, hcm, declive, tipo){
   const fora = [];
   if(base.fora) fora.push("vento ou humidade fora do Quadro 7.1 (vento 0,5–6,0 km/h à superfície; humidade 12–55 %)");
   if(fd.fora)   fora.push("declive fora do Quadro 7.2 (−40 % a 40 %)");
-  return { r: Math.max(0, base.v * fd.v + ad), rBase:base.v, fDecl:fd.v, adTipo:ad, fora };
+  const r = Math.max(0, base.v * fd.v + ad);
+  /* **Sem marca de saída.** Os tectos de 360 e 1 200 m/h são de Fernandes (2001), que é
+     sobre matos: aplicá-los ao pinheiro bravo seria emprestar a uma fonte o que ela não
+     diz — o mesmo erro de fonte trocada que este trabalho veio corrigir. Não conheço tecto
+     declarado para o guia E2, e o domínio inteiro destes quadros não passa dos 514 m/h,
+     pelo que a questão não se põe com a mesma acuidade. Quando aparecer o tecto do E2,
+     entra aqui. */
+  return { r, rBase:base.v, fDecl:fd.v, adTipo:ad, fora, marca:null };
 }
 
 /**

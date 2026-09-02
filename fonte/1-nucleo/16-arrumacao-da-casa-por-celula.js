@@ -149,6 +149,89 @@ const CARTOES_DOBRAVEIS = [
     cnt:"evo-count" }
 ];
 
+/* ================= a linha de estado do cabeçalho fechado =================
+   **O cabeçalho fechado é linha de estado, não título.** É a regra que decide todo este
+   mecanismo, e é o contrário do que um acordeão costuma fazer.
+
+   A aplicação inteira está construída para dizer o que falta. Um dobrável comum esconde o
+   conteúdo e deixa o título: quem fechasse um cartão deixava de ver que lá dentro há dois
+   campos obrigatórios por preencher, e passaria a emitir o PEA convencido de que estava
+   completo. Fechar tem de continuar a dizer o que lá está por fazer — o que se ganha é
+   espaço, não silêncio.
+
+   Daí as três regras:
+
+   1. Todo o cartão fechado diz o seu estado, e **um cartão sem nada a assinalar di-lo
+      também**: «nada a assinalar» distingue-se de um cabeçalho mudo, que não diz se
+      alguém verificou ou se ninguém olhou.
+   2. **O que tem obrigatório em falta abre sozinho**, e a preferência guardada não o
+      fecha. A pendência ganha sempre.
+   3. A preferência vive no `ARMAZEM`, **nunca no estado da ocorrência**. Ter o cartão da
+      logística fechado é uma conveniência de quem está ao teclado, não um facto da
+      ocorrência, e não tem nada que viajar na exportação nem na passagem de turno. */
+
+/* **Não há exceções.** Cheguei a deixar de fora a identificação da ocorrência, com o
+   argumento de que é o cartão de que tudo o resto depende. Vista no ecrã, a exceção não se
+   defendia: é o cartão mais alto da aplicação e ocupava o primeiro ecrã inteiro, que é
+   precisamente a queixa que trouxe este trabalho. E o argumento era desnecessário — a regra
+   da pendência já o mantém aberto enquanto lhe faltar um obrigatório, e depois de
+   preenchido não há razão para ocupar espaço. */
+
+/**
+ * O estado de um cartão: o que lhe falta, e se isso o obriga a abrir.
+ *
+ * As pendências localizam-se pelo elemento que cada uma declara, e não por uma tabela
+ * de cartões escrita à mão — ver `pendencias()`. O que aqui se faz é agrupá-las pelo
+ * cartão onde o elemento está.
+ */
+function estadoDoCartao(c){
+  let falta = 0, rec = 0;
+  try{
+    pendencias().forEach(x=>{
+      if(x.ok || !x.el) return;
+      const el = document.getElementById(x.el); if(!el) return;
+      if(el.closest(".card") !== c) return;
+      if(x.ob) falta++; else rec++;
+    });
+  }catch(e){ /* antes de o estado existir não há pendências a contar */ }
+
+  const d = CARTOES_DOBRAVEIS.find(x=>x.h === tituloCartao(c));
+  let cont = "";
+  if(d && d.contar){ try{ cont = d.contar() || ""; }catch(e){ cont = ""; } }
+
+  const p = [];
+  if(falta) p.push(falta + (falta===1? " obrigatório em falta" : " obrigatórios em falta"));
+  if(rec)   p.push(rec + (rec===1? " recomendado por preencher" : " recomendados por preencher"));
+  /* A contagem de um cartão que a pinta no seu próprio elemento não se repete aqui: já
+     está no cabeçalho, ao lado. */
+  if(cont && !(d && d.cnt)) p.push(cont);
+
+  /* «Nada a assinalar» só se diz quando não há mais nada a dizer. Num cartão que traz
+     contagem própria — «sem registos» na linha de evolução — a contagem já é a linha de
+     estado, e acrescentar-lhe «nada a assinalar» ao lado é ruído a dizer o mesmo. */
+  const texto = p.length ? p.join(" · ") : (cont || "nada a assinalar");
+
+  /* Só o obrigatório obriga a abrir. Se o recomendado também obrigasse, tudo ficaria
+     sempre aberto e o mecanismo não serviria para nada — que é o mesmo que não o ter. */
+  return { texto, falta, rec, pendente: falta > 0 };
+}
+
+/** A chave onde vive a preferência de dobra. Local ao dispositivo, fora da ocorrência. */
+const DOBRA_CHAVE = "peaapp:dobra";
+let DOBRA = {};
+
+/** Lê a preferência guardada. Falhar não é erro: a aplicação abre com a regra por omissão. */
+async function carregarDobra(){
+  try{ const r = await ARMAZEM.get(DOBRA_CHAVE); DOBRA = JSON.parse(r.value || "{}") || {}; }
+  catch(e){ DOBRA = {}; }
+}
+
+/** Grava a preferência. O que se guarda é o título do cartão, que é o que o utilizador vê. */
+async function guardarDobra(h, on){
+  DOBRA[h] = on? 1 : 0;
+  try{ await ARMAZEM.set(DOBRA_CHAVE, JSON.stringify(DOBRA)); }catch(e){}
+}
+
 /**
  * Transforma cada cartão declarado num dobrável.
  *
@@ -157,33 +240,56 @@ const CARTOES_DOBRAVEIS = [
  * reconhece-se pela classe.
  */
 function dobrarCartoes(){
-  CARTOES_DOBRAVEIS.forEach(d=>{
-    const c = cartaoPorTitulo(d.h); if(!c || c.classList.contains("dobravel")) return;
-    const h2 = c.querySelector("h2"); if(!h2) return;
-    c.classList.add("dobravel");
-    /* o conteúdo vai para um contentor próprio; o cabeçalho fica de fora e vira botão */
-    const corpo = document.createElement("div");
-    corpo.className = "cd-corpo";
-    while(h2.nextSibling) corpo.appendChild(h2.nextSibling);
-    c.appendChild(corpo);
-    h2.classList.add("cd-cab");
-    h2.setAttribute("role", "button");
-    h2.setAttribute("tabindex", "0");
-    h2.setAttribute("aria-expanded", "false");
-    /* Procura-se dentro do próprio cartão e não pelo documento: a arrumação por
-       células move os cartões, e um `getElementById` no momento errado apanha o
-       elemento antes de estar onde vai ficar — ou não o apanha, e ficam duas contagens
-       a dizer o mesmo lado a lado. */
-    const ex = d.cnt ? c.querySelector("#" + d.cnt) : null;
-    if(ex){ ex.classList.add("cd-cnt", "cd-cnt-ex"); h2.appendChild(ex); }
-    else { const cnt = document.createElement("span"); cnt.className = "cd-cnt"; h2.appendChild(cnt); }
-    const alternar = ()=>abrirCartao(c, !c.classList.contains("aberto"));
-    h2.addEventListener("click", alternar);
-    h2.addEventListener("keydown", ev=>{
-      if(ev.key===" " || ev.key==="Enter"){ ev.preventDefault(); alternar(); }
-    });
-  });
+  /* Todos os cartões dos painéis vivos, e já não só os declarados: o problema que isto
+     veio resolver é que **todos** cresceram, e não só a fita do tempo. Os declarados
+     continuam a valer — é deles que vem a contagem que o cabeçalho mostra. */
+  const VIVOS = "#p-comando,#p-planeamento,#p-operacoes,#p-logistica,#p-turno";
+  [...document.querySelectorAll(".card")]
+    .filter(c=>c.closest(VIVOS))
+    .forEach(c=>dobrarCartao(c));
   pintarContagens();
+}
+
+/** Dobra um cartão. Correr duas vezes não duplica nada — o dobrado reconhece-se pela classe. */
+function dobrarCartao(c){
+  if(c.classList.contains("dobravel")) return;
+  const h2 = c.querySelector("h2"); if(!h2) return;
+  /* Sem recuo para `{}`: um recuo com forma diferente da real alarga o tipo até deixar
+     de dizer nada, e o verificador passaria a não saber que o cartão declarado tem `cnt`.
+     Nem todo o cartão está declarado, e é isso que o `d &&` diz. */
+  const d = CARTOES_DOBRAVEIS.find(x=>x.h === tituloCartao(c));
+  c.classList.add("dobravel");
+
+  /* O conteúdo vai para um contentor próprio; o cabeçalho fica de fora e vira botão. */
+  const corpo = document.createElement("div");
+  corpo.className = "cd-corpo";
+  while(h2.nextSibling) corpo.appendChild(h2.nextSibling);
+  c.appendChild(corpo);
+  h2.classList.add("cd-cab");
+  h2.setAttribute("role", "button");
+  h2.setAttribute("tabindex", "0");
+  h2.setAttribute("aria-expanded", "false");
+
+  /* Procura-se dentro do próprio cartão e não pelo documento: a arrumação por células
+     move os cartões, e um `getElementById` no momento errado apanha o elemento antes de
+     estar onde vai ficar — ou não o apanha, e ficam duas contagens a dizer o mesmo lado
+     a lado. */
+  const ex = (d && d.cnt) ? c.querySelector("#" + d.cnt) : null;
+  if(ex){ ex.classList.add("cd-cnt", "cd-cnt-ex"); h2.appendChild(ex); }
+  else { const cnt = document.createElement("span"); cnt.className = "cd-cnt"; h2.appendChild(cnt); }
+
+  /* Fechar um cartão com obrigatório em falta não fica guardado: a pendência ganha
+     sempre, e da próxima vez volta a abrir. Guardar essa preferência seria deixar o
+     utilizador esconder de si próprio o que a aplicação existe para lhe dizer. */
+  const alternar = ()=>{
+    const on = !c.classList.contains("aberto");
+    abrirCartao(c, on);
+    if(!estadoDoCartao(c).pendente) guardarDobra(tituloCartao(c), on);
+  };
+  h2.addEventListener("click", alternar);
+  h2.addEventListener("keydown", ev=>{
+    if(ev.key===" " || ev.key==="Enter"){ ev.preventDefault(); alternar(); }
+  });
 }
 
 /* Abrir um não fecha os outros: não é acordeão exclusivo, que obrigaria a fechar a
@@ -198,12 +304,33 @@ function abrirCartao(c, on){
 /* A contagem no cabeçalho tem de acompanhar o que está lá dentro, aberto ou fechado:
    é a única coisa que se vê quando o cartão está fechado. */
 function pintarContagens(){
-  CARTOES_DOBRAVEIS.forEach(d=>{
-    if(!d.contar) return;   /* a contagem é de quem a criou; não se escreve por cima */
-    const c = cartaoPorTitulo(d.h); if(!c) return;
+  document.querySelectorAll(".card.dobravel").forEach(c=>{
     const el = c.querySelector(":scope > h2 > .cd-cnt"); if(!el) return;
-    let t = ""; try{ t = d.contar() || ""; }catch(e){ t = ""; }
-    el.textContent = t;
+    const e = estadoDoCartao(c);
+
+    /* A contagem que o cartão já trazia é de quem a criou e não se escreve por cima —
+       é o caso da linha de evolução, que tem a sua própria etiqueta no cabeçalho. Nesses
+       o estado vai para um segundo elemento, ao lado. */
+    const proprio = el.classList.contains("cd-cnt-ex");
+    let alvo = el;
+    if(proprio){
+      alvo = c.querySelector(":scope > h2 > .cd-est");
+      if(!alvo){ alvo = document.createElement("span"); alvo.className = "cd-cnt cd-est"; el.after(alvo); }
+    }
+    /* Num cartão de contagem própria, o estado só fala quando tem algo a dizer: a
+       contagem que já lá está é a linha de estado, e «sem registos · nada a assinalar»
+       são duas maneiras de dizer o mesmo lado a lado. */
+    alvo.textContent = (proprio && !e.falta && !e.rec) ? "" : e.texto;
+    alvo.classList.toggle("cd-falta", e.falta > 0);
+    alvo.classList.toggle("cd-rec", e.falta === 0 && e.rec > 0);
+
+    /* A pendência abre o cartão e mantém-no aberto. Fora disso vale a preferência
+       guardada, e na ausência dela o cartão fica fechado — que é o ponto de tudo isto:
+       um painel só com o que precisa de atenção aberto. */
+    const h = tituloCartao(c);
+    if(e.pendente) abrirCartao(c, true);
+    else if(!c.classList.contains("cd-tocado")) abrirCartao(c, DOBRA[h] === 1);
+    c.classList.add("cd-tocado");
   });
 }
 
