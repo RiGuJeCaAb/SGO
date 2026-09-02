@@ -82,6 +82,23 @@ nasce vazio. Passa a haver `RENDIDOS` em `ferramentas/manual.mjs`: cada rótulo 
 declara em que módulo é escrito, e o texto tem de lá estar tal e qual. Provado a renomear
 um botão: a verificação falha, com código de saída 1.
 
+## O que estava na entrada, e o index.html da raiz
+
+**A entrada esvaziou-se.** O que lá estava a 2 de setembro às 15h32 era
+`CSREPCDouro_r0081_202609021450_EstacaoPEA_CLD.html` — **byte a byte a mesma entrega** que
+já estava arrumada em `app/`, confirmado por SHA-256. Não havia nada para arrumar e nada se
+perdeu: apagou-se a cópia.
+
+**O `index.html` da raiz fica, e passa a ser gerado.** Foi carregado à mão no mesmo minuto,
+e é a cópia que o GitHub serve — intenção legítima, e a única forma de abrir a Estação a
+partir de um endereço. Mas uma cópia à mão envelhece: aquela servia a r0081 no momento em
+que a r0083 estava montada, e nada no repositório o denunciava.
+
+Passa a ser reescrita por `npm run montar`, sempre que a entrega vai para `app/` — uma
+montagem de trabalho com `--saida` não lhe toca. E há um teste que confere que é igual à
+entrega mais recente, byte a byte, provado a acrescentar um comentário ao ficheiro. **Não se
+edita à mão**, tal como as entregas de `app/`.
+
 ## Decisões tomadas
 
 Por ordem em que foram tomadas.
