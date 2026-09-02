@@ -409,11 +409,29 @@ fogo, e isso muda três coisas no documento:
 |---|---|
 | Análise da zona de intervenção | O combustível e a carga, a intensidade e o comprimento da chama, o terreno e o perfil, a idade da previsão e a cartografia em uso — **ou o que falta de cada um** |
 | Propostas | A primeira proposta decorre da intensidade da frente, quando ela é conhecida: interdição de ataque à cabeça, ataque com apoio aéreo, ataque direto admissível, ou supressão manual, conforme a faixa |
+| Análise da zona de intervenção | Os avisos que escreveu no mapa, por extenso; as notas de manobra e observação, contadas; e os focos de calor de satélite, com a confiança e a origem |
 | Medidas de segurança | A distância mínima à frente de chamas **em metros**, e não como princípio |
 
 Cada fundamento traz o valor e **a origem da prova** — se a velocidade de propagação foi
 observada no teatro ou estimada pelos guias de fogo controlado. A proposta não se enfraquece
 por ser estimada: quem aprova é o COS, e o que lhe cabe saber é o que está a aprovar.
+
+### Os números das propostas, e o que os identifica
+
+No PEA impresso as propostas vão numeradas por ordem de leitura — P1, P2, P3. **Dentro de um
+documento isso é claro; entre documentos não é.** Quando uma proposta deixa de fazer sentido —
+a reserva constitui-se, a linha estreita é alargada — ela desaparece, e tudo o que estava por
+baixo sobe uma posição. A P2 do PEA n.º 5 não é a P2 do n.º 4.
+
+Por isso o **controlo de execução** — a lista de missões e propostas que se marca como
+cumpridas, e que acompanha a passagem de turno — não usa esse número. Usa uma identidade
+própria de cada proposta, e mostra ao lado o número com que ela saiu no papel:
+
+> `LINHA-ESTREITA · P3 no papel · Proposta`
+
+Assim «cumprimos a LINHA-ESTREITA» quer dizer a mesma coisa em qualquer versão do plano, e
+continua a poder confrontar-se com o documento que o COS aprovou. **Um PEA já emitido nunca é
+reetiquetado**: fica com os números com que saiu.
 
 Além disso, o plano passa a pedir o que falta: uma linha de contenção estreita de mais para a
 chama calculada, uma linha sem largura declarada, uma frente cujo rumo foi deduzido do traçado

@@ -83,6 +83,22 @@ function retratoDoFogo(){
     estreita: !!(lim && l.larguraM && l.larguraM < lim.contencao),
     semLargura: l.larguraM === null || l.larguraM === undefined }));
 
+  /* --- as notas escritas no mapa --- */
+  const nt = (Array.isArray(D.notas)? D.notas : []).map(x=>({
+    /* O campo é `txt` e não `texto` — escrevi `texto` e o verificador de tipos apanhou-o.
+       Sem ele, o aviso chegava ao plano como cadeia vazia: uma linha de média tensão sobre
+       o caminho apareceria no PEA como «Avisos escritos no mapa: .» */
+    tipo:x.tipo, texto:x.txt||"", setor:x.setor||"",
+    /* Um aviso não é uma observação. A distinção já está declarada em `TIPOS_NOTA` e é
+       operacional: o que restringe ou avisa tem consequência para quem lá vai. */
+    alerta: !!(typeof defNota === "function" && defNota(x.tipo).alerta) }));
+
+  /* --- os focos de calor vistos por satélite --- */
+  const fo = (D.focos && Array.isArray(D.focos.itens))? D.focos.itens : [];
+  const porConfianca = { alta:0, nominal:0, baixa:0 };
+  fo.forEach(x=>{ const g = (typeof confiancaDoFoco === "function")? confiancaDoFoco(x.conf).grau : "";
+    if(g && porConfianca[g] !== undefined) porConfianca[g]++; });
+
   /* --- o que foi detetado à volta e ainda não foi validado --- */
   const det = (D.sensDet && Array.isArray(D.sensDet.itens))? D.sensDet.itens : [];
   const texto = String(D.sensiveis||"").toLowerCase();
@@ -105,7 +121,9 @@ function retratoDoFogo(){
       ? epsilonDosQuadros(ventoSuperficie(num(E.u10)), num(E.hcm), num(E.declive)) : null,
     hcm: num(E.hcm), hcmOrigem: E.hcmOrigem || "",
     topo: (D.topo && (D.topo.orient || D.topo.declive))? D.topo : null,
-    perfil, frentes:fr, linhas:ln,
+    perfil, frentes:fr, linhas:ln, notas:nt,
+    focos: fo.length? { n:fo.length, porConfianca,
+      origem:(D.focos.origem||""), g:(D.focos.g||"") } : null,
     detetados: { total:det.length, porValidar: porValidar.map(x=>x.nome+" a "+x.dist+" m") },
     carta: {
       servico: (typeof CARTA !== "undefined" && CARTA)? (CARTA.atrib || CARTA.tipo || "declarado") : "",
@@ -155,6 +173,18 @@ function resumoDoFogo(f){
     + (f.previsao.velha? " — DESATUALIZADA, confirmar antes de decidir sobre ela." : "."));
   else p.push("Sem previsão carregada: a análise meteorológica desta proposta está em falta.");
 
+  const av = f.notas.filter(x=>x.alerta);
+  if(av.length) p.push("Avisos escritos no mapa: " + av.map(x=>x.texto).join("; ") + ".");
+  const outras = f.notas.length - av.length;
+  if(outras) p.push(outras + (outras===1? " nota de manobra ou observação no mapa."
+    : " notas de manobra ou observação no mapa."));
+
+  if(f.focos) p.push("Focos de calor detetados por satélite: " + f.focos.n
+    + (f.focos.porConfianca.alta? ", " + f.focos.porConfianca.alta + " de confiança alta" : "")
+    + (f.focos.origem? ", de " + f.focos.origem : "")
+    + (f.focos.g? ", obtidos " + f.focos.g : "")
+    + ". São observação de satélite e não substituem o que o posto traçou.");
+
   const c = [];
   if(f.carta.servico) c.push("serviço declarado: " + f.carta.servico);
   if(f.carta.local) c.push("carta pré-descarregada: " + f.carta.local);
@@ -162,4 +192,61 @@ function resumoDoFogo(f){
     : "Sem cartografia declarada: as posições deste plano não têm base cartográfica identificada.");
 
   return p.join(" ");
+}
+
+/* ================= a regra que impede o buraco de reabrir =================
+   O `p0020` corrigiu esta falha para onze painéis. **Na mesma sessão, esta linhagem
+   acrescentou as notas do mapa e os focos de calor, e nenhum dos dois entrou no colector.**
+   A falha repetiu-se enquanto a correção ainda estava fresca, o que diz o que era preciso
+   saber: um remendo não resolve um problema estrutural.
+
+   Um ramo de `O.dados` com dono declarado em `POSSE` e sem contributo para nenhum dos três
+   colectores — `retratoOperacional()` para o dispositivo, `metricas()` para a meteorologia,
+   `retratoDoFogo()` para o resto — é **um painel que escreve para o vazio**: alguém preenche,
+   a aplicação guarda, e o plano nunca o cita.
+
+   Nem todo o ramo tem de contribuir, e por isso a declaração aceita as duas respostas. O que
+   não aceita é o silêncio: um ramo que não esteja aqui faz falhar a auditoria, e quem
+   acrescentar um painel tem de dizer o que ele leva ao plano — ou porque não leva. */
+const CONTRIBUI = [
+  { p:"dados.area",       onde:"analise_zi",    q:"a área ardida abre a análise da zona de intervenção" },
+  { p:"dados.sensiveis",  onde:"analise_zi",    q:"os pontos sensíveis são citados na análise e na defesa perimétrica" },
+  { p:"dados.sensDet",    onde:"retratoDoFogo", q:"os detetados e ainda não validados geram proposta de validação com o ERAS" },
+  { p:"dados.topo",       onde:"retratoDoFogo", q:"a orientação e o declive dominantes entram no resumo do ambiente de fogo" },
+  { p:"dados.perfil",     onde:"retratoDoFogo", q:"o declive máximo e onde está; o salto de classe gera proposta própria" },
+  { p:"dados.fogo",       onde:"retratoDoFogo", q:"R e w dão a intensidade, e dela sai a primeira proposta do plano" },
+  { p:"dados.fogo.est",   onde:"retratoDoFogo", q:"o modelo de combustível, a origem do R e a marca de saída" },
+  { p:"dados.frentes",    onde:"retratoDoFogo", q:"o rumo e a sua fonte; um rumo deduzido gera proposta de confirmação" },
+  { p:"dados.linhas",     onde:"retratoDoFogo", q:"a largura confronta-se com a chama calculada e gera duas propostas" },
+  { p:"dados.notas",      onde:"retratoDoFogo", q:"os avisos escritos no mapa entram no resumo, distintos das observações" },
+  { p:"dados.focos",      onde:"retratoDoFogo", q:"a contagem e a confiança dos focos, com a origem e a hora" },
+  { p:"dados.est.n",      onde:"retratoOperacional", q:"o número de setores é a base do dispositivo" },
+  { p:"dados.est.setores",onde:"retratoOperacional", q:"estados, comandos e meios de cada setor" },
+  { p:"dados.est.aer",    onde:"retratoOperacional", q:"os meios aéreos entram na contagem do dispositivo" },
+  { p:"dados.est.aerL",   onde:"retratoOperacional", q:"a lista nominal dos aéreos, para as rendições" },
+  { p:"dados.est.livre",  onde:"retratoOperacional", q:"o modo livre da setorização muda como o dispositivo se lê" },
+  { p:"dados.setores",    onde:"retratoOperacional", q:"a descrição textual dos setores acompanha o quadro" },
+
+  /* Os que não contribuem, e a razão. Nenhum é esquecimento. */
+  { p:"dados.perim",      onde:null, q:"o perímetro é geometria: dá a área, e é a área que entra no plano" },
+  { p:"dados.perimNome",  onde:null, q:"nome do ficheiro de origem do perímetro — proveniência, não matéria de plano" },
+  { p:"dados.pontos",     onde:null, q:"pontos notáveis do mapa; entram no croqui e na carta, não no texto do PEA" },
+  { p:"dados.anexos",     onde:null, q:"anexos da ocorrência; viajam na exportação e não se citam no plano" }
+];
+
+/**
+ * Ramos de `O.dados` com dono declarado e sem contributo declarado para o plano.
+ *
+ * Devolve o que falta, para o teste o dizer pelo nome. **Não olha ao código**: confere que
+ * existe uma declaração, que é o mínimo para que a omissão não passe em silêncio. Se alguém
+ * declarar um contributo que não existe, isso é uma mentira que esta auditoria não apanha —
+ * apanha-a o teste do colector, que exercita o caminho.
+ */
+function auditarContributos(){
+  const donos = POSSE.flatMap(c=>c.ramos.map(r=>r.p)).filter(p=>p.indexOf("dados.") === 0);
+  const declarados = new Set(CONTRIBUI.map(x=>x.p));
+  const semDeclaracao = donos.filter(p=>!declarados.has(p));
+  const semRazao = CONTRIBUI.filter(x=>!x.q).map(x=>x.p);
+  const orfas = CONTRIBUI.filter(x=>!donos.includes(x.p)).map(x=>x.p);
+  return { n:donos.length, semDeclaracao, semRazao, orfas };
 }

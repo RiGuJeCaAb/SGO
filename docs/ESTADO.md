@@ -2913,3 +2913,59 @@ da ocorrência de Paraduça. É a primeira prova do PEA impresso fora deste ambi
 cadeia de substituição a funcionar.
 
 Em `docs/pea-reais/`: o `PEA02rev2` do Castedo em PDF, na forma em que circulou.
+
+## r0080 — a identidade das propostas, e o buraco do colector fechado por regra
+
+As duas que a linhagem paralela dizia serem prioritárias, «porque são as que fazem o plano
+dizer coisas que não são verdade sobre si próprio».
+
+### A identidade das propostas
+
+`controloMissoes` fazia `k: x.id || "P"`, e o `id` é renumerado por posição no fim do
+`detDecisao`. **P3 no PEA n.º 4 não era a mesma proposta que P3 no n.º 5.** Bastava uma
+proposta cair entre planos para tudo o que estava por baixo subir uma posição, e «cumprimos a
+P2» deixava de ter significado estável num documento que é aprovado, executado e auditado.
+
+Cada regra passa a declarar a sua **chave estável** — `LIM-INTERDITO`, `LINHA-ESTREITA`,
+`RESERVA` —, e são 24. O `id` continua posicional, porque dentro de um documento «P2» é o
+segundo item e é assim que se lê no papel; o item de controlo guarda os dois, e mostra
+«`LINHA-ESTREITA · P3 no papel`».
+
+**As quatro faixas de intensidade levam chaves distintas, de propósito.** «Interditar o ataque
+à cabeça» e «ataque direto admissível» são instruções opostas: partilhar chave faria uma
+aparecer como cumprida quando a outra nunca chegou a ser dada.
+
+A via do modelo de linguagem não tem regras, e as propostas que ela produz recebem chave
+derivada do próprio texto, com prefixo `T-`. **Estável enquanto o texto não mudar, que é a
+única promessa honesta que se pode fazer sobre ela** — e o prefixo diz de onde veio, para
+ninguém a confundir com uma chave declarada.
+
+Os PEA já emitidos não são reetiquetados: ficam com os números com que saíram. Reescrevê-los
+falsificaria um documento que foi aprovado.
+
+### As notas e os focos no colector — e a regra, que vale mais
+
+Entraram no `retratoDoFogo()`. Os avisos escritos no mapa vão por extenso para a análise da
+zona de intervenção — a distinção entre aviso e observação já estava em `TIPOS_NOTA` e é
+operacional; as notas de manobra e observação contam-se, para não desaparecerem. Os focos de
+calor entram com a contagem, a confiança, a origem e a hora, e com a ressalva de que **não
+substituem o que o posto traçou**.
+
+Mas o remendo é o menos importante. **A falha tinha-se repetido enquanto a correção do `p0020`
+ainda estava fresca**, e isso diz que o problema é estrutural. Passa a haver `CONTRIBUI`: cada
+ramo de `O.dados` com dono declarado em `POSSE` diz **o que leva ao plano, ou porque não leva**.
+São 21, e quatro deles estão declarados como não contribuindo, com a razão escrita. Um ramo
+sem declaração faz falhar a auditoria e acende o aviso na passagem de turno, ao lado das outras.
+
+O teste prova que a auditoria vê, e não que passa por não olhar: acrescenta um ramo à `POSSE`,
+confere que é apanhado, e repõe.
+
+### O verificador de tipos apanhou um defeito que o meu teste não apanhou
+
+O campo de uma nota é `txt`, não `texto`. Escrevi `x.texto||""` no colector, e **o teste passou
+porque inventou a mesma forma errada nos dados de ensaio**. Sem o verificador, um aviso de
+linha de média tensão sobre o caminho chegaria ao PEA como «Avisos escritos no mapa: .»
+
+É a segunda vez que fabrico a forma em vez de usar a real — a primeira foi o
+`webkitRelativePath` com `defineProperty`. O teste passa a usar a forma declarada em
+`tipos/estacao.d.ts` e a exigir que o texto chegue mesmo.

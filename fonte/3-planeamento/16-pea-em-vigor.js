@@ -45,12 +45,46 @@ function baseVigor(){
     pt:ptObj().des||"", cmd:canaisObj().cmd||"", tat:canaisObj().tat||"",
     evoIdx:O.evolucao.length };
 }
-/** As missões e propostas do plano, em itens de controlo por cumprir. */
+/**
+ * As missões e propostas do plano, em itens de controlo por cumprir.
+ *
+ * **A chave de um item de controlo é a identidade da regra, não a sua posição.** Fazia
+ * `k: x.id || "P"`, e o `id` é renumerado por posição no fim do `detDecisao` — logo P3 no
+ * PEA n.º 4 não era a mesma proposta que P3 no n.º 5. Bastava uma proposta cair entre
+ * planos — a reserva constitui-se, a linha estreita é alargada — para tudo o que estava por
+ * baixo subir uma posição, e «cumprimos a P2» deixava de ter significado estável num
+ * documento que é aprovado, executado e auditado.
+ *
+ * Guarda-se também o `ord`, que é o número com que a proposta saiu **naquele** PEA: é o que
+ * está escrito no papel que o COS aprovou, e sem ele não se liga o item de controlo ao
+ * documento impresso.
+ *
+ * Uma proposta sem chave declarada é da via do modelo de linguagem, que não tem regras.
+ * Essa fica com a chave derivada do próprio texto — estável enquanto o texto não mudar, que
+ * é a única promessa honesta que se pode fazer sobre ela.
+ */
 function controloMissoes(ops){
   const out = [];
-  (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
-  (ops.propostas||[]).forEach(x=>out.push({k:x.id||"P", tipo:"Proposta", texto:x.texto||"", estado:0}));
+  (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), ord:"M"+(i+1),
+    tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
+  (ops.propostas||[]).forEach(x=>out.push({k:x.ch || chaveDoTexto(x.texto||""), ord:x.id||"P",
+    tipo:"Proposta", texto:x.texto||"", estado:0}));
   return out;
+}
+
+/**
+ * Uma chave estável derivada do texto, para as propostas que não declaram a sua.
+ *
+ * Não é criptografia e não precisa de ser: precisa de dar a mesma chave para o mesmo texto e
+ * chaves diferentes para textos diferentes, dentro de um plano com meia dúzia de propostas.
+ * O prefixo `T-` diz de onde veio — ninguém deve confundir uma chave derivada do texto com
+ * uma chave declarada numa regra, porque a primeira muda quando alguém reescreve a frase.
+ */
+function chaveDoTexto(txt){
+  let h = 0;
+  const s = String(txt).trim().toLowerCase().replace(/\s+/g, " ");
+  for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) | 0; }
+  return "T-" + Math.abs(h).toString(36).toUpperCase().slice(0, 6);
 }
 /* ================= os três estados de uma proposta de PEA =================
    A elaboração é da célula de planeamento; a aprovação e a determinação são do COS —
@@ -206,7 +240,7 @@ function renderVigor(){
     : '<p class="hint">Sem divergências registadas: o dispositivo é o que fundamentou o plano.</p>';
   const msBloco = ctrl.length
     ? ctrl.map((x,i)=>`<div class="ms-r ${x.estado===2? "feita":""}">
-        <span class="ms-t"><small>${esc(x.k)} · ${esc(x.tipo)}</small>${esc(x.texto)}</span>
+        <span class="ms-t"><small>${esc(x.k)}${x.ord && x.ord !== x.k? " · "+esc(x.ord)+" no papel" : ""} · ${esc(x.tipo)}</small>${esc(x.texto)}</span>
         <button type="button" class="ms-b ${MS_EST[x.estado].c}" data-ms="${i}">${MS_EST[x.estado].r}</button>
       </div>`).join("")
     : '<p class="hint">Esta proposta não trouxe missões com controlo de execução.</p>';
@@ -282,50 +316,55 @@ function detDecisao(novas, anterior){
       /* Limite de manobra antes de tudo o resto. O número existe, tem fonte e tem origem
          declarada; deixá-lo fora do plano para repetir uma regra genérica era a falha que
          este trabalho corrige. */
-      (F.lim && !F.lim.direto)&&{id:"PI",
+      (F.lim && !F.lim.direto)&&{id:"PI", ch:"LIM-INTERDITO",
         texto:`Interdição de ataque direto à cabeça: a intensidade frontal estimada é de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m. `
           +`Ataque à cabeça apenas por meios aéreos ou indiretamente, com ancoragem pelos flancos e pela retaguarda. `
           +`Ninguém a menos de ${F.lim.seguranca} m da frente de chamas.`,
         fundamento:`${Math.round(F.r.v)} m/h (${F.r.origem}) sobre ${F.w.v} t/ha dão ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m e chama de ${F.lim.chama.toFixed(1).replace(".", ",")} m — acima dos 4 000 kW/m o controlo frontal é impossível (Alexander 2000, via Fernandes 2003); DON n.º 2, Anexo 3, situação n.º 10.`},
-      (F.lim && F.lim.direto && F.lim.i >= 2000)&&{id:"PI",
+      (F.lim && F.lim.direto && F.lim.i >= 2000)&&{id:"PI", ch:"LIM-AEREO",
         texto:`Ataque à cabeça com apoio de meios aéreos; vigilância permanente de focos secundários a sotavento, com equipa dedicada.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): acima dos 2 000 kW/m a projeção de faúlhas é expectável e acima dos 4 000 o fogo de copas é quase certo (Alexander 2000).`},
-      (F.lim && F.lim.direto && F.lim.i >= 500 && F.lim.i < 2000)&&{id:"PI",
+      (F.lim && F.lim.direto && F.lim.i >= 500 && F.lim.i < 2000)&&{id:"PI", ch:"LIM-TERRESTRE",
         texto:`Ataque direto à cabeça admissível com meios terrestres sob pressão de água; máquinas de rasto em apoio à abertura de faixas, com veículo de combate a acompanhar cada máquina.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): entre 500 e 2 000 kW/m os meios terrestres são eficazes (Alexander 2000, via Fernandes 2003).`},
-      (F.lim && F.lim.i < 500)&&{id:"PI",
+      (F.lim && F.lim.i < 500)&&{id:"PI", ch:"LIM-MANUAL",
         texto:`Supressão com equipamento de sapador nas frentes de menor intensidade; reservar os meios com água para os troços de maior desenvolvimento.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m — abaixo dos 500 kW/m o equipamento manual é eficaz (Alexander 2000).`},
-      (F.perfil && F.perfil.salto)&&{id:"PQ",
+      (F.perfil && F.perfil.salto)&&{id:"PQ", ch:"SALTO-DECLIVE",
         texto:`Suspender a validade da previsão de propagação a partir da quebra de ${F.perfil.salto.para} % a ${String(F.perfil.salto.km).replace(".", ",")} km segundo ${F.perfil.rot}; reconhecimento obrigatório antes de empenhar meios para lá desse ponto.`,
         fundamento:`Passar de ${F.perfil.salto.deRef} % para ${F.perfil.salto.para} % multiplica a componente de declive por cerca de ${String(F.perfil.salto.k).replace(".", ",")}. A razão entre declives é independente do modelo de combustível, pelo que o salto é afirmável mesmo sem ele.`},
-      (F.lim && F.linhas.some(l=>l.estreita))&&{id:"PL",
+      (F.lim && F.linhas.some(l=>l.estreita))&&{id:"PL", ch:"LINHA-ESTREITA",
         texto:`Alargar as linhas de contenção com menos de ${String(F.lim.contencao).replace(".", ",")} m de largura útil antes de as considerar ancoragem: ${F.linhas.filter(l=>l.estreita).map(l=>(l.setor? "setor "+l.setor+", ":"")+String(l.larguraM).replace(".", ",")+" m").join("; ")}.`,
         fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${F.lim.chama.toFixed(1).replace(".", ",")} m), e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).`},
-      (F.linhas.some(l=>l.semLargura))&&{id:"PW",
+      (F.linhas.some(l=>l.semLargura))&&{id:"PW", ch:"LINHA-SEM-LARGURA",
         texto:`Declarar a largura útil das linhas já traçadas sem dimensão indicada${F.linhas.filter(l=>l.semLargura).some(l=>l.setor)? " ("+F.linhas.filter(l=>l.semLargura&&l.setor).map(l=>"setor "+l.setor).join(", ")+")":""}: sem largura não é possível aferir se servem de ancoragem.`,
         fundamento:"Linhas traçadas no teatro sem largura útil registada; a largura decide se a linha suporta a frente ou se apenas a atrasa."},
-      (F.frentes.some(f=>f.rumoFonte === "sugerido pelo traçado"))&&{id:"PN",
+      (F.frentes.some(f=>f.rumoFonte === "sugerido pelo traçado"))&&{id:"PN", ch:"RUMO-POR-CONFIRMAR",
         texto:`Confirmar por observação o rumo de progressão das frentes cujo rumo foi deduzido do traçado antes de fixar a ordem de esforço.`,
         fundamento:`${F.frentes.filter(f=>f.rumoFonte === "sugerido pelo traçado").length} frente(s) com rumo sugerido pela geometria e não observado; a ordem de esforço assenta na direção de progressão.`},
-      (F.detetados.porValidar.length)&&{id:"PS",
+      (F.detetados.porValidar.length)&&{id:"PS", ch:"SENSIVEIS-DETETADOS",
         texto:`Validar com o ERAS os pontos sensíveis detetados e ainda não constantes do plano: ${F.detetados.porValidar.slice(0,4).join("; ")}${F.detetados.porValidar.length>4? " e mais "+(F.detetados.porValidar.length-4):""}.`,
         fundamento:"Instalações sensíveis identificadas na deteção cartográfica e ausentes do campo de pontos sensíveis — art. 27.º, n.º 1, al. b)."},
-      r.reativados.length&&{id:"PR",texto:`Prioridade absoluta à reativação em ${nomes(r.reativados)}: reforço imediato, reavaliação do perímetro e confirmação de rotas de fuga antes de qualquer outro empenho.`,fundamento:`Setor${r.reativados.length>1?"es":""} em reativação no quadro de estados; a reativação altera a ordem de esforço fixada na proposta anterior.`},
-      (r.nAtivos===0 && r.setores.length>0)&&{id:"PC",texto:`Sem frentes ativas: transição para consolidação de rescaldo e vigilância ativa em ${nomes(r.setores)}, com desmobilização faseada a começar pelos meios com mais horas de empenhamento.`,fundamento:`Nenhum setor em curso; ${r.nResolucao} em resolução, ${r.nConclusao} em conclusão, ${r.nVigilancia} em vigilância ativa.`},
-      (r.nAtivos>0 && r.reserva===0 && r.c.m>=10)&&{id:"PV",texto:`Constituição de reserva tática fora da zona de intervenção, com um mínimo de dois grupos, antes de novo empenho no esforço principal.`,fundamento:`${r.c.m} meios no TO com ${r.nAtivos} setor${r.nAtivos>1?"es":""} em curso e sem reserva constituída.`},
-      (r.c.m>=10 && !r.PT.des)&&{id:"PT",texto:`Estabelecimento do ponto de trânsito e sua difusão a todos os meios em despacho, com atribuição de missão nos primeiros 15 minutos após a chegada.`,fundamento:"O pedido de reforço implica ponto de trânsito que garanta o controlo das entradas e saídas do TO — DON n.º 2, pontos 7.d.(5), 7.d.(7) e 7.d.(8)."},
-      r.excedidas.length&&{id:"PH",texto:`Rendição imediata de ${r.excedidas.slice(0,3).map(x=>x.nome+" ("+x.local+", "+x.txt+")").join("; ")}${r.excedidas.length>3? " e mais "+(r.excedidas.length-3):""}.`,fundamento:"Tempo de empenhamento acima do limite; equipas exaustas degradam a segurança e o rendimento."},
-      (!r.excedidas.length && r.aviso.length)&&{id:"PH",texto:`Preparar a rendição de ${r.aviso.slice(0,3).map(x=>x.nome+" ("+x.local+", "+x.txt+")").join("; ")} antes de atingirem o limite.`,fundamento:"Tempo de empenhamento em aviso; a substituição planeada evita quebras de dispositivo."},
-      (r.c.mr>2 && !nomeado("COPESP"))&&{id:"PM",texto:`Nomeação do COPESP e integração das ${r.c.mr} máquinas de rasto no plano, com faixa de contenção atribuída e veículo de combate de apoio a cada máquina.`,fundamento:"Mais de duas máquinas de rasto no dispositivo — DON n.º 2, pontos 7.d.(22) e 7.d.(23)."},
-      jan&&{id:"P1",texto:`Empenho da reserva no esforço principal${r.ativos.length? " em "+nomes(r.ativos):""} na janela ${jan.inicio}–${jan.fim}.`,fundamento:`HR ${jan.hr_inicio} % → ${jan.hr_max} % — mínimo de intensidade do ciclo.`},
-      {id:"P2",texto:"Postura defensiva fora da janela; sem ataque direto descendente com vento de drenagem estabelecido.",fundamento:"LACES exige rotas de fuga que a encosta noturna não garante."},
-      (m.alinhamento_relevo_vento&&m.alinhamento_relevo_vento.horas.length)&&{id:"PX",texto:`Nos períodos ${resumoHoras(m.alinhamento_relevo_vento.horas)}, proibição de posicionamento acima da frente nas encostas expostas a ${m.alinhamento_relevo_vento.orient}; ancoragens pelos flancos.`,fundamento:`Alinhamento fogo-declive-vento previsto (${m.alinhamento_relevo_vento.nota||"escoamento ascendente"})${m.alinhamento_relevo_vento.criticas.length? "; crítico com HR < 30 % às "+resumoHoras(m.alinhamento_relevo_vento.criticas):""}.`},
-      m.rotacoes.length&&{id:"P3",texto:`Liquidação de pontos quentes concluída antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`,fundamento:"Após a rotação, o bordo a sotavento pode virar cabeça."},
-      {id:"P4",texto:`Defesa perimétrica dos pontos sensíveis (${O.dados.sensiveis||"a validar pelo ERAS"}), confinamento/evacuação em articulação com SMPC, INEM, CVP e GNR.`,fundamento:"Art. 8.º, n.º 2, als. l) e m) do Despacho 4067/2024."},
-      m.convectivo.length&&{id:"P5",texto:`Vigilância convectiva desde 2 h antes de ${m.convectivo[0].h}; retirada de zonas alinhadas se confirmada trovoada.`,fundamento:"Precipitação residual com rotação — assinatura convectiva."},
-      {id:"P6",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,fundamento:`Máxima de ${m.t_max.v} °C em ${m.t_max.d} — a fase crítica exige equipas frescas.`},
-      dif.length&&{id:"PD",texto:`Difusão da alteração do dispositivo aos comandantes de setor no próximo ponto de situação: ${dif.join("; ")}.`,fundamento:"As alterações registadas desde a proposta anterior mudam a base de planeamento e têm de ser conhecidas em todo o TO."}
+      r.reativados.length&&{id:"PR", ch:"REATIVACAO",texto:`Prioridade absoluta à reativação em ${nomes(r.reativados)}: reforço imediato, reavaliação do perímetro e confirmação de rotas de fuga antes de qualquer outro empenho.`,fundamento:`Setor${r.reativados.length>1?"es":""} em reativação no quadro de estados; a reativação altera a ordem de esforço fixada na proposta anterior.`},
+      (r.nAtivos===0 && r.setores.length>0)&&{id:"PC", ch:"CONSOLIDACAO",texto:`Sem frentes ativas: transição para consolidação de rescaldo e vigilância ativa em ${nomes(r.setores)}, com desmobilização faseada a começar pelos meios com mais horas de empenhamento.`,fundamento:`Nenhum setor em curso; ${r.nResolucao} em resolução, ${r.nConclusao} em conclusão, ${r.nVigilancia} em vigilância ativa.`},
+      (r.nAtivos>0 && r.reserva===0 && r.c.m>=10)&&{id:"PV", ch:"RESERVA",texto:`Constituição de reserva tática fora da zona de intervenção, com um mínimo de dois grupos, antes de novo empenho no esforço principal.`,fundamento:`${r.c.m} meios no TO com ${r.nAtivos} setor${r.nAtivos>1?"es":""} em curso e sem reserva constituída.`},
+      (r.c.m>=10 && !r.PT.des)&&{id:"PT", ch:"PONTO-TRANSITO",texto:`Estabelecimento do ponto de trânsito e sua difusão a todos os meios em despacho, com atribuição de missão nos primeiros 15 minutos após a chegada.`,fundamento:"O pedido de reforço implica ponto de trânsito que garanta o controlo das entradas e saídas do TO — DON n.º 2, pontos 7.d.(5), 7.d.(7) e 7.d.(8)."},
+      r.excedidas.length&&{id:"PH", ch:"RENDICAO-VENCIDA",texto:`Rendição imediata de ${r.excedidas.slice(0,3).map(x=>x.nome+" ("+x.local+", "+x.txt+")").join("; ")}${r.excedidas.length>3? " e mais "+(r.excedidas.length-3):""}.`,fundamento:"Tempo de empenhamento acima do limite; equipas exaustas degradam a segurança e o rendimento."},
+      (!r.excedidas.length && r.aviso.length)&&{id:"PH", ch:"RENDICAO-A-PREPARAR",texto:`Preparar a rendição de ${r.aviso.slice(0,3).map(x=>x.nome+" ("+x.local+", "+x.txt+")").join("; ")} antes de atingirem o limite.`,fundamento:"Tempo de empenhamento em aviso; a substituição planeada evita quebras de dispositivo."},
+      (r.c.mr>2 && !nomeado("COPESP"))&&{id:"PM", ch:"COPESP",texto:`Nomeação do COPESP e integração das ${r.c.mr} máquinas de rasto no plano, com faixa de contenção atribuída e veículo de combate de apoio a cada máquina.`,fundamento:"Mais de duas máquinas de rasto no dispositivo — DON n.º 2, pontos 7.d.(22) e 7.d.(23)."},
+      jan&&{id:"P1", ch:"JANELA",texto:`Empenho da reserva no esforço principal${r.ativos.length? " em "+nomes(r.ativos):""} na janela ${jan.inicio}–${jan.fim}.`,fundamento:`HR ${jan.hr_inicio} % → ${jan.hr_max} % — mínimo de intensidade do ciclo.`},
+      {id:"P2", ch:"DEFENSIVA",texto:"Postura defensiva fora da janela; sem ataque direto descendente com vento de drenagem estabelecido.",fundamento:"LACES exige rotas de fuga que a encosta noturna não garante."},
+      (m.alinhamento_relevo_vento&&m.alinhamento_relevo_vento.horas.length)&&{id:"PX", ch:"ALINHAMENTO",texto:`Nos períodos ${resumoHoras(m.alinhamento_relevo_vento.horas)}, proibição de posicionamento acima da frente nas encostas expostas a ${m.alinhamento_relevo_vento.orient}; ancoragens pelos flancos.`,fundamento:`Alinhamento fogo-declive-vento previsto (${m.alinhamento_relevo_vento.nota||"escoamento ascendente"})${m.alinhamento_relevo_vento.criticas.length? "; crítico com HR < 30 % às "+resumoHoras(m.alinhamento_relevo_vento.criticas):""}.`},
+      m.rotacoes.length&&{id:"P3", ch:"ROTACAO",texto:`Liquidação de pontos quentes concluída antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`,fundamento:"Após a rotação, o bordo a sotavento pode virar cabeça."},
+      {id:"P4", ch:"SENSIVEIS-PLANO",texto:`Defesa perimétrica dos pontos sensíveis (${O.dados.sensiveis||"a validar pelo ERAS"}), confinamento/evacuação em articulação com SMPC, INEM, CVP e GNR.`,fundamento:"Art. 8.º, n.º 2, als. l) e m) do Despacho 4067/2024."},
+      m.convectivo.length&&{id:"P5", ch:"CONVECTIVO",texto:`Vigilância convectiva desde 2 h antes de ${m.convectivo[0].h}; retirada de zonas alinhadas se confirmada trovoada.`,fundamento:"Precipitação residual com rotação — assinatura convectiva."},
+      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,fundamento:`Máxima de ${m.t_max.v} °C em ${m.t_max.d} — a fase crítica exige equipas frescas.`},
+      dif.length&&{id:"PD", ch:"DIFUSAO",texto:`Difusão da alteração do dispositivo aos comandantes de setor no próximo ponto de situação: ${dif.join("; ")}.`,fundamento:"As alterações registadas desde a proposta anterior mudam a base de planeamento e têm de ser conhecidas em todo o TO."}
+    /* O `id` é **de apresentação** e continua posicional: dentro de um PEA, «P2» é o
+       segundo item da lista, e é assim que se lê no papel. A `ch` é a **identidade**, vem
+       declarada na regra e atravessa revisões — é ela que responde a «cumprimos aquilo?»
+       quando o plano já vai na quinta versão. Confundir as duas foi o defeito: o controlo
+       de execução usava o número da posição, e P3 no PEA n.º 4 não era P3 no n.º 5. */
     ].filter(Boolean).map((p,i)=>({...p, id:"P"+(i+1)})),
     objetivo: r.reativados.length
       ? `Dominar a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${jan? ", com empenho da reserva na janela "+jan.inicio+"–"+jan.fim:""}.`
