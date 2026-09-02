@@ -1377,6 +1377,51 @@
           <input type="file" id="carta-fich" webkitdirectory directory multiple>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
         </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Folhas de carta calibradas</span>
+          <p class="hint" style="margin:0 0 10px 0">Uma imagem solta não é carta pré-descarregada, mas pode ser
+          uma folha: uma fotografia da carta militar, um recorte de PDF, uma captura da carta de perigosidade.
+          Aqui coloca-se no terreno e passa a servir de fundo ao mapa, com o traçado por cima. Fica no
+          dispositivo; o pacote da ocorrência leva a colocação, não a imagem.</p>
+          <div class="grid g2">
+            <div><label for="fo-nome">Nome da folha</label>
+              <input id="fo-nome" placeholder="ex.: Carta militar 1:25 000, folha 128"></div>
+            <div><label for="fo-prov">Proveniência</label>
+              <input id="fo-prov" placeholder="ex.: CIGeoE, folha 128, digitalizada no PCO"></div>
+          </div>
+          <div class="grid g2" style="margin-top:8px">
+            <div><label for="fo-grelha">Projeção dos coeficientes</label>
+              <select id="fo-grelha">
+                <option value="pttm06">PT-TM06 / ETRS89 (EPSG:3763)</option>
+                <option value="mercator">Web Mercator (EPSG:3857)</option>
+              </select></div>
+            <div><label for="fo-img">Imagem da folha</label>
+              <input type="file" id="fo-img" accept="image/*"></div>
+          </div>
+          <p class="hint" style="margin:10px 0 8px 0">Depois, uma de duas vias. Se a imagem veio de um sistema de
+          informação geográfica, traz um ficheiro de referenciação de seis linhas ao lado: escolha-o e está
+          colocada. Se não trouxer, indique dois pontos que reconheça na imagem e cuja coordenada saiba.</p>
+          <div><label for="fo-wf">Ficheiro de referenciação (.pgw, .jgw, .wld)</label>
+            <input type="file" id="fo-wf"></div>
+          <div class="grid g4" style="margin-top:8px">
+            <div><label for="fo-p1px">Ponto 1: pixel X</label><input id="fo-p1px" inputmode="numeric"></div>
+            <div><label for="fo-p1py">Ponto 1: pixel Y</label><input id="fo-p1py" inputmode="numeric"></div>
+            <div><label for="fo-p1e">Ponto 1: Este (m)</label><input id="fo-p1e" inputmode="numeric"></div>
+            <div><label for="fo-p1n">Ponto 1: Norte (m)</label><input id="fo-p1n" inputmode="numeric"></div>
+          </div>
+          <div class="grid g4" style="margin-top:6px">
+            <div><label for="fo-p2px">Ponto 2: pixel X</label><input id="fo-p2px" inputmode="numeric"></div>
+            <div><label for="fo-p2py">Ponto 2: pixel Y</label><input id="fo-p2py" inputmode="numeric"></div>
+            <div><label for="fo-p2e">Ponto 2: Este (m)</label><input id="fo-p2e" inputmode="numeric"></div>
+            <div><label for="fo-p2n">Ponto 2: Norte (m)</label><input id="fo-p2n" inputmode="numeric"></div>
+          </div>
+          <p class="hint" style="margin:8px 0 10px 0">Dois pontos dão escala e rotação, e nada mais: a folha não
+          se deforma nem se corrige de inclinação. Se a imagem estiver distorcida, dois pontos não a endireitam,
+          e a aplicação não finge que sim.</p>
+          <div class="row"><button class="btn btn-o" type="button" id="fo-colocar">Colocar folha</button></div>
+          <div id="fo-msg" style="margin-top:8px"></div>
+          <div id="fo-lista" style="margin-top:10px"></div>
+        </div>
       </div>
 
       <div class="sub" data-move-ops="1"><span class="stit">Importação da Gestão PCO (esquema v1.2)</span>

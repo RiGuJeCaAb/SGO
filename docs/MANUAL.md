@@ -218,6 +218,44 @@ Há três caminhos:
 
 ---
 
+## Folhas de carta calibradas
+
+Planeamento → A carta de fundo → **Folhas de carta calibradas**.
+
+Uma imagem solta não serve de carta pré-descarregada, mas pode servir de folha: a fotografia
+da carta militar tirada na parede do PCO, um recorte de PDF, uma captura da carta de
+perigosidade. Aqui coloca-se no terreno, e o mapa passa a desenhar o traçado por cima dela.
+
+Preencha o nome e a **proveniência** — de onde veio a imagem —, escolha a projeção em que
+estão os coeficientes e o ficheiro da imagem. Depois, uma de duas vias:
+
+| Se a imagem… | Faça |
+|---|---|
+| veio de um sistema de informação geográfica | escolha o **ficheiro de referenciação** que a acompanha, de seis linhas |
+| não trouxe ficheiro | indique **dois pontos** que reconheça na imagem e cuja coordenada saiba: pixel X, pixel Y, Este e Norte de cada um |
+
+Depois, «Colocar folha».
+
+**O que a aplicação recusa, e porquê.** Uma folha sem proveniência declarada, porque seria
+uma imagem anónima a fazer de carta. Um ficheiro de referenciação com vírgula decimal, em
+vez de a interpretar: "2,5" lido como 2 põe a folha 20 % fora de escala, e esse erro só
+aparece depois de alguém medir uma distância de segurança por cima dela. E dois pontos que
+partilhem o pixel ou a coordenada, que não chegam para dar escala.
+
+**Dois pontos dão escala e rotação, e nada mais.** A folha não se deforma nem se corrige de
+inclinação — se a imagem estiver distorcida, dois pontos não a endireitam, e a aplicação não
+finge que sim.
+
+Uma folha que caia fora do envelope do continente é colocada na mesma, com aviso: pode ser
+das ilhas, de Espanha, ou a colocação estar errada. Confirme-a no mapa.
+
+**Guarda-se a colocação, não a imagem.** A imagem pesa demasiado para o pacote da ocorrência,
+que viaja por ficheiro de texto. Ao reabrir a aplicação, a folha continua lá — diz onde está
+e aparece no plano com a sua proveniência — e basta voltar a escolher o ficheiro da imagem
+para a desenhar outra vez.
+
+---
+
 ## Relevo, meteorologia e comportamento do fogo
 
 ### O relevo

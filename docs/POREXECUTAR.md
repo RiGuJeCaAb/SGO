@@ -334,65 +334,14 @@ no colector com a regra de auditoria; missões alinhadas; avisos IPMA; caixas do
 faz a aplicação afirmar um número falso sobre uma manobra real, e é o único que já está a
 correr no terreno. Os outros corrompem o registo ou omitem informação — este afirma.
 
-## Folhas calibradas — o próximo trabalho de absorção
+## Folhas calibradas — **saldado na r0085**
 
-**O guião chegou a 1 de setembro** e está em
-`ferramentas/historico/CSREPCDouro_p0018_202608312030_FolhaCalibrada_CLD.py`, com os seus
-testes (`t0018` do mesmo carimbo), o guião de captura (`q0018`) e duas provas em
-`docs/qa/`. **Não está absorvido.**
+Absorvido a 2 de setembro, guiado pelas 53 asserções do `t0001` do ramo #002 e não traduzido
+do remendo. O guião fica em `ferramentas/historico/002_CSREPCDouro_202609021600_t0001_FolhasCalibradas_CLD.js`
+e continua a correr de fora contra qualquer entrega: contra a r0085 dá 54 verdes e saída 0.
 
-### O que resolve
-
-O problema que ele põe assim: *«Uma imagem não é um mosaico. Uma captura de ecrã da carta
-militar, uma exportação do QGIS, uma fotografia de um extrato em papel: nenhuma delas cabe na
-árvore `{z}/{x}/{y}` e todas elas são o que existe às três da manhã.»*
-
-Isto é diferente da carta pré-descarregada que já temos. A nossa exige uma árvore de mosaicos
-com a estrutura de um serviço; esta aceita **uma imagem qualquer**, e dá-lhe a ligação aos
-pixéis do terreno por dois caminhos que convergem na mesma representação — dois pontos, cada
-um com pixel e coordenada:
-
-- **World file** (`.pgw`, `.jgw`, `.wld`) ao lado da imagem, que é o que o QGIS escreve.
-- **Dois pontos de controlo** clicados na imagem, com a coordenada escrita à mão.
-
-A camada desenha-se **por cima dos mosaicos e por baixo do traçado**: uma folha da carta
-militar vale mais do que um fundo de serviço, e nenhuma das duas pode tapar as frentes.
-
-### Porque importa a esta linhagem em particular
-
-É o que fecha a dívida cartográfica do lado que ainda está aberto. A pasta
-`docs/cartografia/` tem três cartas de uma ocorrência real — Cabeça Boa — anotadas à mão no
-PCO, e **é sobre imagens assim que o mapa tem de conseguir desenhar**. Sem isto, uma carta
-militar anotada continua a ser um ficheiro que se olha, não um fundo sobre o qual se trabalha.
-
-### O que a absorção exige
-
-- O ramo das folhas em `fonte/3-planeamento/22-ambiente-de-fogo.js` — `FOLHAS` e
-  `folhaCalibrada` — **foi retirado na r0077 por apontar para o vazio**. Volta a entrar, e a
-  cartografia do `retratoDoFogo` passa a nomear as folhas calibradas em uso.
-- **A base IndexedDB deles subiu para 3 com a loja `folhas` por causa deste trabalho.** A
-  nossa abertura já adota a versão que a base tiver (r0076), portanto não há conflito a
-  resolver: há uma loja a criar.
-- Migração da forma do estado, no fim da escada, com `VERSAO_ESTADO` a subir de 25 para 26.
-- Cuidado com a projeção: os pontos de controlo entram e saem **em par**, como tudo o resto
-  que passa por `gPara` e `gDe`.
-2. **A escada de migrações divergiu.** Eles vão na versão de estado 22, esta linhagem na 25.
-   Não é erro de nenhum dos lados — são degraus diferentes, postos por ordens diferentes. O
-   que importa é a consequência: **um degrau do `p0020` não pode ser copiado com o número que
-   traz**, tem de entrar no fim da escada daqui com o número seguinte, como se fez com o
-   `p0019`.
-3. **O `t0020` está por escrever do lado deles.** Deste lado, o que substitui isso é um teste
-   em formato de projeto sobre o caminho que o `p0020` alterar, como se fez em
-   `tests/propagacao.test.mjs`.
-4. **As missões do PEA por alinhar com as propostas** — dívida declarada por eles. Deste lado
-   ainda não se olhou para isso; fica em lista para quando o `p0020` chegar, porque é provável
-   que mexa no mesmo sítio.
-
-### O que convém dizer-lhes de volta
-
-- Que existem **duas r0074** e que o número seguinte livre é o **r0077**, porque esta linhagem
-  já usou a r0075 e a r0076.
-- Que a **versão da base local não deve ser escrita à mão** em nenhuma das duas linhagens,
-  pela razão acima: a base é partilhada por origem, não por entrega, e quem correr as duas no
-  mesmo navegador leva com o erro. Se do lado de lá continuar um `open(nome, 3)` fixo, o
-  problema volta ao contrário assim que esta linhagem subir de versão.
+**Fica uma coisa por confrontar, e não depende de mim.** Estas 53 asserções não são as do
+`t0018`: estão no ramo #004 e nunca chegaram a esta linhagem. O ramo #002 reconstruiu-as a
+partir do comportamento descrito. Se as originais aparecerem, correm-se as duas contra a
+mesma entrega — onde divergirem, é a especificação que está mal escrita, e isso vale mais do
+que qualquer um dos dois guiões sozinho.

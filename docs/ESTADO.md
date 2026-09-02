@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0084**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0085**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 123, das anteriores à convenção de nomes até à r0084 |
-| Módulos em `fonte/` | 70, em sete zonas, mais o molde |
-| Testes | 802, todos a passar |
+| Entregas em `app/` | 124, das anteriores à convenção de nomes até à r0085 |
+| Módulos em `fonte/` | 71, em sete zonas, mais o molde |
+| Testes | 817, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -140,6 +140,46 @@ dentro da entrega compilada. A separação do campo renomeou `fase` e o guião p
 devolver sete divergências falsas. Corrigido esse nome, corre verde. O contrato é o ficheiro
 compilado, mas um guião que alcança um literal lá dentro depende do nome do campo — **um
 nome que muda tem de ser anunciado ao ramo que o lê.**
+
+## Folhas de carta calibradas, na r0085 — a última absorção
+
+**O `p0018` foi absorvido, e não foi traduzido.** Foi essa a decisão de 2 de setembro, depois
+de três traduções terem produzido três defeitos: o ramo #002 entregou 53 asserções que dizem
+o que tem de ser verdade sem dizerem como implementar, e implementou-se até ficarem verdes.
+Contra a r0084 davam 10 verdes e 44 vermelhas; contra a r0085 dão 54 verdes e saída 0.
+
+Uma imagem de carta — a fotografia da folha na parede do PCO, um recorte de PDF, uma captura
+da carta de perigosidade — coloca-se agora no terreno por ficheiro de referenciação ou por
+dois pontos de controlo, e o mapa desenha o traçado por cima dela. Loja `folhas` na base,
+aditiva. **O que se guarda é a colocação e não a imagem:** a imagem pesa megabytes e o pacote
+da ocorrência viaja por ficheiro de texto.
+
+**Duas coisas que as 53 asserções não podiam apanhar, e que se apanharam a implementar.**
+
+A primeira foi minha e o guião não a via: a resolução da semelhança de dois pontos saiu com
+os sinais trocados nos dois termos, e o ponto de controlo 2 recolocava-se dez quilómetros ao
+lado. Foram as asserções C05, C07 e C10 que a denunciaram — o ponto 1 recolocava-se bem, que
+é o que uma verificação distraída teria olhado.
+
+A segunda o guião não podia ver, porque para de propósito na fronteira da superfície pública:
+**o desenho**. A folha vai da imagem ao terreno pelos seis coeficientes, e do terreno ao ecrã
+pela grelha; nenhuma das 53 asserções atravessa a segunda metade. Uma folha bem calibrada
+podia ser desenhada de pernas para o ar sem que nada se queixasse. `tests/folhas-calibradas.test.mjs`
+confronta a matriz que o SVG recebe com o caminho longo — projetar cada pixel e converter — e
+exige que concordem **a menos de um milímetro no terreno**, e não a menos de um pixel: um
+pixel vale 15 cm no nível 14 e 150 m no nível 4, e a mesma tolerância em pixéis significaria
+coisas mil vezes diferentes conforme a ampliação. Provado a inverter o sinal do eixo Norte:
+os dois testes ficam vermelhos.
+
+E uma terceira, que só apareceu ao pôr a folha num navegador a sério: **uma folha sozinha não
+abria o mapa.** O enquadramento não conhecia folhas, e quem colocasse uma continuava a ver o
+mapa a dizer que não havia nada para mostrar — a mesma armadilha fechada sobre si mesma que o
+ponto da ocorrência já tinha tido. Os quatro cantos de cada folha entram agora no
+enquadramento. Prova em `docs/qa/`, `qa0030`.
+
+**Nota sobre a proveniência das 53.** Não são as do `t0018`, que está no ramo #004 e nunca
+chegou aqui; o ramo #002 reconstruiu-as do comportamento descrito. Se as originais
+aparecerem, correm-se as duas — onde divergirem, é a especificação que está mal escrita.
 
 ## Decisões tomadas
 

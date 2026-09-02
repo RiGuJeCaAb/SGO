@@ -84,3 +84,23 @@ achado; quem impede a regressão é `tests/exigibilidade-pco.test.mjs`.
 que a correção separou em `faseLei` e `faseSug`. Corrigido esse nome, corre verde contra a
 r0084. O contrato com os ramos é o ficheiro compilado, mas um guião que alcança um literal
 lá dentro depende do nome do campo — e um nome de campo que muda tem de ser anunciado.
+
+## `002_CSREPCDouro_202609021600_t0001_FolhasCalibradas_CLD.js`
+
+**Não é um patch.** É o guião do ramo #002 que guiou a absorção das folhas de carta
+calibradas — 53 asserções que dizem o que tem de ser verdade, sem dizer como implementar.
+Corre com `node <guião> <entrega.html>`, sem dependências e sem rede: lê o HTML, extrai o
+maior `<script>`, acrescenta-lhe em memória um epílogo que exporta os símbolos de topo — as
+`const` não se colam ao global num `vm`, as `function` sim — e corre tudo num DOM simulado.
+
+Contra a r0084 dava 10 verdes e 44 vermelhas; contra a r0085 dá 54 verdes e saída 0. As 10
+verdes são alicerces que já existiam — projeção PT-TM06, grelha `PTTM_06`, as lojas
+anteriores, `criarLojasIDB` a não recriar o que já existe — e o guião conta-as em separado
+justamente para denunciar quem parta alguma coisa por baixo ao implementar por cima.
+
+**Estas não são as 53 asserções do `t0018`**, que estão no ramo #004 e nunca chegaram aqui.
+O ramo #002 reconstruiu-as a partir do comportamento descrito. Se as originais aparecerem,
+correm-se as duas: onde divergirem, é a especificação que está mal escrita.
+
+Quem impede a regressão do lado de dentro é `tests/folhas-calibradas.test.mjs`, que cobre o
+que este guião não podia cobrir — o desenho, da folha ao ecrã.

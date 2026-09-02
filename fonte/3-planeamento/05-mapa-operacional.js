@@ -149,6 +149,13 @@ async function retirarCarta(){
 
 /** Lado do mosaico, em pixéis. É o do esquema de mosaicos, não uma escolha nossa. */
 const MOSAICO_PX = 256;
+/* Meia largura do mundo em metros de Web Mercator: o eixo vai de -R·π a +R·π, com o raio
+   esférico de 6 378 137 m que a projeção usa. É o que põe a origem do quadrado no sítio. */
+const MERCATOR_MEIO = 20037508.342789244;
+/* A folha desenha-se translúcida: é fundo, e o que está por baixo — o mosaico do serviço —
+   continua a ter de se ver, para se poder confrontar a folha com a carta e dar pela
+   colocação errada. Opaca, uma folha mal calibrada esconderia a prova de o estar. */
+const FOLHA_OPACIDADE = 0.85;
 /** Ao fim de quanto tempo um mosaico guardado se considera velho. */
 const MOSAICO_DIAS = 60;
 
@@ -182,6 +189,13 @@ const GRELHAS = {
     /* A escala varia com a latitude: a 41° N o metro do mapa vale 0,755 do metro do
        terreno, e uma barra de escala desenhada sem isto mentiria em 32 %. */
     escala:(lat, z)=>156543.03392 * Math.cos(lat*Math.PI/180) / Math.pow(2, z),
+    /* O pixel de um ponto dado já em metros da própria projeção. Serve a quem tem uma
+       imagem georreferenciada e não coordenadas geográficas — uma folha de carta traz os
+       seis coeficientes em metros do sistema em que foi produzida, não em graus. */
+    metros(E, N, z){
+      const r = 2*MERCATOR_MEIO / (MOSAICO_PX * Math.pow(2, z));
+      return { x:(E + MERCATOR_MEIO)/r, y:(MERCATOR_MEIO - N)/r };
+    },
     zMin:3, zMax:19
   },
   /* A da cartografia oficial portuguesa. Origem no canto superior esquerdo da folha, em
@@ -206,6 +220,8 @@ const GRELHAS = {
       return deTM06(this.E0 + x*r, this.N0 - y*r);
     },
     escala(lat, z){ return this.res(z); },
+    /* O mesmo, e aqui é a conta natural da grelha: a origem é um canto em metros. */
+    metros(E, N, z){ const r = this.res(z); return { x:(E - this.E0)/r, y:(this.N0 - N)/r }; },
     zMin:0, zMax:19
   }
 };
@@ -235,6 +251,11 @@ function grelhaAtual(){
      projeção tiver sido declarada. É o único sítio onde essa informação existe: os
      ficheiros não a trazem e a numeração dos quadrados é igual nas duas grelhas. */
   if(CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]) return GRELHAS[CARTA_LOCAL.grelha];
+  /* Sem serviço e sem carta no arquivo, quem manda é a folha calibrada — se houver alguma.
+     É a única fonte de projeção que resta, e ao contrário das outras é declarada por quem
+     colocou a folha, não deduzida. Uma folha em Mercator e o mapa em PT-TM06 desenhariam
+     a folha ao lado do sítio, e por isso a folha manda em vez de ser reprojetada. */
+  if(typeof FOLHAS !== "undefined" && FOLHAS.length && GRELHAS[FOLHAS[0].grelha]) return GRELHAS[FOLHAS[0].grelha];
   return GRELHAS.pttm06;
 }
 
@@ -247,6 +268,8 @@ function gPara(lat, lon, z){ return grelhaAtual().para(lat, lon, z); }
 function gDe(x, y, z){ return grelhaAtual().de(x, y, z); }
 /** Metros por pixel, à latitude dada quando a grelha o exigir. */
 function gEscala(lat, z){ return grelhaAtual().escala(lat, z); }
+/** O pixel da grelha de um ponto já dado em metros da projeção corrente. Em par, como os outros. */
+function gMetros(E, N, z){ return grelhaAtual().metros(E, N, z); }
 
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai
@@ -280,6 +303,18 @@ function enquadrarMapa(larg, altMax){
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
   notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
+  /* Os quatro cantos de cada folha calibrada. **Uma folha sozinha tem de abrir o mapa**:
+     quem coloca uma folha coloca-a para desenhar por cima dela, e sem isto acontecia o
+     mesmo que já tinha acontecido com o ponto da ocorrência — colocava-se a folha e o
+     mapa continuava a dizer que não havia nada para mostrar.
+     Os cantos vêm por `gDe` a partir dos metros, porque a folha não sabe latitudes. */
+  if(typeof FOLHAS !== "undefined") FOLHAS.forEach(f=>{
+    const G = GRELHAS[f.grelha]; if(!G) return;
+    [[0,0],[f.largura-1,0],[0,f.altura-1],[f.largura-1,f.altura-1]].forEach(([px,py])=>{
+      const m = f.paraMundo(px, py), q = G.metros(m.E, m.N, 14), c = G.de(q.x, q.y, 14);
+      juntar(c.lat, c.lon);
+    });
+  });
   /* Os focos **não** entram no enquadramento: um foco a duzentos quilómetros — e o serviço
      devolve o que a caixa pedida contiver — afastava o mapa até o teatro ser um ponto. */
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
@@ -574,6 +609,29 @@ function camadaMapa(){
   const n = v => Math.round(v*10)/10;
   const P = perimObj();
   let g = "";
+
+  /* As folhas de carta calibradas, **antes de tudo o resto**: são o fundo sobre que se
+     desenha, e uma folha por cima de uma frente esconderia a informação mais viva do mapa.
+     A composição folha → terreno → grelha é afim nas duas projeções — os seis coeficientes
+     são lineares em metros, e `metros` também —, e por isso cabe numa matriz do SVG em vez
+     de obrigar a redesenhar a imagem pixel a pixel.
+     Só entram as que declaram a grelha em que o mapa está: um mosaico já desenhado não se
+     reprojeta, e é a mesma razão por que o WMTS recusa um conjunto incompatível. */
+  if(typeof FOLHAS !== "undefined") FOLHAS.forEach(f=>{
+    if(!f.img || !f.compativel(grelhaAtual().k)) return;
+    const m = f.mundo, canto = gMetros(m.C, m.F, z);
+    /* Pixels da grelha por metro do terreno. Tira-se por diferença em vez de se ler a
+       resolução: as duas grelhas exprimem-na de maneiras diferentes e nenhuma a publica
+       nesta forma, e a diferença dá o mesmo número nas duas sem precisar de saber qual é. */
+    const ppm = gMetros(m.C + 1, m.F, z).x - canto.x;
+    /* Seis termos, e **não passam pelo arredondamento a um décimo** que serve às linhas:
+       aqui os quatro primeiros são fatores de escala da ordem da unidade, e um décimo de
+       erro num deles arrasta a folha inteira. */
+    const M6 = [m.A*ppm, -m.D*ppm, m.B*ppm, -m.E*ppm, canto.x - ox, canto.y - oy];
+    g += '<image href="'+esc(f.img)+'" width="'+f.largura+'" height="'+f.altura
+       + '" opacity="'+FOLHA_OPACIDADE+'" preserveAspectRatio="none"'
+       + ' transform="matrix('+M6.map(v=>v.toFixed(9)).join(",")+')"/>';
+  });
 
   if(P) P.aneis.forEach(a=>{
     const d = a.map((c,i)=>{ const q = pxy(c[1], c[0]); return (i?"L":"M")+n(q.x)+","+n(q.y); }).join(" ")+" Z";
