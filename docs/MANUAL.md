@@ -429,7 +429,7 @@ própria de cada proposta, e mostra ao lado o número com que ela saiu no papel:
 
 > `LINHA-ESTREITA · P3 no papel · Proposta`
 
-Assim «cumprimos a LINHA-ESTREITA» quer dizer a mesma coisa em qualquer versão do plano, e
+Assim "cumprimos a LINHA-ESTREITA" quer dizer a mesma coisa em qualquer versão do plano, e
 continua a poder confrontar-se com o documento que o COS aprovou. **Um PEA já emitido nunca é
 reetiquetado**: fica com os números com que saiu.
 
