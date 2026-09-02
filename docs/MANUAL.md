@@ -592,6 +592,28 @@ em texto» leva-o para fora.
 | Encerrar o registo | Comando → «Encerrar a ocorrência» |
 | Reabrir um registo fechado | Comando → «Reabrir o registo» |
 
+### Levar a aplicação para outro computador
+
+O ficheiro HTML leva **o código e não os dados**. Quem o receber abre a aplicação vazia — é
+o que tem de ser, mas é a primeira coisa que confunde. Um kit de entrega são três peças e
+não uma:
+
+1. o ficheiro HTML da revisão;
+2. a ocorrência exportada em `.json`, quando há uma a passar;
+3. a indicação do navegador e o aviso da impressão, abaixo.
+
+**Ao imprimir: ligue a opção "Gráficos de fundo" na caixa de diálogo do navegador.** O Chrome traz
+essa opção desligada de origem, e sem ela desaparecem do PEA impresso as linhas de título
+com a cor da célula — o documento sai legível e deixa de se parecer com o modelo aceite. É o
+percalço mais previsível de todos, e a correção é uma caixa.
+
+**O tipo de letra do documento impresso é o Calibri**, com recurso a `Inter` e depois à
+letra sem serifas do sistema. Num computador sem Microsoft Office instalado, o Calibri não
+existe e o PEA impresso deixa de bater exatamente com o modelo `.docx`. O conteúdo é o
+mesmo; o espaçamento não.
+
+Apontado pelo ramo #005 a 2 de setembro, na análise de portabilidade.
+
 **Encerrar não bloqueia a aplicação.** Fecha aquele registo — deixa de se poder escrever
 nele —, mas continua a poder abrir uma ocorrência nova, exportar, importar e consultar o
 arquivo. Um registo fechado carimba-se com um selo de integridade, e «Conferir a cadeia do
