@@ -149,6 +149,44 @@ for «nada».
 - **Confrontar o importador com uma exportação real da Gestão PCO.** Testado contra os
   documentos; falta o que a aplicação de origem produz de facto.
 
+## 6-bis. Cinco divergências de uma fase na exigibilidade das funções do PCO
+
+Achado a 2 de setembro, ao verificar o `d01` do ramo #006 contra a r0083. **Não corrigido:**
+a correção entra com as famílias A, B e C do inventário, num movimento só e com um teste por
+asserção, e depende da decisão do ponto 1 do `d01`.
+
+O campo `fase:` de `FUNCOES_PCO` diz a partir de que fase cada função é exigível. Cinco
+valores divergem em uma fase face às alíneas C06 a C10 do `d01` — que é a fonte aqui usada,
+porque o articulado não foi relido para o confronto:
+
+| Função | `fase:` | Pelo `d01` |
+|---|---|---|
+| Oficial de Planeamento | 2 | III |
+| Oficial de Logística e Finanças | 2 | III |
+| Coordenador do PCO | 3 | IV |
+| **Adjunto de Segurança** | **3** | **II** |
+| **Adjunto de Ligação** | **4** | **III** |
+
+As três primeiras pedem antes do que a lei pede: conservador, mas põe em «Essencial —
+exigível agora» o que a norma ainda não exige. **As duas últimas erram no sentido perigoso**
+— numa fase II a Estação não assinala a falta de quem tem a autoridade do art. 36.º n.º 2
+para mandar cessar os trabalhos.
+
+Ver `CSREPCDouro_202609021630_d_VerificacaoComposicaoPCO_CLD.md`, secção 4.
+
+## 6-ter. O fundamento da transição de fase fora de banda
+
+Do mesmo confronto. Os limiares de efetivo **já são aviso e nunca bloqueio**, como o `d01`
+exige na secção 2.3: o seletor da fase oferece as seis sem condição, e a regra `id:"fase"`
+emite `n:"av"`. Falta o outro lado do art. 39.º:
+
+- **N.º 3** — recolher qual dos quatro fundamentos taxativos sustenta a passagem fora de
+  banda, e carimbá-lo na fita do tempo. Hoje o aviso diz o que fazer e não recolhe nada.
+- **N.º 4** — o estado de «organização distinta», pendente de validação da estrutura
+  operacional da ANEPC e decisão do comandante nacional. Não existe.
+
+Depende da decisão de C. Abreu, ponto 2 do `d01`.
+
 ## 7. Pontos por confirmar em fonte
 
 A lista vive em `ESTADO.md`, secção «Pontos por confirmar em fonte», e não se repete aqui.
