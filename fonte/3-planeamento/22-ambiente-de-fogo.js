@@ -250,3 +250,77 @@ function auditarContributos(){
   const orfas = CONTRIBUI.filter(x=>!donos.includes(x.p)).map(x=>x.p);
   return { n:donos.length, semDeclaracao, semRazao, orfas };
 }
+
+/* ================= a postura de manobra, decidida num sítio só =================
+   O plano contradizia-se. O mesmo documento dizia, no objetivo e na ação decisiva,
+   «**dominar** as frentes ativas e fechar o perímetro», e três linhas abaixo, nas
+   propostas, «**interdição de ataque direto à cabeça**, a intensidade é de 31 920 kW/m».
+   Duas partes do mesmo documento aprovado em contradição é pior do que qualquer delas
+   estar sozinha errada: quem executa escolhe uma, e não há como saber qual.
+
+   A causa era estrutural e não de redação. **Havia dois sítios a decidir a mesma coisa** —
+   o bloco das missões, que olhava só à janela meteorológica e ao dispositivo, e o bloco
+   das propostas, que olhava à intensidade. Corrigir o texto de um deles deixaria o defeito
+   pronto a voltar à primeira alteração.
+
+   Passa a haver uma postura só, calculada aqui, de que **as duas partes derivam**. Não
+   podem discordar porque não decidem nada: leem. */
+
+/**
+ * O que a intensidade da frente permite fazer, numa forma que o plano inteiro consulta.
+ *
+ * `frontal` é a pergunta que decide o resto: pode o plano prometer dominar a frente pela
+ * cabeça? Dela saem o verbo do objetivo, a ação decisiva e qual das propostas de limite
+ * dispara — e é por serem a mesma leitura que deixam de se contradizer.
+ */
+function posturaDeManobra(F){
+  const lim = F && F.lim;
+  if(!lim) return { k:"sem-dados", frontal:true, verbo:"Dominar", fecho:"",
+    porque:"Sem intensidade da frente determinada, a postura não está condicionada por ela." };
+
+  /* O `fecho` entra no meio de uma frase que já leva a janela e o dia: tem de ser curto,
+     ou o objetivo deixa de se ler de uma vez. O detalhe da manobra está na proposta de
+     limite, que é onde ele se executa. */
+  const kW = Math.round(lim.i).toLocaleString("pt-PT");
+  const lm = LIMITE_ATAQUE_DIRETO.toLocaleString("pt-PT");
+  if(!lim.direto) return { k:"interdito", frontal:false, verbo:"Conter",
+    fecho:"pelos flancos e pela retaguarda",
+    porque:"Intensidade frontal de "+kW+" kW/m: acima dos "+lm
+      +" kW/m o controlo frontal é impossível, e a cabeça só se ataca por meios aéreos." };
+  if(lim.i >= 2000) return { k:"aereo", frontal:true, verbo:"Dominar",
+    fecho:"com apoio aéreo na cabeça",
+    porque:"Intensidade frontal de "+kW+" kW/m: entre 2 000 e "+lm
+      +" kW/m a projeção de faúlhas é expectável e o ataque à cabeça precisa de apoio aéreo." };
+  if(lim.i >= 500) return { k:"terrestre", frontal:true, verbo:"Dominar",
+    fecho:"com meios terrestres sob pressão de água",
+    porque:"Intensidade frontal de "+kW+" kW/m: entre 500 e 2 000 kW/m os meios terrestres são eficazes." };
+  return { k:"manual", frontal:true, verbo:"Dominar",
+    fecho:"com equipamento de sapador",
+    porque:"Intensidade frontal de "+kW+" kW/m: abaixo dos 500 kW/m o equipamento manual é eficaz." };
+}
+
+/**
+ * O plano diz o mesmo em todo o lado?
+ *
+ * Confere a coerência que a postura única já garante por construção — e existe porque a
+ * garantia por construção dura enquanto ninguém escrever uma missão nova sem a consultar.
+ * É o cinto por cima dos suspensórios, e num documento que é aprovado, executado e
+ * auditado vale a pena tê-lo.
+ */
+function coerenciaDoPlano(plano, F){
+  const p = posturaDeManobra(F), falhas = [];
+  if(!plano) return { postura:p.k, falhas };
+  const textos = []
+    .concat(plano.objetivo? [{ onde:"objetivo", t:plano.objetivo }] : [])
+    .concat((plano.missoes||[]).map((m,i)=>({ onde:"missão "+(i+1)+" ("+(m.tipo||"")+")", t:m.texto||"" })));
+
+  if(!p.frontal){
+    /* «Dominar» promete o controlo da frente, cabeça incluída. Com a cabeça interdita, é
+       uma promessa que o plano não pode cumprir e que contradiz a sua própria proposta. */
+    textos.filter(x=>/\bdominar\b/i.test(x.t)).forEach(x=>falhas.push(
+      x.onde+" promete dominar a frente, e a intensidade interdita o ataque direto à cabeça"));
+    textos.filter(x=>/ataque direto à cabeça(?!\s+(?:é|apenas))/i.test(x.t)).forEach(x=>falhas.push(
+      x.onde+" prevê ataque direto à cabeça, que está interdito"));
+  }
+  return { postura:p.k, falhas };
+}

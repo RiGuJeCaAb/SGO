@@ -2969,3 +2969,56 @@ linha de média tensão sobre o caminho chegaria ao PEA como «Avisos escritos n
 É a segunda vez que fabrico a forma em vez de usar a real — a primeira foi o
 `webkitRelativePath` com `defineProperty`. O teste passa a usar a forma declarada em
 `tipos/estacao.d.ts` e a exigir que o texto chegue mesmo.
+
+## r0081 — as missões alinhadas com as propostas
+
+O plano contradizia-se, e reproduzi-o antes de lhe mexer. Com janela de consolidação e uma
+frente de 31 920 kW/m, o mesmo documento dizia:
+
+> **Objetivo:** «Dominar as frentes ativas em Alfa e fechar o perímetro até às 09h.»
+> **Ação decisiva:** «Dominar as frentes ativas em Alfa e fechar o perímetro na janela 02h–09h.»
+> **Proposta:** «Interdição de ataque direto à cabeça… a cabeça só se ataca por meios aéreos.»
+
+Duas partes do mesmo documento aprovado em contradição são piores do que qualquer delas estar
+sozinha errada: **quem executa escolhe uma, e não há como saber qual.**
+
+### A causa era estrutural, não de redação
+
+**Havia dois blocos a decidir a mesma coisa por critérios diferentes.** As missões olhavam à
+janela meteorológica e ao dispositivo; as propostas olhavam à intensidade. Corrigir o texto de
+um deles deixaria o defeito pronto a voltar à primeira alteração — que é exatamente o que
+aconteceu com o colector, duas revisões antes.
+
+Passa a haver uma **postura de manobra** calculada num sítio só, `posturaDeManobra()`, de que
+o objetivo, a ação decisiva e as propostas de limite derivam. **Não podem discordar porque não
+decidem nada: leem.**
+
+| Postura | O objetivo diz | Como se fecha o perímetro |
+|---|---|---|
+| `interdito` — acima de 4 000 kW/m | **Conter** | pelos flancos e pela retaguarda |
+| `aereo` — 2 000 a 4 000 | Dominar | com apoio aéreo na cabeça |
+| `terrestre` — 500 a 2 000 | Dominar | com meios terrestres sob pressão de água |
+| `manual` — abaixo de 500 | Dominar | com equipamento de sapador |
+| `sem-dados` | Dominar | — nada se impõe onde não há número |
+
+A ação decisiva passa a trazer a razão com ela, e não só o verbo: quem a lê sabe porque é
+«conter» sem ter de a cruzar com as propostas mais abaixo.
+
+### E uma auditoria por cima, porque a garantia por construção tem prazo
+
+`coerenciaDoPlano()` confere que nenhuma missão promete dominar uma frente cuja cabeça está
+interdita. É redundante enquanto tudo derivar da postura — e deixa de o ser no dia em que
+alguém escrever uma missão nova sem a consultar. Acende o mesmo aviso da passagem de turno que
+as outras auditorias.
+
+O teste prova que ela vê: forja uma missão a prometer «dominar as frentes ativas» com a cabeça
+interdita e confere que é apanhada. E prova que **não** apanha a frase da própria proposta —
+«o ataque direto à cabeça é inadmissível» contém as palavras e é o contrário de uma promessa.
+Uma auditoria que a apanhasse acusaria o plano de se contradizer sempre que estivesse correto.
+
+### Um fundamento que não se lia
+
+`[VIGIA]` saía com «Máxima de — °C em — — a fase crítica exige equipas frescas» quando não
+havia previsão carregada. Num documento aprovado. **Um fundamento que não se lê é pior do que
+um genérico: parece que houve leitura e não houve.** Passa a dizer que não há máxima do ciclo
+e que a vigilância não depende dela.

@@ -416,6 +416,29 @@ Cada fundamento traz o valor e **a origem da prova** — se a velocidade de prop
 observada no teatro ou estimada pelos guias de fogo controlado. A proposta não se enfraquece
 por ser estimada: quem aprova é o COS, e o que lhe cabe saber é o que está a aprovar.
 
+### O plano diz o mesmo em todo o lado
+
+O objetivo, a ação decisiva e as propostas **derivam todos da mesma leitura da intensidade**.
+Não é uma questão de estilo: até à r0080 o mesmo documento podia dizer "dominar as frentes
+ativas e fechar o perímetro" no objetivo e "interdição de ataque direto à cabeça" três linhas
+abaixo. Quem executa escolhe uma das duas, e não há como saber qual.
+
+Conforme a intensidade da frente, o plano assume uma de quatro posturas:
+
+| Intensidade | O objetivo diz | Como se fecha o perímetro |
+|---|---|---|
+| acima de 4 000 kW/m | **Conter** | pelos flancos e pela retaguarda |
+| 2 000 a 4 000 | Dominar | com apoio aéreo na cabeça |
+| 500 a 2 000 | Dominar | com meios terrestres sob pressão de água |
+| abaixo de 500 | Dominar | com equipamento de sapador |
+
+A ação decisiva traz a razão com ela — "Intensidade frontal de 31 920 kW/m: acima dos 4 000
+kW/m o controlo frontal é impossível" — para que quem a lê não tenha de a cruzar com as
+propostas mais abaixo.
+
+**Sem intensidade determinada, nada disto se impõe.** A aplicação não inventa restrições onde
+não tem número: o plano diz o que sempre disse.
+
 ### Os números das propostas, e o que os identifica
 
 No PEA impresso as propostas vão numeradas por ordem de leitura — P1, P2, P3. **Dentro de um

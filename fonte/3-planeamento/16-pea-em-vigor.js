@@ -305,6 +305,10 @@ function detDecisao(novas, anterior){
      As propostas que dele saem vêm **à frente** das genéricas: a intensidade da frente
      decide se há sequer ataque à cabeça, e essa decisão precede a ordem de esforço. */
   const F = retratoDoFogo();
+  /* A postura de manobra decide-se **num sítio só**, e o objetivo, a ação decisiva e as
+     propostas de limite derivam dela. Antes eram dois blocos a decidir a mesma coisa por
+     critérios diferentes, e o documento contradizia-se a si próprio. */
+  const P = posturaDeManobra(F);
   const nomes = a => a.map(x=>x.n).join(", ");
   const fimJ = jan? jan.fim : null;
   const gdhLim = (()=>{ if(!fimJ) return "______";
@@ -315,19 +319,22 @@ function detDecisao(novas, anterior){
     propostas:[
       /* Limite de manobra antes de tudo o resto. O número existe, tem fonte e tem origem
          declarada; deixá-lo fora do plano para repetir uma regra genérica era a falha que
-         este trabalho corrige. */
-      (F.lim && !F.lim.direto)&&{id:"PI", ch:"LIM-INTERDITO",
+         este trabalho corrige.
+         **Qual destas dispara vem de `P.k`, e não de uma segunda leitura da intensidade.**
+         Reavaliar aqui os mesmos limiares que a postura já avaliou era o que permitia ao
+         objetivo dizer «dominar» enquanto a proposta dizia «interdito». */
+      (P.k === "interdito")&&{id:"PI", ch:"LIM-INTERDITO",
         texto:`Interdição de ataque direto à cabeça: a intensidade frontal estimada é de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m. `
           +`Ataque à cabeça apenas por meios aéreos ou indiretamente, com ancoragem pelos flancos e pela retaguarda. `
           +`Ninguém a menos de ${F.lim.seguranca} m da frente de chamas.`,
         fundamento:`${Math.round(F.r.v)} m/h (${F.r.origem}) sobre ${F.w.v} t/ha dão ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m e chama de ${F.lim.chama.toFixed(1).replace(".", ",")} m — acima dos 4 000 kW/m o controlo frontal é impossível (Alexander 2000, via Fernandes 2003); DON n.º 2, Anexo 3, situação n.º 10.`},
-      (F.lim && F.lim.direto && F.lim.i >= 2000)&&{id:"PI", ch:"LIM-AEREO",
+      (P.k === "aereo")&&{id:"PI", ch:"LIM-AEREO",
         texto:`Ataque à cabeça com apoio de meios aéreos; vigilância permanente de focos secundários a sotavento, com equipa dedicada.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): acima dos 2 000 kW/m a projeção de faúlhas é expectável e acima dos 4 000 o fogo de copas é quase certo (Alexander 2000).`},
-      (F.lim && F.lim.direto && F.lim.i >= 500 && F.lim.i < 2000)&&{id:"PI", ch:"LIM-TERRESTRE",
+      (P.k === "terrestre")&&{id:"PI", ch:"LIM-TERRESTRE",
         texto:`Ataque direto à cabeça admissível com meios terrestres sob pressão de água; máquinas de rasto em apoio à abertura de faixas, com veículo de combate a acompanhar cada máquina.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): entre 500 e 2 000 kW/m os meios terrestres são eficazes (Alexander 2000, via Fernandes 2003).`},
-      (F.lim && F.lim.i < 500)&&{id:"PI", ch:"LIM-MANUAL",
+      (P.k === "manual")&&{id:"PI", ch:"LIM-MANUAL",
         texto:`Supressão com equipamento de sapador nas frentes de menor intensidade; reservar os meios com água para os troços de maior desenvolvimento.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m — abaixo dos 500 kW/m o equipamento manual é eficaz (Alexander 2000).`},
       (F.perfil && F.perfil.salto)&&{id:"PQ", ch:"SALTO-DECLIVE",
@@ -358,7 +365,12 @@ function detDecisao(novas, anterior){
       m.rotacoes.length&&{id:"P3", ch:"ROTACAO",texto:`Liquidação de pontos quentes concluída antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`,fundamento:"Após a rotação, o bordo a sotavento pode virar cabeça."},
       {id:"P4", ch:"SENSIVEIS-PLANO",texto:`Defesa perimétrica dos pontos sensíveis (${O.dados.sensiveis||"a validar pelo ERAS"}), confinamento/evacuação em articulação com SMPC, INEM, CVP e GNR.`,fundamento:"Art. 8.º, n.º 2, als. l) e m) do Despacho 4067/2024."},
       m.convectivo.length&&{id:"P5", ch:"CONVECTIVO",texto:`Vigilância convectiva desde 2 h antes de ${m.convectivo[0].h}; retirada de zonas alinhadas se confirmada trovoada.`,fundamento:"Precipitação residual com rotação — assinatura convectiva."},
-      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,fundamento:`Máxima de ${m.t_max.v} °C em ${m.t_max.d} — a fase crítica exige equipas frescas.`},
+      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,/* Sem previsão carregada, `t_max` vem a «—» e o fundamento saía «Máxima de — °C em
+           — — a fase crítica exige equipas frescas», num documento aprovado. Um fundamento
+           que não se lê é pior do que um fundamento genérico: parece que houve leitura. */
+        fundamento: m.t_max.v === "—"
+          ? "Sem previsão carregada não há máxima do ciclo; a vigilância e a cadência de pontos de situação não dependem dela."
+          : `Máxima de ${m.t_max.v} °C em ${m.t_max.d} — a fase crítica exige equipas frescas.`},
       dif.length&&{id:"PD", ch:"DIFUSAO",texto:`Difusão da alteração do dispositivo aos comandantes de setor no próximo ponto de situação: ${dif.join("; ")}.`,fundamento:"As alterações registadas desde a proposta anterior mudam a base de planeamento e têm de ser conhecidas em todo o TO."}
     /* O `id` é **de apresentação** e continua posicional: dentro de um PEA, «P2» é o
        segundo item da lista, e é assim que se lê no papel. A `ch` é a **identidade**, vem
@@ -367,16 +379,21 @@ function detDecisao(novas, anterior){
        de execução usava o número da posição, e P3 no PEA n.º 4 não era P3 no n.º 5. */
     ].filter(Boolean).map((p,i)=>({...p, id:"P"+(i+1)})),
     objetivo: r.reativados.length
-      ? `Dominar a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${jan? ", com empenho da reserva na janela "+jan.inicio+"–"+jan.fim:""}.`
+      ? `${P.verbo} a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${P.fecho? " "+P.fecho:""}${jan? ", com empenho da reserva na janela "+jan.inicio+"–"+jan.fim:""}.`
       : (r.nAtivos===0 && r.setores.length
         ? `Concluir o rescaldo e assegurar a vigilância ativa em ${nomes(r.setores)}, com desmobilização faseada e sem reacendimentos.`
-        : (jan? `Dominar as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro até às ${jan.fim} de ${m.t_max.d}, com empenho da reserva na janela ${jan.inicio}–${jan.fim}.`
-              : `Conter as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e proteger aglomerados até revisão do PEA.`)),
+        : (jan? `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro${P.fecho? " "+P.fecho:""} até às ${jan.fim} de ${m.t_max.d}, com empenho da reserva na janela ${jan.inicio}–${jan.fim}.`
+              : `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""}${P.fecho? ", "+P.fecho+",":""} e proteger aglomerados até revisão do PEA.`)),
     missoes:[
       {tipo:"Ação decisiva",
-        texto: r.reativados.length? `Dominar a reativação em ${nomes(r.reativados)} e restabelecer o perímetro.`
+        /* O verbo e o modo de fecho vêm da postura, e a razão vai com eles: quem lê a ação
+           decisiva tem de saber porque é «conter» e não «dominar», sem ter de a cruzar com
+           as propostas mais abaixo. */
+        texto: (r.reativados.length? `${P.verbo} a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${P.fecho? " "+P.fecho:""}.`
              : (r.nAtivos===0 && r.setores.length? "Concluir o rescaldo e consolidar a vigilância ativa, sem reacendimentos."
-             : (jan? `Dominar as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro na janela ${jan.inicio}–${jan.fim}.`:"Conter as frentes ativas e proteger aglomerados.")),
+             : (jan? `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro${P.fecho? " "+P.fecho:""} na janela ${jan.inicio}–${jan.fim}.`
+                   : `${P.verbo} as frentes ativas${P.fecho? ", "+P.fecho+",":""} e proteger aglomerados.`)))
+             + (P.k !== "sem-dados"? " " + P.porque : ""),
         atribuida: r.reativados.length? "Setor"+(r.reativados.length>1?"es":"")+" "+nomes(r.reativados)+" + Reserva"
                  : (r.ativos.length? "Setor"+(r.ativos.length>1?"es":"")+" "+nomes(r.ativos)+" + Reserva" : "Setores empenhados + Reserva"),
         gdh:gdhLim},
