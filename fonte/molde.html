@@ -561,6 +561,9 @@
   /* A linha de estado. Quando o cartão já traz contagem própria, o estado vem a seguir e
      não em vez dela — e não se cola à outra. */
   .card.dobravel > h2.cd-cab .cd-est{margin-left:0}
+  /* A marca de saída da propagação. Lê-se antes do número, e por isso destaca-se dele. */
+  .marca-extra{color:var(--terra)}
+  .marca-alem{color:var(--fogo)}
   /* Obrigatório em falta lê-se à distância; recomendado assinala-se sem gritar. A cor não
      é o único sinal: o texto diz «obrigatórios em falta» por extenso, porque quem não
      distingue as duas cores continua a ler a mesma coisa. */
@@ -1489,8 +1492,10 @@
         <div class="grid g2">
           <div><label for="fg-r">Velocidade de propagação (m/h)</label>
             <input id="fg-r" data-campo="dados.fogo.r" inputmode="decimal" placeholder="ex.: 240">
-            <div class="hint" style="margin-top:4px">Observada no terreno, ou de fogo experimental em vegetação
-            comparável. Varia de 1,5 m/h a cerca de 14 km/h em floresta (Alexander 2000, via Fernandes 2003).</div></div>
+            <div class="hint" style="margin-top:4px">Observada no terreno, de fogo experimental em vegetação
+            comparável, ou estimada no painel abaixo. Em matos, o Quadro 3.4.1 vai de 24 a 2280 m/h em terreno
+            plano, e as correções de altura e declive passam disso — acima dos 360 m/h a estimativa sai marcada
+            como extrapolação.</div></div>
           <div><label for="fg-w">Carga de combustível consumida (t/ha)</label>
             <input id="fg-w" data-campo="dados.fogo.w" inputmode="decimal" placeholder="ex.: 12">
             <div class="hint" style="margin-top:4px">A que arde <b>na frente de chamas</b>, e não a carga total do

@@ -223,9 +223,15 @@ test('sem os dois números não há intensidade, e diz-se quais faltam', semApli
   const t = janela.leituraDaIntensidade();
   assert.match(t, /velocidade de propagação/);
   assert.match(t, /carga de combustível/);
-  assert.match(t, /não os\s+estima|não os estima/);
-  /* e diz porquê, que é o que impede a pergunta seguinte */
-  assert.match(t, /modelo de combustível calibrado/);
+  /* **Este teste fixava uma frase que deixou de ser verdade.** Exigia «a aplicação não os
+     estima: exigiriam um modelo de combustível calibrado para a vegetação do Douro, e não
+     existe» — escrita antes de o motor de propagação entrar, na r0074. Um teste que guarda
+     a frase em vez do que ela promete transforma texto obsoleto em requisito, e foi o que
+     esteve a fazer durante cinco revisões: mandava o utilizador procurar no terreno o que
+     o painel logo abaixo lhe dava. */
+  assert.doesNotMatch(t, /não os\s+estima/, 'a aplicação estima, desde a r0074');
+  assert.match(t, /estima a velocidade|painel dos guias/,
+    'e a leitura tem de encaminhar para onde se estima');
 });
 
 test('a intensidade de Byram sai da velocidade e da carga', semAplicacao, () => {

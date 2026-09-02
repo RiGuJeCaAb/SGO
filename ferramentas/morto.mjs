@@ -184,7 +184,8 @@ export function funcoesEUsos(js) {
 export const SABIDOS = {
   classes: [
     { prefixo: 'pri-',  onde: '2-comando/01 · `pco-r pri-${prioridadeFuncao(...)}`' },
-    { prefixo: 'tipo-', onde: '7-arranque/01 · `evo-i tipo-${esc(e.tipo)}`' }
+    { prefixo: 'tipo-', onde: '7-arranque/01 · `evo-i tipo-${esc(e.tipo)}`' },
+    { prefixo: 'marca-', onde: '3-planeamento/19 · `marca-${r.det.marca.grau}`, o grau do tecto de saída' }
   ],
   ids: [
     { id: 'c-elementos', porque: 'contentor do cartão de elementos; a arrumação encontra-o pelo título' },

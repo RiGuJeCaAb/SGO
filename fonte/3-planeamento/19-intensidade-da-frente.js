@@ -114,8 +114,11 @@ function leituraDaIntensidade(){
     if(!f.w) falta.push("a carga de combustível consumida (t/ha)");
     return "Sem " + (falta.join(" e ") || "os dados de comportamento") + " não há intensidade da frente — e sem ela"
       + " não há comprimento de chama, distância de segurança nem largura de contenção."
-      + " Preenche em «Comportamento do fogo — intensidade da frente». A aplicação não os"
-      + " estima: exigiriam um modelo de combustível calibrado para a vegetação do Douro, e não existe.";
+      /* Esta frase dizia «a aplicação não os estima», e ficou por corrigir desde que o motor
+         de propagação entrou. Continuar a dizê-lo mandava o utilizador procurar no terreno o
+         que o painel logo abaixo lhe dá. */
+      + " Preenche em «Comportamento do fogo — intensidade da frente», ou estima a velocidade"
+      + " no painel dos guias de fogo controlado, logo abaixo, e passa-a para cá.";
   }
   const p = [];
   p.push("Com " + f.r + " m/h e " + f.w + " t/ha, a intensidade da frente é de "
@@ -238,6 +241,12 @@ function pintarEstimativa(){
   if(!r.ok){ el.innerHTML = "<b>Sem estimativa.</b> " + esc(r.recusa); E.rEst = ""; return; }
 
   const p = [];
+  /* A marca de saída vem à cabeça, e não numa nota de rodapé. Quando o número está fora
+     do que foi medido, isso é a primeira coisa a saber sobre ele — pô-lo depois da
+     velocidade seria deixar que a velocidade se lesse sozinha. */
+  if(r.det.marca) p.push('<b class="marca-' + r.det.marca.grau + '">' + esc(r.det.marca.r)
+    + "</b> — " + esc(r.det.marca.d));
+
   p.push("Velocidade de propagação estimada: <b>" + Math.round(r.r) + " m/h</b>"
     + " (" + (r.r/60).toFixed(1).replace(".", ",") + " m/min), para "
     + esc(r.modelo.c) + ", vento de " + r.u2.toFixed(1).replace(".", ",") + " km/h à superfície, "
@@ -284,8 +293,13 @@ $("pr-usar").addEventListener("click", ()=>{
      mais caro do que o erro para cima. Fica dito no ecrã e na fita. */
   if(E.wMax){ $("fg-w").value = E.wMax; O.dados.fogo.w = E.wMax; }
   const m = modeloComb(E.modelo);
+  /* A marca vai à fita com o número. A fita é o registo permanente da ocorrência: se o
+     valor sai de lá para um relatório ou para um inquérito, tem de sair com a reserva
+     colada, e não separada dela. */
+  const mc = (m && m.motor === "matos")? marcaDeSaida(parseFloat(E.rEst)) : null;
   fita("Velocidade de propagação estimada: " + E.rEst + " m/h para " + (m? m.c : "—")
     + (E.wMax? ", carga " + E.wMax + " t/ha (extremo superior do modelo)" : "")
+    + (mc? " — " + mc.r + ", " + mc.d : "")
     + " — guias de fogo controlado (Fernandes et al. 2002b), por " + (E.por||"—"));
   try{ pintarIntensidade(); }catch(e){}
   persistir(false);

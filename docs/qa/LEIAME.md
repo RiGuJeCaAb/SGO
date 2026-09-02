@@ -160,3 +160,18 @@ painel eram milhares de pixéis onde era preciso descer para descobrir o que fal
 
 `CSREPCDouro_qa0026_202609021032_DobraveisComEstado_CLD.png` — o mesmo em Comando, com a
 identificação da ocorrência aberta e a dizer «3 recomendados por preencher» no cabeçalho.
+
+
+## qa0027 — r0079, o tecto de saída
+
+`CSREPCDouro_qa0027_202609021058_TectoDeSaida_CLD.png` — o caso que motivou este trabalho:
+vento a 45 km/h, humidade do combustível a 8 %, mato de 3 m, declive de 50 %. **Tudo dentro
+dos domínios de entrada**, e o resultado são 14 820 m/h.
+
+A leitura abre com a marca, a vermelho e antes do número: «ALÉM DE QUALQUER FOGO MEDIDO — os
+14 820 m/h estão acima dos 1 200 m/h do fogo mais rápido do conjunto de 29 fogos que originou
+estes quadros, e acima dos 2 280 m/h da célula mais rápida do Quadro 3.4.1 — só as correções
+de altura e de declive lá chegam.»
+
+É a prova de que o número deixou de sair sozinho. Antes desta revisão, a mesma combinação
+devolvia os 14 820 m/h sem uma palavra de reserva.

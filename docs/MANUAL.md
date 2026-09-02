@@ -289,10 +289,31 @@ cadeia inteira — chama, segurança, contenção, ataque direto — recalcula-s
   pinheiro bravo, e mais nada. Nesses modelos a aplicação diz que a velocidade tem de ser
   observada.
 
-Os quadros foram transcritos de dois documentos que o projeto não tem em mão. Ver
-`docs/FONTES.md`, chave FOGOPT, para o que está confirmado e o que não está. Enquanto assim
-for, o número serve para ordem de grandeza e para comparar cenários — não para sustentar
-sozinho uma decisão de ataque direto.
+### Quando o número sai marcado
+
+A estimativa pode devolver uma velocidade **fora do que alguma vez foi medido**, e quando isso
+acontece a leitura abre com a marca, antes do número:
+
+| Marca | Quando aparece | O que quer dizer |
+|---|---|---|
+| **EXTRAPOLAÇÃO** | acima de 360 m/h (6 m/min) | É o valor acima do qual a fonte destes quadros desaconselha usá-los, por escassez de dados |
+| **ALÉM DE QUALQUER FOGO MEDIDO** | acima de 1 200 m/h (20 m/min) | Passou o fogo mais rápido dos 29 que originaram os quadros. Acima de 2 280 m/h passou também a célula mais rápida da tabela, e só as correções de altura e declive lá chegam |
+
+**A marca não impede o cálculo.** Recusar deixaria quem está no PCO sem estimativa nenhuma,
+que é pior. A marca acompanha o número: aparece no painel, vai com ele para a fita do tempo, e
+entra na proposta de PEA.
+
+Repare ainda numa nota que aparece sempre que o declive passa dos 5 %: o quadro base foi
+medido **em terreno plano**, e a correção do declive aplica-se fora dessas condições. Num vale
+de socalcos é essa correção que domina o resultado.
+
+O pinheiro bravo não leva marca — os limites acima são de matos, e emprestá-los a outro
+combustível seria atribuir à fonte o que ela não diz.
+
+Os quadros foram transcritos de dois documentos, e um deles já cá está. **O Quadro 3.4.1 está
+conferido contra o impresso, célula a célula.** Os outros não. Ver `docs/FONTES.md`, chave
+FOGOPT. Enquanto assim for, o número serve para ordem de grandeza e para comparar cenários —
+não para sustentar sozinho uma decisão de ataque direto.
 
 ---
 

@@ -348,8 +348,28 @@ todas as células, os fatores de altura e declive comportam-se como fatores, o e
 superior fica dentro do que Alexander (2000) reconhece para floresta, e nenhuma combinação
 produz velocidade negativa.
 
-**Continua por confirmar a transcrição contra o impresso.** É preciso dizê-lo sem
-rodeios: uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento
+### O Quadro 3.4.1 está conferido — 252 células, todas certas
+
+**Feito a 2 de setembro, contra o impresso, na página `E_10` do guia E1.** O quadro tem 21
+linhas de velocidade do vento (0,5 a 30 km/h a 2 m) por 12 colunas de humidade do combustível
+morto (8 a 40 %). **As 252 células conferem, uma a uma, com `Q_MAT_R`.** Os dois eixos também:
+`Q_MAT_U` e `Q_MAT_H` são exatamente os do impresso.
+
+E o rodapé do quadro, que vale tanto como os números:
+
+> «Velocidades de propagação de fogos a favor do vento em **terreno plano (declive <5%)** para
+> matos com 1 m de altura.»
+
+Isto confirma em primeira mão o que a linhagem paralela citava do artigo de 2001, que este
+repositório não tem: **a tabela base foi medida em terreno plano.** A correção de declive do
+Quadro 3.4.3, que chega a ×2,6 aos 50 %, aplica-se portanto fora das condições da medição — e
+num vale de socalcos o declive é a variável dominante. A aplicação passou a assinalá-lo em
+cada estimativa com declive acima de 5 %.
+
+**Continua por confirmar a transcrição dos restantes quadros:** o 3.2.1 (humidade), o 3.3.1
+(vento à superfície), o 3.4.2 (altura), o 3.4.3 (declive) e os 7.1 e 7.2 (pinheiro bravo).
+
+**Sobre esses, é preciso dizê-lo sem rodeios:** uma tabela mal copiada passa em qualquer teste de coerência e devolve comportamento
 do fogo errado com toda a confiança do mundo.
 
 Até 1 de setembro isto era impossível de resolver, porque o manual não existia aqui. **Agora
@@ -358,9 +378,8 @@ coisa. Duas notas práticas sobre o que essa conferência exige:
 
 - **O PDF é digitalizado e não tem camada de texto.** Não há como extrair os quadros por
   máquina nem comparar cadeias de caracteres: conferir significa abrir cada página de quadro
-  e ler célula a célula.
-- São seis quadros — 3.2.1, 3.3.1, 3.4.1, 3.4.2, 3.4.3, 7.1 e 7.2 — e algumas centenas de
-  células. É trabalho de uma sessão dedicada, não de um aparte.
+  e ler célula a célula. Foi assim que se conferiu o 3.4.1, e resultou.
+- Ficam seis por conferir, e o mais pesado — o 3.4.1, com 252 células — já está feito.
 
 Enquanto não estiver feito, **o que muda é a natureza da dúvida, não a sua existência**, e os
 números continuam a valer para ordem de grandeza e comparação de cenários.
@@ -390,10 +409,26 @@ não está a discordar de nenhuma das duas fontes.
    matos (E1) e pinheiro bravo (E2), e mais nada. Para o resto a aplicação diz que a
    velocidade tem de ser observada no terreno, em vez de a arbitrar por semelhança.
 
+### Os tectos de saída, e a proveniência de cada um
+
+A aplicação marca a velocidade de propagação que sai do domínio medido. Os três números não
+têm a mesma proveniência, e a diferença fica escrita no código:
+
+| Tecto | O que é | Proveniência |
+|---|---|---|
+| **2 280 m/h** | 38 m/min, a célula mais rápida do Quadro 3.4.1 | **Conferida contra o impresso.** Acima disto só as correções lá chegam |
+| **360 m/h** | 6 m/min, acima dos quais Fernandes (2001) desaconselha usar as equações, por escassez de dados | **O artigo não está aqui.** O número chegou pela linhagem paralela, que o leu na fonte |
+| **1 200 m/h** | 20 m/min, o fogo mais rápido dos 29 do conjunto de 2001 | A mesma, com a mesma reserva |
+
+**Os tectos são dos matos e ficam nos matos.** O guia E2, do pinheiro bravo, não tem tecto
+declarado que se conheça, e emprestar-lhe o dos matos seria atribuir a uma fonte o que ela não
+diz. Fica sem marca, e dito porquê.
+
 ### O que fica pedido
 
-**Fernandes e Loureiro (2021)**, os 18 modelos de combustível, que é o que falta. E a
-conferência dos quadros do manual de 2002 contra o impresso, agora que ele cá está.
+**Fernandes e Loureiro (2021)**, os 18 modelos de combustível. **Fernandes (2001)**, *Fire
+spread prediction in shrub fuels in Portugal*, para fechar a proveniência dos dois tectos que
+hoje são de segunda mão. E a conferência dos seis quadros que faltam.
 
 Enquanto isso não estiver feito, todo o número que sai deste motor é bom para ordem de
 grandeza e para comparar cenários entre si — não para sustentar sozinho uma decisão de ataque

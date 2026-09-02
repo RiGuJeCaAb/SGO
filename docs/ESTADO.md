@@ -2785,3 +2785,79 @@ o defeito de duas contagens a dizer o mesmo lado a lado. Ficou mais afiado em ve
 afrouxado: agora exige um de cada papel, e recusa que o estado e a contagem digam o mesmo.
 
 Provas em `docs/qa/`, `qa0026`.
+
+## r0079 — o tecto de saída, e o Quadro 3.4.1 conferido
+
+O motor de propagação vigiava o domínio das **entradas** e não vigiava o **valor que sai**.
+Uma combinação dentro de todos os domínios — vento 30 km/h à superfície, humidade 8 %, mato de
+3 m, declive de 50 % — devolvia **14 820 m/h** sem uma palavra de reserva. Quarenta e uma vezes
+o tecto que a fonte declara.
+
+### Antes de construir, conferi os números deles
+
+Os quatro que a linhagem paralela apresentou batem exatamente contra os meus próprios quadros:
+célula base mais rápida 38 m/min = 2 280 m/h a vento 30 e humidade 8; fator máximo de altura
+2,5; de declive 2,6; máximo do domínio 14 820 m/h. Nenhum foi aceite de palavra.
+
+### E depois fui ao Manual, que agora temos
+
+**O Quadro 3.4.1 está conferido contra o impresso — 252 células, todas certas.** Página `E_10`
+do guia E1: 21 linhas de vento por 12 colunas de humidade, mais os dois eixos. Não falhou uma.
+
+E o rodapé impresso do quadro vale tanto como os números:
+
+> «Velocidades de propagação de fogos a favor do vento em **terreno plano (declive <5%)** para
+> matos com 1 m de altura.»
+
+Isto **confirma em primeira mão** o que a linhagem paralela citava do artigo de 2001, que não
+temos: a tabela base foi medida em terreno plano. A correção de declive, que chega a ×2,6 aos
+50 %, aplica-se fora das condições da medição — e num vale de socalcos o declive é a variável
+dominante. A aplicação passou a dizê-lo em cada estimativa com declive acima de 5 %.
+
+### A marca, e a proveniência de cada tecto
+
+Três números, e **não têm a mesma proveniência** — o que fica escrito no código e no
+`FONTES.md`:
+
+| Tecto | O que é | Proveniência |
+|---|---|---|
+| 2 280 m/h | a célula mais rápida do Quadro 3.4.1 | **conferida contra o impresso** |
+| 360 m/h | 6 m/min, acima dos quais Fernandes (2001) desaconselha usar as equações | **o artigo não está aqui**; veio pela linhagem paralela |
+| 1 200 m/h | 20 m/min, o mais rápido dos 29 fogos desse conjunto | a mesma, com a mesma reserva |
+
+A marca **não impede o cálculo**: recusar deixaria quem está no PCO sem estimativa nenhuma, que
+é pior. Acompanha o número — aparece à cabeça da leitura e não em rodapé, vai com ele para a
+fita do tempo, e entra no `retratoDoFogo()`, logo na proposta de PEA.
+
+**Duas decisões que valem a pena registar:**
+
+- **O pinheiro bravo não leva marca.** Os tectos são de Fernandes (2001), que é sobre matos.
+  Emprestá-los ao guia E2 seria o mesmo erro de fonte trocada que este trabalho veio corrigir.
+  Fica sem marca e dito porquê; o domínio inteiro do pinhal não passa dos 514 m/h.
+- **Um R observado não leva marca.** Um fogo medido a 5 000 m/h não é extrapolação nenhuma: é
+  um fogo a andar depressa, e dizer-lhe «além de qualquer fogo medido» seria desmentir quem o
+  mediu. Os tectos são dos quadros, não do terreno. A marca só se aplica quando o R veio da
+  estimativa **e** o motor é o dos matos.
+
+### O erro meu, corrigido
+
+A asserção do `tests/propagacao.test.mjs` validava o extremo do domínio contra Alexander
+(2000), «1,5 m/h a ~14 km/h **em floresta**», com `max < 20000` — verdadeira, e sem significar
+nada. Estes quadros são de **matos**. Passa a aferir contra a célula mais rápida do próprio
+quadro, que está conferida, e a exigir que o que a ultrapassa saia marcado.
+
+### Duas frases no ecrã que tinham deixado de ser verdade
+
+A captura da prova mostrou-as, e ambas são da mesma família do erro acima:
+
+- A dica do campo da velocidade dizia «varia de 1,5 m/h a cerca de 14 km/h **em floresta**
+  (Alexander 2000)» — a fonte errada, dita ao utilizador. Passa a citar o domínio do Quadro
+  3.4.1 e a avisar do que sai marcado.
+- A leitura da intensidade dizia «**a aplicação não os estima**: exigiriam um modelo de
+  combustível calibrado para a vegetação do Douro, e não existe» — escrita antes da r0074 e
+  desatualizada desde então. Mandava procurar no terreno o que o painel logo abaixo dava.
+  **E havia um teste a exigir essa frase**, o que transformou texto obsoleto em requisito
+  durante cinco revisões. O teste passa a exigir o contrário: que a leitura encaminhe para
+  onde se estima.
+
+Prova em `docs/qa/`, `qa0027`.

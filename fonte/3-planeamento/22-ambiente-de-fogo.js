@@ -46,6 +46,13 @@ function retratoDoFogo(){
   const lim = (rV !== null && wV !== null)? limitesDeManobra(rV, wV) : null;
   const mod = E.modelo? modeloComb(E.modelo) : null;
 
+  /* A marca de saída não se guarda no estado: deduz-se. Aplica-se **só quando o R veio da
+     estimativa e o motor é o dos matos** — um R observado a 5 000 m/h não é extrapolação
+     nenhuma, é um fogo a andar depressa, e dizer-lhe «além de qualquer fogo medido» seria
+     desmentir quem o mediu. Os tectos são dos quadros, não do terreno. */
+  const marca = (rOrigem === "estimada pelos guias de fogo controlado" && mod && mod.motor === "matos")
+    ? marcaDeSaida(rV) : null;
+
   /* --- perfil de elevação: o declive máximo e onde está --- */
   let perfil = null;
   const P = D.perfil;
@@ -92,7 +99,7 @@ function retratoDoFogo(){
 
   return {
     modelo: mod? { c:mod.c, d:mod.d, w:mod.w, motor:mod.motor } : null,
-    r: rV === null? null : { v:rV, origem:rOrigem },
+    r: rV === null? null : { v:rV, origem:rOrigem, marca },
     w: wV === null? null : { v:wV },
     lim, eps: E.modelo && num(E.hcm) !== null && num(E.u10) !== null && num(E.declive) !== null
       ? epsilonDosQuadros(ventoSuperficie(num(E.u10)), num(E.hcm), num(E.declive)) : null,
@@ -122,6 +129,8 @@ function resumoDoFogo(f){
     + (f.modelo.w[0] !== null? ", carga fina de " + String(f.modelo.w[0]).replace(".", ",")
        + " a " + String(f.modelo.w[1]).replace(".", ",") + " t/ha" : "") + ".");
   else p.push("Modelo de combustível por identificar: sem ele não há carga nem propagação estimável.");
+
+  if(f.r && f.r.marca) p.push(f.r.marca.r + ": " + f.r.marca.d);
 
   if(f.lim && f.r && f.w) p.push("Comportamento: " + Math.round(f.r.v) + " m/h ("
     + f.r.origem + ") sobre " + f.w.v + " t/ha dão " + Math.round(f.lim.i).toLocaleString("pt-PT")
