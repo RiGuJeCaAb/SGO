@@ -48,3 +48,4 @@ cada número e com o que não pode afirmar declarado a seguir.
 
 O que a carta continua a ter e a aplicação não: a carta de fundo. Falta a decisão
 institucional sobre que serviço o posto tem direito a usar.
+

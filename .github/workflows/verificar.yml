@@ -28,4 +28,4 @@ jobs:
       - name: Análise estática
         run: |
           npm run lint
-          npx eslint ferramentas tests eslint.config.mjs
+          npm run lint-ferramentas

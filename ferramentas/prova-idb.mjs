@@ -51,7 +51,7 @@ const r = await pagina.evaluate(async ({ corpo }) => {
   /* O defeito, tal como era: abrir por um número fixo mais baixo. */
   const descer = await abrirCru('peaapp', 2);
 
-  eval(corpo);                                                    // eslint-disable-line no-eval
+  eval(corpo);
   const db = await abrirIDB();                                    // eslint-disable-line no-undef
   if (!db) return { paralela, descer, aberta: false };
   const fim = { paralela, descer, aberta: true, versao: db.version,

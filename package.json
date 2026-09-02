@@ -11,7 +11,7 @@
     "verificar": "node ferramentas/verificar.mjs",
     "testar": "node --test tests/*.test.mjs",
     "lint": "node ferramentas/lint.mjs",
-    "tudo": "npm run verificar && npm run testar && npm run lint && npm run tipos && npm run morto && npm run documentar && npm run manual && npm run arrumado",
+    "tudo": "npm run verificar && npm run testar && npm run lint && npm run lint-ferramentas && npm run tipos && npm run morto && npm run documentar && npm run manual && npm run arrumado",
     "visual": "node ferramentas/visual.mjs",
     "tipos": "node ferramentas/tipos.mjs",
     "montar": "node ferramentas/montar.mjs",
@@ -19,7 +19,8 @@
     "morto": "node ferramentas/morto.mjs",
     "documentar": "node ferramentas/documentar.mjs",
     "manual": "node ferramentas/manual.mjs",
-    "arrumado": "node ferramentas/arrumado.mjs"
+    "arrumado": "node ferramentas/arrumado.mjs",
+    "lint-ferramentas": "eslint ferramentas tests eslint.config.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

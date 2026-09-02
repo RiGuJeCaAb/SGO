@@ -513,6 +513,55 @@ As três equações contínuas de propagação, com os erros-padrão. A aplicaç
 do manual de 2002, não estas equações. Correr as duas e usar a divergência como banda de
 incerteza medida é uma possibilidade registada em `docs/POREXECUTAR.md`, e não está feita.
 
+## Os diplomas, em primeira mão — chegaram a 2 de setembro
+
+Até aqui a aplicação citava o articulado do SGO e do SIOPS **sem os ter no repositório**.
+Toda a verificação doutrinária assentava em transcrições dos ramos, que é revisão por
+terceiro e não leitura primária. Deixou de ser assim.
+
+### `Despacho_4067_2024_Regulamentacao_SGO.pdf`
+
+O Despacho n.º 4067/2024, de 15 de abril — Diário da República, 2.ª série, n.º 74. É a fonte
+da chave `SGO4067`, e agora é conferível linha a linha em vez de citada de cor.
+
+**Conferido no dia em que chegou**, contra as transcrições do ramo #006 que sustentam as
+fases de exigibilidade do PCO. As quatro batem palavra por palavra:
+
+| Onde | Texto |
+|---|---|
+| Art. 41.º, n.º 2, al. b) | «O posto de comando operacional é instalado, integrando a célula de operações e o adjunto de segurança» |
+| Art. 42.º, n.º 2, al. b) | «…integra as células de operações, de planeamento e de logística e finanças e os adjuntos de segurança e de ligação» |
+| Art. 43.º, n.º 2, al. b) | «…e os adjuntos de segurança, de relações públicas e de ligação, bem como o coordenador do posto de comando operacional» |
+| Art. 14.º, n.º 5 | «Os oficiais de operações, de planeamento e de logística e finanças são, respetivamente, responsáveis pelas células…» |
+
+**A errata da fase VI fica confirmada na fonte:** o art. 45.º, n.º 2, al. b) inclui o adjunto
+de segurança, que a matriz do Anexo I omite. O articulado prevalece, e é o que a aplicação
+segue.
+
+**E a base dos núcleos também:** arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3 entregam a
+ativação ao oficial da respetiva célula «em função da natureza da ocorrência e das
+necessidades», sem referir fase nenhuma. É o que justifica os núcleos não levarem número.
+
+### `Cartograma_SeriesCartograficas_CIGeoE.pdf`
+
+Cartograma das séries cartográficas: continente, Madeira na série P821, Açores na série M889,
+com as coberturas VMAP e DTED.
+
+**Não é uma carta anotada** — por isso não está em `docs/cartografia/`, que guarda o que se
+riscou no PCO e segue outra convenção de nomes. É o índice de que folhas existem e em que
+série, que é o que se consulta antes de fotografar uma folha da carta militar para a
+calibrar na aplicação.
+
+### `Decreto_Lei_90_A_2022_SIOPS.pdf`
+
+Decreto-Lei n.º 90-A/2022, de 30 de dezembro — Sistema Integrado de Operações de Proteção e
+Socorro. Citado na especificação e na base doutrinária; por ler em primeira mão.
+
+### `Decreto_Lei_45_2019_Organica_ANEPC.pdf`
+
+Decreto-Lei n.º 45/2019, de 1 de abril — orgânica da ANEPC. Contexto institucional; a
+aplicação não o cita hoje.
+
 ## Recebidos e por ler
 
 Documentos que estão em `docs/fontes/` e **não sustentam nada na aplicação**. Chegaram, foram
