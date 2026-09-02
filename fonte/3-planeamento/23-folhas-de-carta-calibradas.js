@@ -112,6 +112,14 @@ function folhaCalibrada(desc){
        confiança na colocação depende de quantos pontos a fixaram, e quem lê o retrato
        precisa de saber se a folha veio medida ou declarada. */
     pontos: Number(desc.pontos) || 0,
+    /* Os pontos que a fixaram, quando foi calibrada à mão. Guardam-se além da contagem
+       porque são o que permite **duvidar da colocação**: sem eles, a escala que sai dos
+       seis coeficientes não se pode confrontar com nada. Vazio quando veio de ficheiro de
+       referenciação, que não os tem. */
+    controlos: Array.isArray(desc.controlos)
+      ? desc.controlos.filter(p=>p && [p.px,p.py,p.E,p.N].every(v=>isFinite(+v)))
+          .map(p=>({px:+p.px, py:+p.py, E:+p.E, N:+p.N}))
+      : [],
     /** O ponto do terreno que está debaixo deste pixel. */
     paraMundo(px, py){ return { E: A*px + B*py + C, N: D*px + E*py + F }; },
     /** O pixel da imagem que está por cima deste ponto do terreno. */
@@ -134,6 +142,57 @@ function folhaCalibrada(desc){
   return folha;
 }
 
+/* Acima desta divergência entre a escala plana da folha e a distância esférica entre os
+   pontos de controlo, a discordância deixa de se explicar pela diferença de modelo. Medida
+   numa folha do Douro: 0,19 %. Meio por cento é folga de mais do dobro sobre isso.
+
+   **Leia-se com cuidado o que esta verificação apanha, porque não é o que parece.** Numa
+   folha calibrada por dois pontos, a escala é *definida* por esses dois pontos: `mpp·dpx`
+   é identicamente a distância entre eles, e o confronto seria tautológico se os dois lados
+   viessem do mesmo sítio. Não vêm — um é plano em PT-TM06 e o outro é esférico —, e é só
+   essa diferença que se mede. Comprovado: um erro de 40 km no Este de um controlo leva o
+   desvio de 0,19 % a 0,25 %, e passa. **Isto não deteta uma coordenada mal escrita.**
+
+   O que deteta é a fundação: se `paraTM06`, `deTM06` ou `distanciaM` se partirem, os dois
+   modelos deixam de concordar e isto dispara. É por isso que existe, e é só isso que
+   promete. Uma primeira versão anunciava-a como quem confere as coordenadas escritas à
+   mão, e essa afirmação era falsa. */
+const AFERICAO_DESVIO_MAX = 0.005;
+
+/**
+ * A escala da folha, e o confronto entre os dois modelos que a medem.
+ *
+ * `mpp` sai do determinante: é o lado do terreno que um pixel cobre, e numa semelhança é o
+ * mesmo nos dois eixos. `esferico` é a distância entre os dois pontos de controlo medida
+ * pela via independente — a esférica de `distanciaM` —, e `desvio` é o quanto as duas
+ * discordam em proporção. Ver acima o que esse desvio apanha, que é menos do que parece.
+ *
+ * **Devolve nada, e nunca zero, quando não há por onde aferir.** Um `mpp` de 0, ou NaN,
+ * entra no ecrã como se fosse uma escala; não haver aferição tem de se distinguir de haver
+ * uma má, e é por isso que a ausência é `null` e não um número. Apontado pelo ramo #001.
+ *
+ * Sem pontos de controlo — folha vinda de ficheiro de referenciação — há `mpp` e não há
+ * confronto: `esferico` e `desvio` ficam nulos, que é a resposta honesta.
+ */
+function folhaAfericao(f){
+  if(!f || !f.mundo) return null;
+  const m = f.mundo, det = m.A*m.E - m.D*m.B;
+  if(!isFinite(det) || !det) return null;
+  const mpp = Math.sqrt(Math.abs(det));
+  const out = { mpp, esferico:null, desvio:null, suspeita:false };
+  const c = f.controlos || [];
+  if(c.length !== 2 || f.grelha !== "pttm06") return out;
+  const dpx = Math.hypot(c[1].px - c[0].px, c[1].py - c[0].py);
+  if(!dpx) return out;
+  const a = deTM06(c[0].E, c[0].N), b = deTM06(c[1].E, c[1].N);
+  const esf = distanciaM(a.lat, a.lon, b.lat, b.lon);
+  if(!esf) return out;
+  out.esferico = esf;
+  out.desvio = Math.abs(mpp*dpx - esf) / esf;
+  out.suspeita = out.desvio > AFERICAO_DESVIO_MAX;
+  return out;
+}
+
 /* As folhas colocadas nesta sessão. Vive fora de `O` de propósito: a imagem de uma folha
    pesa megabytes e não cabe no pacote da ocorrência, que viaja por ficheiro de texto. O
    que fica gravado é a colocação, na loja `folhas` da base; a imagem volta a ser escolhida
@@ -143,7 +202,8 @@ let FOLHAS = [];
 /** A colocação de uma folha, sem a imagem — é isto que se grava e que se lê de volta. */
 function colocacaoDaFolha(f){
   return { id:f.id, nome:f.nome, largura:f.largura, altura:f.altura,
-           mundo:f.mundo, grelha:f.grelha, proveniencia:f.proveniencia, pontos:f.pontos };
+           mundo:f.mundo, grelha:f.grelha, proveniencia:f.proveniencia,
+           pontos:f.pontos, controlos:f.controlos };
 }
 
 /** Guarda a colocação das folhas, para que uma folha calibrada não se perca ao fechar. */
@@ -227,7 +287,7 @@ async function colocarFolha(){
   const im = await lerImagemDaFolha(fi.files[0]);
   if(!im) return dizer("err", "Não foi possível ler a imagem.");
 
-  let mundo = null, pontos = 0;
+  let mundo = null, pontos = 0, controlos = [];
   if(ff && ff.files && ff.files.length){
     mundo = lerFicheiroReferenciacao(await lerTextoDoFicheiro(ff.files[0]));
     if(!mundo) return dizer("err", "O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
@@ -238,12 +298,12 @@ async function colocarFolha(){
       return dizer("err", "Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
     mundo = calibrarPorDoisPontos(p1, p2);
     if(!mundo) return dizer("err", "Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
-    pontos = 2;
+    pontos = 2; controlos = [p1, p2];
   }
 
   const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:$("fo-grelha").value,
-    proveniencia:prov, pontos });
+    proveniencia:prov, pontos, controlos });
   if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
   f.img = im.url;
   FOLHAS.push(f);
@@ -252,6 +312,15 @@ async function colocarFolha(){
     +", "+f.proveniencia+")"+(f.foraDoEnvelope? " — fora do envelope do continente":""));
   pintarFolhas();
   try{ pintarMapa(); }catch(e){}
+  const af = folhaAfericao(f);
+  /* O aviso é sobre a aritmética da aplicação, e não sobre o que o utilizador escreveu —
+     ver `AFERICAO_DESVIO_MAX`. Dizer-lhe para conferir as coordenadas seria mandá-lo
+     procurar um erro que esta conta não viu. */
+  if(af && af.suspeita) return dizer("err", "Folha colocada, mas os dois modelos de distância "
+    + "não concordam: a escala em PT-TM06 dá "
+    + (af.mpp*Math.hypot(controlos[1].px-controlos[0].px, controlos[1].py-controlos[0].py)).toFixed(0)
+    + " m entre os controlos e a medida esférica dá " + af.esferico + " m, "
+    + (af.desvio*100).toFixed(1) + " % de diferença. Não é a colocação: é a projeção. Comunicar.");
   dizer("ok", "Folha colocada."+(f.foraDoEnvelope
     ? " Cai fora do envelope do continente — pode ser das ilhas ou de Espanha, ou a colocação estar errada. Confere no mapa."
     : ""));
@@ -275,12 +344,13 @@ function pintarFolhas(){
     /* Metros por pixel: sai do determinante, que é a área que um pixel cobre no terreno.
        É o número por que se percebe, de relance, se a colocação faz sentido — uma folha a
        0,004 m/px ou a 900 m/px está errada e vê-se sem abrir o mapa. */
-    const mpp = Math.sqrt(Math.abs(f.mundo.A*f.mundo.E - f.mundo.D*f.mundo.B));
+    const af = folhaAfericao(f), mpp = af? af.mpp : 0;
     return '<div class="pk-r"><span class="k">'+esc(f.nome)+'</span><span class="v">'
       + f.largura+'×'+f.altura+' px · '+mpp.toFixed(3).replace(".", ",")+' m/px · '+esc(g? g.n : f.grelha)
       + ' · '+(f.pontos? f.pontos+' pontos de controlo' : 'ficheiro de referenciação')
       + ' · '+esc(f.proveniencia)
       + (f.foraDoEnvelope? ' <span class="pend">fora do envelope do continente</span>' : "")
+      + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+(af.desvio*100).toFixed(1)+' %</span>' : "")
       + (f.img? "" : ' <span class="pend">sem imagem nesta sessão — volta a escolhê-la para a desenhar</span>')
       + ' <button class="lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
   }).join("");

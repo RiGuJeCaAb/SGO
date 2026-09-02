@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0085**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0086**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 124, das anteriores à convenção de nomes até à r0085 |
+| Entregas em `app/` | 125, das anteriores à convenção de nomes até à r0086 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 817, todos a passar |
+| Testes | 829, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -180,6 +180,49 @@ enquadramento. Prova em `docs/qa/`, `qa0030`.
 **Nota sobre a proveniência das 53.** Não são as do `t0018`, que está no ramo #004 e nunca
 chegou aqui; o ramo #002 reconstruiu-as do comportamento descrito. Se as originais
 aparecerem, correm-se as duas — onde divergirem, é a especificação que está mal escrita.
+
+## Duas especificações escritas às cegas, e o que elas provaram — r0086
+
+O ramo #001 entregou uma segunda especificação das folhas calibradas, escrita em separado da
+do ramo #002 e sem que nenhum dos dois visse o trabalho do outro. Também 53 asserções, o que
+foi coincidência e não confirmação — o próprio ramo o diz.
+
+**As duas concordam.** Com os nomes do contrato adaptados à superfície que a r0085 já
+implementava — que é o que o bloco `CONTRATO` daquele guião existe para permitir —, 51 das
+53 passam, e as duas que faltam verificam a existência de um nome e não um comportamento.
+Toda a leitura do ficheiro de referenciação, toda a recolocação por dois pontos, toda a
+admissão de folhas: verde nas duas. Duas pessoas escreveram em separado o que uma folha
+calibrada tem de fazer, e a implementação satisfaz as duas.
+
+**O grupo A é o achado maior, e não é sobre folhas.** Confronta a projeção PT-TM06 com o
+**PROJ 3.7.2** em cinco pontos calculados sobre a definição EPSG:3763, e passa nos 16. É a
+única verificação desta aritmética contra uma implementação de referência que este projeto
+tem: o PROJ não é alcançável do ambiente onde as revisões se constroem, e até aqui a projeção
+só se confrontava consigo própria pela ida e volta — **que fecha na mesma se as duas metades
+estiverem erradas do mesmo modo.** Os cinco pontos estão agora em `tests/mapa.test.mjs`.
+
+**Entrou o que faltava:** `folhaAfericao`, com a regra que o ramo #001 impôs e que estava
+certa — não haver aferição tem de se distinguir de haver uma má, e por isso a ausência é
+`null` e nunca zero ou NaN. Uma folha guarda agora também os dois pontos de controlo que a
+fixaram, e não só a contagem: são eles que permitem duvidar da colocação.
+
+### E um erro meu, que o teste apanhou por eu ter escrito o teste primeiro
+
+Anunciei o confronto entre a escala plana e a distância esférica como quem **confere as
+coordenadas escritas à mão**. Não confere, e o teste que escrevi para o provar falhou —
+corretamente. Numa folha fixada por dois pontos, a escala é *definida* por esses dois
+pontos: `mpp·dpx` é identicamente a distância entre eles. O que sobra é a diferença entre o
+plano e a esfera, e essa quase não mexe com o erro. **Comprovado: um erro de 40 km no Este
+de um controlo leva o desvio de 0,19 % a 0,25 %, e passa.**
+
+O que a conta apanha é a fundação — se `paraTM06`, `deTM06` ou `distanciaM` se partirem, os
+dois modelos deixam de concordar. É só isso que promete agora, no código, na mensagem do
+ecrã e num teste que **exige que o erro de 40 km passe**, para que ninguém volte a anunciar
+o que a conta não faz.
+
+É a terceira vez esta semana que uma asserção certifica menos do que o seu nome dizia: o meu
+tecto de matos validado contra fonte de floresta, o `E7` do ramo #001 a verificar a própria
+fixture, e agora esta. As três foram apanhadas, e nenhuma por leitura.
 
 ## Decisões tomadas
 

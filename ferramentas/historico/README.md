@@ -104,3 +104,31 @@ correm-se as duas: onde divergirem, é a especificação que está mal escrita.
 
 Quem impede a regressão do lado de dentro é `tests/folhas-calibradas.test.mjs`, que cobre o
 que este guião não podia cobrir — o desenho, da folha ao ecrã.
+
+## `001_CSREPCDouro_202609021551_t0021_FolhaCalibrada_CLD.js`
+
+**A segunda especificação das folhas calibradas, escrita em separado da do ramo #002 e sem
+que nenhum dos dois visse o trabalho do outro.** 53 asserções também, o que foi coincidência
+e não confirmação — o ramo #001 di-lo à cabeça. Depende de `jsdom`.
+
+Vale por três coisas.
+
+**O grupo A confronta a projeção PT-TM06 com o PROJ 3.7.2**, em cinco pontos calculados
+sobre a definição EPSG:3763. É a única verificação desta aritmética contra uma implementação
+de referência que este projeto tem: o PROJ não é alcançável do ambiente onde as revisões se
+constroem, e até aqui a projeção só se confrontava consigo própria pela ida e volta — que
+fecha na mesma se as duas metades estiverem erradas do mesmo modo. Passou nos 16.
+
+**As duas especificações concordam.** Com os nomes do contrato adaptados à superfície que a
+r0085 implementa — que é o que o bloco `CONTRATO` deste guião existe para permitir —, 51 das
+53 passam; as duas que faltam verificam a existência de um nome, não um comportamento.
+Duas pessoas escreveram em separado o que uma folha calibrada tem de fazer, e a
+implementação satisfaz as duas.
+
+**E trouxe o que faltava:** `folhaAfericao`, com a regra de que não haver aferição se tem de
+distinguir de haver uma má — `null`, nunca zero nem NaN.
+
+O ramo #001 registou no próprio ficheiro dois erros seus, apanhados a verificar em vez de
+assumir: o acesso por `window.X`, que teria dado vermelho a código já implementado porque um
+`const` de topo não cria propriedade em `window`; e um `E7` que verificava a fixture
+construída pelo próprio teste e passava a verde sem tocar na aplicação.

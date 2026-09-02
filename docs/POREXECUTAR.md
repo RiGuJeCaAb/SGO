@@ -340,8 +340,12 @@ Absorvido a 2 de setembro, guiado pelas 53 asserções do `t0001` do ramo #002 e
 do remendo. O guião fica em `ferramentas/historico/002_CSREPCDouro_202609021600_t0001_FolhasCalibradas_CLD.js`
 e continua a correr de fora contra qualquer entrega: contra a r0085 dá 54 verdes e saída 0.
 
-**Fica uma coisa por confrontar, e não depende de mim.** Estas 53 asserções não são as do
-`t0018`: estão no ramo #004 e nunca chegaram a esta linhagem. O ramo #002 reconstruiu-as a
-partir do comportamento descrito. Se as originais aparecerem, correm-se as duas contra a
-mesma entrega — onde divergirem, é a especificação que está mal escrita, e isso vale mais do
-que qualquer um dos dois guiões sozinho.
+**O confronto entre especificações fez-se, e deu concordância.** O ramo #001 entregou uma
+segunda especificação escrita às cegas — 53 asserções também, por coincidência. Com o
+contrato adaptado aos nomes que a r0085 implementa, 51 passam; as duas que faltam verificam
+a existência de um nome e não um comportamento. Guião em
+`ferramentas/historico/001_CSREPCDouro_202609021551_t0021_FolhaCalibrada_CLD.js`.
+
+**Continua por confrontar o `t0018` original**, que está no ramo #004 e nunca chegou a esta
+linhagem. Já não é o único ponto de comparação — há duas especificações independentes a
+concordar —, mas um terceiro olhar sobre a mesma matéria continua a valer.
