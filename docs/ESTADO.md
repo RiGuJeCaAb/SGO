@@ -127,7 +127,8 @@ Netlify, que continua a comentar nos PR e a contar deploys que já não faz.
 `main`, a n.º 229, tentou criar o sítio a partir do fluxo com `enablement: true` e o GitHub
 recusou: «Resource not accessible by integration». O token que os fluxos recebem não tem
 esse poder, e um passo que promete o que não pode cumprir saiu. Liga-se em Settings, Pages,
-origem «GitHub Actions», uma vez; a partir daí cada push ao `main` publica.
+origem «GitHub Actions», uma vez; a partir daí cada push ao `main` que passe a verificação,
+enquanto o repositório for público, publica no Pages.
 
 **A entrada esvaziou-se outra vez, a 4 de setembro.** Chegaram ao `main` onze PDF — as
 quatro DON, as ferramentas de gestão do SGO, o Rothermel (1972) e a sua ficha bibliográfica,
