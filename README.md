@@ -12,7 +12,9 @@ sem instalação e sem rede. É o que vai para o posto de comando.
 
 ## Usar
 
-Abrir a revisão de numeração mais alta em `app/` no navegador.
+Abrir a revisão de numeração mais alta em `app/` no navegador. O `home.html` da raiz é a
+mesma entrega, reescrito a cada montagem, e é o que o GitHub Pages serve em
+`https://rigujecaab.github.io/SGO/` — quando o repositório publica, ver `docs/ESTADO.md`.
 
 ## Desenvolver
 

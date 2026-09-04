@@ -26,3 +26,68 @@ jobs:
       # passa a ser uma linha no `package.json` e mais nada.
       - name: Verificação completa (npm run tudo)
         run: npm run tudo
+
+  # A cópia servida. Corre só em push ao `main` e só depois dos nove portões: o que se
+  # serve nunca é uma revisão que a verificação recusou. Leva o `home.html` e mais nada —
+  # as entregas de `app/` e os PDF de `docs/fontes/` pesam centenas de megabytes e não são
+  # o que o posto de comando abre por endereço.
+  #
+  # Porquê o GitHub Pages e não o Netlify: a 4 de setembro a conta do Netlify esgotou os
+  # créditos e saltou sete deploys de produção seguidos, «Skipped due to account credit
+  # usage exceeded», deixando o sítio congelado numa revisão anterior sem avisar ninguém.
+  # Um serviço com contador não serve um ficheiro que se quer sempre igual ao repositório.
+  #
+  # Enquanto o repositório for privado o trabalho não corre: o Pages em repositório
+  # privado exige plano pago, e um trabalho a falhar em cada push ao `main` seria ruído
+  # a tapar falhas verdadeiras. Quem tiver plano pago tira a última condição do `if`.
+  publicar:
+    needs: verificar
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !github.event.repository.private
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publicar.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      # O `index.html` de reencaminhamento existe só aqui, no que se publica, e não no
+      # repositório: o dono apagou o `index.html` da raiz a 4 de setembro e a montagem
+      # escreve `home.html`. Sem ele, o endereço da raiz dava 404 em vez de abrir a Estação.
+      - name: Reunir o que se publica
+        run: |
+          mkdir -p _publicar
+          cp home.html _publicar/
+          cat > _publicar/index.html <<'FIM'
+          <!DOCTYPE html>
+          <html lang="pt-PT">
+          <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="refresh" content="0; url=home.html">
+          <title>Estação PEA</title>
+          </head>
+          <body>
+          <p>A Estação PEA está em <a href="home.html">home.html</a>.</p>
+          </body>
+          </html>
+          FIM
+
+      # `enablement: true` liga o Pages ao repositório na primeira execução, sem passar
+      # pelas definições: é a única coisa que uma sessão sem acesso às definições podia
+      # fazer por si.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _publicar
+
+      - id: publicar
+        uses: actions/deploy-pages@v4
