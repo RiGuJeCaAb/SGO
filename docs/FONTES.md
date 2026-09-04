@@ -550,7 +550,7 @@ que é trabalho do ramo #003, e para fechar duas verificações que estavam por 
 
 | Ficheiro | O que fecha |
 |---|---|
-| `Modelos_de_combustivel_florestal_para_Portugal_Fernandes_Loureiro_2021_Guia.pdf` | Os 18 modelos de `MODELOS_COMB` estão por confrontar com esta fonte desde que entraram |
+| `Modelos_de_combustivel_florestal_para_Portugal_Fernandes_Loureiro_2021.pdf` | Os 18 modelos de `MODELOS_COMB` estão por confrontar com esta fonte desde que entraram. Chegou uma segunda cópia a 4 de setembro, byte a byte igual à de 2 de setembro que a `FOGOPT` já cita: ficou a primeira, e só ela |
 | `A_Mathematical_Model_for_Predicting_Fire_Spread_in_Wildland_Fuels_Rothermel_1972.pdf` | O artigo original, base de quase tudo o que se seguiu |
 | `Modeling_Wind_Adjustment_Factor_and_Midflame_Wind_Speed_Andrews_2012.pdf` | **O achado A1 do ramo #003**: o fator de ajuste do vento que `ventoSuperficie` aplica aos dois motores, e que eles apontam como o único achado que muda um número em operação hoje |
 | `The_Rothermel_Surface_Fire_Spread_Model_Andrews_2018.pdf` | A explicação compreensiva do modelo e do que dele derivou |
