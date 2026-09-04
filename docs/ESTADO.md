@@ -123,6 +123,12 @@ tornou-o público a 4 de setembro, e a condição fica lá escrita como proteç�
 bloqueio. O endereço é `https://rigujecaab.github.io/SGO/`. Fica ao dono desligar o sítio no
 Netlify, que continua a comentar nos PR e a contar deploys que já não faz.
 
+**O Pages liga-se uma vez, à mão, e o fluxo não o pode fazer.** A primeira execução em
+`main`, a n.º 229, tentou criar o sítio a partir do fluxo com `enablement: true` e o GitHub
+recusou: «Resource not accessible by integration». O token que os fluxos recebem não tem
+esse poder, e um passo que promete o que não pode cumprir saiu. Liga-se em Settings, Pages,
+origem «GitHub Actions», uma vez; a partir daí cada push ao `main` publica.
+
 **A entrada esvaziou-se outra vez, a 4 de setembro.** Chegaram ao `main` onze PDF — as
 quatro DON, as ferramentas de gestão do SGO, o Rothermel (1972) e a sua ficha bibliográfica,
 os dois Andrews (2012 e 2018) e o guia de modelos de combustível de 2021 — no mesmo dia em

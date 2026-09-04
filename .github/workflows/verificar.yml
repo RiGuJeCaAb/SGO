@@ -78,12 +78,11 @@ jobs:
           </html>
           FIM
 
-      # `enablement: true` liga o Pages ao repositório na primeira execução, sem passar
-      # pelas definições: é a única coisa que uma sessão sem acesso às definições podia
-      # fazer por si.
+      # O Pages liga-se uma vez, à mão, nas definições do repositório, com a origem
+      # «GitHub Actions». O token do fluxo não pode criar o sítio: tentou-se com
+      # `enablement: true` na execução n.º 229 e a resposta foi «Resource not accessible
+      # by integration». Depois de ligado, este passo só lê a configuração que lá está.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
