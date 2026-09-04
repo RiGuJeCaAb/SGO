@@ -19,13 +19,10 @@ jobs:
       - name: Instalar ferramentas de desenvolvimento
         run: npm ci
 
-      - name: Sintaxe do script da aplicação
-        run: npm run verificar
-
-      - name: Testes
-        run: npm run testar
-
-      - name: Análise estática
-        run: |
-          npm run lint
-          npm run lint-ferramentas
+      # Os nove portões, pela ordem em que `npm run tudo` os corre e num só comando.
+      # Correr aqui a lista escrita à mão foi o que deixou `tipos`, `morto`, `documentar`,
+      # `manual` e `arrumado` cinco portões de fora sem ninguém dar por isso — e são
+      # justamente os que guardam as regras próprias deste projeto. Acrescentar um portão
+      # passa a ser uma linha no `package.json` e mais nada.
+      - name: Verificação completa (npm run tudo)
+        run: npm run tudo

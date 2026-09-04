@@ -603,6 +603,18 @@ A proposta é numerada e sucessiva. O histórico fica em **Histórico de propost
 > O COS aprova **depois** de ter o PEA impresso à sua frente. A aplicação propõe; a aprovação
 > é um ato de comando e faz-se fora dela.
 
+Registada a aprovação com «Registar aprovação do COS», a aplicação produz de seguida as ordens
+de missão e passa-as a controlo de execução.
+
+**Se as ordens não saírem**, a ficha da proposta diz "aprovado sem ordens de missão", com o
+motivo e a hora, e fica lá um botão «Produzir ordens de missão» para voltar a tentar. A
+aprovação não se desfaz por causa disto: o COS aprovou, e isso ficou registado. O que falta é
+outro ato, de outra célula — e enquanto faltar, **não há controlo de execução nesta aplicação
+e a transmissão das missões faz-se fora dela**. A falta entra também no registo de evolução,
+que acompanha a ocorrência quando ela muda de posto.
+
+Antes disto o ecrã dizia sempre que as ordens tinham sido produzidas, houvesse ordens ou não.
+
 ---
 
 ## Passagem de turno
@@ -693,6 +705,47 @@ um campo por preencher que perde o contorno continua a parecer preenchido, e é 
 aplicação o diz em vez de o deixar passar. Não bloqueia: declara.
 
 Medido pelo ramo #005 em Chromium 141, com perfil vazio, aberto por duplo clique.
+
+---
+
+## Quando parte do ecrã não pinta
+
+No cimo da página pode aparecer uma faixa vermelha a dizer que parte do ecrã não foi
+atualizada, com o nome de cada vista que não pintou e o motivo.
+
+Quando ela está lá, **o que estiver abaixo pode ser a pintura anterior** — dados velhos com
+ar de dados novos. As vistas nomeadas confirmam-se noutra fonte antes de se decidir sobre
+elas; as restantes estão atualizadas, porque cada uma pinta por si e uma que rebente já não
+leva as outras com ela. A entrada e a saída da falha ficam na fita do tempo.
+
+Antes disto as pinturas corriam agrupadas e em silêncio: uma que rebentasse apagava oito
+vistas de uma vez — a estrutura do PCO, o plano de comunicações, o catálogo, a conformidade,
+o PEA em vigor, o estado da proposta, as ampulhetas e o perfil — e o ecrã não dizia nada.
+
+---
+
+## O que a lista de verificação diz quando não consegue verificar
+
+Na lista de verificação dos dados da ocorrência, ao lado de "COMPLETO", "EM FALTA" e
+"RECOMENDADO", pode aparecer **"POR VERIFICAR"**, com o motivo à frente.
+
+Significa que a aplicação não conseguiu avaliar aquele ponto — não que o campo esteja vazio.
+Bloqueia a emissão do PEA como bloqueia um obrigatório em falta, e é de propósito: o que não
+se consegue verificar conta como por cumprir, nunca como cumprido. Não traz botão «Preencher»
+porque não há campo nenhum para preencher; o que há é uma verificação que rebentou.
+
+---
+
+## Ficheiros importados: as chaves que não entram
+
+Um ficheiro de ocorrência importado pode trazer chaves que não são dados — `__proto__`,
+`constructor`, `prototype`. A aplicação **tira-as e importa a ocorrência à mesma**, e diz
+quantas tirou, na mesma linha em que relata as correções de forma.
+
+Recusa-se a chave, não o ficheiro: num posto de comando, um registo com um campo estragado
+ainda é o registo, e deitá-lo fora inteiro pode ser a diferença entre ter a ocorrência e não
+ter nada. A limpeza corre também no arquivo do dispositivo e nas cópias de recuperação, para
+apanhar o que lá tenha ficado de uma revisão anterior.
 
 ---
 

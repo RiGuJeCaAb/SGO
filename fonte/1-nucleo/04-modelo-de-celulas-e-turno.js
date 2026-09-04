@@ -156,6 +156,13 @@ MIGRACOES.push(e => {
  */
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
+  /* Antes de qualquer migração, porque é a migração 0 que faz o `Object.assign` onde a
+     chave se torna perigosa. Aqui porque é o sítio por onde passam os três caminhos de
+     entrada — ficheiro importado, arquivo do dispositivo e cópia de recuperação — e um
+     estado envenenado numa revisão antiga continua no arquivo depois de a porta fechar.
+     A contagem devolve-se a quem importou por `lerPacoteOcorrencia`, que corre isto antes;
+     aqui a segunda passagem devolve zero e serve só de rede. */
+  limparChavesRecusadas(guardado, 0);
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
   if(de > VERSAO_ESTADO){
     const erro = /** @type {Error & {futuro:number}} */ (new Error("gravado na versão "+de+"; esta revisão lê até à "+VERSAO_ESTADO));

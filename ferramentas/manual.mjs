@@ -75,6 +75,11 @@ const RENDIDOS = [
   /* Cabeçalho do bloco das propostas retiradas, escrito no PEA depois de o plano estar
      composto — não existe no molde e a leitura estática não o alcança. */
   { rotulo: 'Retirado por proposta mais específica', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
+  /* Os dois botões da ficha da proposta. `renderEstadoPEA` compõe o cartão inteiro em
+     tempo de execução — o molde não tem nenhum deles —, e o de produzir ordens só aparece
+     na proposta que ficou aprovada sem elas. */
+  { rotulo: 'Registar aprovação do COS', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
+  { rotulo: 'Produzir ordens de missão', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
 ];
 
 /** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */

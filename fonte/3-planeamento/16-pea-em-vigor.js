@@ -564,7 +564,11 @@ function renderEstadoPEA(){
        <div style="margin-top:12px"><label for="pe-nota">Nota para o processo</label><input id="pe-nota" placeholder="opcional — determinações do COS na aprovação"></div>
        <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pe-aprovar">Registar aprovação do COS</button></div>`
     : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
-         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`;
+         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`
+      + (p.semOrdens
+         ? `<div class="msg err" style="display:block;margin-top:10px">Este PEA está aprovado <b>sem ordens de missão</b>: ${esc(p.semOrdens.motivo)} (${esc(p.semOrdens.g)}). Enquanto assim estiver, não há controlo de execução nesta aplicação e a transmissão das missões faz-se fora dela.</div>`
+           + `<div class="row" style="margin-top:10px"><button class="btn btn-o" type="button" id="pe-ordens">Produzir ordens de missão</button></div>`
+         : "");
 
   C.innerHTML = `<div class="card">
     <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
@@ -579,6 +583,14 @@ function renderEstadoPEA(){
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     persistir(false); pintarTudo();
   });
+  const bO = $("pe-ordens");
+  if(bO) bO.addEventListener("click", async ()=>{
+    bO.disabled = true; bO.innerHTML = '<span class="spin"></span> Ordens de missão…';
+    const q = await produzirOrdensDoAprovado(p);
+    await persistir(false); pintarTudo();
+    if(q.ok) aviso("msg-ia","ok","Ordens de missão do PEA n.º "+p.n+" produzidas: "+q.n+" em controlo de execução.");
+    else aviso("pe-msg","err","Continua sem ordens de missão: "+q.motivo+".");
+  });
   const bA = $("pe-aprovar");
   if(bA) bA.addEventListener("click", async ()=>{
     const q = gdhDoCampo("pe-g", "pe-msg");
@@ -587,9 +599,12 @@ function renderEstadoPEA(){
       nota:$("pe-nota").value, g:($("pe-g").value.trim()? q.g : "") });
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     bA.disabled = true; bA.innerHTML = '<span class="spin"></span> Ordens de missão…';
-    try{ await produzirOrdens(r.pea); }catch(e){}
+    /* `ord` e não `q`: `q` já é o GDH conferido, três linhas acima. */
+    const ord = await produzirOrdensDoAprovado(r.pea);
     await persistir(false);
     pintarTudo();
-    aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas e em controlo de execução.");
+    if(ord.ok) aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas: "+ord.n+" em controlo de execução.");
+    else aviso("msg-ia","err","PEA n.º "+p.n+" APROVADO, mas SEM ORDENS DE MISSÃO: "+ord.motivo
+      + ". A aprovação do COS está registada; a transmissão das missões tem de ser feita fora da aplicação até as ordens serem produzidas.");
   });
 }

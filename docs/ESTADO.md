@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-09-02.
+Atualizado em 2026-09-04.
 
 ## Situação atual
 
-A revisão em vigor é a **r0093**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0094**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 131, das anteriores à convenção de nomes até à r0093 |
+| Entregas em `app/` | 132, das anteriores à convenção de nomes até à r0094 |
 | Módulos em `fonte/` | 72, em sete zonas, mais o molde |
-| Testes | 872, todos a passar |
+| Testes | 900, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -494,6 +494,91 @@ que falhar.
 Declara-se e não se bloqueia, na doutrina do carimbo de integridade: um carimbo no fim da
 página, permanente porque é condição da máquina e não acontecimento. A deteção é
 `CSS.supports` e nunca o `userAgent`, que qualquer coisa reescreve — há teste que o exige.
+
+## A auditoria externa de 4 de setembro, verificada e respondida — r0094
+
+Chegou uma auditoria da r0091 produzida por outro modelo. Verificou-se cada afirmação contra
+a fonte antes de a aceitar, que é a regra que este projeto adotou depois de a correção do
+ramo #006 ao POSIT ter sido ela própria errada: **a verificação passa pela fonte e não pela
+palavra de quem a leu, mesmo quando quem leu nos está a corrigir.**
+
+Da verificação saíram três categorias, e as três interessam.
+
+**Confirmadas tal e qual.** O `pendencias()` a falhar para o lado aberto — quatro entradas com
+`catch(e){ return true; }`, isto é, a guia a dar a pendência por satisfeita exatamente quando
+não consegue avaliá-la. A aprovação a dizer sempre «ordens de missão produzidas e em controlo
+de execução», por a chamada estar num `catch` vazio. A CI a correr quatro dos nove portões:
+`tipos`, `morto`, `documentar`, `manual` e `arrumado` nunca correram lá — e são precisamente
+os cinco que guardam as regras próprias deste projeto. A dimensão do PR, que é pior do que a
+auditoria dizia: 87 ficheiros e 181 480 linhas. E a falta de `<main>`, de `<h1>` e de `pt-PT`,
+contadas a zero, zero e um.
+
+**Confirmadas mas mais estreitas do que o afirmado.** O `__proto__` na importação **não polui
+o `Object.prototype` global** — mediu-se intacto antes e depois. O que faz é trocar o
+protótipo de um objeto do estado no `Object.assign` da migração 0, e das três chaves só o
+`__proto__` tem acessor; `constructor` e `prototype` entram como campos banais. Mediu-se ainda
+que, na escada de hoje, o degrau 2 para 3 reconstrói o `dados.topo` e lava o efeito **por
+acidente**, e é por ser por acidente que a porta se fechou. Quanto à hora do Open-Meteo, o
+rótulo saía certo — `getHours()` desfazia o que a leitura tinha feito — e o que saía errado
+era o *instante*, que é o que decide no filtro que horas já passaram.
+
+**Não reproduzida.** «Mil alterações rápidas acabam com uma revisão antiga gravada» não
+acontece: `persistir` é síncrono até ao `await` e `_idb` cria a transação dentro do executor
+da Promise, pelo que ordem de chamada é ordem de escrita, que o IndexedDB garante. O que
+existe, e a achada não apanhou, é que `persistir` nunca lança e quase nenhuma chamada é
+esperada com `nota` — **uma gravação falhada é hoje indistinguível de uma gravação boa**.
+
+**Pior do que o afirmado.** Os 108 `catch` vazios estão certos na contagem, mas o número não
+era o problema: nove pinturas viviam num só `try`, e uma exceção em `autoNivelDECIR` apagava
+em silêncio oito vistas de uma vez — a estrutura do PCO, o plano de comunicações, o catálogo,
+a conformidade, o PEA em vigor, o estado da proposta, as ampulhetas e o perfil. O ecrã ficava
+com a pintura anterior e não dizia nada.
+
+Feito nesta revisão, por esta ordem:
+
+1. **A CI corre `npm run tudo`.** Um comando, nove portões, e acrescentar um portão passa a
+   ser uma linha no `package.json`. Correu-se localmente antes de mudar o ficheiro: os nove
+   passavam já, portanto a CI fica verde de imediato e o buraco fecha sem dívida atrás.
+2. **`pendencias()` falha fechado**, por `avaliarPendencia`, e o motivo viaja com a pendência.
+   Três estados na lista de verificação, e não dois: «POR VERIFICAR» bloqueia como um
+   obrigatório em falta mas não manda preencher um campo que não é o problema.
+3. **`produzirOrdensDoAprovado`** substitui o `catch` vazio. Não é um estado novo da proposta:
+   o COS aprovou, o ato de comando aconteceu e está registado (art. 8.º, n.º 2, al. e); o que
+   falhou foi outro ato, de outra célula. Fica um `semOrdens` no plano, com motivo e hora, um
+   botão para repetir, e uma entrada no registo de evolução — que é o que acompanha a
+   ocorrência quando ela muda de posto.
+4. **Uma pintura por `try`**, por `pintura()`, com faixa no topo a nomear o que não pintou e
+   uma linha na fita à entrada e à saída da falha. Um teste recusa que volte a haver um `try`
+   dentro de `pintarTudo`.
+5. **`timeformat=unixtime`** no Open-Meteo, com `lerHoraOpenMeteo` a separar instante de
+   relógio de parede. Sem `utc_offset_seconds` rebenta em vez de adivinhar: melhor ficar com a
+   previsão anterior, com a idade à vista, do que com horas em que ninguém sabe se confiar.
+6. **`pt-PT`, `<h1>` e `<main>`**, com o rodapé fora do `<main>` e a faixa das pinturas também
+   — uma faixa que desmente o conteúdo não pode viver dentro dele.
+7. **As três chaves recusadas**, em `limparChavesRecusadas`, à entrada do pacote e outra vez
+   dentro de `migrarGravado`, que é por onde passam os três caminhos de entrada. Tira-se a
+   chave e importa-se a ocorrência: num PCO, um registo com um campo estragado ainda é o
+   registo.
+
+Dois erros próprios apanhados pelo caminho, ambos por medição e não por leitura. O primeiro
+teste das chaves envenenadas **passava por vazio**: o pacote estava escrito com um literal de
+JavaScript, onde `__proto__:` é a sintaxe que define o protótipo e não cria propriedade
+nenhuma — o `JSON.stringify` deitava o veneno fora antes de a aplicação o ver. Passou a
+escrever-se em texto, com um teste à cabeça que confere que o pacote leva mesmo as chaves. O
+segundo foi o teste das quatro pendências, que filtrava por elemento e apanhava duas
+pendências que partilham o `br-gerar`, acusando a que estava certa; e o caso da evolução
+passava sem exercitar nada, porque com `O.peas` vazio a condição resolve-se antes de chamar a
+função que se tinha partido.
+
+O que a auditoria pedia e **não** se fez, com a razão: o `PlanDraft` tipado e a renderização
+incremental. São reformulações de arquitetura com custo alto e ganho por demonstrar, e a
+auditoria não mede nenhuma das duas. A única medição de desempenho que este projeto tem foi a
+da repintura das folhas — 103 ms para 4,4 ms — e essa fez-se antes de mexer.
+
+Fica em aberto, e é a achada mais útil que saiu de tudo isto: **duas abas na mesma ocorrência
+escrevem a mesma chave e a última a fechar ganha**, sem `BroadcastChannel`, sem
+`navigator.locks` e sem revisão monótona de estado. E `persistir` continua a não deixar
+ninguém saber se gravou.
 
 ## Decisões tomadas
 
