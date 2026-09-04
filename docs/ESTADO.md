@@ -106,6 +106,17 @@ montagem e o teste seguem o nome dele: o ficheiro que a montagem escreve é `SER
 resolução do conflito entre o `main` e o ramo desta linhagem — o Git juntou as duas
 histórias por deteção de renomeação, e o `home.html` ficou com a r0095.
 
+**A entrada esvaziou-se outra vez, a 4 de setembro.** Chegaram ao `main` onze PDF — as
+quatro DON, as ferramentas de gestão do SGO, o Rothermel (1972) e a sua ficha bibliográfica,
+os dois Andrews (2012 e 2018) e o guia de modelos de combustível de 2021 — no mesmo dia em
+que o ramo desta linhagem os arrumava em `docs/fontes/` a partir de outra cópia. Conferido
+por SHA-256: **os onze são byte a byte os que já estavam catalogados em `docs/FONTES.md`**,
+com o nome da pasta de destino. Não havia nada para arrumar: apagaram-se as cópias.
+
+Da conferência saiu um duplicado dentro de `docs/fontes/`: o guia de 2021 estava lá duas
+vezes, com dois nomes, igual byte a byte. Ficou o nome de 2 de setembro, que é o que a
+`FOGOPT` cita, e a linha do catálogo que apontava para o outro passou a apontar para ele.
+
 ## As fases do PCO, na r0084 — e um número com a proveniência de outro
 
 O ramo #006 verificou contra o articulado as cinco divergências de fase que a leitura do
