@@ -24,7 +24,7 @@ function mostrarCandidatos(lista, fonte){
   if(lista.length===1){ const c=lista[0]; fixarCoords(c.lat, c.lon, c.nome, fonte); return; }
   $("geo-info").textContent = "Vários resultados — escolhe o correto:";
   $("geo-opts").innerHTML = lista.map((c,i)=>
-    `<div class="geo-c" onclick="escolherGeo(${i})"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></div>`).join("");
+    `<button type="button" class="geo-c" data-geo="${esc(i)}"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></button>`).join("");
   window.__geoLista = lista; window.__geoFonte = fonte;
 }
 window.escolherGeo = i => { const c=window.__geoLista[i]; fixarCoords(c.lat, c.lon, c.nome, window.__geoFonte); };

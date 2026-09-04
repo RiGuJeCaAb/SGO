@@ -5,6 +5,54 @@
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
 const VERSAO_ESTADO = 26;
 
+/* As três chaves que não são dados, e o que cada uma faz — medido, não suposto.
+
+   `JSON.parse` cria-as como propriedades **próprias** e não dispara setter nenhum: o
+   pacote, em si, é inofensivo. O dano faz-se a seguir, no `Object.assign` da migração 0,
+   que copia por [[Set]]. Das três, só `__proto__` tem acessor no `Object.prototype`: um
+   `dados.topo.__proto__` no ficheiro troca o protótipo do objeto de destino, e o campo
+   que lá estiver passa a ser legível em `O.dados.topo` — comprovado, com o valor a sair
+   à superfície logo à saída do degrau 0. `constructor` e `prototype` não têm acessor e
+   entram como propriedades próprias banais; recusam-se na mesma, porque uma delas tapa
+   `x.constructor` para quem o leia, e porque três chaves numa lista custam o mesmo que
+   uma.
+
+   Duas coisas que isto **não** é, e que convém não crescerem na contagem de quem vier a
+   seguir. Não polui o `Object.prototype` global: o alvo do `Object.assign` é um objeto
+   novo, e medimos o global intacto antes e depois. E, na escada de hoje, o degrau 2 para
+   3 reconstrói o `dados.topo` e lava o protótipo trocado sem querer — isto é, o efeito
+   observável apaga-se por acidente do que os degraus seguintes fazem, e não por desenho.
+   É precisamente por ser por acidente que a porta se fecha aqui: o degrau que amanhã se
+   acrescentar ao fim da escada não tem de saber nada disto. */
+const CHAVES_RECUSADAS = ["__proto__", "constructor", "prototype"];
+
+/**
+ * Tira de um estado as chaves que não são dados, e diz quantas tirou.
+ *
+ * **Tira, não recusa o ficheiro** — que é a doutrina desta aplicação em todo o lado onde
+ * entra coisa de fora: num posto de comando, um registo com um campo estragado ainda é o
+ * registo, e deitá-lo fora inteiro pode ser a diferença entre ter a ocorrência e não ter
+ * nada. O que se recusa é a chave; a ocorrência entra, e quem importou fica a saber.
+ *
+ * Corrige no lugar. A profundidade é limitada por precaução: um pacote de JSON não tem
+ * ciclos, mas o limite custa nada e a alternativa é uma pilha esgotada num PCO.
+ *
+ * @param {any} v ramo do estado, corrigido no lugar
+ * @param {number} [prof] profundidade corrente
+ * @returns {number} quantas chaves foram tiradas
+ */
+function limparChavesRecusadas(v, prof){
+  const d = prof || 0;
+  if(!v || typeof v !== "object" || d > 40) return 0;
+  let n = 0;
+  if(Array.isArray(v)){ v.forEach(x=>{ n += limparChavesRecusadas(x, d+1); }); return n; }
+  CHAVES_RECUSADAS.forEach(k=>{
+    if(Object.prototype.hasOwnProperty.call(v, k)){ delete v[k]; n++; }
+  });
+  Object.keys(v).forEach(k=>{ n += limparChavesRecusadas(v[k], d+1); });
+  return n;
+}
+
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
      ramos que o carregamento antigo deixava por normalizar — meta, pco e os ramos

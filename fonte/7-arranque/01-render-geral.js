@@ -1,14 +1,81 @@
 /* ================= ARRANQUE · render geral ================= */
+/**
+ * As pinturas que rebentaram na última passagem, por nome.
+ *
+ * Guarda-se entre passagens para só se escrever na fita quando o conjunto muda: `pintarTudo`
+ * corre a cada tecla, e uma linha por passagem enterrava a fita em segundos.
+ */
+let PINTURAS_QUEBRADAS = [];
+
+/**
+ * Corre uma pintura isolada das outras, e regista-a se rebentar.
+ *
+ * Havia nove pinturas num só `try{ ... }catch(e){}`: uma exceção em `autoNivelDECIR`
+ * apagava em silêncio a estrutura do PCO, o plano de comunicações, o catálogo, a
+ * conformidade DON, o PEA em vigor, o estado da proposta, as ampulhetas e o perfil. O
+ * ecrã ficava com a pintura anterior — dados velhos com ar de dados novos — e não dizia
+ * nada. É exatamente a regressão silenciosa que este projeto já teve uma vez.
+ *
+ * Isolar não chega: uma pintura que falha em silêncio continua a mentir, só que sozinha.
+ * Por isso o nome vai para `PINTURAS_QUEBRADAS` e a faixa do topo diz quais são.
+ */
+function pintura(nome, fn, quebradas){
+  try{ fn(); }
+  catch(e){ quebradas.push(nome + " (" + String((e && e.message) || e).slice(0,80) + ")"); }
+}
+
+/**
+ * Escreve a faixa do que não se conseguiu pintar, e diz na fita quando isso muda.
+ *
+ * A faixa fica enquanto durar; a fita leva uma linha só quando o conjunto de pinturas
+ * quebradas passa a ser outro — a entrar e a sair.
+ */
+function relatarPinturas(quebradas){
+  const faixa = $("pint-q");
+  if(faixa){
+    faixa.style.display = quebradas.length? "block" : "none";
+    faixa.innerHTML = quebradas.length
+      ? "<b>Parte do ecrã não foi atualizada</b> e pode estar a mostrar dados anteriores: "
+        + quebradas.map(esc).join("; ") + ". Confirma estes pontos noutra fonte antes de decidir sobre eles."
+      : "";
+  }
+  const antes = PINTURAS_QUEBRADAS.join("|"), agora_ = quebradas.join("|");
+  if(antes !== agora_){
+    if(quebradas.length) fita("Pintura do ecrã com falhas: " + quebradas.join("; "));
+    else if(antes) fita("Pintura do ecrã reposta: todas as vistas voltaram a atualizar");
+  }
+  PINTURAS_QUEBRADAS = quebradas;
+}
+
+/**
+ * Repinta o ecrã inteiro, uma vista de cada vez.
+ *
+ * Uma pintura por `try`, e não nove — ver `pintura`, que é onde está a razão. O que não
+ * correu sai em `relatarPinturas`, na faixa do topo: um ecrã por atualizar tem de se
+ * saber a olhar para ele, e não a olhar para a consola.
+ */
 function pintarTudo(){
-  try{ renderTurno(); }catch(e){}
-  pintarArquivo(); try{ renderCheck(); }catch(e){}
-  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); renderEstadoPEA(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
-  try{ pintarEvoCtx(); }catch(e){}
-  try{ pintarGuia(); }catch(e){}
-  try{ pintarAvisos(); }catch(e){}
+  const qb = [];
+  pintura("passagem de turno", renderTurno, qb);
+  pintarArquivo();
+  pintura("lista de verificação", renderCheck, qb);
+  pintura("nível DECIR", autoNivelDECIR, qb);
+  pintura("estrutura do PCO", renderPCO, qb);
+  pintura("plano de comunicações", renderComs, qb);
+  pintura("catálogo de elementos", renderCatalogo, qb);
+  pintura("conformidade DON", pintarDON, qb);
+  pintura("PEA em vigor", renderVigor, qb);
+  pintura("estado da proposta", renderEstadoPEA, qb);
+  pintura("ampulhetas", pintarAmpulhetas, qb);
+  pintura("perfil de elevação", pintarPerfil, qb);
+  pintura("contexto de evolução", pintarEvoCtx, qb);
+  pintura("guia de preenchimento", pintarGuia, qb);
+  pintura("avisos", pintarAvisos, qb);
   /* A leitura da evolução depende das frentes, dos limites, do relevo e da série: repinta-se
      aqui porque é o único sítio por onde passam todas as quatro. */
-  try{ pintarEvolucao(); pintarIntensidade(); pintarFocos(); }catch(e){}
+  pintura("leitura da evolução", pintarEvolucao, qb);
+  pintura("intensidade da frente", pintarIntensidade, qb);
+  pintura("focos de calor", pintarFocos, qb);
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
   /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
@@ -20,19 +87,21 @@ function pintarTudo(){
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
   $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
+    `<button type="button" class="pea-li" data-pea="${esc(p.n)}"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></button>`).join("")
     : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
-  try{ pintarEncerramento(); }catch(e){}
-  try{ pintarProveniencia(); }catch(e){}
-  try{ pintarMeteoIdade(); }catch(e){}
-  try{ pintarSessao(); }catch(e){}
-  try{ pintarCopias(); }catch(e){}
-  try{ pintarFase(); }catch(e){}
-  try{ pintarCroqui(); }catch(e){}
-  try{ pintarMapaCartao(); pintarPontos(); }catch(e){}
-  try{ pintarContagens(); }catch(e){}
+  pintura("encerramento", pintarEncerramento, qb);
+  pintura("proveniência do ficheiro", pintarProveniencia, qb);
+  pintura("idade da previsão", pintarMeteoIdade, qb);
+  pintura("sessão", pintarSessao, qb);
+  pintura("cópias de recuperação", pintarCopias, qb);
+  pintura("fase SGO", pintarFase, qb);
+  pintura("croqui", pintarCroqui, qb);
+  pintura("cartão do mapa", pintarMapaCartao, qb);
+  pintura("pontos do mapa", pintarPontos, qb);
+  pintura("contagens", pintarContagens, qb);
+  relatarPinturas(qb);
 }
 
 /** Texto letra a letra na vertical, para a barra lateral das células no documento. */

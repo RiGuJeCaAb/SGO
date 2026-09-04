@@ -481,14 +481,7 @@
   .c-verde{color:var(--verde)}.c-verm{color:var(--vermelho)}.c-lar{color:var(--laranja)}.c-am{color:var(--amarelo)}
 
   /* histórico PEA */
-  /* As tres classes seguintes sao usadas em <button>. O botao traz tipo de letra, cor,
-     alinhamento e largura proprios do agente, e sem esta reposicao um <button class="pea-li">
-     nao fica igual ao <div class="pea-li"> que substituiu. Eram div e span com onclick:
-     nao se alcancavam pelo teclado, nao tinham papel nem nome, e a lista de propostas de
-     PEA era pura e simplesmente inacessivel a quem nao usa rato. */
-  .pea-li,.geo-c,.tchip{font:inherit;color:inherit;text-align:left;width:auto}
-  .pea-li:focus-visible,.geo-c:focus-visible,.tchip:focus-visible{outline:2px solid var(--agua);outline-offset:2px}
-  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer;width:100%}
+  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer}
   .pea-li:hover{border-color:var(--azul)}
   .chk{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:10px 2px;font-size:14.5px}
   .chk:last-child{border-bottom:none}
@@ -2215,14 +2208,14 @@
   <div id="min-nav" class="min-nav" style="display:none"></div>
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0095</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0095_202609041931_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0094</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0094_202609041906_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0095", FICHEIRO_APP = "CSREPCDouro_r0095_202609041931_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0094", FICHEIRO_APP = "CSREPCDouro_r0094_202609041906_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2982,12 +2975,7 @@ const $ = id => document.getElementById(id);
  * tirar os dados de dentro do HTML concatenado, que é o trabalho de fundo — e não chega
  * sozinho onde o dado cai dentro de uma *string de JavaScript* num atributo `onclick`,
  * porque aí o navegador desfaz a entidade antes de o JavaScript ver o texto. Esses
- * sítios foram convertidos para `data-` e `addEventListener`. **Esta linha dizia «nenhum
- * resta» e estava errada:** restavam seis controlos com `onclick` embutido, em quatro
- * listas repintadas. Nenhum deles interpolava texto de campo — levavam índices e números
- * que a aplicação gera —, pelo que a afirmação sobre o XSS mantinha-se de pé; a
- * afirmação sobre a forma é que não. Saíram todos, e são hoje `<button>` ligados por
- * delegação em `ligarListasRepintadas`.
+ * sítios foram convertidos para `data-` e `addEventListener`; nenhum resta.
  */
 const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
 const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
@@ -4928,28 +4916,7 @@ function canonico(x){
   if(x === undefined) return "null";
   if(x === null || typeof x !== "object") return JSON.stringify(x);
   if(Array.isArray(x)) return "[" + x.map(canonico).join(",") + "]";
-  /* As chaves entram por `for...in`, e não por `Object.keys`.
-
-     `Object.keys` percorre só as chaves próprias, e isso abria um ponto cego no
-     carimbo: um objeto cujo protótipo tenha sido substituído carrega campos que se
-     leem no ecrã, se imprimem no PEA e saem na exportação, e que ficavam **fora do
-     resumo**. Medido antes de mudar: `{a:1}` e o mesmo objeto com um protótipo a
-     trazer `fantasma` davam o mesmo SHA-256, e o `fantasma` lia-se na mesma. O
-     carimbo dizia «confere» por cima de um documento com conteúdo que ninguém
-     escreveu — e o carimbo é o que este projeto oferece como prova de integridade.
-
-     `for...in` percorre próprias **e** herdadas enumeráveis. Num objeto normal isso
-     é exatamente o mesmo conjunto — o `Object.prototype` não tem nada enumerável —,
-     pelo que nenhum resumo já emitido muda. Num objeto adulterado passa a haver
-     diferença, que é o que se queria: o resumo cobre o que se lê.
-
-     Não se recusa nem se lança. Uma primeira tentativa lançava em vez de resumir, e
-     partia o encerramento da ocorrência num objeto vindo de outro contexto de
-     execução — que é plano e inofensivo. A porta de entrada fecha-se em
-     `limparChavesRecusadas`; aqui o trabalho é resumir tudo, não julgar. */
-  const chaves = [];
-  for(const k in x) chaves.push(k);
-  return "{" + chaves.sort()
+  return "{" + Object.keys(x).sort()
     .map(k => JSON.stringify(k) + ":" + canonico(x[k])).join(",") + "}";
 }
 
@@ -6815,7 +6782,7 @@ function mostrarCandidatos(lista, fonte){
   if(lista.length===1){ const c=lista[0]; fixarCoords(c.lat, c.lon, c.nome, fonte); return; }
   $("geo-info").textContent = "Vários resultados — escolhe o correto:";
   $("geo-opts").innerHTML = lista.map((c,i)=>
-    `<button type="button" class="geo-c" data-geo="${esc(i)}"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></button>`).join("");
+    `<div class="geo-c" onclick="escolherGeo(${i})"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></div>`).join("");
   window.__geoLista = lista; window.__geoFonte = fonte;
 }
 window.escolherGeo = i => { const c=window.__geoLista[i]; fixarCoords(c.lat, c.lon, c.nome, window.__geoFonte); };
@@ -9750,7 +9717,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos — clica para adotar (quartéis primeiro, depois espaços amplos):";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" data-pt="'+esc(i)+'">'
+        '<span class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" onclick="adotarPT('+i+')">'
         +'<b'+(it.tipo==="fire_station"?' style="color:var(--madeira)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito: "+itens.length+" candidatos na carta entre 1,5 e 8 km");
     }
@@ -9772,7 +9739,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos pelo Photon (Overpass indisponível) — clica para adotar:";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer" data-pt="'+esc(i)+'"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("");
+        '<span class="tchip" style="cursor:pointer" onclick="adotarPT('+i+')"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito pelo Photon: "+itens.length+" candidatos");
     }catch(e2){
       $("pt-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — define o ponto de trânsito manualmente.";
@@ -9818,8 +9785,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Overpass/OSM", 3);
       $("sens-info").textContent = itens.length+" detetados — clica para adicionar (equipamentos sensíveis a vermelho):";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
-        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
+        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
+        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
       fita("Deteção OSM: "+itens.length+" aglomerados/sensíveis num raio de 3 km");
     }
   }catch(err){
@@ -9843,8 +9810,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Photon", 6);
       $("sens-info").textContent = itens.length+" detetados pelo Photon (Overpass indisponível) — clica para adicionar:";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
-        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
+        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
+        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
       fita("Deteção pelo Photon: "+itens.length+" aglomerados/sensíveis");
     }catch(e2){
       $("sens-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — introduz manualmente.";
@@ -10833,47 +10800,14 @@ function instanteDaHora(txt){
   if(d.getTime() <= Date.now()) d.setDate(d.getDate()+1);
   return d.getTime();
 }
-/**
- * Até quando o plano vale: teto de seis horas, antecipado pelo primeiro gatilho.
- *
- * Havia aqui um `Math.max(ts, agora + 3600000)` — mínimo de uma hora de vigência, para que
- * um plano não nascesse a expirar. **Saiu.** Medido: às 17h50, com a janela a fechar às
- * 18h00, o chão empurrava a validade para as 18h50 e o plano passava a declarar-se válido
- * cinquenta minutos para lá do gatilho que o própria aplicação identificou. Um limite de
- * segurança não se prolonga para o documento ficar mais confortável de ler.
- *
- * O que fica no lugar não é nada: é dizer a verdade. Quando o horizonte é curto, é curto, e
- * `validadeCurta` diz a quem lê que o plano nasce com pouco tempo e porquê — que é a
- * informação que a hora inventada escondia.
- */
+/* validade: teto de 6 h, antecipado pelo fecho da janela ou pela próxima rotação de vento */
 function horizonteValidade(m){
   const agora = Date.now();
   let ts = agora + 6*3600000;
   if(m && m.janela){ const f = instanteDaHora(m.janela.fim); if(f && f>agora && f<ts) ts=f; }
   if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h); if(t && t>agora && t<ts) ts=t; });
-  return ts;
-}
-
-/** Minutos de vigência com que um plano nasce, abaixo dos quais se avisa. */
-const VALIDADE_CURTA_MIN = 60;
-
-/**
- * O aviso de um plano que nasce com pouco tempo, ou vazio se não for o caso.
- *
- * Substitui o chão de uma hora que existia antes. A diferença é toda: o chão **alterava** a
- * validade para a fazer parecer razoável; isto deixa-a como é e diz que é curta. Num PCO,
- * saber que o plano vale dez minutos é a informação útil — é o que obriga a rever já.
- *
- * @param {number} ts instante de fim de validade
- * @param {number} agora instante corrente; entra, não se lê o relógio aqui
- * @returns {string}
- */
-function avisoValidadeCurta(ts, agora){
-  const min = Math.round((ts - agora)/60000);
-  if(!Number.isFinite(min) || min >= VALIDADE_CURTA_MIN) return "";
-  return min <= 0
-    ? "Validade esgotada à nascença: o gatilho seguinte já passou. Rever o plano antes de o entregar."
-    : "Validade curta: " + min + (min===1? " minuto" : " minutos") + " até ao primeiro gatilho. Prever já a revisão.";
+  /* um plano não nasce a expirar: mínimo de uma hora de vigência */
+  return Math.max(ts, agora + 3600000);
 }
 /**
  * O retrato do dispositivo no momento em que o plano foi aprovado.
@@ -11514,14 +11448,6 @@ async function emitirPEA(){
   O.evolucao.push({g:pea.g, tipo:"posit",
     txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});
   fita("Proposta de PEA n.º "+n+" elaborada ("+modo+"); válida até "+gdhDe(pea.validoTs)+", por aprovar");
-  /* Um plano que nasce com pouco tempo di-lo, em vez de esticar a validade para parecer
-     confortável — que era o que o chão de uma hora fazia. Ver `avisoValidadeCurta`. */
-  const curto = avisoValidadeCurta(pea.validoTs, pea.ts);
-  if(curto){
-    pea.validadeCurta = curto;
-    fita("PEA n.º "+n+": "+curto);
-    O.evolucao.push({g:pea.g, tipo:"posit", txt:"Proposta de PEA n.º "+n+" — "+curto});
-  }
   await persistir(false);
   btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);
@@ -13653,33 +13579,28 @@ async function colocarFolha(){
 
   const im = await lerImagemDaFolha(fi.files[0]);
   if(!im) return dizer("err", "Não foi possível ler a imagem.");
-  /* A partir daqui há uma `blob:` URL viva, e uma folha digitalizada são megabytes que
-     ficam presos ao separador até ele fechar. Todas as saídas por recusa passam a
-     revogá-la: eram cinco, e a que mais custava era a da projeção incompatível, porque
-     essa é a que acontece a quem já tem uma folha colocada e vai colocar a segunda. */
-  const recusar = (txt)=>{ URL.revokeObjectURL(im.url); return dizer("err", txt); };
 
   let mundo = null, pontos = 0, controlos = [];
   if(ff && ff.files && ff.files.length){
     mundo = lerFicheiroReferenciacao(await lerTextoDoFicheiro(ff.files[0]));
-    if(!mundo) return recusar("O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
+    if(!mundo) return dizer("err", "O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
   } else {
     const p1 = {px:numFolha("fo-p1px"), py:numFolha("fo-p1py"), E:numFolha("fo-p1e"), N:numFolha("fo-p1n")};
     const p2 = {px:numFolha("fo-p2px"), py:numFolha("fo-p2py"), E:numFolha("fo-p2e"), N:numFolha("fo-p2n")};
     if([p1, p2].some(p=>Object.values(p).some(v=>v === null)))
-      return recusar("Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
+      return dizer("err", "Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
     mundo = calibrarPorDoisPontos(p1, p2);
-    if(!mundo) return recusar("Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
+    if(!mundo) return dizer("err", "Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
     pontos = 2; controlos = [p1, p2];
   }
 
   const g = $("fo-grelha").value;
   const recusa = recusaPorProjecao(g);
-  if(recusa) return recusar(recusa);
+  if(recusa) return dizer("err", recusa);
   const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
-  if(!f) return recusar("A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
+  if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
   f.img = im.url;
   FOLHAS.push(f);
   await guardarFolhas();
@@ -17346,7 +17267,7 @@ function pintarTudo(){
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
   $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<button type="button" class="pea-li" data-pea="${esc(p.n)}"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></button>`).join("")
+    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
     : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
@@ -17904,40 +17825,6 @@ async function pintarCopias(){
   });
   const sel = $("o-fase");
   if(sel) sel.addEventListener("change", ()=>{ try{ pintarFase(); }catch(e){} });
-})();
-
-/**
- * Liga os controlos que nascem de uma repintura, por delegação no contentor.
- *
- * Seis listas construíam os seus controlos como `div` e `span` com `onclick` embutido. Não
- * se alcançavam pelo teclado, não tinham papel nem nome acessível, e a lista de propostas
- * de PEA — a que abre o documento — era pura e simplesmente inutilizável para quem não usa
- * rato. São agora `<button>`, que traz o papel, o nome, o foco e a tecla de graça.
- *
- * A ligação é por delegação e não por elemento: as quatro listas repintam-se muitas vezes,
- * e ligar a cada botão obrigava a religar a cada repintura — que é a forma de se perder um
- * ouvinte em silêncio, defeito que este projeto já teve.
- *
- * O comentário do núcleo dizia que nenhum `onclick` embutido restava. **Restavam seis**, e
- * a afirmação estava escrita ao lado da regra que a desmentia.
- */
-(function ligarListasRepintadas(){
-  /** Liga um contentor: ao clique num descendente com `attr`, chama `fn` com o valor. */
-  const delegar = (id, attr, fn) => {
-    const c = $(id); if(!c) return;
-    c.addEventListener("click", ev => {
-      const b = ev.target.closest("[" + attr + "]");
-      if(b && c.contains(b)) fn(b.getAttribute(attr));
-    });
-  };
-  /* Por `window.` e não pelo nome nu: as quatro vivem como propriedades de `window` — era
-     assim que o `onclick` embutido lhes chegava — e não têm ligação léxica nenhuma. O
-     verificador de tipos apanha-o, e tem razão. */
-  delegar("pea-list",  "data-pea",        v => window.verPEA(+v));
-  delegar("geo-opts",  "data-geo",        v => window.escolherGeo(+v));
-  delegar("pt-sug",    "data-pt",         v => window.adotarPT(+v));
-  delegar("sens-sug",  "data-sens",       v => window.addSens(+v));
-  delegar("sens-sug",  "data-sens-todos", () => window.addSensTodos());
 })();
 </script>
 </body>

@@ -475,9 +475,14 @@ function renderCheck(){
   const L = pendencias();
   const falta = L.filter(x=>!x.ok&&x.ob).length;
   $("chk-list").innerHTML = L.map(x=>{
-    const cls = x.ok? "ok" : (x.ob? "falta":"rec");
-    const rot = x.ok? "COMPLETO" : (x.ob? "EM FALTA":"RECOMENDADO");
-    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
+    /* Três estados, não dois. Uma pendência que não se conseguiu avaliar bloqueia como
+       uma que falta — falha fechada —, mas não se diz «em falta»: não é o campo que está
+       vazio, é a verificação que rebentou, e mandar preencher seria mandar para o sítio
+       errado. */
+    const cls = x.ok? "ok" : (x.erro? "falta" : (x.ob? "falta":"rec"));
+    const rot = x.ok? "COMPLETO" : (x.erro? "POR VERIFICAR" : (x.ob? "EM FALTA":"RECOMENDADO"));
+    const nota = x.erro? ` <span class="hint">não foi possível verificar: ${esc(x.erro)}</span>` : "";
+    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}${nota}</span>${(x.ok||x.erro)? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
   }).join("") + (falta? `<p class="hint" style="margin-top:10px;color:var(--fogo)">Faltam ${falta} dados obrigatórios — o PEA não pode ser emitido sem eles.</p>`
                        : `<p class="hint" style="margin-top:10px;color:var(--madeira)">Dados obrigatórios completos — pronto para emitir.</p>`);
   /* Sem `onclick="irPara('...')"`: o destino é interno, mas a forma é a mesma que

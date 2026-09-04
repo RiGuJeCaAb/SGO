@@ -219,3 +219,36 @@ lado sobre uma barra de 5 km.
 Prova também que **uma folha sozinha abre o mapa**. Não abria: o enquadramento não conhecia
 folhas, e quem colocasse uma continuava a ver o mapa a dizer que não havia nada para
 mostrar — a mesma armadilha que o ponto da ocorrência já tinha tido.
+
+---
+
+## qa0031 — a faixa das pinturas que rebentaram, nos dois temas
+
+`CSREPCDouro_qa0031_202609041905_FaixaDePinturaQuebradaTemaClaro_CLD.png`
+`CSREPCDouro_qa0031_202609041905_FaixaDePinturaQuebradaTemaEscuro_CLD.png`
+
+Tirada com `autoNivelDECIR` substituída por uma função que rebenta — a mesma condição que o
+teste `pintura-isolada` cria.
+
+Antes da r0094 havia nove pinturas num só `try{ ... }catch(e){}` e esta falha apagava em
+silêncio oito vistas de uma vez: a estrutura do PCO, o plano de comunicações, o catálogo, a
+conformidade, o PEA em vigor, o estado da proposta, as ampulhetas e o perfil. O que a prova
+mostra é a faixa a nomear a vista que não pintou e o motivo, com o resto do ecrã pintado —
+que é o comportamento que se queria e não havia.
+
+## qa0032 — «POR VERIFICAR» na lista de verificação, nos dois temas
+
+`CSREPCDouro_qa0032_202609041905_ListaPorVerificarTemaClaro_CLD.png`
+`CSREPCDouro_qa0032_202609041905_ListaPorVerificarTemaEscuro_CLD.png`
+
+Tirada com `funcoesExigiveis` substituída por uma função que rebenta.
+
+Quatro das catorze pendências avaliavam-se dentro de um `catch` que devolvia `true`: a guia
+dava a pendência por **satisfeita** exatamente quando não conseguia saber se estava, e o PEA
+saía sem o obrigatório que ninguém verificou. A prova mostra o terceiro estado — bloqueia
+como um obrigatório em falta, diz o motivo, e não traz botão «Preencher» porque não há campo
+nenhum para preencher.
+
+Mostra também o alinhamento da coluna dos distintivos: o rótulo novo é o mais largo dos
+quatro e o mínimo da caixa subiu para o acompanhar. Sem isso a linha da pendência por
+verificar ficava com o texto uns pixels à direita das outras catorze.
