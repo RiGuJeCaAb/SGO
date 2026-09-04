@@ -272,16 +272,21 @@ function lerTextoDoFicheiro(f){
  */
 function lerImagemDaFolha(f){
   return new Promise(resolve=>{
-    const r = new FileReader();
-    r.onload = ()=>{
-      const url = String(r.result || "");
-      const im = new Image();
-      im.onload = ()=>resolve({ url, largura:im.naturalWidth || im.width, altura:im.naturalHeight || im.height });
-      im.onerror = ()=>resolve(null);
-      im.src = url;
-    };
-    r.onerror = ()=>resolve(null);
-    r.readAsDataURL(f);
+    /* **Referência, e não conteúdo embutido.** Até à r0091 lia-se o ficheiro para uma data
+       URL e essa cadeia — 4 a 8 MB numa folha digitalizada — entrava no `<image href>` a
+       cada repintura do mapa. O ramo #005 mediu o custo: 103 ms no `innerHTML` da segunda
+       repintura, com três folhas, **numa máquina de servidor**; 300 a 500 ms num posto
+       modesto, por cada deslocamento e cada mudança de nível. E o custo era por repintura,
+       não da primeira vez.
+       Um `blob:` tem meia centena de caracteres, o base64 sai do caminho de repintura, e a
+       imagem fica em memória uma vez em vez de uma cópia por cadeia. A URL é revogada em
+       `retirarFolha`, ou a memória fica presa até o separador fechar. */
+    let url;
+    try{ url = URL.createObjectURL(f); }catch(e){ return resolve(null); }
+    const im = new Image();
+    im.onload = ()=>resolve({ url, largura:im.naturalWidth || im.width, altura:im.naturalHeight || im.height });
+    im.onerror = ()=>{ try{ URL.revokeObjectURL(url); }catch(e){} resolve(null); };
+    im.src = url;
   });
 }
 
@@ -345,6 +350,10 @@ async function colocarFolha(){
 
 /** Retira uma folha do mapa e da base. A imagem não se guarda, e por isso não fica nada. */
 async function retirarFolha(id){
+  /* A URL do objeto tem de ser revogada à mão: enquanto viver, o navegador guarda a imagem
+     inteira, e retirar a folha do mapa sem a revogar libertava o desenho e não a memória. */
+  const fora = FOLHAS.find(f=>f.id === id);
+  if(fora && fora.img) try{ URL.revokeObjectURL(fora.img); }catch(e){}
   FOLHAS = FOLHAS.filter(f=>f.id !== id);
   await guardarFolhas();
   pintarFolhas();

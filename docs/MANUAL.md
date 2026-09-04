@@ -249,6 +249,12 @@ finge que sim.
 Uma folha que caia fora do envelope do continente é colocada na mesma, com aviso: pode ser
 das ilhas, de Espanha, ou a colocação estar errada. Confirme-a no mapa.
 
+**A imagem não é copiada para dentro do mapa a cada desenho.** Fica em memória uma vez e o
+mapa aponta para ela. Antes da r0092 era embutida por inteiro no desenho, e cada
+deslocamento e cada mudança de nível copiava os megabytes da folha — 300 a 500 ms por
+repintura num posto modesto, com três folhas colocadas. O custo passou a ser uma vez, quando
+a imagem é lida.
+
 **Guarda-se a colocação, não a imagem.** A imagem pesa demasiado para o pacote da ocorrência,
 que viaja por ficheiro de texto. Ao reabrir a aplicação, a folha continua lá — diz onde está
 e aparece no plano com a sua proveniência — e basta voltar a escolher o ficheiro da imagem

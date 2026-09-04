@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0091**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0092**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 129, das anteriores à convenção de nomes até à r0091 |
+| Entregas em `app/` | 130, das anteriores à convenção de nomes até à r0092 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 857, todos a passar |
+| Testes | 862, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -421,6 +421,44 @@ está a corrigir-nos.
 as citações vivem espalhadas pelos módulos — e recusa qualquer ponto da DON que não conste da
 lista conferida. E recusa o inverso: um ponto que fique na lista e já ninguém cite dá a
 entender que a aplicação o invoca. Provado a repor o `7.e.(27)` e a inventar um `7.d.(99)`.
+
+## A repintura das folhas e o meio pixel — r0092
+
+**A repintura, do ramo #005, e a medição deles é que fez o caso.** A folha entrava no mapa
+embutida: a data URL — 4 a 8 MB numa folha digitalizada — era copiada para dentro do SVG a
+cada `pintarMapa()`. Mediram 103 ms no `innerHTML` da segunda repintura com três folhas, numa
+máquina de servidor, e estimaram 300 a 500 ms num posto modesto. E o custo era **por
+repintura**: a segunda custava mais do que a primeira.
+
+Passou a entrar por referência, `URL.createObjectURL`. Medido aqui, com três folhas de
+4000×3000:
+
+| | Antes (medido pelo #005) | Agora |
+|---|---|---|
+| SVG entregue ao analisador | 7,8 MB | **2,7 KB** |
+| Segunda repintura | 103 ms | **4,4 ms** |
+
+O custo passou a ser uma vez, na descodificação, em vez de a cada desenho. A URL é revogada
+em `retirarFolha`, ou a memória ficava presa até o separador fechar.
+
+**E o `esc()` fica.** Aviso do #005, e é o certo: sobre base64 não altera um carácter e é
+varrimento puro, mas `accept="image/*"` deixa passar `image/svg+xml`, cuja data URL tem `<`
+a sério. Tira-se a repetição, não a defesa. Há teste que o exige.
+
+### O meio pixel, do ramo #001, e a ironia dele
+
+O `<image>` do SVG tem origem no **canto** da imagem: o pixel 0 ocupa o quadrado [0,1]×[0,1]
+e o seu centro está em (0,5, 0,5). Mas a matriz é construída a partir de `C` e `F`, que
+designam o **centro** do pixel superior esquerdo — a convenção do ficheiro de referenciação,
+que `lerFicheiroReferenciacao` lê certa. O local (0,0) ia parar onde devia estar o local
+(0,5, 0,5), e a folha ficava meio pixel fora: 12,5 m a 25 m/px.
+
+A ironia é do próprio ramo: a asserção B9 do guião deles existe para garantir essa convenção,
+passa — e o desenho reintroduzia o erro que ela previne. **O módulo lia por uma convenção e
+desenhava pela outra**, que é a diferença entre o GDAL e o world file.
+
+Não é grande — 0,5 mm no papel de uma 1:25 000 — mas é sistemático, tem sinal, e soma-se a
+qualquer outra fonte de erro em vez de cancelar.
 
 ## Decisões tomadas
 

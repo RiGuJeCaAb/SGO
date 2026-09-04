@@ -640,7 +640,19 @@ function camadaMapa(){
        aqui os quatro primeiros são fatores de escala da ordem da unidade, e um décimo de
        erro num deles arrasta a folha inteira. */
     const M6 = [m.A*ppm, -m.D*ppm, m.B*ppm, -m.E*ppm, canto.x - ox, canto.y - oy];
-    g += '<image href="'+esc(f.img)+'" width="'+f.largura+'" height="'+f.altura
+    /* **Meio pixel, e é sistemático.** O `<image>` do SVG tem origem no *canto* da imagem: o
+       pixel 0 ocupa o quadrado [0,1]×[0,1] em coordenadas locais e o seu centro está em
+       (0,5, 0,5). Mas a matriz é construída a partir de `gMetros(m.C, m.F, z)`, e `C` e `F`
+       designam o **centro** do pixel superior esquerdo — é a convenção do ficheiro de
+       referenciação, que `lerFicheiroReferenciacao` lê certa. Sem correção, o local (0,0)
+       ia parar onde devia estar o local (0,5, 0,5), e a folha inteira ficava meio pixel
+       fora: 12,5 m a 25 m/px.
+       Recuar a imagem meio pixel em ambos os eixos põe o centro do pixel 0 na origem local,
+       que é o ponto que a matriz mapeia. Apontado pelo ramo #001, que tem no seu guião uma
+       asserção — a B9 — precisamente para garantir a convenção que o desenho reintroduzia.
+       A convenção do GDAL usa o canto e a do world file usa o centro; o módulo lia por uma
+       e desenhava pela outra. */
+    g += '<image href="'+esc(f.img)+'" x="-0.5" y="-0.5" width="'+f.largura+'" height="'+f.altura
        + '" opacity="'+FOLHA_OPACIDADE+'" preserveAspectRatio="none"'
        + ' transform="matrix('+M6.map(v=>v.toFixed(9)).join(",")+')"/>';
   });

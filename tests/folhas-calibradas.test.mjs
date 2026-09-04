@@ -98,6 +98,21 @@ function matrizDaFolha(f, z) {
   return { M: [m.A * ppm, -m.D * ppm, m.B * ppm, -m.E * ppm, canto.x, canto.y], ppm };
 }
 
+/* O recuo que o `<image>` leva no desenho, lido da entrega em vez de repetido aqui: se
+   alguém o tirar, estes testes têm de dar por isso. */
+function deslocamentoDaImagem() {
+  const m = /<image href="'\+esc\(f\.img\)\+'" x="(-?[\d.]+)" y="(-?[\d.]+)"/.exec(codigoDaEntrega());
+  assert.ok(m, 'o `<image>` da folha mudou de forma; rever este teste');
+  return { x: Number(m[1]), y: Number(m[2]) };
+}
+
+/* O código da entrega, para as asserções que são sobre a forma e não sobre o resultado. */
+let _codigo = null;
+function codigoDaEntrega() {
+  if (_codigo === null) _codigo = janela.document.documentElement.outerHTML;
+  return _codigo;
+}
+
 /* A tolerância mede-se **no terreno e não em pixéis**. Um pixel do nível 14 vale 15 cm e um
    do nível 4 vale 150 m, e a mesma tolerância em pixéis significaria coisas mil vezes
    diferentes conforme a ampliação. Um milímetro no terreno é folga para o ruído do vírgula
@@ -392,4 +407,68 @@ test('sem aferição a lista não imprime zero, que é uma escala e não uma aus
   assert.doesNotMatch(t, /0,000 m\/px/);
   assert.match(t, /escala por apurar/);
   janela.eval('FOLHAS = []');
+});
+
+/* ---- meio pixel, e é sistemático ---- */
+
+test('o canto da imagem desenhada cai no canto do pixel, e não no seu centro', semAplicacao, () => {
+  /* Achado do ramo #001, e é irónico: a asserção B9 do guião deles existe para garantir que
+     `C` e `F` designam o centro do pixel superior esquerdo — passa —, e o desenho
+     reintroduzia o erro que ela previne.
+
+     O `<image>` tem origem no canto da imagem. A matriz mapeia a origem local para
+     `paraMundo(0,0)`, que é o **centro** do pixel 0. Sem `x="-0.5" y="-0.5"`, o canto da
+     imagem ficava onde devia estar o centro do primeiro pixel: meio pixel de desvio, com
+     sinal, que soma a qualquer outra fonte de erro em vez de cancelar. */
+  const f = janela.folhaCalibrada(desc());
+  const z = 12;
+  const { M, ppm } = matrizDaFolha(f, z);
+  const desloc = deslocamentoDaImagem();
+  assert.equal(desloc.x, -0.5, 'a imagem tem de recuar meio pixel em x');
+  assert.equal(desloc.y, -0.5, 'e meio pixel em y');
+
+  /* Onde o canto superior esquerdo da imagem aterra, com o recuo aplicado. */
+  const canto = { x: M[0] * desloc.x + M[2] * desloc.y + M[4],
+                  y: M[1] * desloc.x + M[3] * desloc.y + M[5] };
+  /* Onde devia aterrar: o canto do pixel 0, que em coordenadas de terreno é
+     C − A/2 no Este e F − E/2 no Norte — a mesma conta da B9 do ramo #001. */
+  const m = MUNDO;
+  const esperado = janela.gMetros(m.C - m.A / 2 - m.B / 2, m.F - m.D / 2 - m.E / 2, z);
+  concordam(canto, esperado, ppm, 'canto da imagem');
+});
+
+test('o centro do primeiro pixel continua a cair onde os coeficientes o põem', semAplicacao, () => {
+  /* O recuo não pode deslocar o que já estava certo: o centro do pixel 0 é `C, F`. */
+  const f = janela.folhaCalibrada(desc());
+  const z = 14;
+  const { M, ppm } = matrizDaFolha(f, z);
+  const d = deslocamentoDaImagem();
+  const centro = { x: M[0] * (0.5 + d.x) + M[2] * (0.5 + d.y) + M[4],
+                   y: M[1] * (0.5 + d.x) + M[3] * (0.5 + d.y) + M[5] };
+  concordam(centro, janela.gMetros(MUNDO.C, MUNDO.F, z), ppm, 'centro do pixel 0');
+});
+
+/* ---- a imagem entra por referência e não embutida ---- */
+
+test('a folha desenha-se por referência, e o base64 sai do caminho de repintura', semAplicacao, () => {
+  /* O ramo #005 mediu 103 ms no `innerHTML` da segunda repintura com três folhas, numa
+     máquina de servidor — 300 a 500 ms num posto modesto, por cada deslocamento. A causa
+     era a data URL entrar por concatenação a cada `pintarMapa()`. */
+  const fonte = codigoDaEntrega();
+  assert.match(fonte, /URL\.createObjectURL/, 'a imagem tem de entrar por referência');
+  assert.doesNotMatch(fonte, /readAsDataURL/,
+    'ainda há leitura para data URL no caminho da folha');
+});
+
+test('a URL do objeto é revogada ao retirar a folha', semAplicacao, () => {
+  /* Sem revogar, retirar a folha do mapa liberta o desenho e não a memória: o navegador
+     guarda a imagem inteira enquanto a URL viver. */
+  assert.match(codigoDaEntrega(), /revokeObjectURL/);
+});
+
+test('o escape do endereço da imagem fica onde está', semAplicacao, () => {
+  /* Aviso do ramo #005, e é o certo: sobre base64 o `esc()` não altera um carácter e é
+     varrimento puro — mas `accept="image/*"` deixa passar `image/svg+xml`, cuja data URL
+     tem `<` a sério. Tira-se a repetição, não a defesa. */
+  assert.match(codigoDaEntrega(), /<image href="'\s*\+\s*esc\(f\.img\)/);
 });
