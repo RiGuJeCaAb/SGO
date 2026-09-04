@@ -43,7 +43,7 @@ function pendenciasCelula(k){
       push("Meteorologia", (SERIE && SERIE.length)? SERIE.length+" horas carregadas" : "sem previsão carregada");
       push("Pontos sensíveis", O.dados.sensiveis || "por identificar");
       const esp = nomeado("Núcleo de Especialistas");
-      push("Núcleo de especialistas", esp? ("ativado — "+(esp.nome||"sem nome")) : "não ativado (art. 30.º; DON 2, 7.e.(27))");
+      push("Núcleo de especialistas", esp? ("ativado — "+(esp.nome||"sem nome")) : "não ativado (art. 30.º; DON 2, 7.d.(27))");
     }
     if(k==="operacoes"){
       const e = estObj();

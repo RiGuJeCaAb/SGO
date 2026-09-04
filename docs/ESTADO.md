@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0090**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0091**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 128, das anteriores à convenção de nomes até à r0090 |
+| Entregas em `app/` | 129, das anteriores à convenção de nomes até à r0091 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 853, todos a passar |
+| Testes | 857, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -388,6 +388,39 @@ comando e controlo implementada» é substancialmente o `excedeReferenciaDaFase(
 `docs/fontes/` — só o Despacho está. As correções assentam na leitura do ramo #006, e isso é
 revisão por terceiro, como o `POREXECUTAR` já regista para o articulado antes de 2 de
 setembro.
+
+## A DON n.º 2 no repositório, e as vinte e quatro citações conferidas — r0091
+
+Chegou a 4 de setembro, com as outras três DON e o documento de ferramentas do SGO. Com ela
+cai a última dependência de revisão por terceiro na doutrina que a aplicação cita.
+
+**As vinte e quatro citações da DON n.º 2 foram localizadas uma a uma no texto** e estão
+todas certas — a tabela com o que cada ponto diz está em `docs/FONTES.md`. A secção de topo é
+`7. EXECUÇÃO`, e dentro de `7.e` o ponto `(4)` é o Ataque Inicial e o `(5)` é o Ataque
+Ampliado, o que é a chave de metade das confusões possíveis.
+
+**Uma estava errada, e o ramo #006 tinha razão:** o núcleo de especialistas era citado como
+`7.e.(27)`, e o ponto (27) está em `7.d`. Aparecia em dois sítios — a estrutura do PCO,
+corrigida na r0090, e a passagem de turno, que passou despercebida e ficou corrigida aqui.
+
+### E uma correção proposta que estava ela própria errada
+
+O ramo #006 propôs que o POSIT passasse de `8.d.(5)(o)` a `7.e.(5)(o)`. A primeira metade
+está certa — a secção é 7 e não 8. A segunda não: **o POSIT com periodicidade horária está no
+ponto (4)**, o Ataque Inicial, que é o que a aplicação já citava. O ponto (5) é o Ataque
+Ampliado e tem uma referência diferente ao POSIT, na alínea (t), para inserção no SADO.
+
+Aceitar a correção teria introduzido o defeito que ela vinha corrigir. Não é reparo ao ramo,
+que fez o trabalho certo e o assumiu como erro seu — é a demonstração de por que razão a
+verificação tem de passar pela fonte e não pela palavra de quem a leu, mesmo quando quem leu
+está a corrigir-nos.
+
+### A guarda que impede a próxima
+
+`tests/fontes.test.mjs` varre a entrega inteira — e não só o registo de conformidade, porque
+as citações vivem espalhadas pelos módulos — e recusa qualquer ponto da DON que não conste da
+lista conferida. E recusa o inverso: um ponto que fique na lista e já ninguém cite dá a
+entender que a aplicação o invoca. Provado a repor o `7.e.(27)` e a inventar um `7.d.(99)`.
 
 ## Decisões tomadas
 

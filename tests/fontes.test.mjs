@@ -12,6 +12,10 @@ const semAplicacao = { skip: janela ? false : 'sem revisão em app/' };
 after(() => janela?.close());
 
 const FONTES = await readFile(new URL('../docs/FONTES.md', import.meta.url), 'utf8');
+/* A entrega inteira, para varrer citações que vivem fora do registo de conformidade. */
+const { revisaoMaisRecente } = await import('../ferramentas/verificar.mjs');
+const recente = await revisaoMaisRecente();
+const APP = recente ? await readFile(recente, 'utf8') : '';
 const regras = () => (janela ? avaliar(janela, 'REGRAS_DON') : []);
 
 /** Com estado inteiramente vazio as regras calam-se, e bem. Uma ocorrência mínima
@@ -94,4 +98,56 @@ test('uma regra que rebente não leva as outras atrás', semAplicacao, () => {
   } finally {
     R[0].avaliar = original;
   }
+});
+
+/* ---- os pontos da DON n.º 2, conferidos contra o PDF ---- */
+
+/* Os quinze pontos que a aplicação cita, cada um localizado no texto da diretiva a 4 de
+   setembro, com a secção `7. EXECUÇÃO` e as subsecções `7.d — Teatros de Operações` e
+   `7.e — Desenvolvimento das Ações Operacionais`. A tabela com o que cada um diz está em
+   `docs/FONTES.md`; aqui fica só a lista, que é o que se pode comparar por código.
+
+   **Existe porque uma citação errada é pior do que citação nenhuma:** parece ter
+   proveniência. Houve uma — o núcleo de especialistas em `7.e.(27)`, quando o ponto (27)
+   está em `7.d` — e passou despercebida a duas revisões. */
+const PONTOS_DON2 = [
+  '7.d.(5)', '7.d.(7)', '7.d.(8)', '7.d.(14)', '7.d.(17)', '7.d.(18)', '7.d.(19)',
+  '7.d.(20)', '7.d.(22)', '7.d.(23)', '7.d.(25)(d)', '7.d.(27)', '7.d.(29)', '7.d.(30)',
+  '7.e.(4)(o)', '7.e.(4)(t)', '7.e.(5)', '7.e.(5)(a)', '7.e.(5)(r)', '7.e.(5)(t)',
+  '7.k.(1)', '7.k.(2)', '7.l.(1)', '7.l.(2)',
+];
+
+test('nenhuma citação da DON n.º 2 entra sem estar conferida contra o PDF', semAplicacao, () => {
+  /* Varre a entrega inteira e não só o registo de conformidade: as citações estão espalhadas
+     pelos módulos — na estrutura do PCO, na arrumação, na passagem de turno. */
+  const html = APP;
+  const achados = [...html.matchAll(/\b(\d\.[a-z]\.\(\d+\)(?:\([a-z]\))?)/g)].map((m) => m[1]);
+  const unicos = [...new Set(achados)].sort();
+  assert.ok(unicos.length >= 20, 'só ' + unicos.length + ' pontos citados — a varredura falhou');
+  const naoConferidos = unicos.filter((x) => !PONTOS_DON2.includes(x));
+  assert.equal(naoConferidos.join(', '), '',
+    'pontos citados que não constam da lista conferida em docs/FONTES.md');
+});
+
+test('a lista conferida não tem pontos que ninguém cita', semAplicacao, () => {
+  /* O inverso, e importa tanto: um ponto que sai da aplicação e fica na lista dá a entender
+     que a aplicação o invoca. A lista é o que está conferido E citado, não um arquivo. */
+  const html = APP;
+  const orfaos = PONTOS_DON2.filter((x) => !html.includes(x));
+  assert.equal(orfaos.join(', '), '', 'conferidos e já não citados — retirar da lista');
+});
+
+test('o ponto (27) é citado em 7.d e nunca em 7.e', semAplicacao, () => {
+  /* O defeito concreto, prendido pelo seu nome. O ponto (27) — a ativação do núcleo de
+     especialistas — está na subsecção dos Teatros de Operações. */
+  assert.ok(!APP.includes('7.e.(27)'), 'voltou o 7.e.(27)');
+  assert.ok(APP.includes('7.d.(27)'));
+});
+
+test('o POSIT horário é 7.e.(4)(o), que é o Ataque Inicial', semAplicacao, () => {
+  /* O ramo #006 propôs corrigi-lo para `7.e.(5)(o)`. Não é: o ponto (5) é o Ataque Ampliado.
+     Aceitar a correção teria introduzido o defeito que ela vinha corrigir, e é por isso que
+     este teste existe com o nome que tem. */
+  assert.ok(APP.includes('7.e.(4)(o)'));
+  assert.ok(!APP.includes('7.e.(5)(o)'), 'a correção errada entrou');
 });

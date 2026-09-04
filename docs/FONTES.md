@@ -542,6 +542,58 @@ segue.
 ativação ao oficial da respetiva célula «em função da natureza da ocorrência e das
 necessidades», sem referir fase nenhuma. É o que justifica os núcleos não levarem número.
 
+### As quatro DON, e as ferramentas do SGO
+
+Chegaram a 4 de setembro. `DON_2_2026_DECIR.pdf` é a fonte da chave `DON2`, e com ela cai a
+última dependência de revisão por terceiro na doutrina que a aplicação cita.
+
+Entram também `DON_1_2024_DIOPS.pdf`, `DON_3_2010_NRBQ.pdf`, `DON_4_2021_DIRACAERO.pdf` e
+`SGO_FerramentasDeGestao_ANEPC.pdf` — as três primeiras citadas na base doutrinária da
+especificação, a última usada pelo ramo #006 na verificação dos núcleos.
+
+#### As vinte e quatro citações da DON n.º 2, conferidas uma a uma
+
+**A secção de topo é `7. EXECUÇÃO`.** As subsecções relevantes são `7.d — Teatros de
+Operações (TO)` e `7.e — Desenvolvimento das Ações Operacionais`; dentro de `7.e`, o ponto
+`(4)` é o **Ataque Inicial** e o `(5)` é o **Ataque Ampliado**.
+
+| Citação | O que o texto diz, no essencial |
+|---|---|
+| `7.d.(5)` | O pedido de reforço implica o estabelecimento de um ponto de trânsito |
+| `7.d.(7)` | As equipas contactam o PT ou o COS à chegada, para receberem missão |
+| `7.d.(8)` | A missão atribui-se no mais breve espaço de tempo, preferencialmente em 15 minutos |
+| `7.d.(14)` | Segurança, alimentação, hidratação e períodos de descanso das forças |
+| `7.d.(18)` | O COS nomeia COPAR-T |
+| `7.d.(20)` | Quatro ou mais aeronaves no mesmo TO: HERAC ou equivalente |
+| `7.d.(22)` | O emprego de maquinaria integra-se no PEA |
+| `7.d.(23)` | O COS nomeia COPESP |
+| `7.d.(25)(d)` | «O número de meios humanos e materiais mobilizados ou a mobilizar ultrapasse a capacidade de comando e controlo implementada» |
+| `7.d.(27)` | «O aumento da capacidade de comando e controlo deve ser acompanhado pelo aumento da capacidade de análise e planeamento através da ativação do núcleo de especialistas» |
+| `7.d.(29)` | Constituição das EPCO |
+| `7.d.(30)` | A EPCO assegura continuidade de trabalho |
+| `7.e.(4)(o)` | «O COS deve assegurar informação permanente ao CSREPC, comunicando o ponto de situação (POSIT) atualizado, com periodicidade máxima de 1 (uma) hora» |
+| `7.e.(5)` | Ataque Ampliado: ocorrência acima dos 90 minutos |
+| `7.e.(5)(r)` | Pelo controlo dos tempos de trabalho, assegurar a rendição de meios através do CSREPC |
+| `7.d.(17)` | O emprego de meios aéreos integra-se no PEA |
+| `7.d.(19)` | Até à nomeação do COPAR-T, a coordenação aérea é assegurada de outro modo |
+| `7.e.(4)(t)` | Acima dos 90 minutos, repor a capacidade de ATI em coordenação com o CSREPC |
+| `7.e.(5)(a)` | Implementar um PEA formalmente elaborado e partilhado com as entidades no TO |
+| `7.e.(5)(t)` | Informação permanente ao CSREPC sobre o POSIT, para inserção no SADO |
+| `7.k.(1)` | Notificação das entidades gestoras do território pelo CSREPC |
+| `7.k.(2)` | Informação aos Presidentes de Câmara enquanto autoridade municipal |
+| `7.l.(1)` | Critérios de ativação do PMEPC |
+| `7.l.(2)` | Ativação dos PDEPC |
+
+**Uma citação estava errada e foi corrigida:** o núcleo de especialistas era referido como
+`7.e.(27)`, e o ponto (27) está em `7.d`. Apanhado pelo ramo #006, confirmado aqui.
+
+**E uma correção proposta pelo ramo #006 estava ela própria errada.** Propunham que o POSIT
+passasse a `7.e.(5)(o)`. Não é: o POSIT com periodicidade horária está no ponto **(4)**, o
+Ataque Inicial, que é o que a aplicação já citava. O ponto (5) é o Ataque Ampliado, e tem uma
+referência diferente ao POSIT, na alínea (t). **Aceitar a correção teria introduzido o
+defeito que ela vinha corrigir** — é a razão de a verificação passar pela fonte e não pela
+palavra de quem a leu.
+
 ### `Cartograma_SeriesCartograficas_CIGeoE.pdf`
 
 Cartograma das séries cartográficas: continente, Madeira na série P821, Açores na série M889,
