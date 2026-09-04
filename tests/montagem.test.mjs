@@ -82,6 +82,18 @@ test('o home.html da raiz é a entrega mais recente, byte a byte', semRevisao, a
     'o home.html não é a entrega mais recente — correr `npm run montar`');
 });
 
+test('a publicação no GitHub Pages leva o ficheiro que a montagem escreve', async () => {
+  /* O fluxo de verificação publica a cópia servida a partir do `main`. Se `SERVIDO` mudar
+     de nome outra vez e o fluxo continuar a copiar o antigo, o `main` fica verde e o sítio
+     fica a servir um ficheiro que já não existe — a mesma classe de defeito que deixou a CI
+     vermelha a 4 de setembro, agora do lado de quem publica. */
+  const fluxo = await readFile('.github/workflows/verificar.yml', 'utf8');
+  assert.ok(fluxo.includes(`cp ${SERVIDO} _publicar/`),
+    'o fluxo de publicação não copia ' + SERVIDO);
+  assert.ok(fluxo.includes('needs: verificar'),
+    'a publicação tem de esperar pela verificação');
+});
+
 /* ---- o que a comparação byte a byte não pode apanhar ---- */
 
 /* Apontado pelo ramo #005 a 2 de setembro, e a leitura estava certa: **a montagem é o

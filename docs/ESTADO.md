@@ -106,6 +106,23 @@ montagem e o teste seguem o nome dele: o ficheiro que a montagem escreve é `SER
 resolução do conflito entre o `main` e o ramo desta linhagem — o Git juntou as duas
 histórias por deteção de renomeação, e o `home.html` ficou com a r0095.
 
+**Publica-se pelo GitHub Pages, e o Netlify acabou.** A 4 de setembro o painel do Netlify
+mostrava sete deploys de produção seguidos, das 12:00 às 22:52, todos «Skipped due to account
+credit usage exceeded»: a conta esgotou os créditos e o sítio ficou congelado numa revisão
+anterior, sem nada no repositório que o denunciasse. É a pior espécie de defeito deste
+projeto, outra vez — o ficheiro certo no `main` e o errado no ar. Decisão do dono: GitHub
+Pages. O trabalho `publicar`, em `.github/workflows/verificar.yml`, corre só em push ao
+`main` e só depois dos nove portões, e leva o `home.html` e mais nada, com um `index.html` de
+reencaminhamento gerado no momento, que não existe no repositório. Um teste confere que o
+fluxo copia o mesmo ficheiro que a montagem escreve.
+
+**O repositório passou a público no mesmo dia, para isso.** O Pages em repositório privado
+exige plano pago, e o fluxo traz uma condição que o faz esperar enquanto o repositório for
+privado, para não deixar o `main` vermelho por uma falha que não é do código. O dono
+tornou-o público a 4 de setembro, e a condição fica lá escrita como proteção, não como
+bloqueio. O endereço é `https://rigujecaab.github.io/SGO/`. Fica ao dono desligar o sítio no
+Netlify, que continua a comentar nos PR e a contar deploys que já não faz.
+
 **A entrada esvaziou-se outra vez, a 4 de setembro.** Chegaram ao `main` onze PDF — as
 quatro DON, as ferramentas de gestão do SGO, o Rothermel (1972) e a sua ficha bibliográfica,
 os dois Andrews (2012 e 2018) e o guia de modelos de combustível de 2021 — no mesmo dia em
@@ -726,6 +743,7 @@ Por ordem em que foram tomadas.
 | Posse do estado por célula | **Aceite como veio da linhagem paralela**, e portada para `tests/posse.test.mjs`. O registo declara o dono de cada ramo com a norma que o sustenta, e um ramo novo sem célula parte a verificação |
 | Vazio na fusão de funções do PCO | **Vazio é ausência, não informação.** Uma importação não apaga com vazio o que o oficial registou à mão; um valor preenchido manda |
 | Como se alcança um ramo que mudou de dono | **Por acessor único, nunca pelo caminho.** `canaisObj()`, `ptObj()`, `reservaObj()`. Foi por se alcançar `dados.pt` pelo caminho que cinco campos do formulário ficaram para trás, em silêncio, quando o ramo mudou de célula |
+| Onde se serve a aplicação | **GitHub Pages, a partir do `main` e só depois da verificação.** O Netlify esgotou os créditos a 4 de setembro e deixou o sítio congelado sem avisar ninguém; um serviço com contador não serve um ficheiro que se quer sempre igual ao repositório |
 
 ## Feito
 
