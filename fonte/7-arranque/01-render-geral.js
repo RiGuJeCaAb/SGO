@@ -87,7 +87,7 @@ function pintarTudo(){
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
   $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
+    `<button type="button" class="pea-li" data-pea="${esc(p.n)}"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></button>`).join("")
     : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");

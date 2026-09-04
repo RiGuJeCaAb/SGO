@@ -60,6 +60,14 @@ async function emitirPEA(){
   O.evolucao.push({g:pea.g, tipo:"posit",
     txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});
   fita("Proposta de PEA n.º "+n+" elaborada ("+modo+"); válida até "+gdhDe(pea.validoTs)+", por aprovar");
+  /* Um plano que nasce com pouco tempo di-lo, em vez de esticar a validade para parecer
+     confortável — que era o que o chão de uma hora fazia. Ver `avisoValidadeCurta`. */
+  const curto = avisoValidadeCurta(pea.validoTs, pea.ts);
+  if(curto){
+    pea.validadeCurta = curto;
+    fita("PEA n.º "+n+": "+curto);
+    O.evolucao.push({g:pea.g, tipo:"posit", txt:"Proposta de PEA n.º "+n+" — "+curto});
+  }
   await persistir(false);
   btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);

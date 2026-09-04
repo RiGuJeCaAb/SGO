@@ -354,28 +354,33 @@ async function colocarFolha(){
 
   const im = await lerImagemDaFolha(fi.files[0]);
   if(!im) return dizer("err", "Não foi possível ler a imagem.");
+  /* A partir daqui há uma `blob:` URL viva, e uma folha digitalizada são megabytes que
+     ficam presos ao separador até ele fechar. Todas as saídas por recusa passam a
+     revogá-la: eram cinco, e a que mais custava era a da projeção incompatível, porque
+     essa é a que acontece a quem já tem uma folha colocada e vai colocar a segunda. */
+  const recusar = (txt)=>{ URL.revokeObjectURL(im.url); return dizer("err", txt); };
 
   let mundo = null, pontos = 0, controlos = [];
   if(ff && ff.files && ff.files.length){
     mundo = lerFicheiroReferenciacao(await lerTextoDoFicheiro(ff.files[0]));
-    if(!mundo) return dizer("err", "O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
+    if(!mundo) return recusar("O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
   } else {
     const p1 = {px:numFolha("fo-p1px"), py:numFolha("fo-p1py"), E:numFolha("fo-p1e"), N:numFolha("fo-p1n")};
     const p2 = {px:numFolha("fo-p2px"), py:numFolha("fo-p2py"), E:numFolha("fo-p2e"), N:numFolha("fo-p2n")};
     if([p1, p2].some(p=>Object.values(p).some(v=>v === null)))
-      return dizer("err", "Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
+      return recusar("Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
     mundo = calibrarPorDoisPontos(p1, p2);
-    if(!mundo) return dizer("err", "Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
+    if(!mundo) return recusar("Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
     pontos = 2; controlos = [p1, p2];
   }
 
   const g = $("fo-grelha").value;
   const recusa = recusaPorProjecao(g);
-  if(recusa) return dizer("err", recusa);
+  if(recusa) return recusar(recusa);
   const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
-  if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
+  if(!f) return recusar("A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
   f.img = im.url;
   FOLHAS.push(f);
   await guardarFolhas();

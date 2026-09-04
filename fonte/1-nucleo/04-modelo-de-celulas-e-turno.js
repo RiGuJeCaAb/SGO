@@ -455,7 +455,12 @@ const $ = id => document.getElementById(id);
  * tirar os dados de dentro do HTML concatenado, que é o trabalho de fundo — e não chega
  * sozinho onde o dado cai dentro de uma *string de JavaScript* num atributo `onclick`,
  * porque aí o navegador desfaz a entidade antes de o JavaScript ver o texto. Esses
- * sítios foram convertidos para `data-` e `addEventListener`; nenhum resta.
+ * sítios foram convertidos para `data-` e `addEventListener`. **Esta linha dizia «nenhum
+ * resta» e estava errada:** restavam seis controlos com `onclick` embutido, em quatro
+ * listas repintadas. Nenhum deles interpolava texto de campo — levavam índices e números
+ * que a aplicação gera —, pelo que a afirmação sobre o XSS mantinha-se de pé; a
+ * afirmação sobre a forma é que não. Saíram todos, e são hoje `<button>` ligados por
+ * delegação em `ligarListasRepintadas`.
  */
 const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
 const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);

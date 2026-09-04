@@ -481,7 +481,14 @@
   .c-verde{color:var(--verde)}.c-verm{color:var(--vermelho)}.c-lar{color:var(--laranja)}.c-am{color:var(--amarelo)}
 
   /* histórico PEA */
-  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer}
+  /* As tres classes seguintes sao usadas em <button>. O botao traz tipo de letra, cor,
+     alinhamento e largura proprios do agente, e sem esta reposicao um <button class="pea-li">
+     nao fica igual ao <div class="pea-li"> que substituiu. Eram div e span com onclick:
+     nao se alcancavam pelo teclado, nao tinham papel nem nome, e a lista de propostas de
+     PEA era pura e simplesmente inacessivel a quem nao usa rato. */
+  .pea-li,.geo-c,.tchip{font:inherit;color:inherit;text-align:left;width:auto}
+  .pea-li:focus-visible,.geo-c:focus-visible,.tchip:focus-visible{outline:2px solid var(--agua);outline-offset:2px}
+  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer;width:100%}
   .pea-li:hover{border-color:var(--azul)}
   .chk{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:10px 2px;font-size:14.5px}
   .chk:last-child{border-bottom:none}

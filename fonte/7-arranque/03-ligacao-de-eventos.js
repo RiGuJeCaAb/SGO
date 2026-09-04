@@ -328,3 +328,37 @@ async function pintarCopias(){
   const sel = $("o-fase");
   if(sel) sel.addEventListener("change", ()=>{ try{ pintarFase(); }catch(e){} });
 })();
+
+/**
+ * Liga os controlos que nascem de uma repintura, por delegação no contentor.
+ *
+ * Seis listas construíam os seus controlos como `div` e `span` com `onclick` embutido. Não
+ * se alcançavam pelo teclado, não tinham papel nem nome acessível, e a lista de propostas
+ * de PEA — a que abre o documento — era pura e simplesmente inutilizável para quem não usa
+ * rato. São agora `<button>`, que traz o papel, o nome, o foco e a tecla de graça.
+ *
+ * A ligação é por delegação e não por elemento: as quatro listas repintam-se muitas vezes,
+ * e ligar a cada botão obrigava a religar a cada repintura — que é a forma de se perder um
+ * ouvinte em silêncio, defeito que este projeto já teve.
+ *
+ * O comentário do núcleo dizia que nenhum `onclick` embutido restava. **Restavam seis**, e
+ * a afirmação estava escrita ao lado da regra que a desmentia.
+ */
+(function ligarListasRepintadas(){
+  /** Liga um contentor: ao clique num descendente com `attr`, chama `fn` com o valor. */
+  const delegar = (id, attr, fn) => {
+    const c = $(id); if(!c) return;
+    c.addEventListener("click", ev => {
+      const b = ev.target.closest("[" + attr + "]");
+      if(b && c.contains(b)) fn(b.getAttribute(attr));
+    });
+  };
+  /* Por `window.` e não pelo nome nu: as quatro vivem como propriedades de `window` — era
+     assim que o `onclick` embutido lhes chegava — e não têm ligação léxica nenhuma. O
+     verificador de tipos apanha-o, e tem razão. */
+  delegar("pea-list",  "data-pea",        v => window.verPEA(+v));
+  delegar("geo-opts",  "data-geo",        v => window.escolherGeo(+v));
+  delegar("pt-sug",    "data-pt",         v => window.adotarPT(+v));
+  delegar("sens-sug",  "data-sens",       v => window.addSens(+v));
+  delegar("sens-sug",  "data-sens-todos", () => window.addSensTodos());
+})();

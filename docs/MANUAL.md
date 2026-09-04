@@ -708,6 +708,23 @@ Medido pelo ramo #005 em Chromium 141, com perfil vazio, aberto por duplo clique
 
 ---
 
+## A validade do plano, e quando ela é curta
+
+A validade de uma proposta é o mais próximo de três coisas: seis horas, o fecho da janela
+meteorológica, ou a próxima rotação de vento. **Nunca mais do que a mais próxima delas.**
+
+Havia antes um mínimo artificial de uma hora, para que um plano não nascesse a expirar. Saiu.
+Media-se assim: às 17h50, com a janela a fechar às 18h00, o plano declarava-se válido até às
+18h50 — cinquenta minutos para lá do gatilho que a própria aplicação tinha identificado. Um
+limite de segurança não se prolonga para o documento ficar mais confortável de ler.
+
+No lugar do mínimo ficou o aviso. Abaixo de uma hora de vigência, a fita do tempo e o registo
+de evolução dizem quantos minutos faltam até ao primeiro gatilho, e que a revisão tem de ser
+prevista já. Se o gatilho já passou, dizem que a validade está esgotada à nascença. Saber que
+o plano vale dez minutos é a informação útil; a hora inventada escondia-a.
+
+---
+
 ## Quando parte do ecrã não pinta
 
 No cimo da página pode aparecer uma faixa vermelha a dizer que parte do ecrã não foi
@@ -746,6 +763,13 @@ Recusa-se a chave, não o ficheiro: num posto de comando, um registo com um camp
 ainda é o registo, e deitá-lo fora inteiro pode ser a diferença entre ter a ocorrência e não
 ter nada. A limpeza corre também no arquivo do dispositivo e nas cópias de recuperação, para
 apanhar o que lá tenha ficado de uma revisão anterior.
+
+O carimbo de integridade cobre agora também o que um objeto herde, e não apenas o que ele
+tenha por si. A diferença não é teórica: media-se que um objeto com o protótipo trocado dava
+o mesmo resumo SHA-256 do objeto limpo, enquanto os campos herdados se liam no ecrã, se
+imprimiam no PEA e saíam na exportação. O carimbo dizia "confere" por cima de conteúdo que
+ninguém tinha escrito. Nenhum carimbo já emitido muda com isto — num objeto normal os dois
+conjuntos de chaves são o mesmo.
 
 ---
 

@@ -22,14 +22,47 @@ function instanteDaHora(txt){
   if(d.getTime() <= Date.now()) d.setDate(d.getDate()+1);
   return d.getTime();
 }
-/* validade: teto de 6 h, antecipado pelo fecho da janela ou pela próxima rotação de vento */
+/**
+ * Até quando o plano vale: teto de seis horas, antecipado pelo primeiro gatilho.
+ *
+ * Havia aqui um `Math.max(ts, agora + 3600000)` — mínimo de uma hora de vigência, para que
+ * um plano não nascesse a expirar. **Saiu.** Medido: às 17h50, com a janela a fechar às
+ * 18h00, o chão empurrava a validade para as 18h50 e o plano passava a declarar-se válido
+ * cinquenta minutos para lá do gatilho que o própria aplicação identificou. Um limite de
+ * segurança não se prolonga para o documento ficar mais confortável de ler.
+ *
+ * O que fica no lugar não é nada: é dizer a verdade. Quando o horizonte é curto, é curto, e
+ * `validadeCurta` diz a quem lê que o plano nasce com pouco tempo e porquê — que é a
+ * informação que a hora inventada escondia.
+ */
 function horizonteValidade(m){
   const agora = Date.now();
   let ts = agora + 6*3600000;
   if(m && m.janela){ const f = instanteDaHora(m.janela.fim); if(f && f>agora && f<ts) ts=f; }
   if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h); if(t && t>agora && t<ts) ts=t; });
-  /* um plano não nasce a expirar: mínimo de uma hora de vigência */
-  return Math.max(ts, agora + 3600000);
+  return ts;
+}
+
+/** Minutos de vigência com que um plano nasce, abaixo dos quais se avisa. */
+const VALIDADE_CURTA_MIN = 60;
+
+/**
+ * O aviso de um plano que nasce com pouco tempo, ou vazio se não for o caso.
+ *
+ * Substitui o chão de uma hora que existia antes. A diferença é toda: o chão **alterava** a
+ * validade para a fazer parecer razoável; isto deixa-a como é e diz que é curta. Num PCO,
+ * saber que o plano vale dez minutos é a informação útil — é o que obriga a rever já.
+ *
+ * @param {number} ts instante de fim de validade
+ * @param {number} agora instante corrente; entra, não se lê o relógio aqui
+ * @returns {string}
+ */
+function avisoValidadeCurta(ts, agora){
+  const min = Math.round((ts - agora)/60000);
+  if(!Number.isFinite(min) || min >= VALIDADE_CURTA_MIN) return "";
+  return min <= 0
+    ? "Validade esgotada à nascença: o gatilho seguinte já passou. Rever o plano antes de o entregar."
+    : "Validade curta: " + min + (min===1? " minuto" : " minutos") + " até ao primeiro gatilho. Prever já a revisão.";
 }
 /**
  * O retrato do dispositivo no momento em que o plano foi aprovado.

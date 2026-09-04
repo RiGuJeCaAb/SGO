@@ -4,7 +4,7 @@ Atualizado em 2026-09-04.
 
 ## Situação atual
 
-A revisão em vigor é a **r0094**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0095**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 132, das anteriores à convenção de nomes até à r0094 |
+| Entregas em `app/` | 133, das anteriores à convenção de nomes até à r0095 |
 | Módulos em `fonte/` | 72, em sete zonas, mais o molde |
-| Testes | 900, todos a passar |
+| Testes | 911, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -579,6 +579,116 @@ Fica em aberto, e é a achada mais útil que saiu de tudo isto: **duas abas na m
 escrevem a mesma chave e a última a fechar ganha**, sem `BroadcastChannel`, sem
 `navigator.locks` e sem revisão monótona de estado. E `persistir` continua a não deixar
 ninguém saber se gravou.
+
+## Duas análises da r0093, uma delas de outro modelo ainda — r0095
+
+Chegaram duas, ambas sobre a r0093 e ambas depois de a r0094 já estar feita. Verificaram-se
+as duas contra a fonte. O que se segue é o que a verificação deu, e não o que os documentos
+dizem.
+
+**A segunda análise GPT é boa, e mede.** As contagens batem quase todas com as minhas: 80/70
+chamadas a `persistir()` sem `await` (contei 81/70), 29 `Date.now()` (contei 27), 23 `new
+Date()` (contei 22) — as diferenças são r0093 contra r0094. E traz três coisas que eu não
+tinha:
+
+1. **A fuga de memória das folhas.** `colocarFolha` abre a `blob:` URL da imagem *antes* de
+   conferir a projeção, e as saídas por recusa não a revogavam. Confirmado, e o caminho que
+   mais custa é justamente o da projeção incompatível: é o de quem já tem uma folha colocada
+   e vai colocar a segunda, com megabytes presos ao separador até ele fechar.
+2. **A medição da validade.** Reproduzi-a ao minuto: 17h50, janela a fechar às 18h00,
+   validade produzida 18h50. Cinquenta minutos para lá do gatilho.
+3. **Os controlos `div`/`span`.** Aqui a análise está certa e **eu tinha contado mal**: na
+   resposta à auditoria anterior dei zero, porque procurei no molde. Estavam nas listas
+   repintadas em JavaScript. Eram seis, em quatro listas, e a das propostas de PEA — a que
+   abre o documento — era inalcançável por teclado.
+
+E o ponto cego do carimbo, que é o achado mais afiado dos dois documentos: **a serialização
+canónica percorria só as chaves próprias.** Medido: `{a:1}` e o mesmo objeto com um protótipo
+a trazer `fantasma` davam o mesmo SHA-256, e o `fantasma` lia-se na mesma. O carimbo dizia
+«confere» por cima de conteúdo que ninguém escreveu — e o carimbo é o que este projeto
+oferece como prova de integridade.
+
+**O que a análise GPT diz e está desatualizado:** as sete correções que aponta como não
+resolvidas foram-no na r0094, que ela não viu. Sobra a coordenação da persistência, que
+continua por fazer.
+
+**A CI do `main` está vermelha, e é verdade.** Confirmado no registo: a execução n.º 216,
+sobre o commit «Delete index.html», falhou. O `tests/montagem.test.mjs` exige que o
+`index.html` da raiz seja a entrega mais recente, byte a byte, e o ficheiro deixou de existir
+no `main`. **É uma decisão a tomar e não é minha** — ver o fim desta secção.
+
+**A análise Gemini é outra coisa.** Está bem escrita e tem partes corretas, mas descreve um
+projeto que não é este. Diz «monólito imperativo com mais de 2500 linhas» e «ficheiro
+monolítico de 3000 linhas»: a fonte são 72 módulos e 15 608 linhas em sete zonas. Diz
+«ausência de ambiente modular de testes unitários automatizados»: são 911 testes. E a
+«Solução A» que propõe — desenvolvimento em módulos com uma cadeia de compilação para
+entregar um ficheiro único — **é exatamente o que o projeto já faz** desde que `fonte/` e
+`npm run montar` existem. Analisou a entrega e não o repositório, e as três afirmações caem
+daí.
+
+Verifiquei o resto ponto por ponto:
+
+- **`I = H·w·R` (Gemini) reduz exatamente a `I = R·w/2` (o projeto).** Testado em três pontos:
+  idêntico à última casa. O «motor físico retificado» retifica zero na intensidade — é o
+  mesmo número escrito por extenso.
+- **Butler e Cohen (1998) já lá está**, com a distância de quatro vezes a altura da chama e a
+  tolerância de 7 kW/m² de radiação incidente, e a linha de contenção a uma vez e meia. A
+  «Solução D» propõe o que já existe, com as fontes já declaradas.
+- **O comprimento da chama diverge pouco e a fonte do projeto é melhor para aqui.** A 4 000
+  kW/m: 3,65 m pelo `I = 300·L²` de Fernandes (2003), 3,52 m pelo `L = 0,0775·I^0,46` que a
+  Gemini propõe, 3,54 m pelo `I = 258·L^2,17`. Três relações publicadas, diferença de 4 %. A
+  do projeto é a portuguesa e é a que a base doutrinária manda usar.
+- **O envelope PT-TM06 já existe** (`ENVELOPE_PTTM06`), com os limites em coordenadas
+  projetadas em vez do retângulo em graus que a «Solução C» propõe.
+- **As citações legais conferem, menos uma.** Art. 12.º, n.º 2 do DL n.º 90-A/2022 põe mesmo
+  os oficiais do PCO responsáveis pelas células de operações, planeamento, logística e
+  finanças. O art. 2.º, al. c) do Despacho define mesmo a fita do tempo como «o registo
+  temporal explícito e completo das decisões, ações e informações operacionais». Mas o
+  Despacho n.º 4067/2024 é **de 15 de abril, 2.ª série, n.º 74** — e a Gemini escreve «de 16
+  de abril, n.º 75». O projeto tem-no certo em `docs/FONTES.md`. É o género de erro contra o
+  qual existe a quarta restrição não negociável, num documento que se apresenta com
+  referências APA.
+- **A assinatura assimétrica proposta não dá o não-repúdio que promete.** Um par de chaves
+  gerado no próprio dispositivo, sem âncora de confiança nem infraestrutura de chaves, prova
+  que *alguma* chave assinou, não que foi a do COS. E o código proposto gera-o com
+  `extractable: false`, o que impede exportar a chave pública — sem ela ninguém verifica nada
+  fora daquele navegador. Fica por fazer, mas não por esta via: exige credenciais reais que a
+  aplicação não tem, e o projeto não inventa o que não tem fonte.
+- **O código da Gemini não corre como está.** `capacidadeTatíca` está escrito com acento no
+  sítio errado, e `avaliação` entra como chave de objeto com acento — nenhum dos dois é
+  defeito de doutrina, mas dizem alguma coisa sobre o grau de verificação do documento.
+
+Feito nesta revisão:
+
+1. **O chão de uma hora saiu do `horizonteValidade`.** No lugar ficou `avisoValidadeCurta`,
+   que diz quantos minutos faltam até ao primeiro gatilho e manda prever já a revisão, ou que
+   a validade está esgotada à nascença. A diferença é toda: o chão **alterava** a validade
+   para a fazer parecer razoável; isto deixa-a como é e diz que é curta.
+2. **`canonico` passa a percorrer por `for...in`.** Num objeto normal o conjunto de chaves é
+   o mesmo — o `Object.prototype` não tem nada enumerável —, pelo que nenhum carimbo já
+   emitido muda; num objeto adulterado passa a haver diferença, que é o que se queria.
+   A primeira tentativa **lançava** em vez de resumir, e partiu 28 testes do encerramento ao
+   apanhar objetos vindos de outro contexto de execução, que são planos e inofensivos.
+   Recusar era a resposta errada: aqui o trabalho é resumir tudo, não julgar.
+3. **A `blob:` URL é revogada em todas as recusas** posteriores à leitura da imagem, por um
+   `recusar()` que revoga e avisa. As duas que ficam a chamar `dizer` diretamente são as
+   duas certas: uma corre antes de haver URL, a outra depois de a folha estar colocada.
+4. **Os seis controlos são `<button>`**, ligados por delegação no contentor — e não por
+   elemento, porque as listas repintam-se muitas vezes e religar a cada repintura é a forma
+   de se perder um ouvinte em silêncio, defeito que este projeto já teve.
+
+E uma correção a um comentário do próprio código: o núcleo afirmava que dos `onclick`
+embutidos «nenhum resta». **Restavam seis.** A afirmação sobre o XSS mantinha-se de pé —
+nenhum deles interpolava texto de campo, levavam índices que a aplicação gera —, mas a
+afirmação sobre a forma estava errada, e estava escrita ao lado da regra que a desmentia.
+
+**Por decidir, e é do dono do repositório:** o `index.html` da raiz foi apagado do `main` a 4
+de setembro, num commit explícito. É a cópia que o GitHub serve, e a única forma de abrir a
+Estação a partir de um endereço; é gerada por `npm run montar` e há um teste que a confere.
+Enquanto a decisão não for tomada, o `main` fica vermelho. As saídas são três: repor o
+ficheiro, ou tirar a geração e o teste, ou deixar o teste tolerar a ausência e exigir
+frescura só quando ele existir. **Não escolhi nenhuma:** a pergunta é se a aplicação continua
+a ser servida por URL, e essa não é uma questão técnica.
 
 ## Decisões tomadas
 
