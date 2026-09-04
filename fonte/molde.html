@@ -818,6 +818,10 @@
   .pd details{margin-top:8px}
   .pd summary{cursor:pointer;color:var(--tx2);font-size:13.5px}
   footer{margin-top:36px;font-size:12px;color:var(--tx3);text-align:center;line-height:1.7}
+  /* Sem color-mix, de propósito: é o carimbo que diz que o color-mix não está disponível. */
+  .min-nav{margin-top:28px;border:1px solid var(--laranja);border-radius:10px;
+    padding:12px 16px;font-size:12.5px;line-height:1.6;color:var(--tx2);background:var(--surf2)}
+  .min-nav b{display:block;font-size:11px;letter-spacing:1px;color:var(--laranja);margin-bottom:4px}
 
   /* ================= relevo — consola de posto de comando =================
      O painel é a superfície de fundo; os cartões erguem-se sobre ele, os blocos
@@ -2191,6 +2195,7 @@
     </div>
   </section>
 
+  <div id="min-nav" class="min-nav" style="display:none"></div>
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
     Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>@REVISAO@</b> · <span style="font-family:var(--mono);font-size:11px">@FICHEIRO@</span>

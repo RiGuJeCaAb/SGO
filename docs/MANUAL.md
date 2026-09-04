@@ -249,6 +249,10 @@ finge que sim.
 Uma folha que caia fora do envelope do continente é colocada na mesma, com aviso: pode ser
 das ilhas, de Espanha, ou a colocação estar errada. Confirme-a no mapa.
 
+**Todas as folhas de uma sessão estão na mesma projeção, e é a primeira que a fixa.** O mapa
+desenha numa projeção de cada vez: uma folha noutra entraria e nunca apareceria. Se tentar
+colocá-la, a aplicação recusa e diz porquê — retire as que lá estão, ou converta a nova.
+
 **A imagem não é copiada para dentro do mapa a cada desenho.** Fica em memória uma vez e o
 mapa aponta para ela. Antes da r0092 era embutida por inteiro no desenho, e cada
 deslocamento e cada mudança de nível copiava os megabytes da folha — 300 a 500 ms por
@@ -674,6 +678,21 @@ Isto não é lista de limitações: é a garantia de que o que ela diz, sustenta
 
 Onde falta fonte, a aplicação **pergunta** em vez de adivinhar. Quando mostra um número, diz
 de onde ele vem.
+
+---
+
+## O navegador que isto exige
+
+**Chrome ou Edge 111, de março de 2023, ou posterior.** Quem fixa o mínimo é a folha de
+estilo e não o código: o JavaScript corre desde o Chrome 80, mas as cores dos sinais de
+estado usam uma construção de CSS que só existe a partir da 111.
+
+Abaixo disso a aplicação abre e trabalha, e aparece um aviso no fim da página. O que se perde
+são cores: as caixas de aviso e o contorno dos campos por preencher. **Isso não é detalhe** —
+um campo por preencher que perde o contorno continua a parecer preenchido, e é por isso que a
+aplicação o diz em vez de o deixar passar. Não bloqueia: declara.
+
+Medido pelo ramo #005 em Chromium 141, com perfil vazio, aberto por duplo clique.
 
 ---
 

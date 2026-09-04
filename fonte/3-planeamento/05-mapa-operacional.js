@@ -255,7 +255,12 @@ function grelhaAtual(){
      É a única fonte de projeção que resta, e ao contrário das outras é declarada por quem
      colocou a folha, não deduzida. Uma folha em Mercator e o mapa em PT-TM06 desenhariam
      a folha ao lado do sítio, e por isso a folha manda em vez de ser reprojetada. */
-  if(typeof FOLHAS !== "undefined" && FOLHAS.length && GRELHAS[FOLHAS[0].grelha]) return GRELHAS[FOLHAS[0].grelha];
+  /* A projeção das folhas é uma só, fixada pela primeira colocada — ver `grelhaDasFolhas`.
+     Não é `FOLHAS[0]` a decidir por ser o índice zero: é a única que há. */
+  if(typeof FOLHAS !== "undefined" && FOLHAS.length){
+    const gF = grelhaDasFolhas();
+    if(GRELHAS[gF]) return GRELHAS[gF];
+  }
   return GRELHAS.pttm06;
 }
 

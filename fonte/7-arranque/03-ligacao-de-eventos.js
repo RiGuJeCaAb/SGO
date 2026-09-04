@@ -69,6 +69,8 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
      imagem escolhe-se outra vez. Uma folha sem imagem continua a valer — diz onde está e
      aparece no retrato —, e por isso lê-se sempre, mesmo sabendo que não se vai desenhar. */
   try{ await carregarFolhas(); pintarFolhas(); }catch(e){}
+  /* O carimbo do minimo e do navegador e nao da ocorrencia: corre uma vez, no arranque. */
+  try{ carimbarMinimoNavegador(); }catch(e){}
   try{
     await carregarCartaLocal();
     if(CARTA_LOCAL){

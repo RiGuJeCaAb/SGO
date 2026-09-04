@@ -209,6 +209,40 @@ function folhaAfericao(f){
   return out;
 }
 
+/**
+ * A projeção em que as folhas colocadas estão, ou nada quando não há nenhuma.
+ *
+ * **Todas as folhas da sessão partilham a projeção, e a primeira é que a fixa.** Até à
+ * r0092 quem decidia era `FOLHAS[0]`, e um índice fixo a decidir política é frágil por
+ * construção — o ramo #001 tirou-lhe três consequências, todas más:
+ *
+ * - uma segunda folha noutra projeção entrava, aparecia na lista com escala e proveniência,
+ *   gravava-se na base **e nunca se desenhava**, sem uma palavra;
+ * - duas folhas pela ordem trocada davam mapas diferentes, e nada no ecrã o explicava;
+ * - retirar a primeira reprojetava o mapa inteiro, e com ele a posição aparente das frentes,
+ *   dos setores e dos meios — uma operação que parece local a mexer em tudo.
+ *
+ * Fixar a projeção na primeira e **recusar as seguintes na colocação** resolve as três de
+ * uma vez, e recusa em voz alta em vez de aceitar em silêncio.
+ */
+function grelhaDasFolhas(){ return FOLHAS.length? FOLHAS[0].grelha : null; }
+
+/**
+ * A razão por que esta folha não pode ser colocada, ou nada quando pode.
+ *
+ * Vive fora de `colocarFolha` para poder ser exercitada sem formulário nem ficheiro: a
+ * decisão é a parte que interessa prender, e dentro do manipulador de clique só se
+ * verificava lendo o código-fonte, que é verificar a forma e não o comportamento.
+ */
+function recusaPorProjecao(g){
+  const gS = grelhaDasFolhas();
+  if(!gS || gS === g) return null;
+  const nome = k => (GRELHAS[k]? GRELHAS[k].n : k);
+  return "Já há uma folha colocada em " + nome(gS) + " e esta é " + nome(g)
+    + ". O mapa desenha numa projeção de cada vez, e um mosaico já desenhado não se reprojeta — "
+    + "esta folha entraria e nunca apareceria. Retira as que lá estão, ou converte esta.";
+}
+
 /* As folhas colocadas nesta sessão. Vive fora de `O` de propósito: a imagem de uma folha
    pesa megabytes e não cabe no pacote da ocorrência, que viaja por ficheiro de texto. O
    que fica gravado é a colocação, na loja `folhas` da base; a imagem volta a ser escolhida
@@ -241,7 +275,20 @@ async function carregarFolhas(){
   let guardadas = null;
   try{ guardadas = await _idb("folhas", "readonly", st=>st.getAll()); }catch(e){ return; }
   if(!Array.isArray(guardadas)) return;
-  FOLHAS = guardadas.map(x=>folhaCalibrada(x)).filter(Boolean);
+  const lidas = guardadas.map(x=>folhaCalibrada(x));
+  /* **O que se perde anuncia-se.** Uma folha gravada que deixe de passar a validação — por
+     a revisão ter apertado uma recusa, ou por a base ter uma colocação de antes da regra da
+     projeção única — desaparecia sem uma palavra. É a mesma classe do `null` silencioso da
+     IndexedDB que se corrigiu na r0083. Apontado pelo ramo #001. */
+  FOLHAS = lidas.filter(Boolean);
+  const gSessao = grelhaDasFolhas();
+  const fora = FOLHAS.filter(f=>f.grelha !== gSessao);
+  if(fora.length) FOLHAS = FOLHAS.filter(f=>f.grelha === gSessao);
+  const perdidas = lidas.length - lidas.filter(Boolean).length;
+  if(perdidas || fora.length) fita("Folhas de carta: " + FOLHAS.length + " reposta(s)"
+    + (perdidas? "; " + perdidas + " descartada(s) por a colocação já não ser utilizável" : "")
+    + (fora.length? "; " + fora.length + " descartada(s) por estar(em) noutra projeção que não a de "
+        + (GRELHAS[gSessao]? GRELHAS[gSessao].n : gSessao) : "") + ".");
 }
 
 /** O número escrito num campo, com vírgula ou ponto, ou nada quando o campo não tem número. */
@@ -322,8 +369,11 @@ async function colocarFolha(){
     pontos = 2; controlos = [p1, p2];
   }
 
+  const g = $("fo-grelha").value;
+  const recusa = recusaPorProjecao(g);
+  if(recusa) return dizer("err", recusa);
   const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
-    largura:im.largura, altura:im.altura, mundo, grelha:$("fo-grelha").value,
+    largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
   if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
   f.img = im.url;

@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0092**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0093**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 130, das anteriores à convenção de nomes até à r0092 |
-| Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 862, todos a passar |
+| Entregas em `app/` | 131, das anteriores à convenção de nomes até à r0093 |
+| Módulos em `fonte/` | 72, em sete zonas, mais o molde |
+| Testes | 872, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -459,6 +459,41 @@ desenhava pela outra**, que é a diferença entre o GDAL e o world file.
 
 Não é grande — 0,5 mm no papel de uma 1:25 000 — mas é sistemático, tem sinal, e soma-se a
 qualquer outra fonte de erro em vez de cancelar.
+
+## A projeção deixa de ser decidida por um índice, e o mínimo do navegador declara-se — r0093
+
+**`FOLHAS[0]` era política, e um índice fixo a decidir política é frágil por construção.** O
+ramo #001 tirou-lhe três consequências, e todas eram más: uma segunda folha noutra projeção
+entrava, aparecia na lista com escala e proveniência, gravava-se na base **e nunca se
+desenhava**, sem uma palavra; duas folhas pela ordem trocada davam mapas diferentes; e
+retirar a primeira reprojetava o mapa inteiro, mudando a posição aparente das frentes, dos
+setores e dos meios — uma operação que parece local a mexer em tudo.
+
+A projeção é agora da sessão, fixada pela primeira folha, e as seguintes são **recusadas na
+colocação com a razão por extenso**. Recusar em voz alta é melhor do que aceitar em silêncio,
+e resolve as três de uma vez. A decisão vive em `recusaPorProjecao`, fora do manipulador de
+clique, para poder ser exercitada sem formulário nem ficheiro — dentro dele só se verificava
+lendo o código-fonte, que é verificar a forma e não o comportamento.
+
+**E o `carregarFolhas` deixou de perder folhas em silêncio**, que era a mesma classe de
+defeito do `null` mudo da IndexedDB corrigido na r0083. Uma colocação gravada que já não
+passe a validação, ou que esteja noutra projeção, é descartada **e contada na fita do tempo**.
+
+### O mínimo do navegador
+
+Do ramo #005, medido em Chromium 141 com perfil vazio a partir de `file://`. **Quem fixa o
+mínimo é o CSS e não o JavaScript**, o que não é intuitivo: o código está em ES2020, Chrome
+80, mas a folha de estilo usa `color-mix()` em sete sítios, e essa é de **Chrome/Edge 111**,
+março de 2023.
+
+A degradação não é cosmética. Abaixo do mínimo a declaração cai por inteiro e vão-se as cores
+das caixas de aviso e o anel de foco de `input[aria-invalid="true"]`. **Um campo inválido que
+perde o anel vermelho continua a parecer normal** — falha com ar de estar bem, que é pior do
+que falhar.
+
+Declara-se e não se bloqueia, na doutrina do carimbo de integridade: um carimbo no fim da
+página, permanente porque é condição da máquina e não acontecimento. A deteção é
+`CSS.supports` e nunca o `userAgent`, que qualquer coisa reescreve — há teste que o exige.
 
 ## Decisões tomadas
 

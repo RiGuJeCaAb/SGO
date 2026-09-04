@@ -472,3 +472,45 @@ test('o escape do endereço da imagem fica onde está', semAplicacao, () => {
      tem `<` a sério. Tira-se a repetição, não a defesa. */
   assert.match(codigoDaEntrega(), /<image href="'\s*\+\s*esc\(f\.img\)/);
 });
+
+/* ---- a projeção da sessão, e não o índice zero ---- */
+
+test('a primeira folha fixa a projeção da sessão', semAplicacao, () => {
+  janela.eval('O = novoEstado(); FOLHAS = []');
+  assert.equal(janela.grelhaDasFolhas(), null, 'sem folhas não há projeção fixada');
+  janela.eval('FOLHAS.push(folhaCalibrada({id:"a", nome:"a", largura:10, altura:10,'
+    + ' mundo:{A:2.5,D:0,B:0,E:-2.5,C:30000,F:185000}, grelha:"pttm06", proveniencia:"p", pontos:0}))');
+  assert.equal(janela.grelhaDasFolhas(), 'pttm06');
+  janela.eval('FOLHAS = []');
+});
+
+test('retirar uma folha de várias não reprojeta o mapa', semAplicacao, () => {
+  /* Era a terceira consequência do ramo #001: uma operação que parece local — tirar uma
+     folha — mudava a grelha do mapa e com ela a posição aparente das frentes, dos setores e
+     dos meios. Com projeção única não pode acontecer. */
+  janela.eval('O = novoEstado(); CARTA = null; CARTA_LOCAL = null; FOLHAS = []');
+  ['a', 'b'].forEach((id) => janela.eval('FOLHAS.push(folhaCalibrada({id:"' + id + '", nome:"' + id
+    + '", largura:10, altura:10, mundo:{A:2.5,D:0,B:0,E:-2.5,C:30000,F:185000},'
+    + ' grelha:"pttm06", proveniencia:"p", pontos:0}))'));
+  const antes = janela.grelhaAtual().k;
+  janela.eval('FOLHAS = FOLHAS.slice(1)');
+  assert.equal(janela.grelhaAtual().k, antes, 'a grelha mudou ao retirar a primeira folha');
+  janela.eval('FOLHAS = []');
+});
+
+test('a colocação recusa uma folha noutra projeção, e diz porquê', semAplicacao, () => {
+  /* Antes entrava, aparecia na lista com escala e proveniência, gravava-se na base — e nunca
+     se desenhava, porque `compativel()` a recusava sem caminho de aviso. Recusar em voz alta
+     é melhor do que aceitar em silêncio. */
+  janela.eval('O = novoEstado(); FOLHAS = []');
+  janela.eval('FOLHAS.push(folhaCalibrada({id:"a", nome:"a", largura:10, altura:10,'
+    + ' mundo:{A:2.5,D:0,B:0,E:-2.5,C:30000,F:185000}, grelha:"pttm06", proveniencia:"p", pontos:0}))');
+  const r = janela.recusaPorProjecao('mercator');
+  assert.ok(r, 'a segunda folha noutra projeção tinha de ser recusada');
+  assert.match(r, /Já há uma folha colocada em PT-TM06/);
+  assert.match(r, /um mosaico já desenhado não se reprojeta/, 'a recusa tem de dizer porquê');
+  /* E a mesma projeção passa, que é o outro lado da guarda. */
+  assert.equal(janela.recusaPorProjecao('pttm06'), null);
+  janela.eval('FOLHAS = []');
+  assert.equal(janela.recusaPorProjecao('mercator'), null, 'sem folhas, não há o que recusar');
+});
