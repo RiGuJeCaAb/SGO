@@ -28,9 +28,19 @@
  * aumento da capacidade de comando e controlo — DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27) —,
  * que é o que a regra de conformidade da fase já mede. Está ligado a esse, em `gatilho`.
  *
- * O que sobra é uma regra só, com uma fonte só: **um núcleo é de uma célula, e não há
- * célula antes de haver posto de comando** — art. 13.º, n.º 2, que o instala a partir da
- * fase II. É esse o limiar, e é o mesmo para os nove.
+ * **A terceira, e é a que fecha o raciocínio.** A r0087 disse «um núcleo é de uma célula, e
+ * não há célula antes de haver posto de comando», e parou no posto quando devia ter parado
+ * na célula. As células não nascem todas ao mesmo tempo: o art. 41.º, n.º 2, al. b) instala
+ * o PCO na fase II **integrando só a célula de operações**, e é o art. 42.º, n.º 2, al. b)
+ * que lhe acrescenta as de planeamento e de logística e finanças, na fase III.
+ *
+ * A aplicação sugeria, numa ocorrência em fase II, nomear o Núcleo de Informações e o
+ * Núcleo de Finanças — de células que ainda não existem, e cujo oficial competente para os
+ * ativar ainda não foi nomeado. Fonte certa, âmbito errado; o mesmo padrão que a r0087
+ * tinha acabado de corrigir. Apanhado pelo ramo #004, com o Despacho à frente.
+ *
+ * O limiar deriva agora **da célula a que o núcleo pertence** — o campo `g:`, que já lá
+ * estava — e não de um número repetido nove vezes. Ver `FASE_DA_CELULA`.
  *
  * Os cinco valores do art. 14.º foram corrigidos na r0084 — ver `aLei` de cada um.
  */
@@ -56,11 +66,23 @@ const FUNCOES_PCO = [
   {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", nucleo:true, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
   {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", nucleo:true},
   {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", nucleo:true},
-  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", nucleo:true, gatilho:"c2"},
+  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, pontos 7.d.(25)(d) e 7.d.(27)", g:"Planeamento", nucleo:true, gatilho:"c2"},
   {f:"Oficial de ligação de entidade", r:"art. 37.º, n.º 2", g:"Ligação"},
   {f:"Outra função", r:"—", g:"Ligação"}
 ];
 const ORDEM_FASE = {"":0,"I":1,"II":2,"III":3,"IV":4,"V":5,"VI":6};
+/**
+ * A fase em que cada célula do PCO passa a existir, e a alínea que o diz.
+ *
+ * É daqui que sai o limiar de sugestão de cada núcleo: um núcleo é de uma célula, e não se
+ * propõe antes de a célula existir nem antes de haver quem seja competente para o ativar —
+ * o oficial da célula respetiva, arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
+ */
+const FASE_DA_CELULA = {
+  "Operações":  { fase:2, a:"art. 41.º, n.º 2, al. b)" },
+  "Planeamento":{ fase:3, a:"art. 42.º, n.º 2, al. b)" },
+  "Logística":  { fase:3, a:"art. 42.º, n.º 2, al. b)" },
+};
 /** @returns {{funcoes:FuncaoPCO[]}} */
 /* Comando: as nomeações do art. 14.º. O plano de comunicações saiu daqui na versão 6
    do estado — é do art. 32.º, n.º 1, al. d) — e lê-se por `canaisObj()`. */
@@ -105,7 +127,7 @@ const FUNCOES_REPETIVEIS = ["Oficial de ligação de entidade","Outra função"]
 /* Quatro pesos, e os rótulos dizem de onde vem cada um. `e` e `r` são a lei — agora e a
    seguir; `s` é prática do posto, e o rótulo assume-o em vez de a fazer passar por norma. */
 const PRIO_ROT = {e:{t:"Essencial — exigível por lei nesta fase", c:"var(--fogo)"},
-                  r:{t:"Recomendada — a lei exige na fase seguinte, ou o limiar está próximo", c:"var(--terra)"},
+                  r:{t:"Recomendada — norma a apontar para ela, agora ou na fase seguinte", c:"var(--terra)"},
                   s:{t:"Sugerida pela prática — sem imposição legal nesta fase", c:"var(--agua)"},
                   m:{t:"De menor importância neste momento", c:"var(--madeira)"}};
 /**
@@ -126,12 +148,20 @@ function prioridadeFuncao(x, exigiveis){
   if(x.faseLei && fase+1 >= x.faseLei) return "r";
   if(x.cond==="copart" && c.arComb>0) return "r";
   if(x.cond==="copara" && c.arComb>2) return "r";
-  /* Um núcleo sugere-se a partir do momento em que há posto de comando onde o alojar —
-     art. 13.º, n.º 2 —, e não a partir de uma fase que ninguém escreveu. O gatilho do
+  /* Um núcleo sugere-se a partir do momento em que **a sua célula existe** — não a partir
+     de uma fase que ninguém escreveu, nem do momento em que há posto de comando. Ver
+     `FASE_DA_CELULA`: na fase II o PCO integra só a célula de operações. O gatilho do
      núcleo de especialistas é o único com norma própria, e é o efetivo a exceder a
      referência da fase declarada, não a fase em si. */
-  if(x.gatilho === "c2" && fase >= ORDEM_FASE.II && excedeReferenciaDaFase()) return "s";
-  if(x.nucleo && fase >= ORDEM_FASE.II) return "s";
+  /* O gatilho **pesa mais do que a sugestão**, e é por isso que devolve `r` e não `s`. Sem
+     ele, o núcleo de especialistas era proposto pela sua célula como os irmãos e o campo
+     não distinguia nada. Com o efetivo a exceder a referência há norma a apontar para ele
+     — DON n.º 2, 7.d.(25)(d) e 7.d.(27): o reforço da capacidade de comando e controlo
+     «deve ser acompanhado» da ativação deste núcleo. Não é lei do SGO, e por isso não sobe
+     a `e`; é doutrina que vincula o DECIR, e por isso não fica em `s`. */
+  const cel = x.nucleo? FASE_DA_CELULA[x.g] : null;
+  if(cel && fase >= cel.fase && x.gatilho === "c2" && excedeReferenciaDaFase()) return "r";
+  if(cel && fase >= cel.fase) return "s";
   /* Sem limiar na lei — arts. 19.º, 21.º e 22.º regulam a quem se reporta, não a partir de
      quantos meios se nomeia. Os números abaixo são leitura do posto, por analogia com a
      regra aérea do art. 20.º, e é por isso que saem em `s` e não em `e`. */

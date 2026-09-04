@@ -432,8 +432,8 @@ peso, e as quatro prateleiras dizem de onde vem cada uma:
 | Prateleira | O que quer dizer |
 |---|---|
 | «Essencial — exigível por lei nesta fase» | O articulado impõe-a na fase declarada. O motivo cita a alínea |
-| «Recomendada — a lei exige na fase seguinte, ou o limiar está próximo» | Ainda não é obrigação, mas está a uma fase de o ser |
-| «Sugerida pela prática — sem imposição legal nesta fase» | Núcleos de célula. **A lei não fixa fase para os ativar**: são propostos assim que há posto de comando |
+| «Recomendada — norma a apontar para ela, agora ou na fase seguinte» | Ainda não é obrigação, mas está a uma fase de o ser |
+| «Sugerida pela prática — sem imposição legal nesta fase» | Núcleos de célula. **A lei não fixa fase para os ativar**: são propostos assim que a sua célula existe |
 | «De menor importância neste momento» | Matéria de escolha |
 
 **A terceira prateleira nasceu na r0084 e é a razão de esta secção existir.** Até lá havia
@@ -444,12 +444,18 @@ que fase. Quem comandava não conseguia distinguir o que a lei impunha naquele m
 a aplicação achava prudente.
 
 **E na r0087 os números desapareceram de vez.** A etiqueta certa não chegava: um palpite
-continuava a ordenar o ecrã por uma escala que ninguém tinha escrito. Os nove núcleos são
-agora propostos a partir da fase II, e por uma razão só, que tem fonte — um núcleo é de uma
-célula, e não há célula antes de haver posto de comando, art. 13.º, n.º 2. Um deles tem
-gatilho próprio: o **núcleo de especialistas** é proposto quando o efetivo no TO excede a
-referência da fase declarada, porque é isso que a DON n.º 2 liga à sua ativação, e não uma
-fase.
+continuava a ordenar o ecrã por uma escala que ninguém tinha escrito.
+
+**Na r0090 corrigiu-se o limiar que os substituiu.** A r0087 propunha os nove a partir da
+fase II, com o raciocínio "não há célula antes de haver posto de comando" — que pára no
+posto quando devia parar na célula. O art. 41.º, n.º 2, al. b) instala o PCO na fase II
+integrando **só a célula de operações**; as de planeamento e de logística e finanças entram
+na fase III, art. 42.º, n.º 2, al. b). Cada núcleo espera agora pela fase em que a sua
+célula nasce, e não por um número repetido nove vezes.
+
+Um deles tem gatilho próprio: o **núcleo de especialistas** sobe a recomendado quando o
+efetivo no TO excede a referência da fase declarada, porque é isso que a DON n.º 2 liga à
+sua ativação — e não uma fase.
 
 Só o que está na primeira prateleira conta como falta: é o que aparece na lista de
 pendências, no briefing de passagem de comando, na passagem de turno e na conformidade. Um
@@ -625,6 +631,12 @@ não uma:
 essa opção desligada de origem, e sem ela desaparecem do PEA impresso as linhas de título
 com a cor da célula — o documento sai legível e deixa de se parecer com o modelo aceite. É o
 percalço mais previsível de todos, e a correção é uma caixa.
+
+**A escala da folha aparece em metros de terreno, e não da projeção.** Numa folha em Web
+Mercator os dois números são muito diferentes: a 41° N o metro da projeção vale cerca de
+1,33 do metro do terreno, e uma folha declarada a 25 m/px cobre 18,8 m por pixel. A lista
+escreve o valor do terreno e põe o da projeção entre parênteses, com a latitude a que vale.
+Em PT-TM06 os dois coincidem e nada se corrige.
 
 **O tipo de letra do documento impresso é o Calibri**, com recurso a `Inter` e depois à
 letra sem serifas do sistema. Num computador sem Microsoft Office instalado, o Calibri não

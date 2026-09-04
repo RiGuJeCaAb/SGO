@@ -270,6 +270,18 @@ function gDe(x, y, z){ return grelhaAtual().de(x, y, z); }
 function gEscala(lat, z){ return grelhaAtual().escala(lat, z); }
 /** O pixel da grelha de um ponto já dado em metros da projeção corrente. Em par, como os outros. */
 function gMetros(E, N, z){ return grelhaAtual().metros(E, N, z); }
+/**
+ * As coordenadas geográficas de um ponto em metros de **uma grelha nomeada**, não da corrente.
+ *
+ * É o único sítio da aplicação que trabalha numa grelha que não é a que está a desenhar, e
+ * tem razão para o fazer: uma folha declara a sua projeção e pode não ser a do mapa — para
+ * saber a que latitude ela está, e portanto quanto vale ali o metro da projeção, é preciso
+ * perguntar à grelha dela. O nível é indiferente: entra e sai pelo mesmo, e cancela-se.
+ */
+function gDeGrelha(G, E, N){
+  const q = G.metros(E, N, 10);
+  return G.de(q.x, q.y, 10);
+}
 
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai

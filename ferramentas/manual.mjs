@@ -69,7 +69,7 @@ const RENDIDOS = [
   /* Rótulos dos grupos da lista de funções por nomear. São `label` de `<optgroup>` composto
      em tempo de execução, e a leitura estática não os alcança de forma nenhuma. */
   { rotulo: 'Essencial — exigível por lei nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
-  { rotulo: 'Recomendada — a lei exige na fase seguinte, ou o limiar está próximo', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'Recomendada — norma a apontar para ela, agora ou na fase seguinte', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
   { rotulo: 'Sugerida pela prática — sem imposição legal nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
   { rotulo: 'De menor importância neste momento', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
   /* Cabeçalho do bloco das propostas retiradas, escrito no PEA depois de o plano estar

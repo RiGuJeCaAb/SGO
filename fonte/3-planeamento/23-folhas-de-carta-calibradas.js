@@ -178,8 +178,24 @@ function folhaAfericao(f){
   if(!f || !f.mundo) return null;
   const m = f.mundo, det = m.A*m.E - m.D*m.B;
   if(!isFinite(det) || !det) return null;
-  const mpp = Math.sqrt(Math.abs(det));
-  const out = { mpp, esferico:null, desvio:null, suspeita:false };
+  /* **Metros da projeção não são metros do terreno**, e o Web Mercator é o caso extremo:
+     a 41° N infla 32,7 %, medido. Uma folha em Mercator a «25 m/px» cobre 18,8 m de
+     terreno por pixel, e quem medisse por cima dela errava um terço.
+
+     A r0086 devolvia a raiz do determinante e chamava-lhe m/px sem mais. Apanhado pelo
+     ramo #004, que mediu 33,1 % contra os 32,7 % que se reproduzem aqui — é a mesma coisa,
+     à latitude de ensaio. O PT-TM06 não tem este problema: é Transversa de Mercator com
+     fator de escala 1 no meridiano central, e no continente o desvio fica muito abaixo do
+     que uma folha de carta resolve. */
+  const mppProj = Math.sqrt(Math.abs(det));
+  const G = GRELHAS[f.grelha];
+  const centro = f.paraMundo? f.paraMundo((f.largura-1)/2, (f.altura-1)/2) : null;
+  const geo = (G && centro && G.metros)? gDeGrelha(G, centro.E, centro.N) : null;
+  /* O fator de escala do Web Mercator é 1/cos(φ) e varia ao longo da folha; toma-se no
+     centro e declara-se a latitude a que vale, em vez de se fingir um número único. */
+  const k = (f.grelha === "mercator" && geo)? 1/Math.cos(geo.lat*Math.PI/180) : 1;
+  const out = { mpp: mppProj/k, mppProj, escalaProj:k, latRef: geo? geo.lat : null,
+                esferico:null, desvio:null, suspeita:false };
   const c = f.controlos || [];
   if(c.length !== 2 || f.grelha !== "pttm06") return out;
   const dpx = Math.hypot(c[1].px - c[0].px, c[1].py - c[0].py);
@@ -188,7 +204,7 @@ function folhaAfericao(f){
   const esf = distanciaM(a.lat, a.lon, b.lat, b.lon);
   if(!esf) return out;
   out.esferico = esf;
-  out.desvio = Math.abs(mpp*dpx - esf) / esf;
+  out.desvio = Math.abs(out.mpp*dpx - esf) / esf;
   out.suspeita = out.desvio > AFERICAO_DESVIO_MAX;
   return out;
 }
@@ -344,9 +360,17 @@ function pintarFolhas(){
     /* Metros por pixel: sai do determinante, que é a área que um pixel cobre no terreno.
        É o número por que se percebe, de relance, se a colocação faz sentido — uma folha a
        0,004 m/px ou a 900 m/px está errada e vê-se sem abrir o mapa. */
-    const af = folhaAfericao(f), mpp = af? af.mpp : 0;
+    const af = folhaAfericao(f);
+    /* A regra de `folhaAfericao` — ausência é nada, nunca zero — valia uma camada abaixo e
+       era violada aqui: `af? af.mpp : 0` imprimia «0,000 m/px», que é uma escala e não é
+       uma ausência. Apanhado pelo ramo #001. */
+    const escalaTxt = af
+      ? af.mpp.toFixed(3).replace(".", ",")+' m/px'
+        +(af.escalaProj > 1.001? ' no terreno ('+af.mppProj.toFixed(3).replace(".", ",")
+          +' m de projeção a '+af.latRef.toFixed(2).replace(".", ",")+'° N)' : "")
+      : 'escala por apurar';
     return '<div class="pk-r"><span class="k">'+esc(f.nome)+'</span><span class="v">'
-      + f.largura+'×'+f.altura+' px · '+mpp.toFixed(3).replace(".", ",")+' m/px · '+esc(g? g.n : f.grelha)
+      + f.largura+'×'+f.altura+' px · '+escalaTxt+' · '+esc(g? g.n : f.grelha)
       + ' · '+(f.pontos? f.pontos+' pontos de controlo' : 'ficheiro de referenciação')
       + ' · '+esc(f.proveniencia)
       + (f.foraDoEnvelope? ' <span class="pend">fora do envelope do continente</span>' : "")

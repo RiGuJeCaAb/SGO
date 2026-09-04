@@ -337,3 +337,59 @@ test('o que a aferição deteta é a fundação partida', semAplicacao, () => {
   const a = janela.folhaAfericao(f);
   assert.equal(a.suspeita, true, 'desvio de ' + (a.desvio * 100).toFixed(1) + ' %');
 });
+
+/* ---- metros da projeção não são metros do terreno ---- */
+
+test('uma folha em Mercator não afirma a escala da projeção como se fosse do terreno', semAplicacao, () => {
+  /* O achado mais perigoso que chegou dos ramos, e é do #004. O Web Mercator não preserva
+     escala: a 41° N o metro da projeção vale 1/cos(41°) do metro do terreno, e a aplicação
+     dizia «25,000 m/px» de uma folha cujos pixéis cobrem 18,8 m. Quem medisse uma distância
+     de segurança por cima dela errava um terço — e para menos, que é o sentido perigoso. */
+  const f = janela.folhaCalibrada(desc({ grelha: 'mercator',
+    mundo: { A: 25, D: 0, B: 0, E: -25, C: -868000, F: 5030000 } }));   /* Douro, ~41,1° N */
+  const a = janela.folhaAfericao(f);
+  const k = 1 / Math.cos(a.latRef * Math.PI / 180);
+  assert.ok(Math.abs(a.mppProj - 25) < 1e-9, 'a escala da projeção é o que os coeficientes dizem');
+  assert.ok(Math.abs(a.mpp - 25 / k) < 0.01,
+    'no terreno são ' + (25 / k).toFixed(3) + ' m/px, e a aplicação diz ' + a.mpp.toFixed(3));
+  assert.ok(a.mpp < 19 && a.mpp > 18.5, 'm/px no terreno: ' + a.mpp.toFixed(3));
+  assert.ok(a.escalaProj > 1.3, 'o fator de escala tem de ficar declarado: ' + a.escalaProj);
+  assert.ok(Math.abs(a.latRef - 41.1) < 0.3, 'a latitude a que vale: ' + a.latRef);
+});
+
+test('em PT-TM06 a escala da projeção é a do terreno, e não se corrige nada', semAplicacao, () => {
+  /* Transversa de Mercator com fator de escala 1 no meridiano central: no continente o
+     desvio fica muito abaixo do que uma folha de carta resolve. Corrigir aqui seria
+     introduzir erro para tapar um que não existe. */
+  const a = janela.folhaAfericao(janela.folhaCalibrada(desc()));
+  assert.equal(a.escalaProj, 1);
+  assert.equal(a.mpp, a.mppProj);
+  assert.equal(a.mpp, 2.5);
+});
+
+test('a lista escreve a escala do terreno, e diz a da projeção ao lado', semAplicacao, () => {
+  janela.eval('O = novoEstado(); FOLHAS = []');
+  janela.eval('FOLHAS.push(folhaCalibrada({id:"m", nome:"folha em Mercator", largura:400,'
+    + ' altura:300, mundo:{A:25,D:0,B:0,E:-25,C:-868000,F:5030000}, grelha:"mercator",'
+    + ' proveniencia:"ensaio", pontos:0}))');
+  janela.pintarFolhas();
+  const t = janela.document.getElementById('fo-lista').textContent;
+  assert.match(t, /18,8\d\d m\/px no terreno/);
+  assert.match(t, /25,000 m de projeção/);
+  janela.eval('FOLHAS = []');
+});
+
+test('sem aferição a lista não imprime zero, que é uma escala e não uma ausência', semAplicacao, () => {
+  /* A regra fixada em `folhaAfericao` — ausência é `null`, nunca zero — estava a ser
+     violada uma camada acima, no sítio onde o número chega aos olhos de alguém. Apanhado
+     pelo ramo #001. */
+  janela.eval('O = novoEstado(); FOLHAS = []');
+  janela.eval('FOLHAS.push(Object.assign(folhaCalibrada({id:"z", nome:"sem coeficientes",'
+    + ' largura:10, altura:10, mundo:{A:2.5,D:0,B:0,E:-2.5,C:0,F:0}, grelha:"pttm06",'
+    + ' proveniencia:"ensaio", pontos:0}), {mundo:null}))');
+  janela.pintarFolhas();
+  const t = janela.document.getElementById('fo-lista').textContent;
+  assert.doesNotMatch(t, /0,000 m\/px/);
+  assert.match(t, /escala por apurar/);
+  janela.eval('FOLHAS = []');
+});

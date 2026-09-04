@@ -206,16 +206,22 @@ test('o núcleo de especialistas sugere-se pelo seu gatilho, e não por uma fase
      conformidade já mede: o efetivo a exceder a referência da fase declarada. */
   janela.eval('O = novoEstado()');
   const O = avaliar(janela, 'O');
-  O.meta.fase = 'II';
+  /* Fase III, que é quando a célula de planeamento existe — em fase II o argumento do
+     aumento da capacidade de comando e controlo não se sustentava, porque o PCO estava
+     reduzido à célula de operações. Observação do ramo #004, e é a certa. */
+  O.meta.fase = 'III';
   assert.equal(janela.excedeReferenciaDaFase(), false, 'sem dispositivo não há excesso');
   const esp = acha('Núcleo de Especialistas');
   assert.equal(esp.gatilho, 'c2');
   assert.equal(esp.faseSug, undefined, 'o gatilho substitui o número, não o acompanha');
+  assert.equal(janela.prioridadeFuncao(esp), 's', 'sem excesso, é proposto pela célula como os irmãos');
 
-  /* Fase II comporta 40 operacionais. Com 120, a referência é excedida. */
-  O.dados.est.setores = [{ estado: 'Em curso (ativo)', cmd: '', m: '30', o: '120' }];
+  /* Fase III comporta 119 operacionais. Com 300, a referência é excedida. */
+  O.dados.est.setores = [{ estado: 'Em curso (ativo)', cmd: '', m: '60', o: '300' }];
   assert.equal(janela.excedeReferenciaDaFase(), true);
-  assert.equal(janela.prioridadeFuncao(esp), 's', 'o gatilho tem de o propor');
+  /* Com o gatilho, sobe de sugestão a recomendação: há norma a apontar para ele, o que os
+     irmãos não têm. Se ficasse em «s», o campo `gatilho` não distinguiria nada. */
+  assert.equal(janela.prioridadeFuncao(esp), 'r', 'o gatilho tem de o fazer pesar mais');
 });
 
 test('sem fase declarada não há referência que se possa exceder', semAplicacao, () => {
@@ -224,15 +230,42 @@ test('sem fase declarada não há referência que se possa exceder', semAplicaca
   assert.equal(janela.excedeReferenciaDaFase(), false);
 });
 
-test('os núcleos não se sugerem antes de haver posto de comando onde os alojar', semAplicacao, () => {
-  /* Art. 13.º, n.º 2 — o PCO instala-se a partir da fase II. Um núcleo é de uma célula, e
-     não há célula antes do posto. É a única regra de fase que sobra para os nove, e tem
-     fonte, ao contrário dos números que substituiu. */
+test('cada núcleo espera pela fase em que a sua célula passa a existir', semAplicacao, () => {
+  /* A r0087 punha os nove na fase II, com o raciocínio «não há célula antes de haver posto
+     de comando» — que pára no posto quando devia parar na célula. O art. 41.º, n.º 2, al. b)
+     instala o PCO na fase II **integrando só a célula de operações**; as de planeamento e de
+     logística e finanças só entram na III, art. 42.º, n.º 2, al. b). A aplicação sugeria
+     nomear o Núcleo de Finanças numa fase em que a célula dele ainda não existe, e cujo
+     oficial competente para o ativar ainda não foi nomeado. Apanhado pelo ramo #004. */
   janela.eval('O = novoEstado()');
   const O = avaliar(janela, 'O');
+  const F = avaliar(janela, 'FASE_DA_CELULA');
   const nucleos = tabela().filter((x) => x.nucleo && x.gatilho === undefined);
-  O.meta.fase = 'I';
-  nucleos.forEach((x) => assert.notEqual(janela.prioridadeFuncao(x), 's', x.f + ' na fase I'));
+  assert.equal(nucleos.length, 8, 'oito sem gatilho próprio, mais o de especialistas');
+
+  ['I', 'II', 'III'].forEach((fase) => {
+    O.meta.fase = fase;
+    const ordem = avaliar(janela, 'ORDEM_FASE')[fase];
+    nucleos.forEach((x) => {
+      const devia = ordem >= F[x.g].fase ? 's' : 'm';
+      assert.equal(janela.prioridadeFuncao(x), devia,
+        x.f + ' (célula ' + x.g + ', ' + F[x.g].a + ') na fase ' + fase);
+    });
+  });
+
+  /* E o caso concreto que denuncia o defeito, escrito por extenso. */
   O.meta.fase = 'II';
-  nucleos.forEach((x) => assert.equal(janela.prioridadeFuncao(x), 's', x.f + ' na fase II'));
+  assert.equal(janela.prioridadeFuncao(acha('Núcleo de Finanças')), 'm',
+    'a célula de logística e finanças não existe na fase II');
+  assert.equal(janela.prioridadeFuncao(acha('Núcleo de Segurança')), 's',
+    'a célula de operações existe na fase II — art. 41.º, n.º 2, al. b)');
+});
+
+test('toda a célula com núcleos declara a fase em que nasce, e a alínea', semAplicacao, () => {
+  const F = avaliar(janela, 'FASE_DA_CELULA');
+  const grupos = new Set(tabela().filter((x) => x.nucleo).map((x) => x.g));
+  grupos.forEach((g) => {
+    assert.ok(F[g], 'a célula «' + g + '» tem núcleos e não declara em que fase nasce');
+    assert.match(F[g].a, /art\. \d+\.º, n\.º 2, al\. b\)/, g + ' sem alínea');
+  });
 });

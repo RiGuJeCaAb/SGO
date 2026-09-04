@@ -4,7 +4,7 @@ Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0089**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0090**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 127, das anteriores à convenção de nomes até à r0089 |
+| Entregas em `app/` | 128, das anteriores à convenção de nomes até à r0090 |
 | Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 848, todos a passar |
+| Testes | 853, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -339,6 +339,55 @@ nenhum registado, diz isso e manda reconhecê-los.
 prender exatamente o que havia a corrigir. Foi reescrito para separar o que sobrevive — `ord`
 posicional — do que mudou, e não apagado: um teste que fixa uma frase obsoleta é um sinal, e
 apagá-lo perde-o.
+
+## Metros da projeção não são metros do terreno — r0090
+
+**O achado mais grave que chegou dos ramos, e é do #004.** O Web Mercator não preserva
+escala: a 41° N o metro da projeção vale 1/cos(41°) do metro do terreno. A `folhaAfericao`
+devolvia a raiz do determinante e chamava-lhe m/px sem mais, pelo que uma folha em Mercator
+declarada a 25 m/px era anunciada como tal quando os seus pixéis cobrem **18,8 m**.
+
+Reproduzido antes de corrigir: **32,7 % de inflação**, contra os 33,1 % que o ramo mediu —
+a mesma coisa, à latitude de ensaio. Quem medisse uma distância de segurança por cima de uma
+folha dessas errava um terço, e **para menos**, que é o sentido perigoso.
+
+A aferição devolve agora os metros de terreno em `mpp`, os da projeção em `mppProj`, o fator
+de escala e a latitude a que vale — porque o fator varia ao longo da folha e um número único
+só é honesto se disser onde se aplica. Em PT-TM06 nada se corrige: é Transversa de Mercator
+com fator 1 no meridiano central, e corrigir seria introduzir erro para tapar um que não
+existe.
+
+## O limiar dos núcleos parava no posto e devia parar na célula — r0090
+
+Também do #004, e é a segunda metade do meu próprio raciocínio. A r0087 disse «um núcleo é
+de uma célula, e não há célula antes de haver posto de comando» e pôs os nove na fase II. Mas
+**as células não nascem todas ao mesmo tempo**: o art. 41.º, n.º 2, al. b) instala o PCO na
+fase II integrando só a célula de operações, e é o art. 42.º, n.º 2, al. b) que lhe
+acrescenta as de planeamento e de logística e finanças, na fase III.
+
+A aplicação sugeria, numa ocorrência em fase II, nomear o Núcleo de Informações e o Núcleo de
+Finanças — de células que ainda não existem, e cujo oficial competente para os ativar ainda
+não foi nomeado. **Fonte certa, âmbito errado**, que é o mesmo padrão que a r0087 tinha
+acabado de corrigir.
+
+O limiar deriva agora de `FASE_DA_CELULA`, com a alínea declarada por célula, e do campo `g:`
+que já lá estava. Confirmado contra o Despacho, que desde 2 de setembro está no repositório.
+
+**E o gatilho do núcleo de especialistas passou a distinguir alguma coisa.** Estava a
+devolver `s`, que é o que a célula dele já lhe dava — o campo não fazia diferença nenhuma.
+Com o efetivo a exceder a referência há norma a apontar para ele, e por isso sobe a `r`: não
+é lei do SGO e não sobe a `e`; é doutrina que vincula o DECIR e não fica em `s`.
+
+**Duas correções de citação**, ambas dos ramos: o `r:` do núcleo de especialistas dizia
+`7.e.(27)` e é `7.d.(27)` — o ponto (27) está na secção dos Teatros de Operações. E a fonte
+do limiar é o `7.d.(25)(d)`, que o #006 identificou como melhor do que a que eu tinha citado:
+«o número de meios humanos e materiais mobilizados ou a mobilizar ultrapasse a capacidade de
+comando e controlo implementada» é substancialmente o `excedeReferenciaDaFase()`.
+
+**Fica em dívida a verificação primária destas duas.** A DON n.º 2 não está em
+`docs/fontes/` — só o Despacho está. As correções assentam na leitura do ramo #006, e isso é
+revisão por terceiro, como o `POREXECUTAR` já regista para o articulado antes de 2 de
+setembro.
 
 ## Decisões tomadas
 
