@@ -513,6 +513,121 @@ As três equações contínuas de propagação, com os erros-padrão. A aplicaç
 do manual de 2002, não estas equações. Correr as duas e usar a divergência como banda de
 incerteza medida é uma possibilidade registada em `docs/POREXECUTAR.md`, e não está feita.
 
+## Os diplomas, em primeira mão — chegaram a 2 de setembro
+
+Até aqui a aplicação citava o articulado do SGO e do SIOPS **sem os ter no repositório**.
+Toda a verificação doutrinária assentava em transcrições dos ramos, que é revisão por
+terceiro e não leitura primária. Deixou de ser assim.
+
+### `Despacho_4067_2024_Regulamentacao_SGO.pdf`
+
+O Despacho n.º 4067/2024, de 15 de abril — Diário da República, 2.ª série, n.º 74. É a fonte
+da chave `SGO4067`, e agora é conferível linha a linha em vez de citada de cor.
+
+**Conferido no dia em que chegou**, contra as transcrições do ramo #006 que sustentam as
+fases de exigibilidade do PCO. As quatro batem palavra por palavra:
+
+| Onde | Texto |
+|---|---|
+| Art. 41.º, n.º 2, al. b) | «O posto de comando operacional é instalado, integrando a célula de operações e o adjunto de segurança» |
+| Art. 42.º, n.º 2, al. b) | «…integra as células de operações, de planeamento e de logística e finanças e os adjuntos de segurança e de ligação» |
+| Art. 43.º, n.º 2, al. b) | «…e os adjuntos de segurança, de relações públicas e de ligação, bem como o coordenador do posto de comando operacional» |
+| Art. 14.º, n.º 5 | «Os oficiais de operações, de planeamento e de logística e finanças são, respetivamente, responsáveis pelas células…» |
+
+**A errata da fase VI fica confirmada na fonte:** o art. 45.º, n.º 2, al. b) inclui o adjunto
+de segurança, que a matriz do Anexo I omite. O articulado prevalece, e é o que a aplicação
+segue.
+
+**E a base dos núcleos também:** arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3 entregam a
+ativação ao oficial da respetiva célula «em função da natureza da ocorrência e das
+necessidades», sem referir fase nenhuma. É o que justifica os núcleos não levarem número.
+
+### O modelo de Rothermel e os modelos de combustível portugueses
+
+Chegaram a 4 de setembro. **Nenhum destes é hoje citado pela aplicação** — entram para
+sustentar a auditoria de proveniência dos coeficientes do módulo de comportamento do fogo,
+que é trabalho do ramo #003, e para fechar duas verificações que estavam por fazer.
+
+| Ficheiro | O que fecha |
+|---|---|
+| `Modelos_de_combustivel_florestal_para_Portugal_Fernandes_Loureiro_2021_Guia.pdf` | Os 18 modelos de `MODELOS_COMB` estão por confrontar com esta fonte desde que entraram |
+| `A_Mathematical_Model_for_Predicting_Fire_Spread_in_Wildland_Fuels_Rothermel_1972.pdf` | O artigo original, base de quase tudo o que se seguiu |
+| `Modeling_Wind_Adjustment_Factor_and_Midflame_Wind_Speed_Andrews_2012.pdf` | **O achado A1 do ramo #003**: o fator de ajuste do vento que `ventoSuperficie` aplica aos dois motores, e que eles apontam como o único achado que muda um número em operação hoje |
+| `The_Rothermel_Surface_Fire_Spread_Model_Andrews_2018.pdf` | A explicação compreensiva do modelo e do que dele derivou |
+| `Ficha_bibliografica_Rothermel_1972.pdf` | Ficha de referência do artigo, com resumo e ligação. Não é o artigo |
+
+### As quatro DON, e as ferramentas do SGO
+
+Chegaram a 4 de setembro. `DON_2_2026_DECIR.pdf` é a fonte da chave `DON2`, e com ela cai a
+última dependência de revisão por terceiro na doutrina que a aplicação cita.
+
+Entram também `DON_1_2024_DIOPS.pdf`, `DON_3_2010_NRBQ.pdf`, `DON_4_2021_DIRACAERO.pdf` e
+`SGO_FerramentasDeGestao_ANEPC.pdf` — as três primeiras citadas na base doutrinária da
+especificação, a última usada pelo ramo #006 na verificação dos núcleos.
+
+#### As vinte e quatro citações da DON n.º 2, conferidas uma a uma
+
+**A secção de topo é `7. EXECUÇÃO`.** As subsecções relevantes são `7.d — Teatros de
+Operações (TO)` e `7.e — Desenvolvimento das Ações Operacionais`; dentro de `7.e`, o ponto
+`(4)` é o **Ataque Inicial** e o `(5)` é o **Ataque Ampliado**.
+
+| Citação | O que o texto diz, no essencial |
+|---|---|
+| `7.d.(5)` | O pedido de reforço implica o estabelecimento de um ponto de trânsito |
+| `7.d.(7)` | As equipas contactam o PT ou o COS à chegada, para receberem missão |
+| `7.d.(8)` | A missão atribui-se no mais breve espaço de tempo, preferencialmente em 15 minutos |
+| `7.d.(14)` | Segurança, alimentação, hidratação e períodos de descanso das forças |
+| `7.d.(18)` | O COS nomeia COPAR-T |
+| `7.d.(20)` | Quatro ou mais aeronaves no mesmo TO: HERAC ou equivalente |
+| `7.d.(22)` | O emprego de maquinaria integra-se no PEA |
+| `7.d.(23)` | O COS nomeia COPESP |
+| `7.d.(25)(d)` | «O número de meios humanos e materiais mobilizados ou a mobilizar ultrapasse a capacidade de comando e controlo implementada» |
+| `7.d.(27)` | «O aumento da capacidade de comando e controlo deve ser acompanhado pelo aumento da capacidade de análise e planeamento através da ativação do núcleo de especialistas» |
+| `7.d.(29)` | Constituição das EPCO |
+| `7.d.(30)` | A EPCO assegura continuidade de trabalho |
+| `7.e.(4)(o)` | «O COS deve assegurar informação permanente ao CSREPC, comunicando o ponto de situação (POSIT) atualizado, com periodicidade máxima de 1 (uma) hora» |
+| `7.e.(5)` | Ataque Ampliado: ocorrência acima dos 90 minutos |
+| `7.e.(5)(r)` | Pelo controlo dos tempos de trabalho, assegurar a rendição de meios através do CSREPC |
+| `7.d.(17)` | O emprego de meios aéreos integra-se no PEA |
+| `7.d.(19)` | Até à nomeação do COPAR-T, a coordenação aérea é assegurada de outro modo |
+| `7.e.(4)(t)` | Acima dos 90 minutos, repor a capacidade de ATI em coordenação com o CSREPC |
+| `7.e.(5)(a)` | Implementar um PEA formalmente elaborado e partilhado com as entidades no TO |
+| `7.e.(5)(t)` | Informação permanente ao CSREPC sobre o POSIT, para inserção no SADO |
+| `7.k.(1)` | Notificação das entidades gestoras do território pelo CSREPC |
+| `7.k.(2)` | Informação aos Presidentes de Câmara enquanto autoridade municipal |
+| `7.l.(1)` | Critérios de ativação do PMEPC |
+| `7.l.(2)` | Ativação dos PDEPC |
+
+**Uma citação estava errada e foi corrigida:** o núcleo de especialistas era referido como
+`7.e.(27)`, e o ponto (27) está em `7.d`. Apanhado pelo ramo #006, confirmado aqui.
+
+**E uma correção proposta pelo ramo #006 estava ela própria errada.** Propunham que o POSIT
+passasse a `7.e.(5)(o)`. Não é: o POSIT com periodicidade horária está no ponto **(4)**, o
+Ataque Inicial, que é o que a aplicação já citava. O ponto (5) é o Ataque Ampliado, e tem uma
+referência diferente ao POSIT, na alínea (t). **Aceitar a correção teria introduzido o
+defeito que ela vinha corrigir** — é a razão de a verificação passar pela fonte e não pela
+palavra de quem a leu.
+
+### `Cartograma_SeriesCartograficas_CIGeoE.pdf`
+
+Cartograma das séries cartográficas: continente, Madeira na série P821, Açores na série M889,
+com as coberturas VMAP e DTED.
+
+**Não é uma carta anotada** — por isso não está em `docs/cartografia/`, que guarda o que se
+riscou no PCO e segue outra convenção de nomes. É o índice de que folhas existem e em que
+série, que é o que se consulta antes de fotografar uma folha da carta militar para a
+calibrar na aplicação.
+
+### `Decreto_Lei_90_A_2022_SIOPS.pdf`
+
+Decreto-Lei n.º 90-A/2022, de 30 de dezembro — Sistema Integrado de Operações de Proteção e
+Socorro. Citado na especificação e na base doutrinária; por ler em primeira mão.
+
+### `Decreto_Lei_45_2019_Organica_ANEPC.pdf`
+
+Decreto-Lei n.º 45/2019, de 1 de abril — orgânica da ANEPC. Contexto institucional; a
+aplicação não o cita hoje.
+
 ## Recebidos e por ler
 
 Documentos que estão em `docs/fontes/` e **não sustentam nada na aplicação**. Chegaram, foram

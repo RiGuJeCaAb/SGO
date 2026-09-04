@@ -124,9 +124,19 @@ test('a chave derivada é estável para o mesmo texto, e distinta para outro', s
 
 /* ---- o que não se toca ---- */
 
-test('as missões continuam numeradas por ordem, que é o que elas são', semAplicacao, () => {
-  const c = janela.controloMissoes({ missoes: [{ tipo: 'Ação decisiva', texto: 'a' }, { tipo: 'Apoio', texto: 'b' }] });
-  assert.equal(c.map((x) => x.k).join(','), 'M1,M2');
+test('a ordem de apresentação das missões é posicional; a identidade não', semAplicacao, () => {
+  /* Este teste fixava `k` em «M1,M2» e estava a prender o defeito: até à r0089 a missão era
+     identificada pela sua posição na lista, e uma missão condicional a entrar empurrava
+     todas as seguintes para outra identidade. `ord` continua posicional, porque é o que se
+     lê no papel; `k` passa a vir da chave declarada, e das missões escritas à mão vem do
+     texto — que é o recurso, não a regra. */
+  const c = janela.controloMissoes({ missoes: [
+    { tipo: 'Ação decisiva', ch: 'M-DECISIVA', texto: 'a' },
+    { tipo: 'Apoio', texto: 'b' },
+  ] });
+  assert.equal(c.map((x) => x.ord).join(','), 'M1,M2');
+  assert.equal(c[0].k, 'M-DECISIVA');
+  assert.match(c[1].k, /^T-/, 'sem chave declarada, deriva-se do texto');
 });
 
 test('o PEA impresso continua a numerar as propostas por ordem de leitura', semAplicacao, () => {

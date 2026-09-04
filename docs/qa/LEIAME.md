@@ -187,3 +187,35 @@ Vale por três razões. É a **primeira prova do PEA impresso fora deste ambient
 cabeçalho, a marca de RESERVADO, o quadro do PCO e o meteograma tabulado. Mostra a cadeia de
 substituição a funcionar — «Substitui o PEA: N.º 3». E traz os números de proposta tal como
 aparecem no papel, o que é matéria do trabalho da identidade estável das propostas.
+
+
+## qa0029 — os avisos do IPMA, com os três estados à vista
+
+`CSREPCDouro_qa0029_202609021545_AvisosIPMATemaEscuro_CLD.png` e
+`CSREPCDouro_qa0029_202609021545_AvisosIPMATemaClaro_CLD.png` — o painel de avisos da r0083,
+nos dois temas, com um estado construído de propósito para trazer os quatro casos ao mesmo
+tempo: dois avisos em vigor, um por confirmar, um previsto, e o distrito escolhido por
+proximidade.
+
+Prova três coisas que o código sozinho não mostra. Que o estado de cada aviso se lê **por
+palavras** e não só pelo traço do contorno — «por confirmar ·» e «previsto ·» estão
+escritos dentro do chip. Que a marca «distrito presumido» ficou fora do rótulo em versaletes,
+onde antes se lia "VILA REAL PRESUMIDO" como se fosse o nome do distrito. E que as quatro
+notas de rodapé cabem no painel nos dois temas, sem transbordo.
+
+
+## qa0030 — uma folha de carta calibrada, desenhada no mapa
+
+`CSREPCDouro_qa0030_202609021705_FolhaCalibradaNoMapa_CLD.png` — folha de ensaio colocada em
+PT-TM06 pelos seis coeficientes `2,5 / 0 / 0 / -2,5`, à escala de 25 m/px, 400×300 px, com o
+canto a 5 km a noroeste do teatro de Cabeça Boa. Chromium a sério, entrega r0085.
+
+**A imagem é um xadrez de propósito, com o canto noroeste a vermelho e o sudeste a verde.**
+Uma folha de carta a sério é bonita e não prova nada: uma inversão do eixo Norte desenha-a
+com o mesmo ar. O xadrez diz de relance se a orientação está certa — vermelho em cima à
+esquerda, verde em baixo à direita —, e a régua diz se a escala está: a folha mede 10 km de
+lado sobre uma barra de 5 km.
+
+Prova também que **uma folha sozinha abre o mapa**. Não abria: o enquadramento não conhecia
+folhas, e quem colocasse uma continuava a ver o mapa a dizer que não havia nada para
+mostrar — a mesma armadilha que o ponto da ocorrência já tinha tido.

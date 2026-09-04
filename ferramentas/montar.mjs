@@ -110,5 +110,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const html = montar(await readFile(MOLDE, 'utf8'), texto, revisao, ficheiro);
   await writeFile(saida, html, 'utf8');
 
+  /* O `index.html` da raiz é a cópia que o GitHub serve, e foi lá posto à mão a 2 de
+     setembro. Uma cópia à mão envelhece: ficou a servir a r0081 no dia em que a r0083
+     saiu, e ninguém dava por isso porque nada a confere. Passa a ser reescrita por cada
+     montagem — nunca se edita, e nunca fica atrás da entrega mais recente. Só quando a
+     entrega vai para `app/`: uma montagem de trabalho com `--saida` não mexe no que
+     está publicado. */
+  if (saida === join('app', ficheiro)) await writeFile('index.html', html, 'utf8');
+
   console.log(`${nomes.length} módulos montados em ${saida} (${revisao}).`);
 }

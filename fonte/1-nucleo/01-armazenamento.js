@@ -50,7 +50,11 @@ const ARMAZEM = (()=>{
    `mosaicos` são os quadrados de carta já descarregados, que é o que faz o mapa continuar
    a existir quando a ligação de dados cai — e num PCO cai. */
 const IDB_NOME = "peaapp";
-const IDB_LOJAS = [["chaves", null], ["diario", {keyPath:"n"}], ["copias", {keyPath:"id"}], ["mosaicos", null]];
+/* A loja `folhas` guarda a colocação de cada folha de carta calibrada, não a imagem: a
+   imagem pesa megabytes e volta a escolher-se, a colocação é que não se pode perder.
+   Entrou a 2 de setembro, na absorção do trabalho da linhagem paralela — e é aditiva, que
+   é o que `abrirIDB` sabe tratar sem descer de versão. */
+const IDB_LOJAS = [["chaves", null], ["diario", {keyPath:"n"}], ["copias", {keyPath:"id"}], ["mosaicos", null], ["folhas", {keyPath:"id"}]];
 let IDB = null;
 
 /** Cria as lojas que faltarem. Corre dentro do `onupgradeneeded`, que é o único sítio onde

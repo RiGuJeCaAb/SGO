@@ -118,6 +118,28 @@ Repetir uma amostra a partir de um posto da rede do CSREPC Douro e do VCOC ligad
 Starlink. Se os resultados divergirem, a mesma aplicação comporta-se de maneira diferente
 conforme o local — e isso é requisito de desenho, não contratempo.
 
+### E agora também: a convenção de fuso das marcas do IPMA
+
+Acrescentado a 2 de setembro, com a r0083. Não é a mesma questão da acessibilidade, mas
+resolve-se no mesmo bloco de verificação e com o mesmo pedido.
+
+As marcas de tempo de `api.ipma.pt/open-data/forecast/warnings/warnings_www.json` vêm sem
+designador de fuso. **Nenhuma fonte deste projeto diz se são UTC ou hora legal**, e o
+serviço não é alcançável do ambiente onde as revisões são construídas — o proxy responde
+`403` ao CONNECT. Enquanto assim for, a Estação mostra as horas tal como o serviço as
+publica, sem converter, e marca como «por confirmar» os avisos cuja fronteira caia dentro
+da margem de uma hora que separa as duas leituras possíveis.
+
+Duas perguntas a fazer no posto, com o mesmo `curl.exe`:
+
+1. Um `startTime` ou `endTime` real traz `Z`, ou `+01:00`, ou nada?
+2. Se não trouxer designador, a hora bate com a hora legal portuguesa ou está uma hora
+   atrás?
+
+Basta a primeira responder «traz designador» para o problema desaparecer sozinho: o código
+já trata esse caso com exatidão, e a margem colapsa. A segunda só é precisa se a resposta
+for «nada».
+
 ## 6. Depende de terceiros
 
 - **Que serviço de cartografia o posto tem direito a usar.** A aplicação sabe ler um WMTS;
@@ -126,6 +148,52 @@ conforme o local — e isso é requisito de desenho, não contratempo.
 - **Carta militar M888 do CIGeoE** — diligência institucional por fazer.
 - **Confrontar o importador com uma exportação real da Gestão PCO.** Testado contra os
   documentos; falta o que a aplicação de origem produz de facto.
+
+## 6-bis. As fases de exigibilidade do PCO — **saldado na r0084**
+
+Cinco valores de `fase:` divergiam do articulado, e o ramo #006 verificou-os contra o texto
+e devolveu um guião vermelho. **Nenhum estava certo no código.** Corrigidos, com a alínea
+gravada ao lado de cada número em `aLei`:
+
+| Função | Era | É | Alínea |
+|---|---|---|---|
+| Adjunto de Segurança | III | **II** | art. 41.º, n.º 2, al. b) |
+| Oficial de Planeamento | II | **III** | art. 42.º, n.º 2, al. b) |
+| Oficial de Logística e Finanças | II | **III** | art. 42.º, n.º 2, al. b) |
+| Adjunto de Ligação | IV | **III** | art. 42.º, n.º 2, al. b) |
+| Coordenador do PCO | III | **IV** | art. 43.º, n.º 2, al. b) |
+
+**E veio um achado maior, que o ramo #006 encontrou a ler o bloco inteiro.** Nove núcleos
+levavam um `fase:` sem fonte normativa nenhuma, no mesmo campo e pelo mesmo comparador das
+exigências do art. 14.º — e portanto com a mesma etiqueta e a mesma cor no ecrã, e com um
+campo de referência a citar um artigo que nada diz sobre fases. O campo separou-se em
+`faseLei`, que traz a alínea obrigatória, e `faseSug`, que assume ser prática do posto.
+`funcoesExigiveis()` passa a devolver só o que a lei impõe.
+
+**Saldado na r0087.** Os valores de `faseSug` eram palpites com etiqueta de palpite, e o
+ramo #006 provou que oito dos nove não tinham fonte nenhuma e o nono tinha um gatilho que
+não é uma fase. Os números saíram; os núcleos propõem-se a partir da fase II, por
+art. 13.º, n.º 2, e o de especialistas pelo seu gatilho da DON n.º 2.
+
+**Fica por resolver o Despacho não estar no repositório.** Não há cópia em
+`docs/fontes/`, e não foi possível obtê-la deste ambiente. Toda a citação do articulado
+nesta matéria assenta na transcrição do ramo #006, o que é revisão por terceiro e não
+leitura primária. Uma cópia do Diário da República, 2.ª série, n.º 74, de 15-04-2024,
+fecharia isto — e o ramo #006 diz que o PDF está nos ficheiros do projeto de C. Abreu, o que
+faz disto um descarregamento para `entrada/` e não uma investigação.
+
+## 6-ter. O fundamento da transição de fase fora de banda
+
+Do mesmo confronto. Os limiares de efetivo **já são aviso e nunca bloqueio**, como o `d01`
+exige na secção 2.3: o seletor da fase oferece as seis sem condição, e a regra `id:"fase"`
+emite `n:"av"`. Falta o outro lado do art. 39.º:
+
+- **N.º 3** — recolher qual dos quatro fundamentos taxativos sustenta a passagem fora de
+  banda, e carimbá-lo na fita do tempo. Hoje o aviso diz o que fazer e não recolhe nada.
+- **N.º 4** — o estado de «organização distinta», pendente de validação da estrutura
+  operacional da ANEPC e decisão do comandante nacional. Não existe.
+
+Depende da decisão de C. Abreu, ponto 2 do `d01`.
 
 ## 7. Pontos por confirmar em fonte
 
@@ -268,65 +336,18 @@ no colector com a regra de auditoria; missões alinhadas; avisos IPMA; caixas do
 faz a aplicação afirmar um número falso sobre uma manobra real, e é o único que já está a
 correr no terreno. Os outros corrompem o registo ou omitem informação — este afirma.
 
-## Folhas calibradas — o próximo trabalho de absorção
+## Folhas calibradas — **saldado na r0085**
 
-**O guião chegou a 1 de setembro** e está em
-`ferramentas/historico/CSREPCDouro_p0018_202608312030_FolhaCalibrada_CLD.py`, com os seus
-testes (`t0018` do mesmo carimbo), o guião de captura (`q0018`) e duas provas em
-`docs/qa/`. **Não está absorvido.**
+Absorvido a 2 de setembro, guiado pelas 53 asserções do `t0001` do ramo #002 e não traduzido
+do remendo. O guião fica em `ferramentas/historico/002_CSREPCDouro_202609021600_t0001_FolhasCalibradas_CLD.js`
+e continua a correr de fora contra qualquer entrega: contra a r0085 dá 54 verdes e saída 0.
 
-### O que resolve
+**O confronto entre especificações fez-se, e deu concordância.** O ramo #001 entregou uma
+segunda especificação escrita às cegas — 53 asserções também, por coincidência. Com o
+contrato adaptado aos nomes que a r0085 implementa, 51 passam; as duas que faltam verificam
+a existência de um nome e não um comportamento. Guião em
+`ferramentas/historico/001_CSREPCDouro_202609021551_t0021_FolhaCalibrada_CLD.js`.
 
-O problema que ele põe assim: *«Uma imagem não é um mosaico. Uma captura de ecrã da carta
-militar, uma exportação do QGIS, uma fotografia de um extrato em papel: nenhuma delas cabe na
-árvore `{z}/{x}/{y}` e todas elas são o que existe às três da manhã.»*
-
-Isto é diferente da carta pré-descarregada que já temos. A nossa exige uma árvore de mosaicos
-com a estrutura de um serviço; esta aceita **uma imagem qualquer**, e dá-lhe a ligação aos
-pixéis do terreno por dois caminhos que convergem na mesma representação — dois pontos, cada
-um com pixel e coordenada:
-
-- **World file** (`.pgw`, `.jgw`, `.wld`) ao lado da imagem, que é o que o QGIS escreve.
-- **Dois pontos de controlo** clicados na imagem, com a coordenada escrita à mão.
-
-A camada desenha-se **por cima dos mosaicos e por baixo do traçado**: uma folha da carta
-militar vale mais do que um fundo de serviço, e nenhuma das duas pode tapar as frentes.
-
-### Porque importa a esta linhagem em particular
-
-É o que fecha a dívida cartográfica do lado que ainda está aberto. A pasta
-`docs/cartografia/` tem três cartas de uma ocorrência real — Cabeça Boa — anotadas à mão no
-PCO, e **é sobre imagens assim que o mapa tem de conseguir desenhar**. Sem isto, uma carta
-militar anotada continua a ser um ficheiro que se olha, não um fundo sobre o qual se trabalha.
-
-### O que a absorção exige
-
-- O ramo das folhas em `fonte/3-planeamento/22-ambiente-de-fogo.js` — `FOLHAS` e
-  `folhaCalibrada` — **foi retirado na r0077 por apontar para o vazio**. Volta a entrar, e a
-  cartografia do `retratoDoFogo` passa a nomear as folhas calibradas em uso.
-- **A base IndexedDB deles subiu para 3 com a loja `folhas` por causa deste trabalho.** A
-  nossa abertura já adota a versão que a base tiver (r0076), portanto não há conflito a
-  resolver: há uma loja a criar.
-- Migração da forma do estado, no fim da escada, com `VERSAO_ESTADO` a subir de 25 para 26.
-- Cuidado com a projeção: os pontos de controlo entram e saem **em par**, como tudo o resto
-  que passa por `gPara` e `gDe`.
-2. **A escada de migrações divergiu.** Eles vão na versão de estado 22, esta linhagem na 25.
-   Não é erro de nenhum dos lados — são degraus diferentes, postos por ordens diferentes. O
-   que importa é a consequência: **um degrau do `p0020` não pode ser copiado com o número que
-   traz**, tem de entrar no fim da escada daqui com o número seguinte, como se fez com o
-   `p0019`.
-3. **O `t0020` está por escrever do lado deles.** Deste lado, o que substitui isso é um teste
-   em formato de projeto sobre o caminho que o `p0020` alterar, como se fez em
-   `tests/propagacao.test.mjs`.
-4. **As missões do PEA por alinhar com as propostas** — dívida declarada por eles. Deste lado
-   ainda não se olhou para isso; fica em lista para quando o `p0020` chegar, porque é provável
-   que mexa no mesmo sítio.
-
-### O que convém dizer-lhes de volta
-
-- Que existem **duas r0074** e que o número seguinte livre é o **r0077**, porque esta linhagem
-  já usou a r0075 e a r0076.
-- Que a **versão da base local não deve ser escrita à mão** em nenhuma das duas linhagens,
-  pela razão acima: a base é partilhada por origem, não por entrega, e quem correr as duas no
-  mesmo navegador leva com o erro. Se do lado de lá continuar um `open(nome, 3)` fixo, o
-  problema volta ao contrário assim que esta linhagem subir de versão.
+**Continua por confrontar o `t0018` original**, que está no ramo #004 e nunca chegou a esta
+linhagem. Já não é o único ponto de comparação — há duas especificações independentes a
+concordar —, mas um terceiro olhar sobre a mesma matéria continua a valer.

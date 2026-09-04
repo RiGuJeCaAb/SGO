@@ -81,6 +81,28 @@ test('a origem de PT-TM06 cai exatamente em zero', semAplicacao, () => {
   assert.ok(Math.abs(o.N) < 1e-6, 'Norte da origem: ' + o.N);
 });
 
+/* Cinco pontos calculados com PROJ 3.7.2 sobre a definição EPSG:3763, entregues pelo ramo
+   #001 a 2 de setembro. **É a única verificação desta aritmética contra uma implementação
+   de referência que este projeto tem** — o PROJ não é alcançável do ambiente onde as
+   revisões são construídas, e até aqui a projeção só se confrontava consigo própria, pela
+   ida e volta. Uma ida e volta fecha na mesma se as duas metades estiverem erradas do mesmo
+   modo. Estes cinco não. */
+const PROJ_3763 = [
+  { n: 'origem da projeção', lat: 39.668258333333, lon: -8.133108333333, E: 0.0000, N: 0.0000 },
+  { n: 'meridiano central a 41 N', lat: 41.0, lon: -8.133108333333, E: 0.0000, N: 147878.0183 },
+  { n: 'Vila Real', lat: 41.3006, lon: -7.7441, E: 32580.1720, N: 181334.6951 },
+  { n: 'Peso da Régua', lat: 41.1614, lon: -7.7889, E: 28889.2955, N: 165859.4864 },
+  { n: 'Alijó', lat: 41.2758, lon: -7.4744, E: 55189.0477, N: 178716.7074 },
+];
+
+test('a projeção concorda com o PROJ 3.7.2 ao milímetro, em cinco pontos', semAplicacao, () => {
+  PROJ_3763.forEach((p) => {
+    const c = janela.paraTM06(p.lat, p.lon);
+    assert.ok(Math.abs(c.E - p.E) < 0.001, p.n + ' — Este: ' + c.E + ', esperado ' + p.E);
+    assert.ok(Math.abs(c.N - p.N) < 0.001, p.n + ' — Norte: ' + c.N + ', esperado ' + p.N);
+  });
+});
+
 test('o Este depende da latitude e o Norte da longitude', semAplicacao, () => {
   /* O que a primeira versão deu por assente e não é verdade. Se estes dois valores fossem
      iguais, a projeção estaria a ser tratada como separável — e voltava o erro. */

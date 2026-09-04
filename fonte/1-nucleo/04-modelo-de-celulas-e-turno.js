@@ -377,6 +377,25 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 25 -> 26 · Os avisos do IPMA passaram a distinguir o que está em vigor do que ainda não
+   começou, e a dizer como foi escolhido o distrito. O que estava gravado tinha só `lista`,
+   e essa lista podia trazer avisos futuros misturados com os em vigor — era esse o defeito.
+   Não se reclassifica aqui: a triagem precisa das marcas de tempo confrontadas com o
+   instante da consulta, e o instante certo é o da próxima consulta, não o da migração.
+   Acrescentam-se as prateleiras vazias e marca-se o distrito como presumido, porque a
+   revisão que gravou aquilo escolhia-o sempre por proximidade. */
+MIGRACOES.push(e => {
+  if(e.avisos && typeof e.avisos === "object"){
+    if(!Array.isArray(e.avisos.lista)) e.avisos.lista = [];
+    if(!Array.isArray(e.avisos.previstos)) e.avisos.previstos = [];
+    if(!Array.isArray(e.avisos.margem)) e.avisos.margem = [];
+    if(typeof e.avisos.porProximidade !== "boolean") e.avisos.porProximidade = true;
+    if(typeof e.avisos.semFuso !== "boolean") e.avisos.semFuso = true;
+    e.avisos.lista.forEach(a => { if(!a.est) a.est = "vigor"; });
+  }
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *

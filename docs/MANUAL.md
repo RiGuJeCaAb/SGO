@@ -218,6 +218,50 @@ Há três caminhos:
 
 ---
 
+## Folhas de carta calibradas
+
+Planeamento → A carta de fundo → **Folhas de carta calibradas**.
+
+Uma imagem solta não serve de carta pré-descarregada, mas pode servir de folha: a fotografia
+da carta militar tirada na parede do PCO, um recorte de PDF, uma captura da carta de
+perigosidade. Aqui coloca-se no terreno, e o mapa passa a desenhar o traçado por cima dela.
+
+Preencha o nome e a **proveniência** — de onde veio a imagem —, escolha a projeção em que
+estão os coeficientes e o ficheiro da imagem. Depois, uma de duas vias:
+
+| Se a imagem… | Faça |
+|---|---|
+| veio de um sistema de informação geográfica | escolha o **ficheiro de referenciação** que a acompanha, de seis linhas |
+| não trouxe ficheiro | indique **dois pontos** que reconheça na imagem e cuja coordenada saiba: pixel X, pixel Y, Este e Norte de cada um |
+
+Depois, «Colocar folha».
+
+**O que a aplicação recusa, e porquê.** Uma folha sem proveniência declarada, porque seria
+uma imagem anónima a fazer de carta. Um ficheiro de referenciação com vírgula decimal, em
+vez de a interpretar: "2,5" lido como 2 põe a folha 20 % fora de escala, e esse erro só
+aparece depois de alguém medir uma distância de segurança por cima dela. E dois pontos que
+partilhem o pixel ou a coordenada, que não chegam para dar escala.
+
+**Dois pontos dão escala e rotação, e nada mais.** A folha não se deforma nem se corrige de
+inclinação — se a imagem estiver distorcida, dois pontos não a endireitam, e a aplicação não
+finge que sim.
+
+Uma folha que caia fora do envelope do continente é colocada na mesma, com aviso: pode ser
+das ilhas, de Espanha, ou a colocação estar errada. Confirme-a no mapa.
+
+**A imagem não é copiada para dentro do mapa a cada desenho.** Fica em memória uma vez e o
+mapa aponta para ela. Antes da r0092 era embutida por inteiro no desenho, e cada
+deslocamento e cada mudança de nível copiava os megabytes da folha — 300 a 500 ms por
+repintura num posto modesto, com três folhas colocadas. O custo passou a ser uma vez, quando
+a imagem é lida.
+
+**Guarda-se a colocação, não a imagem.** A imagem pesa demasiado para o pacote da ocorrência,
+que viaja por ficheiro de texto. Ao reabrir a aplicação, a folha continua lá — diz onde está
+e aparece no plano com a sua proveniência — e basta voltar a escolher o ficheiro da imagem
+para a desenhar outra vez.
+
+---
+
 ## Relevo, meteorologia e comportamento do fogo
 
 ### O relevo
@@ -237,6 +281,31 @@ Planeamento → **Previsão meteorológica**. Carregue um CSV, ou use «Obter pr
 
 É a série que dá a evolução no tempo: com ela, a aplicação diz para onde a cabeça vai estar a
 apontar de hora a hora.
+
+### Os avisos do IPMA
+
+No topo de Planeamento, por cima da previsão. Chegam sozinhos com a previsão automática, e
+há «Consultar agora» e «Atualizar» para os pedir à mão.
+
+O painel mostra os avisos acima de verde do distrito do teatro, e distingue três coisas que
+até à r0083 andavam misturadas:
+
+| No painel | O que quer dizer |
+|---|---|
+| Chip a cheio | **Em vigor agora.** Conta para a manobra em curso |
+| Chip a tracejado, «por confirmar» | O início ou o fim caem dentro da margem de incerteza do fuso horário. Pode já estar em vigor; confirme em ipma.pt |
+| Chip esbatido, «previsto» | Ainda não começou. Conta para o planeamento do turno seguinte |
+
+**O distrito é o que foi determinado pelas coordenadas da ocorrência**, em Comando. Se ainda
+não estiver determinado, a aplicação escolhe o distrito cujo ponto de referência do IPMA
+está mais perto — e escreve «distrito presumido» ao lado do nome, porque esse ponto é o da
+capital de distrito e pode não ser o distrito do teatro. Preencha as coordenadas e o aviso
+de presunção desaparece.
+
+**As horas aparecem tal como o IPMA as publica, sem conversão.** As marcas de tempo do
+serviço não trazem designador de fuso horário e a convenção não está confirmada em fonte
+nenhuma consultável por este projeto; converter seria escolher uma hora sem base. O painel
+diz isso, e é dessa incerteza que nasce o estado «por confirmar».
 
 ### A intensidade da frente
 
@@ -361,6 +430,46 @@ onde precisar.
 
 ---
 
+## Nomear as funções do posto de comando
+
+Comando → **Estrutura do posto de comando**. A lista de funções por nomear vem ordenada por
+peso, e as quatro prateleiras dizem de onde vem cada uma:
+
+| Prateleira | O que quer dizer |
+|---|---|
+| «Essencial — exigível por lei nesta fase» | O articulado impõe-a na fase declarada. O motivo cita a alínea |
+| «Recomendada — norma a apontar para ela, agora ou na fase seguinte» | Ainda não é obrigação, mas está a uma fase de o ser |
+| «Sugerida pela prática — sem imposição legal nesta fase» | Núcleos de célula. **A lei não fixa fase para os ativar**: são propostos assim que a sua célula existe |
+| «De menor importância neste momento» | Matéria de escolha |
+
+**A terceira prateleira nasceu na r0084 e é a razão de esta secção existir.** Até lá havia
+três, e nove núcleos apareciam na primeira — a das obrigações legais — com números de fase
+que nenhum artigo estabelece. A ativação dos núcleos é competência do oficial da respetiva
+célula, "em função da natureza da ocorrência e das necessidades"; a lei não diz a partir de
+que fase. Quem comandava não conseguia distinguir o que a lei impunha naquele momento do que
+a aplicação achava prudente.
+
+**E na r0087 os números desapareceram de vez.** A etiqueta certa não chegava: um palpite
+continuava a ordenar o ecrã por uma escala que ninguém tinha escrito.
+
+**Na r0090 corrigiu-se o limiar que os substituiu.** A r0087 propunha os nove a partir da
+fase II, com o raciocínio "não há célula antes de haver posto de comando" — que pára no
+posto quando devia parar na célula. O art. 41.º, n.º 2, al. b) instala o PCO na fase II
+integrando **só a célula de operações**; as de planeamento e de logística e finanças entram
+na fase III, art. 42.º, n.º 2, al. b). Cada núcleo espera agora pela fase em que a sua
+célula nasce, e não por um número repetido nove vezes.
+
+Um deles tem gatilho próprio: o **núcleo de especialistas** sobe a recomendado quando o
+efetivo no TO excede a referência da fase declarada, porque é isso que a DON n.º 2 liga à
+sua ativação — e não uma fase.
+
+Só o que está na primeira prateleira conta como falta: é o que aparece na lista de
+pendências, no briefing de passagem de comando, na passagem de turno e na conformidade. Um
+núcleo que ninguém é obrigado a ativar continua a ser proposto, mas não é assinalado como
+falta.
+
+---
+
 ## O dispositivo e os setores
 
 Operações → **Setorização do TO e quadro de meios**. Declare quantos setores há e o que está
@@ -439,6 +548,25 @@ propostas mais abaixo.
 **Sem intensidade determinada, nada disto se impõe.** A aplicação não inventa restrições onde
 não tem número: o plano diz o que sempre disse.
 
+### Quando uma proposta é retirada, e porquê
+
+Uma proposta genérica sai do plano quando uma específica a torna dispensável — ou a faz
+mentir. São dois casos hoje, e ambos aparecem por escrito no documento em «Retirado por
+proposta mais específica», com a que a substituiu e a razão.
+
+| Sai | Quando entra | Porquê |
+|---|---|---|
+| A postura defensiva fora da janela | A interdição de ataque direto à cabeça | "Defensiva fora da janela" dá a entender que dentro da janela não é defensiva. Com a cabeça interdita acima dos 4 000 kW/m isso é falso a qualquer hora |
+| As rendições faseadas no fecho da janela | A rendição imediata de equipas com o tempo vencido | Mandar esperar pelo fecho da janela é mandar manter no terreno quem já devia ter saído |
+
+**A retirada nunca é silenciosa.** Uma proposta que desaparece sem rasto é indistinguível de
+uma que ninguém pensou, e o plano passaria a dizer menos do que sabe. A numeração refaz-se
+depois de sair, para que o papel não salte de P2 para P4.
+
+A proposta das vigias é caso à parte: não sai, encolhe. Havendo rendições vencidas, larga a
+cláusula que mandava render no fecho da janela e mantém as vigias e a cadência de pontos de
+situação, que não dependem disso.
+
 ### Os números das propostas, e o que os identifica
 
 No PEA impresso as propostas vão numeradas por ordem de leitura — P1, P2, P3. **Dentro de um
@@ -494,6 +622,34 @@ em texto» leva-o para fora.
 | Começar do zero | Comando → «Nova / limpar» |
 | Encerrar o registo | Comando → «Encerrar a ocorrência» |
 | Reabrir um registo fechado | Comando → «Reabrir o registo» |
+
+### Levar a aplicação para outro computador
+
+O ficheiro HTML leva **o código e não os dados**. Quem o receber abre a aplicação vazia — é
+o que tem de ser, mas é a primeira coisa que confunde. Um kit de entrega são três peças e
+não uma:
+
+1. o ficheiro HTML da revisão;
+2. a ocorrência exportada em `.json`, quando há uma a passar;
+3. a indicação do navegador e o aviso da impressão, abaixo.
+
+**Ao imprimir: ligue a opção "Gráficos de fundo" na caixa de diálogo do navegador.** O Chrome traz
+essa opção desligada de origem, e sem ela desaparecem do PEA impresso as linhas de título
+com a cor da célula — o documento sai legível e deixa de se parecer com o modelo aceite. É o
+percalço mais previsível de todos, e a correção é uma caixa.
+
+**A escala da folha aparece em metros de terreno, e não da projeção.** Numa folha em Web
+Mercator os dois números são muito diferentes: a 41° N o metro da projeção vale cerca de
+1,33 do metro do terreno, e uma folha declarada a 25 m/px cobre 18,8 m por pixel. A lista
+escreve o valor do terreno e põe o da projeção entre parênteses, com a latitude a que vale.
+Em PT-TM06 os dois coincidem e nada se corrige.
+
+**O tipo de letra do documento impresso é o Calibri**, com recurso a `Inter` e depois à
+letra sem serifas do sistema. Num computador sem Microsoft Office instalado, o Calibri não
+existe e o PEA impresso deixa de bater exatamente com o modelo `.docx`. O conteúdo é o
+mesmo; o espaçamento não.
+
+Apontado pelo ramo #005 a 2 de setembro, na análise de portabilidade.
 
 **Encerrar não bloqueia a aplicação.** Fecha aquele registo — deixa de se poder escrever
 nele —, mas continua a poder abrir uma ocorrência nova, exportar, importar e consultar o

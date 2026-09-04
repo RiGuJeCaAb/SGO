@@ -65,6 +65,10 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   /* A carta pré-descarregada também é definição do posto: sem esta leitura, a grelha da
      árvore guardada perdia-se ao fechar a página e o mapa voltava a desenhá-la errada. */
   try{ await carregarFocosURL(); }catch(e){}
+  /* As folhas calibradas são colocação, não imagem: o que volta é onde cada uma está, e a
+     imagem escolhe-se outra vez. Uma folha sem imagem continua a valer — diz onde está e
+     aparece no retrato —, e por isso lê-se sempre, mesmo sabendo que não se vai desenhar. */
+  try{ await carregarFolhas(); pintarFolhas(); }catch(e){}
   try{
     await carregarCartaLocal();
     if(CARTA_LOCAL){

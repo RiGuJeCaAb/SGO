@@ -108,6 +108,7 @@ window.verPEA = function(n){
         </div>
         <div class="pd pd-plan"><span class="pt">Célula de Planeamento · <b>Prioridades táticas</b></span>
           ${(plan.propostas||[]).map(x=>`<div class="pd-p"><span class="pid">${esc(x.id)}</span>${esc(x.texto)}<span class="fund">Fundamento: ${esc(x.fundamento||"")}</span></div>`).join("")}
+          ${textoRetiradas(plan.retiradas)}
         </div>
         ${(p.don&&p.don.filter(x=>x.n!=="ok").length)? `<div class="pd pd-ops"><span class="pt">Verificações de conformidade · <b>DON n.º 2 / DECIR 2026</b></span>
           <div class="pd-body">${p.don.filter(x=>x.n!=="ok").map(x=>`<div class="pd-don ${x.n}">
@@ -189,6 +190,7 @@ window.verPEA = function(n){
           <div class="cel-row"><div class="cel-lab">Objetivo</div><div class="cel-con"><div class="obj2"><span class="al">Objetivo:</span> ${esc(plan.objetivo||"")}</div></div></div>
           <div class="cel-row"><div class="cel-lab">Prioridades táticas</div><div class="cel-con">
             ${(plan.propostas||[]).map(x=>`<p><span class="pid2">${esc(x.id)}</span> — ${esc(x.texto)} <span class="fund2">Fundamento: ${esc(x.fundamento||"")}</span></p>`).join("")}
+            ${textoRetiradas(plan.retiradas)}
           </div></div>
           <div class="cel-row"><div class="cel-lab">Segurança das forças</div><div class="cel-con">
             ${(plan.seguranca||[]).map(x=>`<p>• ${esc(x)}</p>`).join("")}

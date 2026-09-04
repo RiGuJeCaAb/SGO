@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSREPC DOURO — Estação PEA</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Sem chamada a CDN. Estava aqui um `<link>` ao Google Fonts, e três ramos da revisão
+     apanharam-no em separado: viola a primeira restrição não negociável do projeto — «CSS, JS
+     e tipos de letra por CDN **dentro do ficheiro**» — e num arranque `file://` sem rede
+     bloqueia o render até dar tempo-limite. A aplicação não partia, porque as famílias têm
+     alternativa; mas o primeiro ecrã no VCOC com a Starlink em baixo demorava segundos a
+     aparecer, e é aí que o custo se paga. As famílias caem para `system-ui` e `ui-monospace`,
+     que existem em qualquer máquina. Quem quiser o Barlow de volta embute-o em base64. -->
 <style>
   :root{
     /* ÁGUA profunda — modo escuro (suavizado) */
@@ -523,8 +529,13 @@
   .av-c.lr{background:rgba(226,145,84,.14);border-color:var(--laranja);color:var(--laranja)}
   .av-c.vm{background:rgba(224,104,92,.14);border-color:var(--fogo);color:var(--fogo)}
   .av-c small{font-family:var(--mono);font-weight:500;font-size:11px;opacity:.85}
+  .av-c.marg{border-style:dashed}
+  .av-c.prev{opacity:.66;font-weight:500}
   .av-ok{color:var(--madeira);font-size:13.5px}
   .av-atual{background:none;border:none;color:var(--agua);font-size:12.5px;cursor:pointer;text-decoration:underline;margin-left:10px}
+  .pd-ret{border-top:1px dashed var(--line);margin-top:10px;padding:10px 16px 4px;font-size:12.5px;color:var(--tx2)}
+  .pd-ret b{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+  .pd-ret p{margin:0 0 8px 0}
   .rel-chips{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 10px}
   .rel-c{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:9px 14px}
   .rel-c .k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);font-weight:600}
@@ -1368,6 +1379,51 @@
           fora do sítio sem dizer nada — que é pior do que não aparecer.</p>
           <input type="file" id="carta-fich" webkitdirectory directory multiple>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
+        </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Folhas de carta calibradas</span>
+          <p class="hint" style="margin:0 0 10px 0">Uma imagem solta não é carta pré-descarregada, mas pode ser
+          uma folha: uma fotografia da carta militar, um recorte de PDF, uma captura da carta de perigosidade.
+          Aqui coloca-se no terreno e passa a servir de fundo ao mapa, com o traçado por cima. Fica no
+          dispositivo; o pacote da ocorrência leva a colocação, não a imagem.</p>
+          <div class="grid g2">
+            <div><label for="fo-nome">Nome da folha</label>
+              <input id="fo-nome" placeholder="ex.: Carta militar 1:25 000, folha 128"></div>
+            <div><label for="fo-prov">Proveniência</label>
+              <input id="fo-prov" placeholder="ex.: CIGeoE, folha 128, digitalizada no PCO"></div>
+          </div>
+          <div class="grid g2" style="margin-top:8px">
+            <div><label for="fo-grelha">Projeção dos coeficientes</label>
+              <select id="fo-grelha">
+                <option value="pttm06">PT-TM06 / ETRS89 (EPSG:3763)</option>
+                <option value="mercator">Web Mercator (EPSG:3857)</option>
+              </select></div>
+            <div><label for="fo-img">Imagem da folha</label>
+              <input type="file" id="fo-img" accept="image/*"></div>
+          </div>
+          <p class="hint" style="margin:10px 0 8px 0">Depois, uma de duas vias. Se a imagem veio de um sistema de
+          informação geográfica, traz um ficheiro de referenciação de seis linhas ao lado: escolha-o e está
+          colocada. Se não trouxer, indique dois pontos que reconheça na imagem e cuja coordenada saiba.</p>
+          <div><label for="fo-wf">Ficheiro de referenciação (.pgw, .jgw, .wld)</label>
+            <input type="file" id="fo-wf"></div>
+          <div class="grid g4" style="margin-top:8px">
+            <div><label for="fo-p1px">Ponto 1: pixel X</label><input id="fo-p1px" inputmode="numeric"></div>
+            <div><label for="fo-p1py">Ponto 1: pixel Y</label><input id="fo-p1py" inputmode="numeric"></div>
+            <div><label for="fo-p1e">Ponto 1: Este (m)</label><input id="fo-p1e" inputmode="numeric"></div>
+            <div><label for="fo-p1n">Ponto 1: Norte (m)</label><input id="fo-p1n" inputmode="numeric"></div>
+          </div>
+          <div class="grid g4" style="margin-top:6px">
+            <div><label for="fo-p2px">Ponto 2: pixel X</label><input id="fo-p2px" inputmode="numeric"></div>
+            <div><label for="fo-p2py">Ponto 2: pixel Y</label><input id="fo-p2py" inputmode="numeric"></div>
+            <div><label for="fo-p2e">Ponto 2: Este (m)</label><input id="fo-p2e" inputmode="numeric"></div>
+            <div><label for="fo-p2n">Ponto 2: Norte (m)</label><input id="fo-p2n" inputmode="numeric"></div>
+          </div>
+          <p class="hint" style="margin:8px 0 10px 0">Dois pontos dão escala e rotação, e nada mais: a folha não
+          se deforma nem se corrige de inclinação. Se a imagem estiver distorcida, dois pontos não a endireitam,
+          e a aplicação não finge que sim.</p>
+          <div class="row"><button class="btn btn-o" type="button" id="fo-colocar">Colocar folha</button></div>
+          <div id="fo-msg" style="margin-top:8px"></div>
+          <div id="fo-lista" style="margin-top:10px"></div>
         </div>
       </div>
 

@@ -48,11 +48,58 @@ function existe(rotulo, textos) {
   return false;
 }
 
+/**
+ * Rótulos que só existem depois de a aplicação correr.
+ *
+ * A leitura acima é do HTML estático: vê o que está escrito no molde e não vê o que um
+ * módulo escreve em `innerHTML` quando alguém carrega num botão. O painel dos avisos do
+ * IPMA nasce vazio e só ganha texto depois da consulta, e por isso os seus rótulos — que
+ * são rótulos do ecrã como quaisquer outros — ficavam de fora.
+ *
+ * Não se abre a mão da verificação: cada rótulo declara **em que módulo é escrito**, e o
+ * texto tem de lá estar tal e qual. Um botão renomeado continua a fazer falhar a
+ * verificação, porque o literal deixa de aparecer no ficheiro onde se disse que estava.
+ */
+const RENDIDOS = [
+  { rotulo: 'Consultar agora',   ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  { rotulo: 'Atualizar',         ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  { rotulo: 'por confirmar',     ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  { rotulo: 'previsto',          ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  { rotulo: 'distrito presumido', ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
+  /* Rótulos dos grupos da lista de funções por nomear. São `label` de `<optgroup>` composto
+     em tempo de execução, e a leitura estática não os alcança de forma nenhuma. */
+  { rotulo: 'Essencial — exigível por lei nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'Recomendada — norma a apontar para ela, agora ou na fase seguinte', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'Sugerida pela prática — sem imposição legal nesta fase', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  { rotulo: 'De menor importância neste momento', ficheiro: 'fonte/2-comando/01-estrutura-do-posto-de-comando.js' },
+  /* Cabeçalho do bloco das propostas retiradas, escrito no PEA depois de o plano estar
+     composto — não existe no molde e a leitura estática não o alcança. */
+  { rotulo: 'Retirado por proposta mais específica', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
+];
+
+/** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */
+async function rotulosRendidos() {
+  const achados = new Set(), faltam = [];
+  for (const r of RENDIDOS) {
+    const fonte = await readFile(r.ficheiro, 'utf8').catch(() => '');
+    if (fonte.includes(r.rotulo)) achados.add(r.rotulo);
+    else faltam.push(r);
+  }
+  return { achados, faltam };
+}
+
 const alvo = process.argv[2] || (await revisaoMaisRecente());
 const html = await readFile(alvo, 'utf8');
 const md = await readFile(MANUAL, 'utf8');
 
 const textos = textosDaEntrega(html);
+const rendidos = await rotulosRendidos();
+rendidos.achados.forEach((t) => textos.add(t));
+if (rendidos.faltam.length) {
+  console.log('Rótulos declarados como escritos em tempo de execução que já lá não estão:');
+  rendidos.faltam.forEach((r) => console.log('  «' + r.rotulo + '» — declarado em ' + r.ficheiro));
+  process.exit(1);
+}
 /* As aspas angulares do manual. Ignoram-se as que estão dentro de blocos de código, que
    são exemplos de ficheiro e não rótulos do ecrã. */
 const semCodigo = md.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '');

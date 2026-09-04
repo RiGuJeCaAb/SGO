@@ -1,31 +1,88 @@
 /* ================= COMANDO · estrutura do posto de comando (art. 14.º) ================= */
+/**
+ * As funções do posto de comando, e a partir de quando cada uma se exige.
+ *
+ * **`faseLei` é a lei; o resto não finge sê-la.** `faseLei` é a fase em que o articulado
+ * torna a função exigível, e traz em `aLei` a alínea que o diz. Um núcleo leva `nucleo`,
+ * sem número nenhum, porque **a lei não fixa fase para a ativação dos núcleos**: é
+ * competência do oficial da respetiva célula «em função da natureza da ocorrência e das
+ * necessidades», arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
+ *
+ * Duas correções, ambas do ramo #006 e ambas em 2 de setembro.
+ *
+ * **A primeira, na r0084.** Até à r0083 havia um campo só, `fase`, e nove núcleos levavam
+ * lá dentro números sem fonte nenhuma. Passavam pelo mesmo comparador e saíam no ecrã com
+ * a mesma etiqueta «Essencial — exigível por lei nesta fase» e a mesma cor que as
+ * exigências do art. 14.º, com um `r:` a citar um artigo que nada diz sobre fases. Um
+ * número sem proveniência é mau; com a proveniência de outro número é pior, porque parece
+ * tê-la. Separou-se então `faseLei` de `faseSug`.
+ *
+ * **A segunda, aqui.** `faseSug` deixava-lhes a etiqueta certa e o número errado — e um
+ * palpite com etiqueta de palpite continua a ordenar um ecrã. O ramo foi procurar a fonte
+ * nas três oficiais do projeto e não a encontrou em nenhuma: o Despacho não indexa
+ * ativação de núcleos a fases, o documento de ferramentas do SGO não tem uma única
+ * ocorrência da palavra «fase», e a DON n.º 2 remete a composição da EPCO para «o previsto
+ * no SGO para a fase aplicável» — que nada prevê. Oito dos nove sem fonte nenhuma.
+ *
+ * O nono tem gatilho, e não é uma fase: a ativação do núcleo de especialistas acompanha o
+ * aumento da capacidade de comando e controlo — DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27) —,
+ * que é o que a regra de conformidade da fase já mede. Está ligado a esse, em `gatilho`.
+ *
+ * **A terceira, e é a que fecha o raciocínio.** A r0087 disse «um núcleo é de uma célula, e
+ * não há célula antes de haver posto de comando», e parou no posto quando devia ter parado
+ * na célula. As células não nascem todas ao mesmo tempo: o art. 41.º, n.º 2, al. b) instala
+ * o PCO na fase II **integrando só a célula de operações**, e é o art. 42.º, n.º 2, al. b)
+ * que lhe acrescenta as de planeamento e de logística e finanças, na fase III.
+ *
+ * A aplicação sugeria, numa ocorrência em fase II, nomear o Núcleo de Informações e o
+ * Núcleo de Finanças — de células que ainda não existem, e cujo oficial competente para os
+ * ativar ainda não foi nomeado. Fonte certa, âmbito errado; o mesmo padrão que a r0087
+ * tinha acabado de corrigir. Apanhado pelo ramo #004, com o Despacho à frente.
+ *
+ * O limiar deriva agora **da célula a que o núcleo pertence** — o campo `g:`, que já lá
+ * estava — e não de um número repetido nove vezes. Ver `FASE_DA_CELULA`.
+ *
+ * Os cinco valores do art. 14.º foram corrigidos na r0084 — ver `aLei` de cada um.
+ */
 const FUNCOES_PCO = [
-  {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", fase:3},
-  {f:"Oficial de Operações", r:"art. 14.º, n.º 1, al. b) e art. 17.º", g:"Comando", fase:2},
-  {f:"Oficial de Planeamento", r:"art. 14.º, n.º 1, al. c) e art. 27.º", g:"Comando", fase:2},
-  {f:"Oficial de Logística e Finanças", r:"art. 14.º, n.º 1, al. d) e art. 32.º", g:"Comando", fase:2},
-  {f:"Adjunto de Segurança", r:"art. 14.º, n.º 1, al. e) e art. 36.º", g:"Comando", fase:3},
-  {f:"Adjunto de Ligação", r:"art. 14.º, n.º 1, al. f) e art. 37.º", g:"Comando", fase:4},
-  {f:"Adjunto de Relações Públicas", r:"art. 14.º, n.º 1, al. g) e art. 38.º", g:"Comando", fase:4},
+  {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", faseLei:4, aLei:"art. 43.º, n.º 2, al. b)"},
+  {f:"Oficial de Operações", r:"art. 14.º, n.º 1, al. b) e art. 17.º", g:"Comando", faseLei:2, aLei:"art. 41.º, n.º 2, al. b)"},
+  {f:"Oficial de Planeamento", r:"art. 14.º, n.º 1, al. c) e art. 27.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Oficial de Logística e Finanças", r:"art. 14.º, n.º 1, al. d) e art. 32.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Adjunto de Segurança", r:"art. 14.º, n.º 1, al. e) e art. 36.º", g:"Comando", faseLei:2, aLei:"art. 41.º, n.º 2, al. b)"},
+  {f:"Adjunto de Ligação", r:"art. 14.º, n.º 1, al. f) e art. 37.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Adjunto de Relações Públicas", r:"art. 14.º, n.º 1, al. g) e art. 38.º", g:"Comando", faseLei:4, aLei:"art. 43.º, n.º 2, al. b)"},
   {f:"OPAR — Oficial de Operações Aéreas", r:"art. 19.º", g:"Meios aéreos", cond:"opar"},
-  {f:"COPAR-T — Coordenador em terra", r:"art. 20.º, n.º 6 · DON 2, 7.d.(18)", g:"Meios aéreos", cond:"copart"},
-  {f:"COPAR-A — Coordenador a bordo", r:"art. 20.º, n.º 7 · DON 2, 7.d.(20)", g:"Meios aéreos", cond:"copara"},
+  {f:"COPAR-T — Coordenador em terra", r:"art. 20.º, n.º 6 · DON 2, 7.d.(18)", g:"Meios aéreos", cond:"copart", condLei:true},
+  {f:"COPAR-A — Coordenador a bordo", r:"art. 20.º, n.º 7 · DON 2, 7.d.(20)", g:"Meios aéreos", cond:"copara", condLei:true},
   {f:"OPESP — Oficial de Operações de Meios Especiais", r:"art. 21.º", g:"Meios especiais", cond:"opesp"},
   {f:"COPESP — Coordenador de Meios Especiais", r:"art. 22.º · DON 2, 7.d.(23)", g:"Meios especiais", cond:"copesp"},
-  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", fase:4},
-  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", fase:4},
-  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", fase:5},
-  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", fase:4},
-  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", fase:3, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
-  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", fase:4, ext:"INEM, I.P.", extC:"INEM"},
-  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", fase:5, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
-  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", fase:4},
-  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", fase:4},
-  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", fase:4},
+  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", faseLei:4, aLei:"art. 18.º, n.º 1"},
+  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", nucleo:true, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
+  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", nucleo:true, ext:"INEM, I.P.", extC:"INEM"},
+  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", nucleo:true, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
+  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, pontos 7.d.(25)(d) e 7.d.(27)", g:"Planeamento", nucleo:true, gatilho:"c2"},
   {f:"Oficial de ligação de entidade", r:"art. 37.º, n.º 2", g:"Ligação"},
   {f:"Outra função", r:"—", g:"Ligação"}
 ];
 const ORDEM_FASE = {"":0,"I":1,"II":2,"III":3,"IV":4,"V":5,"VI":6};
+/**
+ * A fase em que cada célula do PCO passa a existir, e a alínea que o diz.
+ *
+ * É daqui que sai o limiar de sugestão de cada núcleo: um núcleo é de uma célula, e não se
+ * propõe antes de a célula existir nem antes de haver quem seja competente para o ativar —
+ * o oficial da célula respetiva, arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
+ */
+const FASE_DA_CELULA = {
+  "Operações":  { fase:2, a:"art. 41.º, n.º 2, al. b)" },
+  "Planeamento":{ fase:3, a:"art. 42.º, n.º 2, al. b)" },
+  "Logística":  { fase:3, a:"art. 42.º, n.º 2, al. b)" },
+};
 /** @returns {{funcoes:FuncaoPCO[]}} */
 /* Comando: as nomeações do art. 14.º. O plano de comunicações saiu daqui na versão 6
    do estado — é do art. 32.º, n.º 1, al. d) — e lê-se por `canaisObj()`. */
@@ -41,45 +98,76 @@ function pcoDef(f){ return FUNCOES_PCO.find(x=>x.f===f) || {f:"", r:"—", g:"�
 function nomeado(fPrefixo){
   return pcoObj().funcoes.find(x=>x.f.indexOf(fPrefixo)===0) || null;
 }
-/* funções exigíveis face à fase declarada e ao dispositivo registado */
+/**
+ * As funções que a **lei** exige agora, face à fase declarada e ao dispositivo registado.
+ *
+ * Só entram aqui as que têm norma a impô-las: `faseLei` com a alínea em `aLei`, e os dois
+ * limiares numéricos que o Despacho fixa mesmo — art. 20.º, n.os 6 e 7, marcados `condLei`.
+ * O que a prática recomenda mas a lei não impõe fica de fora e sai por `prioridadeFuncao`
+ * com etiqueta própria.
+ *
+ * **A fronteira é esta função, e é por isso que ela é estreita.** O que sai daqui alimenta
+ * a lista de pendências, o briefing de passagem de comando, a passagem de turno e a regra
+ * de conformidade — quatro sítios onde «em falta» quer dizer «a lei pede e não está lá».
+ * Um núcleo que ninguém é obrigado a ativar não pode aparecer em nenhum deles como falta.
+ */
 function funcoesExigiveis(){
   const c = contarDispositivo(), fase = ORDEM_FASE[O.meta.fase]||0, out = [];
   FUNCOES_PCO.forEach(x=>{
     let devida = false, motivo = "";
-    if(x.fase && fase >= x.fase){ devida = true; motivo = "fase "+O.meta.fase+" do SGO"; }
-    if(x.cond==="copart" && c.arComb>2){ devida = true; motivo = c.arComb+" aeronaves de combate no TO"; }
-    if(x.cond==="copara" && c.arComb>=4){ devida = true; motivo = c.arComb+" aeronaves de combate no TO"; }
-    if(x.cond==="opar" && c.ar>=4){ devida = true; motivo = "atividade aérea continuada com "+c.ar+" aeronaves"; }
-    if(x.cond==="copesp" && c.mr>2){ devida = true; motivo = c.mr+" máquinas de rasto no dispositivo"; }
-    if(x.cond==="opesp" && c.mr>=4){ devida = true; motivo = c.mr+" máquinas de rasto no dispositivo"; }
+    if(x.faseLei && fase >= x.faseLei){ devida = true; motivo = "fase "+O.meta.fase+" do SGO, "+x.aLei; }
+    if(x.cond==="copart" && c.arComb>2){ devida = true; motivo = c.arComb+" aeronaves de combate no TO, art. 20.º, n.º 6"; }
+    if(x.cond==="copara" && c.arComb>=4){ devida = true; motivo = c.arComb+" aeronaves de combate no TO, art. 20.º, n.º 7"; }
     if(devida) out.push({...x, motivo, preenchida: !!pcoObj().funcoes.find(y=>y.f===x.f)});
   });
   return out;
 }
 /* funções que podem ser nomeadas mais do que uma vez */
 const FUNCOES_REPETIVEIS = ["Oficial de ligação de entidade","Outra função"];
-/* prioridade face à fase declarada e ao dispositivo: e = essencial, r = recomendada, m = menor */
-const PRIO_ROT = {e:{t:"Essencial — exigível agora", c:"var(--fogo)"},
-                  r:{t:"Recomendada — próxima fase ou limiar próximo", c:"var(--terra)"},
+/* Quatro pesos, e os rótulos dizem de onde vem cada um. `e` e `r` são a lei — agora e a
+   seguir; `s` é prática do posto, e o rótulo assume-o em vez de a fazer passar por norma. */
+const PRIO_ROT = {e:{t:"Essencial — exigível por lei nesta fase", c:"var(--fogo)"},
+                  r:{t:"Recomendada — norma a apontar para ela, agora ou na fase seguinte", c:"var(--terra)"},
+                  s:{t:"Sugerida pela prática — sem imposição legal nesta fase", c:"var(--agua)"},
                   m:{t:"De menor importância neste momento", c:"var(--madeira)"}};
 /**
  * Que peso tem esta função no dispositivo que está no terreno.
  *
- * `e` exigível pela fase declarada, `r` recomendada pelo que já lá está — meios aéreos a
- * pedir COPAR, um efetivo a caminho da fase seguinte —, `m` matéria de escolha. Decide a
- * ordem por que as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei
- * exige, e não a lista por ordem alfabética.
+ * `e` a lei exige já, `r` exige na fase seguinte ou o limiar legal está à porta, `s` é
+ * prática do posto sem norma que a imponha, `m` matéria de escolha. Decide a ordem por que
+ * as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei exige, e não a
+ * lista por ordem alfabética.
+ *
+ * **`s` nunca sobe a `e`**, por muitos meios que estejam no terreno. É a separação que dá
+ * sentido ao ecrã: com um peso só, um COS não distinguia a obrigação da sugestão.
  */
 function prioridadeFuncao(x, exigiveis){
   const ex = exigiveis || funcoesExigiveis();
   if(ex.some(y=>y.f===x.f)) return "e";
   const c = contarDispositivo(), fase = ORDEM_FASE[O.meta.fase]||0;
-  if(x.fase && fase+1 >= x.fase) return "r";
+  if(x.faseLei && fase+1 >= x.faseLei) return "r";
   if(x.cond==="copart" && c.arComb>0) return "r";
   if(x.cond==="copara" && c.arComb>2) return "r";
-  if(x.cond==="opar"   && c.ar>0) return "r";
-  if(x.cond==="copesp" && c.mr>0) return "r";
-  if(x.cond==="opesp"  && c.mr>2) return "r";
+  /* Um núcleo sugere-se a partir do momento em que **a sua célula existe** — não a partir
+     de uma fase que ninguém escreveu, nem do momento em que há posto de comando. Ver
+     `FASE_DA_CELULA`: na fase II o PCO integra só a célula de operações. O gatilho do
+     núcleo de especialistas é o único com norma própria, e é o efetivo a exceder a
+     referência da fase declarada, não a fase em si. */
+  /* O gatilho **pesa mais do que a sugestão**, e é por isso que devolve `r` e não `s`. Sem
+     ele, o núcleo de especialistas era proposto pela sua célula como os irmãos e o campo
+     não distinguia nada. Com o efetivo a exceder a referência há norma a apontar para ele
+     — DON n.º 2, 7.d.(25)(d) e 7.d.(27): o reforço da capacidade de comando e controlo
+     «deve ser acompanhado» da ativação deste núcleo. Não é lei do SGO, e por isso não sobe
+     a `e`; é doutrina que vincula o DECIR, e por isso não fica em `s`. */
+  const cel = x.nucleo? FASE_DA_CELULA[x.g] : null;
+  if(cel && fase >= cel.fase && x.gatilho === "c2" && excedeReferenciaDaFase()) return "r";
+  if(cel && fase >= cel.fase) return "s";
+  /* Sem limiar na lei — arts. 19.º, 21.º e 22.º regulam a quem se reporta, não a partir de
+     quantos meios se nomeia. Os números abaixo são leitura do posto, por analogia com a
+     regra aérea do art. 20.º, e é por isso que saem em `s` e não em `e`. */
+  if(x.cond==="opar"   && c.ar>0) return "s";
+  if(x.cond==="copesp" && c.mr>0) return "s";
+  if(x.cond==="opesp"  && c.mr>2) return "s";
   return "m";
 }
 /**
@@ -92,10 +180,10 @@ function pcoOptions(){
   const ex = funcoesExigiveis();
   const ocupadas = pcoObj().funcoes.map(y=>y.f);
   const livres = FUNCOES_PCO.filter(x=>FUNCOES_REPETIVEIS.includes(x.f) || !ocupadas.includes(x.f));
-  const ordem = {e:0,r:1,m:2};
+  const ordem = {e:0,r:1,s:2,m:3};
   const marcadas = livres.map(x=>({...x, p:prioridadeFuncao(x, ex)}))
     .sort((a,b)=> ordem[a.p]-ordem[b.p] || FUNCOES_PCO.indexOf(FUNCOES_PCO.find(y=>y.f===a.f))-FUNCOES_PCO.indexOf(FUNCOES_PCO.find(y=>y.f===b.f)));
-  return ["e","r","m"].map(p=>{
+  return ["e","r","s","m"].map(p=>{
     const arr = marcadas.filter(x=>x.p===p);
     if(!arr.length) return "";
     return '<optgroup label="'+esc(PRIO_ROT[p].t)+'">'+arr.map(x=>

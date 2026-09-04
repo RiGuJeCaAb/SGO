@@ -1,25 +1,27 @@
 # Estado do projeto
 
-Atualizado em 2026-08-31.
+Atualizado em 2026-09-02.
 
 ## Situação atual
 
-A revisão em vigor é a **r0072**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0092**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
-história só.
+história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
+alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
+doutrina — ver `docs/CSREPCDouro_202609021600_d_RespostaAosRamos_CLD.md`.
 
 **A repartição por células está completa.** Todos os ramos do estado estão na célula a
 quem a lei atribui a matéria, e o mapa de posse não declara um único movimento pendente.
 
 | | |
 |---|---|
-| Entregas em `app/` | 71, das anteriores à convenção de nomes até à r0070 |
-| Módulos em `fonte/` | 60, em sete zonas, mais o molde |
-| Testes | 520, todos a passar |
+| Entregas em `app/` | 130, das anteriores à convenção de nomes até à r0092 |
+| Módulos em `fonte/` | 71, em sete zonas, mais o molde |
+| Testes | 862, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 17 |
+| Versão do estado gravado | 26 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -37,6 +39,426 @@ porém, que vieram os três acréscimos que a v1.2 acolheu.
 O importador lê os quatro envelopes — v1.2, v1.1 e v1.0, contrato e esboço antigo — e
 normaliza-os numa forma só. Ler mais do que um envelope não é hesitar sobre qual manda: é
 o que um adaptador faz, porque quem importa não escolhe o que lhe chega às mãos.
+
+## Avisos do IPMA, na r0083 — três afirmações que a aplicação não podia fazer
+
+Os três defeitos são da mesma família: o painel afirmava mais do que sabia, e afirmava-o
+com o mesmo ar de certeza com que afirmava o que sabia bem.
+
+**Primeiro, o distrito.** O módulo escolhia o distrito cujo ponto de referência do IPMA
+estava mais perto da ocorrência. Esse ponto é o da capital de distrito, e a capital mais
+próxima não é o distrito: Moimenta da Beira é de Viseu e fica a cerca de 35 km de Vila Real
+e a 45 km de Viseu, pelo que a aplicação mostrava os avisos de Vila Real — sem o dizer.
+E fazia-o **tendo o distrito certo à mão**: `meta.distrito` já é determinado por
+geocodificação inversa desde a r0032, e o módulo ignorava-o. Agora é esse que vale, e a
+proximidade é o recurso de último caso, marcada no ecrã como presumida.
+
+**Segundo, «em vigor».** O filtro era `endTime >= agora` e não olhava para o `startTime`.
+Um aviso vermelho que começava no dia seguinte aparecia como estando a decorrer. Passam a
+distinguir-se três prateleiras: em vigor, previsto, e por confirmar.
+
+**Terceiro, a hora — e este não se corrigiu, delimitou-se.** As marcas do IPMA vêm sem
+designador de fuso (`2026-09-02T18:00:00`), e `new Date` sobre uma marca dessas lê hora
+local. **Não há fonte consultável que diga qual é a convenção do serviço**, e a
+`api.ipma.pt` não é alcançável do ambiente onde esta revisão foi construída — comprovado,
+`403` no CONNECT do proxy. Escolher UTC seria inventar uma hora tão certa quanto a que lá
+estava. Por isso:
+
+- as horas mostram-se **como o serviço as publica, sem conversão** — a única coisa que se
+  sabe ao certo são os algarismos;
+- o instante de cada marca é tratado como um **intervalo entre as duas leituras
+  possíveis**, e um aviso cuja fronteira caia dentro desse intervalo sai como «por
+  confirmar» em vez de ser dado por findo ou por vigente;
+- se um dia o serviço passar a declarar designador, o intervalo colapsa num ponto e tudo
+  degrada para o comportamento exato **sem uma linha de código a mudar**.
+
+**Fica por fazer, e depende de quem tem rede:** confirmar num posto do CSREPC se as marcas
+de `warnings_www.json` trazem designador e, se não trouxerem, qual a convenção. É o mesmo
+bloco de verificação da secção 5 do `POREXECUTAR.md` e resolve-se com um pedido.
+
+**E ficou uma verificação nova.** O `npm run manual` lia só o HTML estático, e por isso não
+via os rótulos que um módulo escreve depois de a aplicação correr — o painel dos avisos
+nasce vazio. Passa a haver `RENDIDOS` em `ferramentas/manual.mjs`: cada rótulo desses
+declara em que módulo é escrito, e o texto tem de lá estar tal e qual. Provado a renomear
+um botão: a verificação falha, com código de saída 1.
+
+## O que estava na entrada, e o index.html da raiz
+
+**A entrada esvaziou-se.** O que lá estava a 2 de setembro às 15h32 era
+`CSREPCDouro_r0081_202609021450_EstacaoPEA_CLD.html` — **byte a byte a mesma entrega** que
+já estava arrumada em `app/`, confirmado por SHA-256. Não havia nada para arrumar e nada se
+perdeu: apagou-se a cópia.
+
+**O `index.html` da raiz fica, e passa a ser gerado.** Foi carregado à mão no mesmo minuto,
+e é a cópia que o GitHub serve — intenção legítima, e a única forma de abrir a Estação a
+partir de um endereço. Mas uma cópia à mão envelhece: aquela servia a r0081 no momento em
+que a r0083 estava montada, e nada no repositório o denunciava.
+
+Passa a ser reescrita por `npm run montar`, sempre que a entrega vai para `app/` — uma
+montagem de trabalho com `--saida` não lhe toca. E há um teste que confere que é igual à
+entrega mais recente, byte a byte, provado a acrescentar um comentário ao ficheiro. **Não se
+edita à mão**, tal como as entregas de `app/`.
+
+## As fases do PCO, na r0084 — e um número com a proveniência de outro
+
+O ramo #006 verificou contra o articulado as cinco divergências de fase que a leitura do
+`d01` tinha levantado, e devolveu um guião que corria vermelho contra a r0083. **Nenhuma
+das cinco estava certa no código.** Foram corrigidas, e cada número passa a levar ao lado
+a alínea que o sustenta — `aLei`, obrigatório, com um teste que o exige.
+
+Duas erravam no sentido perigoso: o adjunto de segurança é exigível na fase II, art. 41.º,
+n.º 2, al. b), e a aplicação só o dava por exigível na III. Numa fase II não assinalava a
+falta de quem tem a autoridade do art. 36.º, n.º 2, para mandar cessar os trabalhos.
+
+**Mas o achado que interessa é outro, e veio de ler o bloco todo em vez da lista de cinco.**
+Nove núcleos levavam um número de fase sem fonte normativa nenhuma — a lei não fixa fase
+para a ativação dos núcleos, que é competência do oficial da célula em função das
+necessidades. E esses números viviam no mesmo campo, passavam pelo mesmo comparador e saíam
+no ecrã com a mesma etiqueta «Essencial — exigível agora» e a mesma cor que as exigências do
+art. 14.º, com um campo de referência a citar um artigo que nada diz sobre fases.
+
+**Um número sem proveniência é mau; com a proveniência de outro número é pior, porque
+parece tê-la.** Um COS a olhar para o ecrã não conseguia distinguir o que a lei impõe agora
+do que nós achamos prudente agora — e é essa distinção que o projeto inteiro existe para
+manter.
+
+O campo separou-se em dois: `faseLei`, com a alínea obrigatória, e `faseSug`, que assume ser
+prática do posto. `funcoesExigiveis()` estreitou-se à lei, e é a fronteira que alimenta
+pendências, briefing, passagem de turno e conformidade — quatro sítios onde «em falta»
+passa a querer dizer «a lei pede e não está lá». A lista de nomeação ganhou uma quarta
+prateleira, «Sugerida pela prática — sem imposição legal nesta fase». Mesmo tratamento nos
+limiares de meios: os do art. 20.º, n.os 6 e 7, ficam como lei; os de OPAR, COPESP e OPESP
+são analogia com a regra aérea e passam a sugestão.
+
+**O que fica por resolver.** Os valores de `faseSug` são os que lá estavam: deixaram de
+mentir sobre a proveniência, não deixaram de ser palpites por confirmar. E o Despacho não
+está em `docs/fontes/` — toda a citação do articulado nesta matéria assenta na transcrição
+do ramo #006, que é revisão por terceiro e não leitura primária.
+
+**Uma lição de contrato, e é do ramo #004.** O guião do #006 lê o literal `FUNCOES_PCO` de
+dentro da entrega compilada. A separação do campo renomeou `fase` e o guião passou a
+devolver sete divergências falsas. Corrigido esse nome, corre verde. O contrato é o ficheiro
+compilado, mas um guião que alcança um literal lá dentro depende do nome do campo — **um
+nome que muda tem de ser anunciado ao ramo que o lê.**
+
+## Folhas de carta calibradas, na r0085 — a última absorção
+
+**O `p0018` foi absorvido, e não foi traduzido.** Foi essa a decisão de 2 de setembro, depois
+de três traduções terem produzido três defeitos: o ramo #002 entregou 53 asserções que dizem
+o que tem de ser verdade sem dizerem como implementar, e implementou-se até ficarem verdes.
+Contra a r0084 davam 10 verdes e 44 vermelhas; contra a r0085 dão 54 verdes e saída 0.
+
+Uma imagem de carta — a fotografia da folha na parede do PCO, um recorte de PDF, uma captura
+da carta de perigosidade — coloca-se agora no terreno por ficheiro de referenciação ou por
+dois pontos de controlo, e o mapa desenha o traçado por cima dela. Loja `folhas` na base,
+aditiva. **O que se guarda é a colocação e não a imagem:** a imagem pesa megabytes e o pacote
+da ocorrência viaja por ficheiro de texto.
+
+**Duas coisas que as 53 asserções não podiam apanhar, e que se apanharam a implementar.**
+
+A primeira foi minha e o guião não a via: a resolução da semelhança de dois pontos saiu com
+os sinais trocados nos dois termos, e o ponto de controlo 2 recolocava-se dez quilómetros ao
+lado. Foram as asserções C05, C07 e C10 que a denunciaram — o ponto 1 recolocava-se bem, que
+é o que uma verificação distraída teria olhado.
+
+A segunda o guião não podia ver, porque para de propósito na fronteira da superfície pública:
+**o desenho**. A folha vai da imagem ao terreno pelos seis coeficientes, e do terreno ao ecrã
+pela grelha; nenhuma das 53 asserções atravessa a segunda metade. Uma folha bem calibrada
+podia ser desenhada de pernas para o ar sem que nada se queixasse. `tests/folhas-calibradas.test.mjs`
+confronta a matriz que o SVG recebe com o caminho longo — projetar cada pixel e converter — e
+exige que concordem **a menos de um milímetro no terreno**, e não a menos de um pixel: um
+pixel vale 15 cm no nível 14 e 150 m no nível 4, e a mesma tolerância em pixéis significaria
+coisas mil vezes diferentes conforme a ampliação. Provado a inverter o sinal do eixo Norte:
+os dois testes ficam vermelhos.
+
+E uma terceira, que só apareceu ao pôr a folha num navegador a sério: **uma folha sozinha não
+abria o mapa.** O enquadramento não conhecia folhas, e quem colocasse uma continuava a ver o
+mapa a dizer que não havia nada para mostrar — a mesma armadilha fechada sobre si mesma que o
+ponto da ocorrência já tinha tido. Os quatro cantos de cada folha entram agora no
+enquadramento. Prova em `docs/qa/`, `qa0030`.
+
+**Nota sobre a proveniência das 53.** Não são as do `t0018`, que está no ramo #004 e nunca
+chegou aqui; o ramo #002 reconstruiu-as do comportamento descrito. Se as originais
+aparecerem, correm-se as duas — onde divergirem, é a especificação que está mal escrita.
+
+## Duas especificações escritas às cegas, e o que elas provaram — r0086
+
+O ramo #001 entregou uma segunda especificação das folhas calibradas, escrita em separado da
+do ramo #002 e sem que nenhum dos dois visse o trabalho do outro. Também 53 asserções, o que
+foi coincidência e não confirmação — o próprio ramo o diz.
+
+**As duas concordam.** Com os nomes do contrato adaptados à superfície que a r0085 já
+implementava — que é o que o bloco `CONTRATO` daquele guião existe para permitir —, 51 das
+53 passam, e as duas que faltam verificam a existência de um nome e não um comportamento.
+Toda a leitura do ficheiro de referenciação, toda a recolocação por dois pontos, toda a
+admissão de folhas: verde nas duas. Duas pessoas escreveram em separado o que uma folha
+calibrada tem de fazer, e a implementação satisfaz as duas.
+
+**O grupo A é o achado maior, e não é sobre folhas.** Confronta a projeção PT-TM06 com o
+**PROJ 3.7.2** em cinco pontos calculados sobre a definição EPSG:3763, e passa nos 16. É a
+única verificação desta aritmética contra uma implementação de referência que este projeto
+tem: o PROJ não é alcançável do ambiente onde as revisões se constroem, e até aqui a projeção
+só se confrontava consigo própria pela ida e volta — **que fecha na mesma se as duas metades
+estiverem erradas do mesmo modo.** Os cinco pontos estão agora em `tests/mapa.test.mjs`.
+
+**Entrou o que faltava:** `folhaAfericao`, com a regra que o ramo #001 impôs e que estava
+certa — não haver aferição tem de se distinguir de haver uma má, e por isso a ausência é
+`null` e nunca zero ou NaN. Uma folha guarda agora também os dois pontos de controlo que a
+fixaram, e não só a contagem: são eles que permitem duvidar da colocação.
+
+### E um erro meu, que o teste apanhou por eu ter escrito o teste primeiro
+
+Anunciei o confronto entre a escala plana e a distância esférica como quem **confere as
+coordenadas escritas à mão**. Não confere, e o teste que escrevi para o provar falhou —
+corretamente. Numa folha fixada por dois pontos, a escala é *definida* por esses dois
+pontos: `mpp·dpx` é identicamente a distância entre eles. O que sobra é a diferença entre o
+plano e a esfera, e essa quase não mexe com o erro. **Comprovado: um erro de 40 km no Este
+de um controlo leva o desvio de 0,19 % a 0,25 %, e passa.**
+
+O que a conta apanha é a fundação — se `paraTM06`, `deTM06` ou `distanciaM` se partirem, os
+dois modelos deixam de concordar. É só isso que promete agora, no código, na mensagem do
+ecrã e num teste que **exige que o erro de 40 km passe**, para que ninguém volte a anunciar
+o que a conta não faz.
+
+É a terceira vez esta semana que uma asserção certifica menos do que o seu nome dizia: o meu
+tecto de matos validado contra fonte de floresta, o `E7` do ramo #001 a verificar a própria
+fixture, e agora esta. As três foram apanhadas, e nenhuma por leitura.
+
+## Os números que sobravam, tirados — r0087
+
+A separação `faseLei`/`faseSug` da r0084 pôs aos nove núcleos a etiqueta certa e deixou-lhes
+o número errado. O ramo #006 fez o trabalho que faltava: foi procurar a fonte nas três
+oficiais do projeto e não a encontrou em nenhuma.
+
+O Despacho não indexa ativação de núcleos a fases — arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º,
+n.º 3 entregam-na ao oficial da célula «em função da natureza da ocorrência e das
+necessidades». O documento de ferramentas do SGO não tem **uma única ocorrência da palavra
+«fase»**. E a DON n.º 2 fecha o círculo: define a EPCO como capacitada para prover células e
+núcleos «de acordo com o previsto no SGO para a fase aplicável», e remete assim para um
+diploma que nada prevê.
+
+**Oito dos nove sem fonte nenhuma. O nono com gatilho, e o gatilho não é uma fase.**
+
+O argumento do ramo é o que decidiu: um `faseSug` sem fonte continua a ser um palpite, só
+que agora com etiqueta de palpite — melhor do que estava, e ainda a ordenar um ecrã. Os
+números saíram. O que ficou é uma regra só, com uma fonte só: **um núcleo é de uma célula, e
+não há célula antes de haver posto de comando** — art. 13.º, n.º 2, que o instala a partir
+da fase II.
+
+O núcleo de especialistas ganhou o gatilho que tem mesmo: a DON n.º 2, pontos 7.d.(25)(d) e
+7.d.(27), liga a sua ativação ao aumento da capacidade de comando e controlo, que é o sinal
+que a regra de conformidade da fase já media. `excedeReferenciaDaFase()` passou a viver num
+sítio só, junto de `FASES_SGO`, e é lido pelos dois — a regra que avisa e a lista que sugere
+não podem discordar sobre o que é exceder.
+
+### A regressão que a separação tornou possível
+
+O ramo #006 nomeou-a e tem razão: uma das sete funções do art. 14.º perder o `faseLei` passa
+de exigência legal a palpite, sai de `funcoesExigiveis()` e **deixa de alimentar as
+pendências, o briefing, a passagem de turno e a conformidade** — sem que nada o assinale. É
+a regressão mais perigosa deste bloco e é silenciosa por construção. Há teste, e prende o
+efeito e não o campo, que é o que magoa.
+
+### E uma lição sobre testes, que era minha e ficou por aprender
+
+Eu tinha proposto ao ramo a alteração de uma linha — trocar `fase` por `faseLei` no guião.
+O ramo recusou, e a razão é a metade da lição que eu não tinha visto: o problema não foi só
+o campo mudar de nome, foi **o guião ter reportado a mudança de nome como sete divergências
+doutrinárias**. Sete `undefined` com forma de achado sobre a lei.
+
+Isso é pior do que falhar: é ruído com aparência de sinal, e é assim que se treina quem lê a
+ignorar testes vermelhos. Na v2, contrato quebrado sai com código 2 e a frase «nenhuma
+conclusão doutrinária foi tirada»; divergência doutrinária sai com 1. São coisas diferentes
+e passam a ler-se como tal.
+
+## A montagem passou a ter verificação própria — o achado do ramo #005
+
+Ficou por responder dois dias, e era o mais importante dos cinco: **a montagem é o
+componente de maior risco do sistema e era o que tinha menos verificação própria.** É a peça
+que transforma módulos corretos num ficheiro que arranca num PCO às três da manhã.
+
+O teste da reprodução byte a byte não chegava, e a razão é subtil ao ponto de eu não a ter
+visto: monta a partir de `lerModulos()` e compara com uma entrega montada a partir de
+`lerModulos()`. **Um módulo que o leitor deixe cair é deixado cair dos dois lados**, os bytes
+batem, e o teste passa sobre uma entrega a que falta código.
+
+E o leitor deixa cair: `lerModulos` percorre uma camada de pastas e apanha `.js`. Um módulo
+numa subpasta de zona, ou com extensão `.mjs`, sai sem uma palavra. Não é hipótese
+académica — é como um módulo se perde numa reorganização.
+
+Dois testes novos confrontam a entrega **com o disco** e não com a lista que a própria
+montagem produziu. Provado a esconder um módulo numa subpasta e a renomear outro para
+`.mjs`: vermelho nos dois casos.
+
+O terceiro pedido do #005 — que a aplicação arranque de `file://` sem exceções na consola —
+já estava coberto: `npm run visual` escuta `pageerror` a quatro larguras e nos dois temas.
+
+## As missões com identidade, e as genéricas que saem — r0089
+
+Duas coisas ficaram por fazer quando as missões se alinharam com as propostas, e são as duas
+metades do mesmo trabalho.
+
+**A primeira: as missões continuavam identificadas pela posição.** M1, M2, M3 — que é
+exatamente o defeito corrigido nas propostas e deixado por corrigir aqui. Uma missão
+condicional — a rotação, os meios aéreos, o ponto de trânsito — aparece e desaparece
+conforme o dispositivo, e a entrada de uma empurrava todas as seguintes para outra
+identidade. A M4 do PEA n.º 4 não era a M4 do n.º 5, e a resposta a «cumprimos aquilo?»
+apontava para outra coisa. Cada missão declara agora a sua chave; `ord` continua posicional,
+porque é o que se lê no papel.
+
+**A segunda: as genéricas não se retiravam.** Um plano com sete prioridades em que duas
+dizem o mesmo por palavras diferentes não é mais completo — é mais difícil de executar, e
+quem o lê às três da manhã tem de decidir qual manda. Pior quando a genérica **contradiz** a
+específica, que é o caso dos dois pares declarados em `SUBSTITUICOES`:
+
+- «Postura defensiva fora da janela» diz, por contraste, que dentro da janela a postura não
+  é defensiva. Com a cabeça interdita acima dos 4 000 kW/m isso é falso a qualquer hora, e a
+  genérica enfraquecia a interdição em vez de a acompanhar.
+- «Rendições faseadas no início e fecho da janela» é a cadência normal. Havendo equipas com
+  o tempo já vencido, é mandar manter no terreno quem devia ter saído.
+
+**A retirada não é silenciosa, e essa é a parte que importa.** Uma proposta que desaparece
+sem rasto é indistinguível de uma que ninguém pensou, e o plano passaria a dizer menos do
+que sabe. O que sai fica em `retiradas` e é escrito no documento com a específica que a
+substituiu e o porquê — que é auditado, para isto não virar um sítio onde se apaga uma
+proposta incómoda com aparência de método.
+
+Três cuidados que os testes prendem: a numeração refaz-se **depois** da retirada, ou o papel
+saltava de P2 para P4; a lista de segurança **não** perde a regra do ataque descendente que
+a genérica também dizia; e a proposta das vigias encolhe em vez de sair, porque as vigias e
+a cadência de pontos de situação não dependem das rendições.
+
+E uma correção que não é de arrumação: a missão dos aglomerados **passa a nomeá-los**. Uma
+ação que manda defender «os aglomerados expostos» sem nomear nenhum não é uma ação
+específica — art. 46.º, n.º 1 — e passa por cumprida sem nunca o ter sido. Não havendo
+nenhum registado, diz isso e manda reconhecê-los.
+
+### Um teste que prendia o defeito
+
+`tests/identidade-das-propostas.test.mjs` fixava a chave das missões em «M1,M2». Estava a
+prender exatamente o que havia a corrigir. Foi reescrito para separar o que sobrevive — `ord`
+posicional — do que mudou, e não apagado: um teste que fixa uma frase obsoleta é um sinal, e
+apagá-lo perde-o.
+
+## Metros da projeção não são metros do terreno — r0090
+
+**O achado mais grave que chegou dos ramos, e é do #004.** O Web Mercator não preserva
+escala: a 41° N o metro da projeção vale 1/cos(41°) do metro do terreno. A `folhaAfericao`
+devolvia a raiz do determinante e chamava-lhe m/px sem mais, pelo que uma folha em Mercator
+declarada a 25 m/px era anunciada como tal quando os seus pixéis cobrem **18,8 m**.
+
+Reproduzido antes de corrigir: **32,7 % de inflação**, contra os 33,1 % que o ramo mediu —
+a mesma coisa, à latitude de ensaio. Quem medisse uma distância de segurança por cima de uma
+folha dessas errava um terço, e **para menos**, que é o sentido perigoso.
+
+A aferição devolve agora os metros de terreno em `mpp`, os da projeção em `mppProj`, o fator
+de escala e a latitude a que vale — porque o fator varia ao longo da folha e um número único
+só é honesto se disser onde se aplica. Em PT-TM06 nada se corrige: é Transversa de Mercator
+com fator 1 no meridiano central, e corrigir seria introduzir erro para tapar um que não
+existe.
+
+## O limiar dos núcleos parava no posto e devia parar na célula — r0090
+
+Também do #004, e é a segunda metade do meu próprio raciocínio. A r0087 disse «um núcleo é
+de uma célula, e não há célula antes de haver posto de comando» e pôs os nove na fase II. Mas
+**as células não nascem todas ao mesmo tempo**: o art. 41.º, n.º 2, al. b) instala o PCO na
+fase II integrando só a célula de operações, e é o art. 42.º, n.º 2, al. b) que lhe
+acrescenta as de planeamento e de logística e finanças, na fase III.
+
+A aplicação sugeria, numa ocorrência em fase II, nomear o Núcleo de Informações e o Núcleo de
+Finanças — de células que ainda não existem, e cujo oficial competente para os ativar ainda
+não foi nomeado. **Fonte certa, âmbito errado**, que é o mesmo padrão que a r0087 tinha
+acabado de corrigir.
+
+O limiar deriva agora de `FASE_DA_CELULA`, com a alínea declarada por célula, e do campo `g:`
+que já lá estava. Confirmado contra o Despacho, que desde 2 de setembro está no repositório.
+
+**E o gatilho do núcleo de especialistas passou a distinguir alguma coisa.** Estava a
+devolver `s`, que é o que a célula dele já lhe dava — o campo não fazia diferença nenhuma.
+Com o efetivo a exceder a referência há norma a apontar para ele, e por isso sobe a `r`: não
+é lei do SGO e não sobe a `e`; é doutrina que vincula o DECIR e não fica em `s`.
+
+**Duas correções de citação**, ambas dos ramos: o `r:` do núcleo de especialistas dizia
+`7.e.(27)` e é `7.d.(27)` — o ponto (27) está na secção dos Teatros de Operações. E a fonte
+do limiar é o `7.d.(25)(d)`, que o #006 identificou como melhor do que a que eu tinha citado:
+«o número de meios humanos e materiais mobilizados ou a mobilizar ultrapasse a capacidade de
+comando e controlo implementada» é substancialmente o `excedeReferenciaDaFase()`.
+
+**Fica em dívida a verificação primária destas duas.** A DON n.º 2 não está em
+`docs/fontes/` — só o Despacho está. As correções assentam na leitura do ramo #006, e isso é
+revisão por terceiro, como o `POREXECUTAR` já regista para o articulado antes de 2 de
+setembro.
+
+## A DON n.º 2 no repositório, e as vinte e quatro citações conferidas — r0091
+
+Chegou a 4 de setembro, com as outras três DON e o documento de ferramentas do SGO. Com ela
+cai a última dependência de revisão por terceiro na doutrina que a aplicação cita.
+
+**As vinte e quatro citações da DON n.º 2 foram localizadas uma a uma no texto** e estão
+todas certas — a tabela com o que cada ponto diz está em `docs/FONTES.md`. A secção de topo é
+`7. EXECUÇÃO`, e dentro de `7.e` o ponto `(4)` é o Ataque Inicial e o `(5)` é o Ataque
+Ampliado, o que é a chave de metade das confusões possíveis.
+
+**Uma estava errada, e o ramo #006 tinha razão:** o núcleo de especialistas era citado como
+`7.e.(27)`, e o ponto (27) está em `7.d`. Aparecia em dois sítios — a estrutura do PCO,
+corrigida na r0090, e a passagem de turno, que passou despercebida e ficou corrigida aqui.
+
+### E uma correção proposta que estava ela própria errada
+
+O ramo #006 propôs que o POSIT passasse de `8.d.(5)(o)` a `7.e.(5)(o)`. A primeira metade
+está certa — a secção é 7 e não 8. A segunda não: **o POSIT com periodicidade horária está no
+ponto (4)**, o Ataque Inicial, que é o que a aplicação já citava. O ponto (5) é o Ataque
+Ampliado e tem uma referência diferente ao POSIT, na alínea (t), para inserção no SADO.
+
+Aceitar a correção teria introduzido o defeito que ela vinha corrigir. Não é reparo ao ramo,
+que fez o trabalho certo e o assumiu como erro seu — é a demonstração de por que razão a
+verificação tem de passar pela fonte e não pela palavra de quem a leu, mesmo quando quem leu
+está a corrigir-nos.
+
+### A guarda que impede a próxima
+
+`tests/fontes.test.mjs` varre a entrega inteira — e não só o registo de conformidade, porque
+as citações vivem espalhadas pelos módulos — e recusa qualquer ponto da DON que não conste da
+lista conferida. E recusa o inverso: um ponto que fique na lista e já ninguém cite dá a
+entender que a aplicação o invoca. Provado a repor o `7.e.(27)` e a inventar um `7.d.(99)`.
+
+## A repintura das folhas e o meio pixel — r0092
+
+**A repintura, do ramo #005, e a medição deles é que fez o caso.** A folha entrava no mapa
+embutida: a data URL — 4 a 8 MB numa folha digitalizada — era copiada para dentro do SVG a
+cada `pintarMapa()`. Mediram 103 ms no `innerHTML` da segunda repintura com três folhas, numa
+máquina de servidor, e estimaram 300 a 500 ms num posto modesto. E o custo era **por
+repintura**: a segunda custava mais do que a primeira.
+
+Passou a entrar por referência, `URL.createObjectURL`. Medido aqui, com três folhas de
+4000×3000:
+
+| | Antes (medido pelo #005) | Agora |
+|---|---|---|
+| SVG entregue ao analisador | 7,8 MB | **2,7 KB** |
+| Segunda repintura | 103 ms | **4,4 ms** |
+
+O custo passou a ser uma vez, na descodificação, em vez de a cada desenho. A URL é revogada
+em `retirarFolha`, ou a memória ficava presa até o separador fechar.
+
+**E o `esc()` fica.** Aviso do #005, e é o certo: sobre base64 não altera um carácter e é
+varrimento puro, mas `accept="image/*"` deixa passar `image/svg+xml`, cuja data URL tem `<`
+a sério. Tira-se a repetição, não a defesa. Há teste que o exige.
+
+### O meio pixel, do ramo #001, e a ironia dele
+
+O `<image>` do SVG tem origem no **canto** da imagem: o pixel 0 ocupa o quadrado [0,1]×[0,1]
+e o seu centro está em (0,5, 0,5). Mas a matriz é construída a partir de `C` e `F`, que
+designam o **centro** do pixel superior esquerdo — a convenção do ficheiro de referenciação,
+que `lerFicheiroReferenciacao` lê certa. O local (0,0) ia parar onde devia estar o local
+(0,5, 0,5), e a folha ficava meio pixel fora: 12,5 m a 25 m/px.
+
+A ironia é do próprio ramo: a asserção B9 do guião deles existe para garantir essa convenção,
+passa — e o desenho reintroduzia o erro que ela previne. **O módulo lia por uma convenção e
+desenhava pela outra**, que é a diferença entre o GDAL e o world file.
+
+Não é grande — 0,5 mm no papel de uma 1:25 000 — mas é sistemático, tem sinal, e soma-se a
+qualquer outra fonte de erro em vez de cancelar.
 
 ## Decisões tomadas
 

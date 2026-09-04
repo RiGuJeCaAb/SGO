@@ -127,7 +127,13 @@ function retratoDoFogo(){
     detetados: { total:det.length, porValidar: porValidar.map(x=>x.nome+" a "+x.dist+" m") },
     carta: {
       servico: (typeof CARTA !== "undefined" && CARTA)? (CARTA.atrib || CARTA.tipo || "declarado") : "",
-      local: (typeof CARTA_LOCAL !== "undefined" && CARTA_LOCAL)? (CARTA_LOCAL.atrib || "sem origem declarada") : ""
+      local: (typeof CARTA_LOCAL !== "undefined" && CARTA_LOCAL)? (CARTA_LOCAL.atrib || "sem origem declarada") : "",
+      /* As folhas de carta calibradas. Cada uma diz de onde veio e quantos pontos a
+         fixaram: uma posição lida por cima de uma folha vale o que valer a colocação
+         dessa folha, e quem lê o plano tem de o poder aferir. */
+      folhas: (typeof FOLHAS !== "undefined"? FOLHAS : []).map(f=>({
+        nome:f.nome, grelha:f.grelha, proveniencia:f.proveniencia, pontos:f.pontos,
+        fora: !!f.foraDoEnvelope }))
     },
     previsao: { fonte:M.fonte||"", modelo:M.modelo||"", g:M.g||"",
       idadeH: id? Math.round(id.h*10)/10 : null, velha: !!(id && id.velha) }
@@ -188,6 +194,9 @@ function resumoDoFogo(f){
   const c = [];
   if(f.carta.servico) c.push("serviço declarado: " + f.carta.servico);
   if(f.carta.local) c.push("carta pré-descarregada: " + f.carta.local);
+  (f.carta.folhas||[]).forEach(fo=>c.push("folha calibrada " + fo.nome + " ("
+    + (fo.pontos? fo.pontos + " pontos de controlo" : "ficheiro de referenciação")
+    + ", " + fo.proveniencia + (fo.fora? "; fora do envelope do continente":"") + ")"));
   p.push(c.length? "Cartografia em uso — " + c.join("; ") + "."
     : "Sem cartografia declarada: as posições deste plano não têm base cartográfica identificada.");
 

@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSREPC DOURO — Estação PEA</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Sem chamada a CDN. Estava aqui um `<link>` ao Google Fonts, e três ramos da revisão
+     apanharam-no em separado: viola a primeira restrição não negociável do projeto — «CSS, JS
+     e tipos de letra por CDN **dentro do ficheiro**» — e num arranque `file://` sem rede
+     bloqueia o render até dar tempo-limite. A aplicação não partia, porque as famílias têm
+     alternativa; mas o primeiro ecrã no VCOC com a Starlink em baixo demorava segundos a
+     aparecer, e é aí que o custo se paga. As famílias caem para `system-ui` e `ui-monospace`,
+     que existem em qualquer máquina. Quem quiser o Barlow de volta embute-o em base64. -->
 <style>
   :root{
     /* ÁGUA profunda — modo escuro (suavizado) */
@@ -523,8 +529,13 @@
   .av-c.lr{background:rgba(226,145,84,.14);border-color:var(--laranja);color:var(--laranja)}
   .av-c.vm{background:rgba(224,104,92,.14);border-color:var(--fogo);color:var(--fogo)}
   .av-c small{font-family:var(--mono);font-weight:500;font-size:11px;opacity:.85}
+  .av-c.marg{border-style:dashed}
+  .av-c.prev{opacity:.66;font-weight:500}
   .av-ok{color:var(--madeira);font-size:13.5px}
   .av-atual{background:none;border:none;color:var(--agua);font-size:12.5px;cursor:pointer;text-decoration:underline;margin-left:10px}
+  .pd-ret{border-top:1px dashed var(--line);margin-top:10px;padding:10px 16px 4px;font-size:12.5px;color:var(--tx2)}
+  .pd-ret b{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+  .pd-ret p{margin:0 0 8px 0}
   .rel-chips{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 10px}
   .rel-c{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:9px 14px}
   .rel-c .k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);font-weight:600}
@@ -1369,6 +1380,51 @@
           <input type="file" id="carta-fich" webkitdirectory directory multiple>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
         </div>
+
+        <div class="sub" style="margin-top:12px"><span class="stit">Folhas de carta calibradas</span>
+          <p class="hint" style="margin:0 0 10px 0">Uma imagem solta não é carta pré-descarregada, mas pode ser
+          uma folha: uma fotografia da carta militar, um recorte de PDF, uma captura da carta de perigosidade.
+          Aqui coloca-se no terreno e passa a servir de fundo ao mapa, com o traçado por cima. Fica no
+          dispositivo; o pacote da ocorrência leva a colocação, não a imagem.</p>
+          <div class="grid g2">
+            <div><label for="fo-nome">Nome da folha</label>
+              <input id="fo-nome" placeholder="ex.: Carta militar 1:25 000, folha 128"></div>
+            <div><label for="fo-prov">Proveniência</label>
+              <input id="fo-prov" placeholder="ex.: CIGeoE, folha 128, digitalizada no PCO"></div>
+          </div>
+          <div class="grid g2" style="margin-top:8px">
+            <div><label for="fo-grelha">Projeção dos coeficientes</label>
+              <select id="fo-grelha">
+                <option value="pttm06">PT-TM06 / ETRS89 (EPSG:3763)</option>
+                <option value="mercator">Web Mercator (EPSG:3857)</option>
+              </select></div>
+            <div><label for="fo-img">Imagem da folha</label>
+              <input type="file" id="fo-img" accept="image/*"></div>
+          </div>
+          <p class="hint" style="margin:10px 0 8px 0">Depois, uma de duas vias. Se a imagem veio de um sistema de
+          informação geográfica, traz um ficheiro de referenciação de seis linhas ao lado: escolha-o e está
+          colocada. Se não trouxer, indique dois pontos que reconheça na imagem e cuja coordenada saiba.</p>
+          <div><label for="fo-wf">Ficheiro de referenciação (.pgw, .jgw, .wld)</label>
+            <input type="file" id="fo-wf"></div>
+          <div class="grid g4" style="margin-top:8px">
+            <div><label for="fo-p1px">Ponto 1: pixel X</label><input id="fo-p1px" inputmode="numeric"></div>
+            <div><label for="fo-p1py">Ponto 1: pixel Y</label><input id="fo-p1py" inputmode="numeric"></div>
+            <div><label for="fo-p1e">Ponto 1: Este (m)</label><input id="fo-p1e" inputmode="numeric"></div>
+            <div><label for="fo-p1n">Ponto 1: Norte (m)</label><input id="fo-p1n" inputmode="numeric"></div>
+          </div>
+          <div class="grid g4" style="margin-top:6px">
+            <div><label for="fo-p2px">Ponto 2: pixel X</label><input id="fo-p2px" inputmode="numeric"></div>
+            <div><label for="fo-p2py">Ponto 2: pixel Y</label><input id="fo-p2py" inputmode="numeric"></div>
+            <div><label for="fo-p2e">Ponto 2: Este (m)</label><input id="fo-p2e" inputmode="numeric"></div>
+            <div><label for="fo-p2n">Ponto 2: Norte (m)</label><input id="fo-p2n" inputmode="numeric"></div>
+          </div>
+          <p class="hint" style="margin:8px 0 10px 0">Dois pontos dão escala e rotação, e nada mais: a folha não
+          se deforma nem se corrige de inclinação. Se a imagem estiver distorcida, dois pontos não a endireitam,
+          e a aplicação não finge que sim.</p>
+          <div class="row"><button class="btn btn-o" type="button" id="fo-colocar">Colocar folha</button></div>
+          <div id="fo-msg" style="margin-top:8px"></div>
+          <div id="fo-lista" style="margin-top:10px"></div>
+        </div>
       </div>
 
       <div class="sub" data-move-ops="1"><span class="stit">Importação da Gestão PCO (esquema v1.2)</span>
@@ -2137,14 +2193,14 @@
 
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0081</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0081_202609021450_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0091</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0091_202609041207_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0081", FICHEIRO_APP = "CSREPCDouro_r0081_202609021450_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0091", FICHEIRO_APP = "CSREPCDouro_r0091_202609041207_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2199,7 +2255,11 @@ const ARMAZEM = (()=>{
    `mosaicos` são os quadrados de carta já descarregados, que é o que faz o mapa continuar
    a existir quando a ligação de dados cai — e num PCO cai. */
 const IDB_NOME = "peaapp";
-const IDB_LOJAS = [["chaves", null], ["diario", {keyPath:"n"}], ["copias", {keyPath:"id"}], ["mosaicos", null]];
+/* A loja `folhas` guarda a colocação de cada folha de carta calibrada, não a imagem: a
+   imagem pesa megabytes e volta a escolher-se, a colocação é que não se pode perder.
+   Entrou a 2 de setembro, na absorção do trabalho da linhagem paralela — e é aditiva, que
+   é o que `abrirIDB` sabe tratar sem descer de versão. */
+const IDB_LOJAS = [["chaves", null], ["diario", {keyPath:"n"}], ["copias", {keyPath:"id"}], ["mosaicos", null], ["folhas", {keyPath:"id"}]];
 let IDB = null;
 
 /** Cria as lojas que faltarem. Corre dentro do `onupgradeneeded`, que é o único sítio onde
@@ -2334,7 +2394,7 @@ async function prepararArmazem(){
    sorte. Cada alteração à forma de O acrescenta uma migração ao fim de MIGRACOES e
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
-const VERSAO_ESTADO = 25;
+const VERSAO_ESTADO = 26;
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2774,6 +2834,25 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 25 -> 26 · Os avisos do IPMA passaram a distinguir o que está em vigor do que ainda não
+   começou, e a dizer como foi escolhido o distrito. O que estava gravado tinha só `lista`,
+   e essa lista podia trazer avisos futuros misturados com os em vigor — era esse o defeito.
+   Não se reclassifica aqui: a triagem precisa das marcas de tempo confrontadas com o
+   instante da consulta, e o instante certo é o da próxima consulta, não o da migração.
+   Acrescentam-se as prateleiras vazias e marca-se o distrito como presumido, porque a
+   revisão que gravou aquilo escolhia-o sempre por proximidade. */
+MIGRACOES.push(e => {
+  if(e.avisos && typeof e.avisos === "object"){
+    if(!Array.isArray(e.avisos.lista)) e.avisos.lista = [];
+    if(!Array.isArray(e.avisos.previstos)) e.avisos.previstos = [];
+    if(!Array.isArray(e.avisos.margem)) e.avisos.margem = [];
+    if(typeof e.avisos.porProximidade !== "boolean") e.avisos.porProximidade = true;
+    if(typeof e.avisos.semFuso !== "boolean") e.avisos.semFuso = true;
+    e.avisos.lista.forEach(a => { if(!a.est) a.est = "vigor"; });
+  }
+  return e;
+});
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -3199,6 +3278,22 @@ const FASES_SGO = [
 function faseParaEfetivo(op){
   const f = FASES_SGO.find(x=>op <= x.ate);
   return (f || FASES_SGO[FASES_SGO.length-1]).k;
+}
+/**
+ * O efetivo no TO excede a referência da fase declarada?
+ *
+ * **Não é um limiar de bloqueio, e o art. 39.º, n.º 3 é a razão:** a passagem de fase pode
+ * ser determinada independentemente do número de operacionais empenhados. Isto é um sinal,
+ * não uma barreira — e é o mesmo sinal em dois sítios, que é por isso que vive aqui e não
+ * em cada um deles. A regra de conformidade da fase usa-o para avisar; a lista de nomeação
+ * usa-o para sugerir o núcleo de especialistas, cuja ativação a DON n.º 2 liga ao aumento
+ * da capacidade de comando e controlo — pontos 7.d.(25)(d) e 7.d.(27) — e não a uma fase.
+ *
+ * Falso quando não há fase declarada: sem fase não há referência que se possa exceder.
+ */
+function excedeReferenciaDaFase(){
+  const lim = (FASES_SGO.find(f=>f.k === (O.meta.fase||""))||{}).ate;
+  return !!lim && isFinite(lim) && contarDispositivo().op > lim;
 }
 /** Posição de uma fase na escala, para se poderem comparar. -1 se não for fase nenhuma. */
 function ordemFase(k){ return FASES_SGO.findIndex(x=>x.k === k); }
@@ -5222,33 +5317,90 @@ function deTM06(E, Nn){
   return { lat: lat*180/Math.PI, lon: lon*180/Math.PI };
 }
 /* ================= COMANDO · estrutura do posto de comando (art. 14.º) ================= */
+/**
+ * As funções do posto de comando, e a partir de quando cada uma se exige.
+ *
+ * **`faseLei` é a lei; o resto não finge sê-la.** `faseLei` é a fase em que o articulado
+ * torna a função exigível, e traz em `aLei` a alínea que o diz. Um núcleo leva `nucleo`,
+ * sem número nenhum, porque **a lei não fixa fase para a ativação dos núcleos**: é
+ * competência do oficial da respetiva célula «em função da natureza da ocorrência e das
+ * necessidades», arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
+ *
+ * Duas correções, ambas do ramo #006 e ambas em 2 de setembro.
+ *
+ * **A primeira, na r0084.** Até à r0083 havia um campo só, `fase`, e nove núcleos levavam
+ * lá dentro números sem fonte nenhuma. Passavam pelo mesmo comparador e saíam no ecrã com
+ * a mesma etiqueta «Essencial — exigível por lei nesta fase» e a mesma cor que as
+ * exigências do art. 14.º, com um `r:` a citar um artigo que nada diz sobre fases. Um
+ * número sem proveniência é mau; com a proveniência de outro número é pior, porque parece
+ * tê-la. Separou-se então `faseLei` de `faseSug`.
+ *
+ * **A segunda, aqui.** `faseSug` deixava-lhes a etiqueta certa e o número errado — e um
+ * palpite com etiqueta de palpite continua a ordenar um ecrã. O ramo foi procurar a fonte
+ * nas três oficiais do projeto e não a encontrou em nenhuma: o Despacho não indexa
+ * ativação de núcleos a fases, o documento de ferramentas do SGO não tem uma única
+ * ocorrência da palavra «fase», e a DON n.º 2 remete a composição da EPCO para «o previsto
+ * no SGO para a fase aplicável» — que nada prevê. Oito dos nove sem fonte nenhuma.
+ *
+ * O nono tem gatilho, e não é uma fase: a ativação do núcleo de especialistas acompanha o
+ * aumento da capacidade de comando e controlo — DON n.º 2, pontos 7.d.(25)(d) e 7.d.(27) —,
+ * que é o que a regra de conformidade da fase já mede. Está ligado a esse, em `gatilho`.
+ *
+ * **A terceira, e é a que fecha o raciocínio.** A r0087 disse «um núcleo é de uma célula, e
+ * não há célula antes de haver posto de comando», e parou no posto quando devia ter parado
+ * na célula. As células não nascem todas ao mesmo tempo: o art. 41.º, n.º 2, al. b) instala
+ * o PCO na fase II **integrando só a célula de operações**, e é o art. 42.º, n.º 2, al. b)
+ * que lhe acrescenta as de planeamento e de logística e finanças, na fase III.
+ *
+ * A aplicação sugeria, numa ocorrência em fase II, nomear o Núcleo de Informações e o
+ * Núcleo de Finanças — de células que ainda não existem, e cujo oficial competente para os
+ * ativar ainda não foi nomeado. Fonte certa, âmbito errado; o mesmo padrão que a r0087
+ * tinha acabado de corrigir. Apanhado pelo ramo #004, com o Despacho à frente.
+ *
+ * O limiar deriva agora **da célula a que o núcleo pertence** — o campo `g:`, que já lá
+ * estava — e não de um número repetido nove vezes. Ver `FASE_DA_CELULA`.
+ *
+ * Os cinco valores do art. 14.º foram corrigidos na r0084 — ver `aLei` de cada um.
+ */
 const FUNCOES_PCO = [
-  {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", fase:3},
-  {f:"Oficial de Operações", r:"art. 14.º, n.º 1, al. b) e art. 17.º", g:"Comando", fase:2},
-  {f:"Oficial de Planeamento", r:"art. 14.º, n.º 1, al. c) e art. 27.º", g:"Comando", fase:2},
-  {f:"Oficial de Logística e Finanças", r:"art. 14.º, n.º 1, al. d) e art. 32.º", g:"Comando", fase:2},
-  {f:"Adjunto de Segurança", r:"art. 14.º, n.º 1, al. e) e art. 36.º", g:"Comando", fase:3},
-  {f:"Adjunto de Ligação", r:"art. 14.º, n.º 1, al. f) e art. 37.º", g:"Comando", fase:4},
-  {f:"Adjunto de Relações Públicas", r:"art. 14.º, n.º 1, al. g) e art. 38.º", g:"Comando", fase:4},
+  {f:"Coordenador do PCO", r:"art. 14.º, n.º 1, al. a)", g:"Comando", faseLei:4, aLei:"art. 43.º, n.º 2, al. b)"},
+  {f:"Oficial de Operações", r:"art. 14.º, n.º 1, al. b) e art. 17.º", g:"Comando", faseLei:2, aLei:"art. 41.º, n.º 2, al. b)"},
+  {f:"Oficial de Planeamento", r:"art. 14.º, n.º 1, al. c) e art. 27.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Oficial de Logística e Finanças", r:"art. 14.º, n.º 1, al. d) e art. 32.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Adjunto de Segurança", r:"art. 14.º, n.º 1, al. e) e art. 36.º", g:"Comando", faseLei:2, aLei:"art. 41.º, n.º 2, al. b)"},
+  {f:"Adjunto de Ligação", r:"art. 14.º, n.º 1, al. f) e art. 37.º", g:"Comando", faseLei:3, aLei:"art. 42.º, n.º 2, al. b)"},
+  {f:"Adjunto de Relações Públicas", r:"art. 14.º, n.º 1, al. g) e art. 38.º", g:"Comando", faseLei:4, aLei:"art. 43.º, n.º 2, al. b)"},
   {f:"OPAR — Oficial de Operações Aéreas", r:"art. 19.º", g:"Meios aéreos", cond:"opar"},
-  {f:"COPAR-T — Coordenador em terra", r:"art. 20.º, n.º 6 · DON 2, 7.d.(18)", g:"Meios aéreos", cond:"copart"},
-  {f:"COPAR-A — Coordenador a bordo", r:"art. 20.º, n.º 7 · DON 2, 7.d.(20)", g:"Meios aéreos", cond:"copara"},
+  {f:"COPAR-T — Coordenador em terra", r:"art. 20.º, n.º 6 · DON 2, 7.d.(18)", g:"Meios aéreos", cond:"copart", condLei:true},
+  {f:"COPAR-A — Coordenador a bordo", r:"art. 20.º, n.º 7 · DON 2, 7.d.(20)", g:"Meios aéreos", cond:"copara", condLei:true},
   {f:"OPESP — Oficial de Operações de Meios Especiais", r:"art. 21.º", g:"Meios especiais", cond:"opesp"},
   {f:"COPESP — Coordenador de Meios Especiais", r:"art. 22.º · DON 2, 7.d.(23)", g:"Meios especiais", cond:"copesp"},
-  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", fase:4},
-  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", fase:4},
-  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", fase:5},
-  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", fase:4},
-  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", fase:3, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
-  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", fase:4, ext:"INEM, I.P.", extC:"INEM"},
-  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", fase:5, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
-  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", fase:4},
-  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", fase:4},
-  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, ponto 7.e.(27)", g:"Planeamento", fase:4},
+  {f:"Núcleo de Comunicações e Sistemas de Informação", r:"art. 34.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Meios e Recursos", r:"art. 33.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Finanças", r:"art. 35.º", g:"Logística", nucleo:true},
+  {f:"Núcleo de Monitorização e Controlo", r:"art. 18.º, n.º 1 — obrigatório na fase IV ou superior", g:"Operações", faseLei:4, aLei:"art. 18.º, n.º 1"},
+  {f:"Núcleo de Segurança", r:"art. 23.º", g:"Operações", nucleo:true, ext:"força de segurança territorialmente competente", extC:"força de segurança"},
+  {f:"Núcleo de Emergência Médica", r:"art. 24.º", g:"Operações", nucleo:true, ext:"INEM, I.P.", extC:"INEM"},
+  {f:"Núcleo de Apoio Psicológico e Social de Emergência", r:"art. 25.º", g:"Operações", nucleo:true, ext:"Instituto da Segurança Social, I.P.", extC:"Segurança Social"},
+  {f:"Núcleo de Antecipação", r:"art. 29.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Informações", r:"art. 28.º", g:"Planeamento", nucleo:true},
+  {f:"Núcleo de Especialistas", r:"art. 30.º · DON 2, pontos 7.d.(25)(d) e 7.d.(27)", g:"Planeamento", nucleo:true, gatilho:"c2"},
   {f:"Oficial de ligação de entidade", r:"art. 37.º, n.º 2", g:"Ligação"},
   {f:"Outra função", r:"—", g:"Ligação"}
 ];
 const ORDEM_FASE = {"":0,"I":1,"II":2,"III":3,"IV":4,"V":5,"VI":6};
+/**
+ * A fase em que cada célula do PCO passa a existir, e a alínea que o diz.
+ *
+ * É daqui que sai o limiar de sugestão de cada núcleo: um núcleo é de uma célula, e não se
+ * propõe antes de a célula existir nem antes de haver quem seja competente para o ativar —
+ * o oficial da célula respetiva, arts. 16.º, n.º 3, 26.º, n.º 4 e 31.º, n.º 3.
+ */
+const FASE_DA_CELULA = {
+  "Operações":  { fase:2, a:"art. 41.º, n.º 2, al. b)" },
+  "Planeamento":{ fase:3, a:"art. 42.º, n.º 2, al. b)" },
+  "Logística":  { fase:3, a:"art. 42.º, n.º 2, al. b)" },
+};
 /** @returns {{funcoes:FuncaoPCO[]}} */
 /* Comando: as nomeações do art. 14.º. O plano de comunicações saiu daqui na versão 6
    do estado — é do art. 32.º, n.º 1, al. d) — e lê-se por `canaisObj()`. */
@@ -5264,45 +5416,76 @@ function pcoDef(f){ return FUNCOES_PCO.find(x=>x.f===f) || {f:"", r:"—", g:"�
 function nomeado(fPrefixo){
   return pcoObj().funcoes.find(x=>x.f.indexOf(fPrefixo)===0) || null;
 }
-/* funções exigíveis face à fase declarada e ao dispositivo registado */
+/**
+ * As funções que a **lei** exige agora, face à fase declarada e ao dispositivo registado.
+ *
+ * Só entram aqui as que têm norma a impô-las: `faseLei` com a alínea em `aLei`, e os dois
+ * limiares numéricos que o Despacho fixa mesmo — art. 20.º, n.os 6 e 7, marcados `condLei`.
+ * O que a prática recomenda mas a lei não impõe fica de fora e sai por `prioridadeFuncao`
+ * com etiqueta própria.
+ *
+ * **A fronteira é esta função, e é por isso que ela é estreita.** O que sai daqui alimenta
+ * a lista de pendências, o briefing de passagem de comando, a passagem de turno e a regra
+ * de conformidade — quatro sítios onde «em falta» quer dizer «a lei pede e não está lá».
+ * Um núcleo que ninguém é obrigado a ativar não pode aparecer em nenhum deles como falta.
+ */
 function funcoesExigiveis(){
   const c = contarDispositivo(), fase = ORDEM_FASE[O.meta.fase]||0, out = [];
   FUNCOES_PCO.forEach(x=>{
     let devida = false, motivo = "";
-    if(x.fase && fase >= x.fase){ devida = true; motivo = "fase "+O.meta.fase+" do SGO"; }
-    if(x.cond==="copart" && c.arComb>2){ devida = true; motivo = c.arComb+" aeronaves de combate no TO"; }
-    if(x.cond==="copara" && c.arComb>=4){ devida = true; motivo = c.arComb+" aeronaves de combate no TO"; }
-    if(x.cond==="opar" && c.ar>=4){ devida = true; motivo = "atividade aérea continuada com "+c.ar+" aeronaves"; }
-    if(x.cond==="copesp" && c.mr>2){ devida = true; motivo = c.mr+" máquinas de rasto no dispositivo"; }
-    if(x.cond==="opesp" && c.mr>=4){ devida = true; motivo = c.mr+" máquinas de rasto no dispositivo"; }
+    if(x.faseLei && fase >= x.faseLei){ devida = true; motivo = "fase "+O.meta.fase+" do SGO, "+x.aLei; }
+    if(x.cond==="copart" && c.arComb>2){ devida = true; motivo = c.arComb+" aeronaves de combate no TO, art. 20.º, n.º 6"; }
+    if(x.cond==="copara" && c.arComb>=4){ devida = true; motivo = c.arComb+" aeronaves de combate no TO, art. 20.º, n.º 7"; }
     if(devida) out.push({...x, motivo, preenchida: !!pcoObj().funcoes.find(y=>y.f===x.f)});
   });
   return out;
 }
 /* funções que podem ser nomeadas mais do que uma vez */
 const FUNCOES_REPETIVEIS = ["Oficial de ligação de entidade","Outra função"];
-/* prioridade face à fase declarada e ao dispositivo: e = essencial, r = recomendada, m = menor */
-const PRIO_ROT = {e:{t:"Essencial — exigível agora", c:"var(--fogo)"},
-                  r:{t:"Recomendada — próxima fase ou limiar próximo", c:"var(--terra)"},
+/* Quatro pesos, e os rótulos dizem de onde vem cada um. `e` e `r` são a lei — agora e a
+   seguir; `s` é prática do posto, e o rótulo assume-o em vez de a fazer passar por norma. */
+const PRIO_ROT = {e:{t:"Essencial — exigível por lei nesta fase", c:"var(--fogo)"},
+                  r:{t:"Recomendada — norma a apontar para ela, agora ou na fase seguinte", c:"var(--terra)"},
+                  s:{t:"Sugerida pela prática — sem imposição legal nesta fase", c:"var(--agua)"},
                   m:{t:"De menor importância neste momento", c:"var(--madeira)"}};
 /**
  * Que peso tem esta função no dispositivo que está no terreno.
  *
- * `e` exigível pela fase declarada, `r` recomendada pelo que já lá está — meios aéreos a
- * pedir COPAR, um efetivo a caminho da fase seguinte —, `m` matéria de escolha. Decide a
- * ordem por que as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei
- * exige, e não a lista por ordem alfabética.
+ * `e` a lei exige já, `r` exige na fase seguinte ou o limiar legal está à porta, `s` é
+ * prática do posto sem norma que a imponha, `m` matéria de escolha. Decide a ordem por que
+ * as funções aparecem e a cor da barra: quem nomeia vê primeiro o que a lei exige, e não a
+ * lista por ordem alfabética.
+ *
+ * **`s` nunca sobe a `e`**, por muitos meios que estejam no terreno. É a separação que dá
+ * sentido ao ecrã: com um peso só, um COS não distinguia a obrigação da sugestão.
  */
 function prioridadeFuncao(x, exigiveis){
   const ex = exigiveis || funcoesExigiveis();
   if(ex.some(y=>y.f===x.f)) return "e";
   const c = contarDispositivo(), fase = ORDEM_FASE[O.meta.fase]||0;
-  if(x.fase && fase+1 >= x.fase) return "r";
+  if(x.faseLei && fase+1 >= x.faseLei) return "r";
   if(x.cond==="copart" && c.arComb>0) return "r";
   if(x.cond==="copara" && c.arComb>2) return "r";
-  if(x.cond==="opar"   && c.ar>0) return "r";
-  if(x.cond==="copesp" && c.mr>0) return "r";
-  if(x.cond==="opesp"  && c.mr>2) return "r";
+  /* Um núcleo sugere-se a partir do momento em que **a sua célula existe** — não a partir
+     de uma fase que ninguém escreveu, nem do momento em que há posto de comando. Ver
+     `FASE_DA_CELULA`: na fase II o PCO integra só a célula de operações. O gatilho do
+     núcleo de especialistas é o único com norma própria, e é o efetivo a exceder a
+     referência da fase declarada, não a fase em si. */
+  /* O gatilho **pesa mais do que a sugestão**, e é por isso que devolve `r` e não `s`. Sem
+     ele, o núcleo de especialistas era proposto pela sua célula como os irmãos e o campo
+     não distinguia nada. Com o efetivo a exceder a referência há norma a apontar para ele
+     — DON n.º 2, 7.d.(25)(d) e 7.d.(27): o reforço da capacidade de comando e controlo
+     «deve ser acompanhado» da ativação deste núcleo. Não é lei do SGO, e por isso não sobe
+     a `e`; é doutrina que vincula o DECIR, e por isso não fica em `s`. */
+  const cel = x.nucleo? FASE_DA_CELULA[x.g] : null;
+  if(cel && fase >= cel.fase && x.gatilho === "c2" && excedeReferenciaDaFase()) return "r";
+  if(cel && fase >= cel.fase) return "s";
+  /* Sem limiar na lei — arts. 19.º, 21.º e 22.º regulam a quem se reporta, não a partir de
+     quantos meios se nomeia. Os números abaixo são leitura do posto, por analogia com a
+     regra aérea do art. 20.º, e é por isso que saem em `s` e não em `e`. */
+  if(x.cond==="opar"   && c.ar>0) return "s";
+  if(x.cond==="copesp" && c.mr>0) return "s";
+  if(x.cond==="opesp"  && c.mr>2) return "s";
   return "m";
 }
 /**
@@ -5315,10 +5498,10 @@ function pcoOptions(){
   const ex = funcoesExigiveis();
   const ocupadas = pcoObj().funcoes.map(y=>y.f);
   const livres = FUNCOES_PCO.filter(x=>FUNCOES_REPETIVEIS.includes(x.f) || !ocupadas.includes(x.f));
-  const ordem = {e:0,r:1,m:2};
+  const ordem = {e:0,r:1,s:2,m:3};
   const marcadas = livres.map(x=>({...x, p:prioridadeFuncao(x, ex)}))
     .sort((a,b)=> ordem[a.p]-ordem[b.p] || FUNCOES_PCO.indexOf(FUNCOES_PCO.find(y=>y.f===a.f))-FUNCOES_PCO.indexOf(FUNCOES_PCO.find(y=>y.f===b.f)));
-  return ["e","r","m"].map(p=>{
+  return ["e","r","s","m"].map(p=>{
     const arr = marcadas.filter(x=>x.p===p);
     if(!arr.length) return "";
     return '<optgroup label="'+esc(PRIO_ROT[p].t)+'">'+arr.map(x=>
@@ -5781,7 +5964,9 @@ const REGRAS_DON = [
           r:"Despacho n.º 4067/2024, art. 39.º e Anexo I"});
       }
       const lim = (FASES_SGO.find(f=>f.k === decl)||{}).ate;
-      if(lim && c.op > lim) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
+      /* O mesmo sinal que sugere o núcleo de especialistas na lista de nomeação. Lê-se do
+         mesmo sítio para que os dois não possam discordar sobre o que é exceder. */
+      if(excedeReferenciaDaFase()) v.push({n:"av", id:"fase", t:"Fase "+O.meta.fase+" excedida pelo efetivo no TO",
         s:"Estão registados "+c.op+" operacionais, acima da referência de "+lim+" da fase "+O.meta.fase+" declarada em Comando.",
         f:"O COS deve garantir o reforço da organização do PCO e da capacidade de comando e controlo sempre que o número de meios humanos e materiais mobilizados ultrapasse a capacidade de comando e controlo implementada. O aumento dessa capacidade deve ser acompanhado pelo aumento da capacidade de análise e planeamento, através da ativação do núcleo de especialistas na célula de planeamento.",
         a:"Rever a fase declarada, reforçar as células do PCO e ponderar a solicitação de EPCO, e de EAUF da FEPC ou EGFR do ICNF ao CNEPC.",
@@ -7585,6 +7770,13 @@ async function retirarCarta(){
 
 /** Lado do mosaico, em pixéis. É o do esquema de mosaicos, não uma escolha nossa. */
 const MOSAICO_PX = 256;
+/* Meia largura do mundo em metros de Web Mercator: o eixo vai de -R·π a +R·π, com o raio
+   esférico de 6 378 137 m que a projeção usa. É o que põe a origem do quadrado no sítio. */
+const MERCATOR_MEIO = 20037508.342789244;
+/* A folha desenha-se translúcida: é fundo, e o que está por baixo — o mosaico do serviço —
+   continua a ter de se ver, para se poder confrontar a folha com a carta e dar pela
+   colocação errada. Opaca, uma folha mal calibrada esconderia a prova de o estar. */
+const FOLHA_OPACIDADE = 0.85;
 /** Ao fim de quanto tempo um mosaico guardado se considera velho. */
 const MOSAICO_DIAS = 60;
 
@@ -7618,6 +7810,13 @@ const GRELHAS = {
     /* A escala varia com a latitude: a 41° N o metro do mapa vale 0,755 do metro do
        terreno, e uma barra de escala desenhada sem isto mentiria em 32 %. */
     escala:(lat, z)=>156543.03392 * Math.cos(lat*Math.PI/180) / Math.pow(2, z),
+    /* O pixel de um ponto dado já em metros da própria projeção. Serve a quem tem uma
+       imagem georreferenciada e não coordenadas geográficas — uma folha de carta traz os
+       seis coeficientes em metros do sistema em que foi produzida, não em graus. */
+    metros(E, N, z){
+      const r = 2*MERCATOR_MEIO / (MOSAICO_PX * Math.pow(2, z));
+      return { x:(E + MERCATOR_MEIO)/r, y:(MERCATOR_MEIO - N)/r };
+    },
     zMin:3, zMax:19
   },
   /* A da cartografia oficial portuguesa. Origem no canto superior esquerdo da folha, em
@@ -7642,6 +7841,8 @@ const GRELHAS = {
       return deTM06(this.E0 + x*r, this.N0 - y*r);
     },
     escala(lat, z){ return this.res(z); },
+    /* O mesmo, e aqui é a conta natural da grelha: a origem é um canto em metros. */
+    metros(E, N, z){ const r = this.res(z); return { x:(E - this.E0)/r, y:(this.N0 - N)/r }; },
     zMin:0, zMax:19
   }
 };
@@ -7671,6 +7872,11 @@ function grelhaAtual(){
      projeção tiver sido declarada. É o único sítio onde essa informação existe: os
      ficheiros não a trazem e a numeração dos quadrados é igual nas duas grelhas. */
   if(CARTA_LOCAL && GRELHAS[CARTA_LOCAL.grelha]) return GRELHAS[CARTA_LOCAL.grelha];
+  /* Sem serviço e sem carta no arquivo, quem manda é a folha calibrada — se houver alguma.
+     É a única fonte de projeção que resta, e ao contrário das outras é declarada por quem
+     colocou a folha, não deduzida. Uma folha em Mercator e o mapa em PT-TM06 desenhariam
+     a folha ao lado do sítio, e por isso a folha manda em vez de ser reprojetada. */
+  if(typeof FOLHAS !== "undefined" && FOLHAS.length && GRELHAS[FOLHAS[0].grelha]) return GRELHAS[FOLHAS[0].grelha];
   return GRELHAS.pttm06;
 }
 
@@ -7683,6 +7889,20 @@ function gPara(lat, lon, z){ return grelhaAtual().para(lat, lon, z); }
 function gDe(x, y, z){ return grelhaAtual().de(x, y, z); }
 /** Metros por pixel, à latitude dada quando a grelha o exigir. */
 function gEscala(lat, z){ return grelhaAtual().escala(lat, z); }
+/** O pixel da grelha de um ponto já dado em metros da projeção corrente. Em par, como os outros. */
+function gMetros(E, N, z){ return grelhaAtual().metros(E, N, z); }
+/**
+ * As coordenadas geográficas de um ponto em metros de **uma grelha nomeada**, não da corrente.
+ *
+ * É o único sítio da aplicação que trabalha numa grelha que não é a que está a desenhar, e
+ * tem razão para o fazer: uma folha declara a sua projeção e pode não ser a do mapa — para
+ * saber a que latitude ela está, e portanto quanto vale ali o metro da projeção, é preciso
+ * perguntar à grelha dela. O nível é indiferente: entra e sai pelo mesmo, e cancela-se.
+ */
+function gDeGrelha(G, E, N){
+  const q = G.metros(E, N, 10);
+  return G.de(q.x, q.y, 10);
+}
 
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai
@@ -7716,6 +7936,18 @@ function enquadrarMapa(larg, altMax){
   linhasLista().forEach(l=>(l.linha||[]).forEach(c=>juntar(c[1], c[0])));
   meiosPosicionados().forEach(m=>juntar(m.it.lat, m.it.lon));
   notasLista().forEach(nt=>juntar(nt.lat, nt.lon));
+  /* Os quatro cantos de cada folha calibrada. **Uma folha sozinha tem de abrir o mapa**:
+     quem coloca uma folha coloca-a para desenhar por cima dela, e sem isto acontecia o
+     mesmo que já tinha acontecido com o ponto da ocorrência — colocava-se a folha e o
+     mapa continuava a dizer que não havia nada para mostrar.
+     Os cantos vêm por `gDe` a partir dos metros, porque a folha não sabe latitudes. */
+  if(typeof FOLHAS !== "undefined") FOLHAS.forEach(f=>{
+    const G = GRELHAS[f.grelha]; if(!G) return;
+    [[0,0],[f.largura-1,0],[0,f.altura-1],[f.largura-1,f.altura-1]].forEach(([px,py])=>{
+      const m = f.paraMundo(px, py), q = G.metros(m.E, m.N, 14), c = G.de(q.x, q.y, 14);
+      juntar(c.lat, c.lon);
+    });
+  });
   /* Os focos **não** entram no enquadramento: um foco a duzentos quilómetros — e o serviço
      devolve o que a caixa pedida contiver — afastava o mapa até o teatro ser um ponto. */
   (estObj().setores||[]).forEach((_,i)=>{ const a = limiteSetor(i); if(a) a.forEach(c=>juntar(c[1], c[0])); });
@@ -8010,6 +8242,29 @@ function camadaMapa(){
   const n = v => Math.round(v*10)/10;
   const P = perimObj();
   let g = "";
+
+  /* As folhas de carta calibradas, **antes de tudo o resto**: são o fundo sobre que se
+     desenha, e uma folha por cima de uma frente esconderia a informação mais viva do mapa.
+     A composição folha → terreno → grelha é afim nas duas projeções — os seis coeficientes
+     são lineares em metros, e `metros` também —, e por isso cabe numa matriz do SVG em vez
+     de obrigar a redesenhar a imagem pixel a pixel.
+     Só entram as que declaram a grelha em que o mapa está: um mosaico já desenhado não se
+     reprojeta, e é a mesma razão por que o WMTS recusa um conjunto incompatível. */
+  if(typeof FOLHAS !== "undefined") FOLHAS.forEach(f=>{
+    if(!f.img || !f.compativel(grelhaAtual().k)) return;
+    const m = f.mundo, canto = gMetros(m.C, m.F, z);
+    /* Pixels da grelha por metro do terreno. Tira-se por diferença em vez de se ler a
+       resolução: as duas grelhas exprimem-na de maneiras diferentes e nenhuma a publica
+       nesta forma, e a diferença dá o mesmo número nas duas sem precisar de saber qual é. */
+    const ppm = gMetros(m.C + 1, m.F, z).x - canto.x;
+    /* Seis termos, e **não passam pelo arredondamento a um décimo** que serve às linhas:
+       aqui os quatro primeiros são fatores de escala da ordem da unidade, e um décimo de
+       erro num deles arrasta a folha inteira. */
+    const M6 = [m.A*ppm, -m.D*ppm, m.B*ppm, -m.E*ppm, canto.x - ox, canto.y - oy];
+    g += '<image href="'+esc(f.img)+'" width="'+f.largura+'" height="'+f.altura
+       + '" opacity="'+FOLHA_OPACIDADE+'" preserveAspectRatio="none"'
+       + ' transform="matrix('+M6.map(v=>v.toFixed(9)).join(",")+')"/>';
+  });
 
   if(P) P.aneis.forEach(a=>{
     const d = a.map((c,i)=>{ const q = pxy(c[1], c[0]); return (i?"L":"M")+n(q.x)+","+n(q.y); }).join(" ")+" Z";
@@ -9969,8 +10224,120 @@ $("f-csvfile").addEventListener("change", e=>{
 /* ================= PLANEAMENTO · avisos IPMA (art. 28.º) ================= */
 let DISTRITOS_IPMA = null;
 const NIVEL_AVISO = {yellow:{c:"am",n:"AMARELO"}, orange:{c:"lr",n:"LARANJA"}, red:{c:"vm",n:"VERMELHO"}};
-/** O instante de um aviso na forma curta que cabe no chip: «30/08 18h». */
-function fmtAvisoT(iso){ const d=new Date(iso); return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+"h"; }
+const ORDEM_AVISO = {red:0, orange:1, yellow:2};
+/**
+ * Qual a área de aviso do IPMA que serve este teatro, e como se lá chegou.
+ *
+ * O distrito do TO **já foi determinado** por geocodificação inversa e está em
+ * `meta.distrito` — é esse que vale, e é ele que aqui se procura pelo nome na lista do
+ * IPMA. Até à r0081 este módulo ignorava-o e escolhia o distrito mais próximo, o que
+ * está errado por construção: o ponto que o IPMA publica por distrito é o da capital, e
+ * há concelhos mais perto da capital do distrito vizinho do que da sua. Moimenta da Beira
+ * é de Viseu e fica mais perto de Vila Real; a aplicação mostrava os avisos de Vila Real
+ * sem dizer que os tinha adivinhado.
+ *
+ * A proximidade fica como recurso de último caso, para quando ainda não há distrito
+ * determinado, e o que sai por essa via vem marcado `presumido` — vê-se no ecrã.
+ *
+ * @returns {{cod:string, local:string, presumido:boolean}|null}
+ */
+function areaDeAviso(lista, distrito, lat, lon){
+  if(!Array.isArray(lista) || !lista.length) return null;
+  if(distrito){
+    const d = lista.find(x=>semAcento(x.local)===semAcento(distrito));
+    if(d) return {cod:d.idAreaAviso, local:d.local, presumido:false};
+  }
+  if(!isFinite(lat) || !isFinite(lon)) return null;
+  let melhor=null, dmin=Infinity;
+  lista.forEach(d=>{
+    const dx=(parseFloat(d.longitude)-lon)*Math.cos(lat*Math.PI/180), dy=parseFloat(d.latitude)-lat;
+    const dd=dx*dx+dy*dy; if(dd<dmin){ dmin=dd; melhor=d; }
+  });
+  return melhor? {cod:melhor.idAreaAviso, local:melhor.local, presumido:true} : null;
+}
+/**
+ * O instante de uma marca temporal do IPMA, e o que dela se sabe ao certo.
+ *
+ * O serviço publica marcas sem designador de fuso — `2026-09-02T18:00:00` — e **não há
+ * fonte consultável que diga se são UTC ou hora legal**: a `api.ipma.pt` não é alcançável
+ * do ambiente onde esta revisão foi construída e nenhum documento do processo o fixa. Não
+ * se escolhe uma convenção por conta própria, que seria inventar uma hora; devolve-se o
+ * intervalo entre as duas leituras possíveis — UTC e hora local — e quem classifica sabe
+ * que a fronteira tem margem.
+ *
+ * Quando a marca traz designador (`Z` ou `+01:00`) não há margem nenhuma: `min` e `max`
+ * coincidem e tudo o que se segue degrada para o comportamento exato, sem alterar código.
+ *
+ * @returns {{min:number, max:number, fuso:boolean}|null}
+ */
+function instanteAviso(iso){
+  const s = String(iso||"").trim();
+  if(!s) return null;
+  const t = s.replace(" ", "T");
+  if(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(t)){
+    const u = new Date(t).getTime();
+    return Number.isNaN(u)? null : {min:u, max:u, fuso:true};
+  }
+  const local = new Date(t).getTime(), utc = new Date(t+"Z").getTime();
+  if(Number.isNaN(local) || Number.isNaN(utc)) return null;
+  return {min:Math.min(local,utc), max:Math.max(local,utc), fuso:false};
+}
+/**
+ * Em que ponto do seu tempo está um aviso, no instante dado.
+ *
+ * Quatro estados, e a ordem dos testes importa. `findo` e `previsto` são afirmações que só
+ * se fazem com a marca respetiva conhecida; `vigor` exige as duas e exige que **nenhuma
+ * das leituras possíveis** o ponha fora — é a afirmação forte. O que sobra é `margem`: o
+ * aviso pode estar em vigor e a incerteza do fuso não deixa dizê-lo. Um aviso a que falte
+ * a marca não é descartado: um vermelho não se deita fora por lhe faltar um campo.
+ */
+function estadoDoAviso(ini, fim, ts){
+  if(fim && fim.max < ts) return "findo";
+  if(ini && ini.min > ts) return "previsto";
+  if(ini && fim && ini.max <= ts && ts <= fim.min) return "vigor";
+  return "margem";
+}
+/**
+ * Separa os avisos da área pelo seu estado no instante dado.
+ *
+ * Até à r0081 o filtro era só `endTime >= agora`, e por isso um aviso que começava no dia
+ * seguinte aparecia como estando em vigor. Um aviso previsto conta para o planeamento e
+ * não conta para a manobra em curso: guarda-se, mas noutra prateleira.
+ */
+function triarAvisos(brutos, cod, ts){
+  const out = {lista:[], previstos:[], margem:[], presumido:false};
+  (Array.isArray(brutos)? brutos : []).forEach(a=>{
+    if(a.idAreaAviso !== cod || a.awarenessLevelID === "green" || !NIVEL_AVISO[a.awarenessLevelID]) return;
+    const ini = instanteAviso(a.startTime), fim = instanteAviso(a.endTime);
+    const est = estadoDoAviso(ini, fim, ts);
+    if(est === "findo") return;
+    if((ini && !ini.fuso) || (fim && !fim.fuso) || !ini || !fim) out.presumido = true;
+    const x = {tipo:a.awarenessTypeName, nivel:a.awarenessLevelID, ini:a.startTime||"", fim:a.endTime||"",
+               est, txt:String(a.text||"").slice(0,220)};
+    (est==="vigor"? out.lista : est==="previsto"? out.previstos : out.margem).push(x);
+  });
+  const porNivel = (a,b)=>ORDEM_AVISO[a.nivel]-ORDEM_AVISO[b.nivel];
+  out.lista.sort(porNivel); out.previstos.sort(porNivel); out.margem.sort(porNivel);
+  return out;
+}
+/**
+ * O instante de um aviso na forma curta que cabe no chip: «30/08 18h».
+ *
+ * Sem designador de fuso não se converte nada — mostram-se os algarismos tal como o
+ * serviço os publicou, que é a única coisa que se sabe ao certo. Converter exigiria saber
+ * a convenção, e é precisamente essa que falta. Com designador, formata-se na hora do
+ * posto, que é a que quem lê tem no relógio.
+ */
+function fmtAvisoT(iso){
+  const s = String(iso||"").trim().replace(" ", "T");
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s);
+  if(!m) return s.slice(0,16);
+  if(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(s)){
+    const d = new Date(s);
+    return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+"h";
+  }
+  return m[3]+"/"+m[2]+" "+m[4]+"h";
+}
 /**
  * Traz os avisos do IPMA em vigor para o distrito do teatro.
  *
@@ -9987,38 +10354,59 @@ async function obterAvisos(silencioso){
       if(!rd.ok) throw "HTTP "+rd.status;
       DISTRITOS_IPMA = (await rd.json()).data;
     }
-    let melhor=null, dmin=1e12;
-    DISTRITOS_IPMA.forEach(d=>{
-      const dx=(parseFloat(d.longitude)-lon)*Math.cos(lat*Math.PI/180), dy=parseFloat(d.latitude)-lat;
-      const dd=dx*dx+dy*dy; if(dd<dmin){ dmin=dd; melhor=d; }
-    });
+    const area = areaDeAviso(DISTRITOS_IPMA, O.meta.distrito, lat, lon);
+    if(!area) throw "sem área de aviso para o ponto";
     const ra = await fetchT("https://api.ipma.pt/open-data/forecast/warnings/warnings_www.json", {}, 8000);
     if(!ra.ok) throw "HTTP "+ra.status;
-    const agora = Date.now();
-    const lista = (await ra.json())
-      .filter(a=>a.idAreaAviso===melhor.idAreaAviso && a.awarenessLevelID!=="green" && new Date(a.endTime).getTime()>=agora)
-      .map(a=>({tipo:a.awarenessTypeName, nivel:a.awarenessLevelID, ini:a.startTime, fim:a.endTime, txt:(a.text||"").slice(0,220)}))
-      .sort((a,b)=>({red:0,orange:1,yellow:2}[a.nivel]-{red:0,orange:1,yellow:2}[b.nivel]));
-    O.avisos = {distrito:melhor.local, cod:melhor.idAreaAviso, g:gdhAgora(), lista};
+    const t = triarAvisos(await ra.json(), area.cod, agora());
+    O.avisos = {distrito:area.local, cod:area.cod, porProximidade:area.presumido, g:gdhAgora(),
+                lista:t.lista, previstos:t.previstos, margem:t.margem, semFuso:t.presumido};
     pintarAvisos();
-    fita("Avisos IPMA consultados — distrito "+melhor.local+": "+(lista.length? lista.map(a=>a.tipo+" "+NIVEL_AVISO[a.nivel].n).join("; ") : "sem avisos acima de verde"));
+    fita("Avisos IPMA consultados — distrito "+area.local
+      +(area.presumido? " (presumido por proximidade; o distrito do TO ainda não está determinado)":"")+": "
+      +(t.lista.length? t.lista.map(a=>a.tipo+" "+NIVEL_AVISO[a.nivel].n).join("; ") : "sem avisos acima de verde em vigor")
+      +(t.margem.length? " · "+t.margem.length+" por confirmar" : "")
+      +(t.previstos.length? " · "+t.previstos.length+" previsto(s)" : ""));
     persistir(false);
   }catch(e){
     if(!silencioso) el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Indisponíveis ('+esc(String(e).slice(0,50))+') — consultar ipma.pt.</span></div>';
   }
+}
+/* O estado escreve-se no chip por palavras, e não só pela cor do traço: quem lê a correr
+   não deve ter de distinguir um tracejado de um contínuo para saber se o aviso já conta. */
+const QUALIFICA_AVISO = {vigor:"", previsto:"previsto · ", margem:"por confirmar · "};
+/** Um chip de aviso, com o nível na cor e o intervalo por baixo do rótulo. */
+function chipAviso(a, classe){
+  return '<span class="av-c '+NIVEL_AVISO[a.nivel].c+(classe? " "+classe:"")+'" title="'+esc(a.txt)+'">'
+    +esc(a.tipo)+' — '+NIVEL_AVISO[a.nivel].n
+    +'<small>'+esc(QUALIFICA_AVISO[a.est]||"")
+    +(a.est==="previsto"? "de "+esc(fmtAvisoT(a.ini)) : "até "+esc(fmtAvisoT(a.fim)))+'</small></span>';
 }
 /** Mostra os avisos guardados, ou o convite a consultá-los quando ainda não há nenhum. */
 function pintarAvisos(){
   const el = $("avisos-ipma"); if(!el) return;
   const A = O.avisos;
   if(!A){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Obtidos automaticamente com a previsão, para o distrito do TO.</span><button class="av-atual" onclick="obterAvisos(false)">Consultar agora</button></div>'; return; }
-  const chips = A.lista.length
-    ? '<span class="av-chips">'+A.lista.map(a=>'<span class="av-c '+NIVEL_AVISO[a.nivel].c+'" title="'+esc(a.txt)+'">'+esc(a.tipo)+' — '+NIVEL_AVISO[a.nivel].n+'<small>até '+fmtAvisoT(a.fim)+'</small></span>').join("")+'</span>'
+  const vigor = A.lista||[], margem = A.margem||[], previstos = A.previstos||[];
+  const chips = vigor.length
+    ? '<span class="av-chips">'+vigor.map(a=>chipAviso(a, "")).join("")+'</span>'
     : '<span class="av-ok">Sem avisos acima de verde em vigor.</span>';
-  el.innerHTML = '<div class="av-box"><span class="avt">Avisos IPMA · '+esc(A.distrito)+' <small style="font-family:var(--mono);font-weight:500">('+esc(A.g)+')</small></span>'+chips+'<button class="av-atual" onclick="obterAvisos(false)">Atualizar</button></div>';
+  const extra = (margem.length? '<span class="av-chips" style="margin-left:10px">'+margem.map(a=>chipAviso(a, "marg")).join("")+'</span>':"")
+    + (previstos.length? '<span class="av-chips" style="margin-left:10px">'+previstos.map(a=>chipAviso(a, "prev")).join("")+'</span>':"");
+  const notas = [];
+  if(A.porProximidade) notas.push("Distrito presumido pelo ponto de referência mais próximo do IPMA, que é o da capital de distrito — pode não ser o do teatro. Determina-o pelas coordenadas em Comando.");
+  if(margem.length) notas.push("Os avisos «por confirmar» têm início ou fim dentro da margem do fuso: podem já estar em vigor. Confirmar em ipma.pt.");
+  if(previstos.length) notas.push("Os avisos «previstos» ainda não começaram; contam para o planeamento do turno seguinte, não para a manobra em curso.");
+  if(A.semFuso) notas.push("As horas são as que o serviço publica, sem conversão: as marcas do IPMA não declaram fuso horário e a convenção não está confirmada em fonte.");
+  /* A marca de presunção fica fora do rótulo: dentro dele apanha o `text-transform` e
+     «VILA REAL PRESUMIDO» lê-se como se fosse o nome do distrito. */
+  el.innerHTML = '<div class="av-box"><span class="avt">Avisos IPMA · '+esc(A.distrito)
+    +' <small style="font-family:var(--mono);font-weight:500">('+esc(A.g)+')</small></span>'
+    +(A.porProximidade? '<span class="pend" style="margin-right:10px">distrito presumido</span>':"")+chips+extra
+    +'<button class="av-atual" onclick="obterAvisos(false)">Atualizar</button>'
+    +notas.map(n=>'<div class="hint" style="margin:8px 0 0 0">'+esc(n)+'</div>').join("")+'</div>';
 }
 window.obterAvisos = obterAvisos;
-
 /* ================= PLANEAMENTO · elaboração assistida do PEA (art. 27.º, al. a)) ================= */
 /* Adaptador de modelo de linguagem — três modos declarados, nenhum silencioso.
    sandbox : dentro do ambiente Claude; as credenciais são injetadas pelo ambiente.
@@ -10246,11 +10634,81 @@ function baseVigor(){
  */
 function controloMissoes(ops){
   const out = [];
-  (ops.missoes||[]).forEach((x,i)=>out.push({k:"M"+(i+1), ord:"M"+(i+1),
+  /* A chave da missão é declarada, como a da proposta, e não a sua posição na lista. Uma
+     missão condicional — a rotação, os meios aéreos, o ponto de trânsito — aparece e
+     desaparece conforme o dispositivo, e com chave posicional a M4 do PEA n.º 4 não era a
+     M4 do n.º 5. Era o mesmo defeito que se corrigiu nas propostas, deixado por corrigir
+     aqui. O recurso ao texto fica para as missões que uma pessoa escreveu à mão. */
+  (ops.missoes||[]).forEach((x,i)=>out.push({k:x.ch || chaveDoTexto(x.texto||""), ord:"M"+(i+1),
     tipo:x.tipo||"Missão", texto:x.texto||"", estado:0}));
   (ops.propostas||[]).forEach(x=>out.push({k:x.ch || chaveDoTexto(x.texto||""), ord:x.id||"P",
     tipo:"Proposta", texto:x.texto||"", estado:0}));
   return out;
+}
+
+/**
+ * As propostas genéricas que uma proposta específica torna dispensável — ou faz mentir.
+ *
+ * Um PEA com sete prioridades táticas em que duas dizem a mesma coisa por palavras
+ * diferentes não é um plano mais completo: é um plano mais difícil de executar, e quem o lê
+ * às três da manhã tem de decidir qual das duas manda. Pior ainda quando a genérica
+ * **contradiz** a específica, que é o caso das duas abaixo.
+ *
+ * A retirada **não é silenciosa**. Uma proposta que desaparece sem rasto é indistinguível
+ * de uma que ninguém pensou, e o plano passa a dizer menos do que sabe. O que sai fica
+ * registado em `retiradas` e é escrito no documento, com a específica que a substituiu.
+ *
+ * **Cada par declara o seu porquê, e o porquê é auditado.** Sem isso, isto seria um sítio
+ * onde alguém apaga uma proposta incómoda com aparência de método.
+ */
+const SUBSTITUICOES = [
+  { gen:"DEFENSIVA", esp:"LIM-INTERDITO",
+    porque:"«Postura defensiva fora da janela» diz, por contraste, que dentro da janela a "
+      +"postura não é defensiva. Com a cabeça interdita acima dos 4 000 kW/m não há postura "
+      +"ofensiva à cabeça a hora nenhuma, e a genérica enfraquece a interdição em vez de a "
+      +"acompanhar. A segunda metade — sem ataque direto descendente com vento de drenagem "
+      +"— já está por extenso na lista de segurança, e essa não se retira." },
+  { gen:"M-RENDICOES", esp:"RENDICAO-VENCIDA",
+    porque:"«Rendições faseadas no início e fecho da janela» é a cadência normal. Havendo "
+      +"equipas com o tempo de empenhamento já vencido, mandar esperar pelo fecho da janela "
+      +"é mandar manter no terreno quem devia já ter saído. A proposta específica nomeia-as "
+      +"e manda rendê-las agora." },
+];
+
+/**
+ * Retira as genéricas que uma específica presente substitui, e diz quais foram.
+ *
+ * As chaves procuram-se nas duas listas ao mesmo tempo — uma proposta pode substituir uma
+ * missão e vice-versa, porque a redundância não conhece a fronteira entre o plano e as
+ * ordens. É a mesma fronteira do art. 46.º, e ela reparte o documento, não o raciocínio.
+ */
+function retirarGenericas(propostas, missoes){
+  const presentes = new Set(propostas.concat(missoes).map(x=>x.ch).filter(Boolean));
+  const retiradas = [];
+  const filtra = lista => lista.filter(x=>{
+    const sub = SUBSTITUICOES.find(y=>y.gen === x.ch && presentes.has(y.esp));
+    if(!sub) return true;
+    retiradas.push({ ch:x.ch, esp:sub.esp, porque:sub.porque, texto:x.texto });
+    return false;
+  });
+  return { propostas:filtra(propostas), missoes:filtra(missoes), retiradas };
+}
+
+/**
+ * A linha que diz o que foi retirado do plano e porquê.
+ *
+ * **Existe para que a retirada seja uma decisão visível e não um desaparecimento.** Quem lê
+ * o PEA impresso tem de poder verificar que a genérica saiu porque outra a cobre melhor, e
+ * não porque alguém a achou incómoda. Vazio quando não se retirou nada — uma secção sempre
+ * presente e quase sempre vazia treina quem lê a saltá-la.
+ */
+function textoRetiradas(retiradas){
+  const R = Array.isArray(retiradas)? retiradas : [];
+  if(!R.length) return "";
+  return '<div class="pd-ret"><b>Retirado por proposta mais específica</b>'
+    + R.map(x=>'<p>' + esc(x.texto) + ' <span class="fund">Substituída por ' + esc(x.esp)
+        + ': ' + esc(x.porque) + '</span></p>').join("")
+    + '</div>';
 }
 
 /**
@@ -10496,7 +10954,7 @@ function detDecisao(novas, anterior){
     const partes = (m.t_max.d||"").split("/");
     const sufixo = partes.length===3 ? MES[(+partes[1])-1]+partes[2].slice(2) : "";
     return partes[0]+fimJ.replace("h","").padStart(2,"0")+"00"+sufixo; })();
-  return {
+  const bruto = {
     propostas:[
       /* Limite de manobra antes de tudo o resto. O número existe, tem fonte e tem origem
          declarada; deixá-lo fora do plano para repetir uma regra genérica era a falha que
@@ -10546,7 +11004,12 @@ function detDecisao(novas, anterior){
       m.rotacoes.length&&{id:"P3", ch:"ROTACAO",texto:`Liquidação de pontos quentes concluída antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`,fundamento:"Após a rotação, o bordo a sotavento pode virar cabeça."},
       {id:"P4", ch:"SENSIVEIS-PLANO",texto:`Defesa perimétrica dos pontos sensíveis (${O.dados.sensiveis||"a validar pelo ERAS"}), confinamento/evacuação em articulação com SMPC, INEM, CVP e GNR.`,fundamento:"Art. 8.º, n.º 2, als. l) e m) do Despacho 4067/2024."},
       m.convectivo.length&&{id:"P5", ch:"CONVECTIVO",texto:`Vigilância convectiva desde 2 h antes de ${m.convectivo[0].h}; retirada de zonas alinhadas se confirmada trovoada.`,fundamento:"Precipitação residual com rotação — assinatura convectiva."},
-      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas; rendições no início e fecho da janela.`,/* Sem previsão carregada, `t_max` vem a «—» e o fundamento saía «Máxima de — °C em
+      /* A cláusula das rendições sai quando há equipas com o tempo já vencido: mandar
+         esperar pelo fecho da janela seria contradizer a proposta que manda rendê-las
+         agora. As vigias e a cadência de pontos de situação não dependem disso e ficam —
+         é por isso que esta se estreita em vez de ser retirada por `SUBSTITUICOES`. */
+      {id:"P6", ch:"VIGIA",texto:`Vigias em todos os ${r.setores.length||""} setores; pontos de situação de 3 em 3 horas`
+        +(r.excedidas.length? "." : "; rendições no início e fecho da janela."),/* Sem previsão carregada, `t_max` vem a «—» e o fundamento saía «Máxima de — °C em
            — — a fase crítica exige equipas frescas», num documento aprovado. Um fundamento
            que não se lê é pior do que um fundamento genérico: parece que houve leitura. */
         fundamento: m.t_max.v === "—"
@@ -10558,7 +11021,7 @@ function detDecisao(novas, anterior){
        declarada na regra e atravessa revisões — é ela que responde a «cumprimos aquilo?»
        quando o plano já vai na quinta versão. Confundir as duas foi o defeito: o controlo
        de execução usava o número da posição, e P3 no PEA n.º 4 não era P3 no n.º 5. */
-    ].filter(Boolean).map((p,i)=>({...p, id:"P"+(i+1)})),
+    ].filter(Boolean),
     objetivo: r.reativados.length
       ? `${P.verbo} a reativação em ${nomes(r.reativados)} e restabelecer o perímetro${P.fecho? " "+P.fecho:""}${jan? ", com empenho da reserva na janela "+jan.inicio+"–"+jan.fim:""}.`
       : (r.nAtivos===0 && r.setores.length
@@ -10566,7 +11029,7 @@ function detDecisao(novas, anterior){
         : (jan? `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""} e fechar o perímetro${P.fecho? " "+P.fecho:""} até às ${jan.fim} de ${m.t_max.d}, com empenho da reserva na janela ${jan.inicio}–${jan.fim}.`
               : `${P.verbo} as frentes ativas${r.ativos.length? " em "+nomes(r.ativos):""}${P.fecho? ", "+P.fecho+",":""} e proteger aglomerados até revisão do PEA.`)),
     missoes:[
-      {tipo:"Ação decisiva",
+      {tipo:"Ação decisiva", ch:"M-DECISIVA",
         /* O verbo e o modo de fecho vêm da postura, e a razão vai com eles: quem lê a ação
            decisiva tem de saber porque é «conter» e não «dominar», sem ter de a cruzar com
            as propostas mais abaixo. */
@@ -10578,11 +11041,18 @@ function detDecisao(novas, anterior){
         atribuida: r.reativados.length? "Setor"+(r.reativados.length>1?"es":"")+" "+nomes(r.reativados)+" + Reserva"
                  : (r.ativos.length? "Setor"+(r.ativos.length>1?"es":"")+" "+nomes(r.ativos)+" + Reserva" : "Setores empenhados + Reserva"),
         gdh:gdhLim},
-      {tipo:"Ação de moldagem", texto:"Defesa preventiva dos aglomerados expostos; contenção defensiva no período noturno.", atribuida:"Setor da frente ativa + meios de proteção civil", gdh: jan? gdhLim:"______"},
-      m.rotacoes.length? {tipo:"Ação de moldagem", texto:`Liquidação dos pontos quentes antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`, atribuida:"Setores em consolidação", gdh:"______"}:null,
-      r.aereos? {tipo:"Ação de moldagem", texto:`Meios aéreos (${r.aereos} no TO): último ciclo nas frentes ativas até ao ocaso; reativação ao nascer do sol.`, atribuida:"Meios aéreos — OPAR/COPAR", gdh:"______"}:null,
-      r.PT.des? {tipo:"Ação de moldagem", texto:`Controlo das entradas e saídas pelo ponto de trânsito em ${r.PT.des}; missão atribuída a cada equipa nos primeiros 15 minutos.`, atribuida:r.PT.resp||"Ponto de trânsito", gdh:"______"}:null,
-      {tipo:"Ação de moldagem", texto:"Rendições faseadas com meios frescos no início e fecho da janela; reposicionamento antes da rotação.", atribuida:"Todos os setores + Reserva", gdh:"______"}
+      /* Uma ação que não nomeia ninguém não é uma ação específica — art. 46.º, n.º 1.
+         Os aglomerados vêm do que está registado; não havendo nada registado, diz-se isso
+         em vez de se mandar defender «os expostos», que não identifica coisa nenhuma. */
+      {tipo:"Ação de moldagem", ch:"M-AGLOMERADOS",
+        texto: (O.dados.sensiveis||"").trim()
+          ? `Defesa preventiva de ${String(O.dados.sensiveis).trim()}; contenção defensiva no período noturno.`
+          : "Reconhecimento e listagem dos aglomerados expostos antes de lhes atribuir defesa preventiva: nenhum está registado na ocorrência. Contenção defensiva no período noturno.",
+        atribuida:"Setor da frente ativa + meios de proteção civil", gdh: jan? gdhLim:"______"},
+      m.rotacoes.length? {tipo:"Ação de moldagem", ch:"M-ROTACAO", texto:`Liquidação dos pontos quentes antes da rotação de ${m.rotacoes[m.rotacoes.length-1].h}.`, atribuida:"Setores em consolidação", gdh:"______"}:null,
+      r.aereos? {tipo:"Ação de moldagem", ch:"M-AEREOS", texto:`Meios aéreos (${r.aereos} no TO): último ciclo nas frentes ativas até ao ocaso; reativação ao nascer do sol.`, atribuida:"Meios aéreos — OPAR/COPAR", gdh:"______"}:null,
+      r.PT.des? {tipo:"Ação de moldagem", ch:"M-PONTO-TRANSITO", texto:`Controlo das entradas e saídas pelo ponto de trânsito em ${r.PT.des}; missão atribuída a cada equipa nos primeiros 15 minutos.`, atribuida:r.PT.resp||"Ponto de trânsito", gdh:"______"}:null,
+      {tipo:"Ação de moldagem", ch:"M-RENDICOES", texto:"Rendições faseadas com meios frescos no início e fecho da janela; reposicionamento antes da rotação.", atribuida:"Todos os setores + Reserva", gdh:"______"}
     ].filter(Boolean),
     seguranca:["Protocolo LACES e EPI florestal obrigatórios em todos os setores.",
       /* A distância deixa de ser princípio e passa a ser número. É a diferença entre uma
@@ -10596,6 +11066,18 @@ function detDecisao(novas, anterior){
       "Trabalho noturno: iluminação individual, movimentação em equipa, atenção a árvores enfraquecidas."],
     validade: jan? `Validade até ${jan.fim}; revisão obrigatória no fecho da janela, a cada rotação observada e a cada agravamento registado.` : "Validade máxima 6 h; revisão a cada alteração do vento."
   };
+  /* As genéricas saem depois de tudo composto, e não durante: uma específica pode nascer de
+     um ramo que só se avalia mais abaixo na lista, e filtrar a meio deixaria passar a
+     genérica por a específica ainda não existir no momento do teste. */
+  const limpo = retirarGenericas(bruto.propostas, bruto.missoes);
+  /* A numeração de apresentação refaz-se **depois** da retirada. `P3` tem de ser o terceiro
+     item do documento impresso; com a renumeração antes, ficava um buraco onde a genérica
+     esteve e o papel saltava de P2 para P4. */
+  return Object.assign(bruto, {
+    propostas: limpo.propostas.map((p,i)=>({...p, id:"P"+(i+1)})),
+    missoes: limpo.missoes,
+    retiradas: limpo.retiradas,
+  });
 }
 
 /* Repartição determinística pela fronteira do Despacho n.º 4067/2024: tudo o que é
@@ -10604,7 +11086,8 @@ function detCompleto(novas, anterior){
   const a = detSituacao(novas, anterior), b = detDecisao(novas, anterior);
   return {
     pea: {situacao:a.situacao, analise_zi:a.analise_zi, previsao:a.previsao,
-          objetivo:b.objetivo, propostas:b.propostas, seguranca:b.seguranca, validade:b.validade},
+          objetivo:b.objetivo, propostas:b.propostas, retiradas:b.retiradas,
+          seguranca:b.seguranca, validade:b.validade},
     ordens: {missoes:b.missoes}
   };
 }
@@ -12265,7 +12748,13 @@ function retratoDoFogo(){
     detetados: { total:det.length, porValidar: porValidar.map(x=>x.nome+" a "+x.dist+" m") },
     carta: {
       servico: (typeof CARTA !== "undefined" && CARTA)? (CARTA.atrib || CARTA.tipo || "declarado") : "",
-      local: (typeof CARTA_LOCAL !== "undefined" && CARTA_LOCAL)? (CARTA_LOCAL.atrib || "sem origem declarada") : ""
+      local: (typeof CARTA_LOCAL !== "undefined" && CARTA_LOCAL)? (CARTA_LOCAL.atrib || "sem origem declarada") : "",
+      /* As folhas de carta calibradas. Cada uma diz de onde veio e quantos pontos a
+         fixaram: uma posição lida por cima de uma folha vale o que valer a colocação
+         dessa folha, e quem lê o plano tem de o poder aferir. */
+      folhas: (typeof FOLHAS !== "undefined"? FOLHAS : []).map(f=>({
+        nome:f.nome, grelha:f.grelha, proveniencia:f.proveniencia, pontos:f.pontos,
+        fora: !!f.foraDoEnvelope }))
     },
     previsao: { fonte:M.fonte||"", modelo:M.modelo||"", g:M.g||"",
       idadeH: id? Math.round(id.h*10)/10 : null, velha: !!(id && id.velha) }
@@ -12326,6 +12815,9 @@ function resumoDoFogo(f){
   const c = [];
   if(f.carta.servico) c.push("serviço declarado: " + f.carta.servico);
   if(f.carta.local) c.push("carta pré-descarregada: " + f.carta.local);
+  (f.carta.folhas||[]).forEach(fo=>c.push("folha calibrada " + fo.nome + " ("
+    + (fo.pontos? fo.pontos + " pontos de controlo" : "ficheiro de referenciação")
+    + ", " + fo.proveniencia + (fo.fora? "; fora do envelope do continente":"") + ")"));
   p.push(c.length? "Cartografia em uso — " + c.join("; ") + "."
     : "Sem cartografia declarada: as posições deste plano não têm base cartográfica identificada.");
 
@@ -12462,6 +12954,390 @@ function coerenciaDoPlano(plano, F){
   }
   return { postura:p.k, falhas };
 }
+/* ================= PLANEAMENTO · folhas de carta calibradas ================= */
+/**
+ * Uma imagem de carta colocada no terreno, para se poder desenhar por cima dela.
+ *
+ * O PCO trabalha com cartas em papel e com fotografias delas. Uma captura de ecrã da carta
+ * militar, um recorte de um PDF, a folha que alguém fotografou na parede — nenhuma dessas
+ * imagens sabe onde está. Este módulo dá-lhes coordenadas, por duas vias que o utilizador
+ * escolhe conforme o que tem à mão: o ficheiro de referenciação que acompanha a imagem
+ * quando ela veio de um sistema de informação geográfica, ou dois pontos que alguém
+ * reconhece na imagem e cuja coordenada sabe.
+ *
+ * Absorvido do trabalho da linhagem paralela em 2 de setembro, e **reimplementado a partir
+ * das 53 asserções do guião `t0001` do ramo #002, não traduzido do remendo** — a tradução
+ * de remendos custou três defeitos em três tentativas, e o argumento de que os testes
+ * atravessam e os remendos não estava certo.
+ */
+
+/* A convenção do ficheiro de referenciação, seis linhas na ordem A, D, B, E, C, F. Fica
+   declarada porque a ordem não é adivinhável: as duas do meio são a rotação, e trocá-las
+   com as da escala põe a folha de lado sem dar erro nenhum. */
+const LINHAS_REFERENCIACAO = ["A", "D", "B", "E", "C", "F"];
+
+/**
+ * Lê um ficheiro de referenciação e devolve os seis coeficientes, ou nada.
+ *
+ * **A vírgula decimal é recusada, não interpretada.** Um `parseFloat("2,5")` devolve 2 sem
+ * se queixar, e uma folha a 2 m/px em vez de 2,5 fica 20 % fora de escala — erro que só se
+ * vê quando já se mediu uma distância de segurança por cima dela. O ficheiro é um formato
+ * de máquina, com ponto decimal; quem o escreveu com vírgula escreveu-o mal, e é melhor
+ * dizê-lo do que adivinhar.
+ */
+function lerFicheiroReferenciacao(texto){
+  const linhas = String(texto == null? "" : texto).split(/\r?\n/).map(l=>l.trim()).filter(l=>l !== "");
+  if(linhas.length !== 6) return null;
+  const out = {};
+  for(let i = 0; i < 6; i++){
+    if(!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(linhas[i])) return null;
+    const v = Number(linhas[i]);
+    if(!isFinite(v)) return null;
+    out[LINHAS_REFERENCIACAO[i]] = v;
+  }
+  return out;
+}
+
+/**
+ * Deriva os seis coeficientes de dois pontos que alguém reconheceu na imagem.
+ *
+ * Dois pontos dão uma **semelhança** — escala igual nos dois eixos, mais rotação — e não
+ * uma afim geral: com quatro graus de liberdade não se determinam seis. É por isso que
+ * `|A|` e `|E|` saem iguais, e é honesto que assim seja: fingir uma afim a partir de dois
+ * pontos seria inventar duas grandezas que ninguém mediu.
+ *
+ * @param {{px:number,py:number,E:number,N:number}} p1
+ * @param {{px:number,py:number,E:number,N:number}} p2
+ */
+function calibrarPorDoisPontos(p1, p2){
+  if(!p1 || !p2) return null;
+  const dpx = p2.px - p1.px, dpy = p2.py - p1.py;
+  const dE = p2.E - p1.E, dN = p2.N - p1.N;
+  if(!isFinite(dpx) || !isFinite(dpy) || !isFinite(dE) || !isFinite(dN)) return null;
+  const d2 = dpx*dpx + dpy*dpy;
+  if(d2 === 0) return null;                       /* mesmo pixel: não há escala */
+  if(dE === 0 && dN === 0) return null;           /* mesmo ponto no terreno: a folha colapsa */
+  /* A imagem tem o eixo vertical invertido face ao terreno: `py` cresce para baixo e o
+     Norte decresce. A semelhança que respeita essa inversão é [[a, b], [b, -a]], e é ela
+     que dá `E` negativo sem rotação — como o ficheiro de referenciação escreve. */
+  const a = (dE*dpx - dN*dpy) / d2;
+  const b = (dE*dpy + dN*dpx) / d2;
+  const w = { A:a, D:b, B:b, E:-a, C:0, F:0 };
+  w.C = p1.E - (w.A*p1.px + w.B*p1.py);
+  w.F = p1.N - (w.D*p1.px + w.E*p1.py);
+  return w;
+}
+
+/* O envelope do continente em PT-TM06, alargado face ao que a DGT declara na altimetria:
+   uma folha na fronteira ou nas ilhas não é um erro, e por isso isto avisa e não recusa. */
+const ENVELOPE_PTTM06 = { eMin:-130000, eMax:165000, nMin:-302000, nMax:280000 };
+
+/**
+ * Coloca uma folha no terreno, ou recusa a descrição e diz que não.
+ *
+ * Recusa quatro coisas, e nenhuma por gosto de recusar: sem `id` a escrita na base falha
+ * em silêncio, porque a loja tem `keyPath`; sem grelha declarada não se sabe em que
+ * projeção estão os seis números, e os ficheiros não trazem essa informação; sem
+ * proveniência é uma imagem anónima a fazer de carta; e com determinante nulo não há
+ * inversa, e `paraPixel` devolveria infinito em vez de erro.
+ *
+ * **Fora do envelope avisa e deixa passar.** Recusar seria decidir por quem está no PCO
+ * que a folha está errada, quando pode ser dos Açores, da Madeira ou de Espanha.
+ */
+function folhaCalibrada(desc){
+  if(!desc || typeof desc !== "object") return null;
+  const m = desc.mundo;
+  if(!m || typeof m !== "object") return null;
+  if(!desc.id || !String(desc.id).trim()) return null;
+  if(!desc.grelha || !GRELHAS[desc.grelha]) return null;
+  if(!desc.proveniencia || !String(desc.proveniencia).trim()) return null;
+  const A = +m.A, D = +m.D, B = +m.B, E = +m.E, C = +m.C, F = +m.F;
+  if(![A, D, B, E, C, F].every(v=>isFinite(v))) return null;
+  const det = A*E - D*B;
+  if(!det) return null;
+  const larg = +desc.largura, alt = +desc.altura;
+  if(!(larg > 0) || !(alt > 0)) return null;
+
+  const folha = {
+    id: String(desc.id), nome: String(desc.nome || desc.id),
+    largura: larg, altura: alt,
+    mundo: {A, D, B, E, C, F},
+    grelha: desc.grelha,
+    proveniencia: String(desc.proveniencia),
+    /* Zero é o ficheiro de referenciação, dois é a calibração manual. Não é enfeite: a
+       confiança na colocação depende de quantos pontos a fixaram, e quem lê o retrato
+       precisa de saber se a folha veio medida ou declarada. */
+    pontos: Number(desc.pontos) || 0,
+    /* Os pontos que a fixaram, quando foi calibrada à mão. Guardam-se além da contagem
+       porque são o que permite **duvidar da colocação**: sem eles, a escala que sai dos
+       seis coeficientes não se pode confrontar com nada. Vazio quando veio de ficheiro de
+       referenciação, que não os tem. */
+    controlos: Array.isArray(desc.controlos)
+      ? desc.controlos.filter(p=>p && [p.px,p.py,p.E,p.N].every(v=>isFinite(+v)))
+          .map(p=>({px:+p.px, py:+p.py, E:+p.E, N:+p.N}))
+      : [],
+    /** O ponto do terreno que está debaixo deste pixel. */
+    paraMundo(px, py){ return { E: A*px + B*py + C, N: D*px + E*py + F }; },
+    /** O pixel da imagem que está por cima deste ponto do terreno. */
+    paraPixel(e, n){
+      const de = e - C, dn = n - F;
+      return { px: ( E*de - B*dn) / det, py: (-D*de + A*dn) / det };
+    },
+    /** Se o pixel cai dentro da imagem. Os limites são 0 a largura-1, como os índices. */
+    dentro(px, py){ return px >= 0 && py >= 0 && px <= larg-1 && py <= alt-1; },
+    /** Se esta folha se pode desenhar na grelha dada. Um mosaico desenhado não se reprojeta. */
+    compativel(k){ return desc.grelha === k; }
+  };
+  /* O aviso calcula-se dos quatro cantos e não do canto de referência: uma folha grande
+     pode ter o canto dentro e o resto fora. Só se afere em PT-TM06, que é a única grelha
+     cujo envelope se conhece. */
+  folha.foraDoEnvelope = desc.grelha === "pttm06" && [[0,0],[larg-1,0],[0,alt-1],[larg-1,alt-1]]
+    .some(([px,py])=>{ const p = folha.paraMundo(px,py);
+      return p.E < ENVELOPE_PTTM06.eMin || p.E > ENVELOPE_PTTM06.eMax
+          || p.N < ENVELOPE_PTTM06.nMin || p.N > ENVELOPE_PTTM06.nMax; });
+  return folha;
+}
+
+/* Acima desta divergência entre a escala plana da folha e a distância esférica entre os
+   pontos de controlo, a discordância deixa de se explicar pela diferença de modelo. Medida
+   numa folha do Douro: 0,19 %. Meio por cento é folga de mais do dobro sobre isso.
+
+   **Leia-se com cuidado o que esta verificação apanha, porque não é o que parece.** Numa
+   folha calibrada por dois pontos, a escala é *definida* por esses dois pontos: `mpp·dpx`
+   é identicamente a distância entre eles, e o confronto seria tautológico se os dois lados
+   viessem do mesmo sítio. Não vêm — um é plano em PT-TM06 e o outro é esférico —, e é só
+   essa diferença que se mede. Comprovado: um erro de 40 km no Este de um controlo leva o
+   desvio de 0,19 % a 0,25 %, e passa. **Isto não deteta uma coordenada mal escrita.**
+
+   O que deteta é a fundação: se `paraTM06`, `deTM06` ou `distanciaM` se partirem, os dois
+   modelos deixam de concordar e isto dispara. É por isso que existe, e é só isso que
+   promete. Uma primeira versão anunciava-a como quem confere as coordenadas escritas à
+   mão, e essa afirmação era falsa. */
+const AFERICAO_DESVIO_MAX = 0.005;
+
+/**
+ * A escala da folha, e o confronto entre os dois modelos que a medem.
+ *
+ * `mpp` sai do determinante: é o lado do terreno que um pixel cobre, e numa semelhança é o
+ * mesmo nos dois eixos. `esferico` é a distância entre os dois pontos de controlo medida
+ * pela via independente — a esférica de `distanciaM` —, e `desvio` é o quanto as duas
+ * discordam em proporção. Ver acima o que esse desvio apanha, que é menos do que parece.
+ *
+ * **Devolve nada, e nunca zero, quando não há por onde aferir.** Um `mpp` de 0, ou NaN,
+ * entra no ecrã como se fosse uma escala; não haver aferição tem de se distinguir de haver
+ * uma má, e é por isso que a ausência é `null` e não um número. Apontado pelo ramo #001.
+ *
+ * Sem pontos de controlo — folha vinda de ficheiro de referenciação — há `mpp` e não há
+ * confronto: `esferico` e `desvio` ficam nulos, que é a resposta honesta.
+ */
+function folhaAfericao(f){
+  if(!f || !f.mundo) return null;
+  const m = f.mundo, det = m.A*m.E - m.D*m.B;
+  if(!isFinite(det) || !det) return null;
+  /* **Metros da projeção não são metros do terreno**, e o Web Mercator é o caso extremo:
+     a 41° N infla 32,7 %, medido. Uma folha em Mercator a «25 m/px» cobre 18,8 m de
+     terreno por pixel, e quem medisse por cima dela errava um terço.
+
+     A r0086 devolvia a raiz do determinante e chamava-lhe m/px sem mais. Apanhado pelo
+     ramo #004, que mediu 33,1 % contra os 32,7 % que se reproduzem aqui — é a mesma coisa,
+     à latitude de ensaio. O PT-TM06 não tem este problema: é Transversa de Mercator com
+     fator de escala 1 no meridiano central, e no continente o desvio fica muito abaixo do
+     que uma folha de carta resolve. */
+  const mppProj = Math.sqrt(Math.abs(det));
+  const G = GRELHAS[f.grelha];
+  const centro = f.paraMundo? f.paraMundo((f.largura-1)/2, (f.altura-1)/2) : null;
+  const geo = (G && centro && G.metros)? gDeGrelha(G, centro.E, centro.N) : null;
+  /* O fator de escala do Web Mercator é 1/cos(φ) e varia ao longo da folha; toma-se no
+     centro e declara-se a latitude a que vale, em vez de se fingir um número único. */
+  const k = (f.grelha === "mercator" && geo)? 1/Math.cos(geo.lat*Math.PI/180) : 1;
+  const out = { mpp: mppProj/k, mppProj, escalaProj:k, latRef: geo? geo.lat : null,
+                esferico:null, desvio:null, suspeita:false };
+  const c = f.controlos || [];
+  if(c.length !== 2 || f.grelha !== "pttm06") return out;
+  const dpx = Math.hypot(c[1].px - c[0].px, c[1].py - c[0].py);
+  if(!dpx) return out;
+  const a = deTM06(c[0].E, c[0].N), b = deTM06(c[1].E, c[1].N);
+  const esf = distanciaM(a.lat, a.lon, b.lat, b.lon);
+  if(!esf) return out;
+  out.esferico = esf;
+  out.desvio = Math.abs(out.mpp*dpx - esf) / esf;
+  out.suspeita = out.desvio > AFERICAO_DESVIO_MAX;
+  return out;
+}
+
+/* As folhas colocadas nesta sessão. Vive fora de `O` de propósito: a imagem de uma folha
+   pesa megabytes e não cabe no pacote da ocorrência, que viaja por ficheiro de texto. O
+   que fica gravado é a colocação, na loja `folhas` da base; a imagem volta a ser escolhida
+   por quem abre a aplicação, tal como a carta pré-descarregada. */
+let FOLHAS = [];
+
+/** A colocação de uma folha, sem a imagem — é isto que se grava e que se lê de volta. */
+function colocacaoDaFolha(f){
+  return { id:f.id, nome:f.nome, largura:f.largura, altura:f.altura,
+           mundo:f.mundo, grelha:f.grelha, proveniencia:f.proveniencia,
+           pontos:f.pontos, controlos:f.controlos };
+}
+
+/** Guarda a colocação das folhas, para que uma folha calibrada não se perca ao fechar. */
+async function guardarFolhas(){
+  try{
+    await _idb("folhas", "readwrite", st=>st.clear());
+    for(const f of FOLHAS) await _idb("folhas", "readwrite", st=>st.put(colocacaoDaFolha(f)));
+  }catch(e){}
+}
+
+/**
+ * Traz de volta as folhas colocadas numa sessão anterior.
+ *
+ * A imagem não volta — só a colocação. Uma folha sem imagem continua a valer: diz onde
+ * está, aparece no retrato com a sua proveniência, e basta escolher outra vez o ficheiro
+ * para voltar a desenhar-se.
+ */
+async function carregarFolhas(){
+  let guardadas = null;
+  try{ guardadas = await _idb("folhas", "readonly", st=>st.getAll()); }catch(e){ return; }
+  if(!Array.isArray(guardadas)) return;
+  FOLHAS = guardadas.map(x=>folhaCalibrada(x)).filter(Boolean);
+}
+
+/** O número escrito num campo, com vírgula ou ponto, ou nada quando o campo não tem número. */
+function numFolha(id){
+  const v = String(($(id) && $(id).value) || "").trim().replace(",", ".");
+  if(v === "") return null;
+  const n = Number(v);
+  return isFinite(n)? n : null;
+}
+
+/** Lê um ficheiro escolhido como texto, para o ficheiro de referenciação. */
+function lerTextoDoFicheiro(f){
+  return new Promise(resolve=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(String(r.result || ""));
+    r.onerror = ()=>resolve("");
+    r.readAsText(f);
+  });
+}
+
+/**
+ * Lê a imagem escolhida e mede-a.
+ *
+ * A largura e a altura vêm da imagem e não de campos: são as únicas duas grandezas desta
+ * operação que não se pedem a ninguém, porque estão no ficheiro. Pedi-las seria convidar
+ * a um engano que ninguém detetaria — uma folha declarada com mais pixéis do que tem fica
+ * encolhida no mapa sem dar erro.
+ */
+function lerImagemDaFolha(f){
+  return new Promise(resolve=>{
+    const r = new FileReader();
+    r.onload = ()=>{
+      const url = String(r.result || "");
+      const im = new Image();
+      im.onload = ()=>resolve({ url, largura:im.naturalWidth || im.width, altura:im.naturalHeight || im.height });
+      im.onerror = ()=>resolve(null);
+      im.src = url;
+    };
+    r.onerror = ()=>resolve(null);
+    r.readAsDataURL(f);
+  });
+}
+
+/**
+ * Coloca a folha que está no formulário, ou diz porque não a colocou.
+ *
+ * As recusas de `folhaCalibrada` são silenciosas por desenho — devolve `null` e não sabe
+ * quem a chamou. É aqui que se traduz em português o que faltou, porque é aqui que há
+ * alguém à espera de resposta.
+ */
+async function colocarFolha(){
+  const dizer = (t, txt)=>aviso("fo-msg", t, txt);
+  const fi = $("fo-img"), ff = $("fo-wf");
+  if(!fi || !fi.files || !fi.files.length) return dizer("err", "Escolhe a imagem da folha.");
+  const nome = String($("fo-nome").value || "").trim();
+  const prov = String($("fo-prov").value || "").trim();
+  if(!prov) return dizer("err", "Declara a proveniência: de onde veio esta imagem. Uma folha anónima a fazer de carta não entra.");
+
+  const im = await lerImagemDaFolha(fi.files[0]);
+  if(!im) return dizer("err", "Não foi possível ler a imagem.");
+
+  let mundo = null, pontos = 0, controlos = [];
+  if(ff && ff.files && ff.files.length){
+    mundo = lerFicheiroReferenciacao(await lerTextoDoFicheiro(ff.files[0]));
+    if(!mundo) return dizer("err", "O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
+  } else {
+    const p1 = {px:numFolha("fo-p1px"), py:numFolha("fo-p1py"), E:numFolha("fo-p1e"), N:numFolha("fo-p1n")};
+    const p2 = {px:numFolha("fo-p2px"), py:numFolha("fo-p2py"), E:numFolha("fo-p2e"), N:numFolha("fo-p2n")};
+    if([p1, p2].some(p=>Object.values(p).some(v=>v === null)))
+      return dizer("err", "Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
+    mundo = calibrarPorDoisPontos(p1, p2);
+    if(!mundo) return dizer("err", "Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
+    pontos = 2; controlos = [p1, p2];
+  }
+
+  const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
+    largura:im.largura, altura:im.altura, mundo, grelha:$("fo-grelha").value,
+    proveniencia:prov, pontos, controlos });
+  if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
+  f.img = im.url;
+  FOLHAS.push(f);
+  await guardarFolhas();
+  fita("Folha de carta colocada: "+f.nome+" ("+(pontos? pontos+" pontos de controlo" : "ficheiro de referenciação")
+    +", "+f.proveniencia+")"+(f.foraDoEnvelope? " — fora do envelope do continente":""));
+  pintarFolhas();
+  try{ pintarMapa(); }catch(e){}
+  const af = folhaAfericao(f);
+  /* O aviso é sobre a aritmética da aplicação, e não sobre o que o utilizador escreveu —
+     ver `AFERICAO_DESVIO_MAX`. Dizer-lhe para conferir as coordenadas seria mandá-lo
+     procurar um erro que esta conta não viu. */
+  if(af && af.suspeita) return dizer("err", "Folha colocada, mas os dois modelos de distância "
+    + "não concordam: a escala em PT-TM06 dá "
+    + (af.mpp*Math.hypot(controlos[1].px-controlos[0].px, controlos[1].py-controlos[0].py)).toFixed(0)
+    + " m entre os controlos e a medida esférica dá " + af.esferico + " m, "
+    + (af.desvio*100).toFixed(1) + " % de diferença. Não é a colocação: é a projeção. Comunicar.");
+  dizer("ok", "Folha colocada."+(f.foraDoEnvelope
+    ? " Cai fora do envelope do continente — pode ser das ilhas ou de Espanha, ou a colocação estar errada. Confere no mapa."
+    : ""));
+  persistir(false);
+}
+
+/** Retira uma folha do mapa e da base. A imagem não se guarda, e por isso não fica nada. */
+async function retirarFolha(id){
+  FOLHAS = FOLHAS.filter(f=>f.id !== id);
+  await guardarFolhas();
+  pintarFolhas();
+  try{ pintarMapa(); }catch(e){}
+}
+
+/** A lista das folhas colocadas, com o que permite duvidar de cada uma. */
+function pintarFolhas(){
+  const el = $("fo-lista"); if(!el) return;
+  if(!FOLHAS.length){ el.innerHTML = '<p class="hint" style="margin:0">Nenhuma folha colocada.</p>'; return; }
+  el.innerHTML = FOLHAS.map(f=>{
+    const g = GRELHAS[f.grelha];
+    /* Metros por pixel: sai do determinante, que é a área que um pixel cobre no terreno.
+       É o número por que se percebe, de relance, se a colocação faz sentido — uma folha a
+       0,004 m/px ou a 900 m/px está errada e vê-se sem abrir o mapa. */
+    const af = folhaAfericao(f);
+    /* A regra de `folhaAfericao` — ausência é nada, nunca zero — valia uma camada abaixo e
+       era violada aqui: `af? af.mpp : 0` imprimia «0,000 m/px», que é uma escala e não é
+       uma ausência. Apanhado pelo ramo #001. */
+    const escalaTxt = af
+      ? af.mpp.toFixed(3).replace(".", ",")+' m/px'
+        +(af.escalaProj > 1.001? ' no terreno ('+af.mppProj.toFixed(3).replace(".", ",")
+          +' m de projeção a '+af.latRef.toFixed(2).replace(".", ",")+'° N)' : "")
+      : 'escala por apurar';
+    return '<div class="pk-r"><span class="k">'+esc(f.nome)+'</span><span class="v">'
+      + f.largura+'×'+f.altura+' px · '+escalaTxt+' · '+esc(g? g.n : f.grelha)
+      + ' · '+(f.pontos? f.pontos+' pontos de controlo' : 'ficheiro de referenciação')
+      + ' · '+esc(f.proveniencia)
+      + (f.foraDoEnvelope? ' <span class="pend">fora do envelope do continente</span>' : "")
+      + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+(af.desvio*100).toFixed(1)+' %</span>' : "")
+      + (f.img? "" : ' <span class="pend">sem imagem nesta sessão — volta a escolhê-la para a desenhar</span>')
+      + ' <button class="lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
+  }).join("");
+  el.querySelectorAll("[data-fo-rem]").forEach(b=>b.addEventListener("click", ()=>retirarFolha(b.dataset.foRem)));
+}
+
+$("fo-colocar").addEventListener("click", colocarFolha);
 /* ================= OPERAÇÕES · setorização do TO (art. 17.º, al. d)) ================= */
 /**
  * Muda o estado de um setor pelo caminho único, seja qual for a porta por onde a
@@ -15777,7 +16653,7 @@ function pendenciasCelula(k){
       push("Meteorologia", (SERIE && SERIE.length)? SERIE.length+" horas carregadas" : "sem previsão carregada");
       push("Pontos sensíveis", O.dados.sensiveis || "por identificar");
       const esp = nomeado("Núcleo de Especialistas");
-      push("Núcleo de especialistas", esp? ("ativado — "+(esp.nome||"sem nome")) : "não ativado (art. 30.º; DON 2, 7.e.(27))");
+      push("Núcleo de especialistas", esp? ("ativado — "+(esp.nome||"sem nome")) : "não ativado (art. 30.º; DON 2, 7.d.(27))");
     }
     if(k==="operacoes"){
       const e = estObj();
@@ -16084,6 +16960,7 @@ window.verPEA = function(n){
         </div>
         <div class="pd pd-plan"><span class="pt">Célula de Planeamento · <b>Prioridades táticas</b></span>
           ${(plan.propostas||[]).map(x=>`<div class="pd-p"><span class="pid">${esc(x.id)}</span>${esc(x.texto)}<span class="fund">Fundamento: ${esc(x.fundamento||"")}</span></div>`).join("")}
+          ${textoRetiradas(plan.retiradas)}
         </div>
         ${(p.don&&p.don.filter(x=>x.n!=="ok").length)? `<div class="pd pd-ops"><span class="pt">Verificações de conformidade · <b>DON n.º 2 / DECIR 2026</b></span>
           <div class="pd-body">${p.don.filter(x=>x.n!=="ok").map(x=>`<div class="pd-don ${x.n}">
@@ -16165,6 +17042,7 @@ window.verPEA = function(n){
           <div class="cel-row"><div class="cel-lab">Objetivo</div><div class="cel-con"><div class="obj2"><span class="al">Objetivo:</span> ${esc(plan.objetivo||"")}</div></div></div>
           <div class="cel-row"><div class="cel-lab">Prioridades táticas</div><div class="cel-con">
             ${(plan.propostas||[]).map(x=>`<p><span class="pid2">${esc(x.id)}</span> — ${esc(x.texto)} <span class="fund2">Fundamento: ${esc(x.fundamento||"")}</span></p>`).join("")}
+            ${textoRetiradas(plan.retiradas)}
           </div></div>
           <div class="cel-row"><div class="cel-lab">Segurança das forças</div><div class="cel-con">
             ${(plan.seguranca||[]).map(x=>`<p>• ${esc(x)}</p>`).join("")}
@@ -16288,6 +17166,10 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   /* A carta pré-descarregada também é definição do posto: sem esta leitura, a grelha da
      árvore guardada perdia-se ao fechar a página e o mapa voltava a desenhá-la errada. */
   try{ await carregarFocosURL(); }catch(e){}
+  /* As folhas calibradas são colocação, não imagem: o que volta é onde cada uma está, e a
+     imagem escolhe-se outra vez. Uma folha sem imagem continua a valer — diz onde está e
+     aparece no retrato —, e por isso lê-se sempre, mesmo sabendo que não se vai desenhar. */
+  try{ await carregarFolhas(); pintarFolhas(); }catch(e){}
   try{
     await carregarCartaLocal();
     if(CARTA_LOCAL){

@@ -105,9 +105,13 @@ export default [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        // Global em Node desde a v11, e usado nos testes para deixar correr a fila de
+        // microtarefas antes de afirmar sobre o que uma promessa já resolveu.
+        queueMicrotask: 'readonly',
         // O código dentro de page.evaluate() corre no navegador, não em Node.
         window: 'readonly',
         document: 'readonly',
+        indexedDB: 'readonly',
         structuredClone: 'readonly',
         Response: 'readonly',
       },
