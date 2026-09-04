@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,7 +82,7 @@
   .hacts .btn{white-space:nowrap;flex:none}
   .hacts .sinal{flex:none}
   .flame{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--fogo) 0%,var(--laranja) 100%);color:#FFF7EF;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:1.5px;box-shadow:0 3px 10px rgba(200,80,60,.35), inset 0 1px 0 rgba(255,255,255,.28);border:1px solid rgba(0,0,0,.12);flex:none}
-  .htit{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.2px;flex:none;white-space:nowrap;margin:0}
+  .htit{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.2px;flex:none;white-space:nowrap}
   .htit small{display:block;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx2);margin-top:3px;white-space:nowrap}
   @media(max-width:1500px){.htit small{letter-spacing:.8px;font-size:10.5px}}
   @media(max-width:1240px){.htit{font-size:20px}.htit small{display:none}}
@@ -481,18 +481,11 @@
   .c-verde{color:var(--verde)}.c-verm{color:var(--vermelho)}.c-lar{color:var(--laranja)}.c-am{color:var(--amarelo)}
 
   /* histórico PEA */
-  /* As tres classes seguintes sao usadas em <button>. O botao traz tipo de letra, cor,
-     alinhamento e largura proprios do agente, e sem esta reposicao um <button class="pea-li">
-     nao fica igual ao <div class="pea-li"> que substituiu. Eram div e span com onclick:
-     nao se alcancavam pelo teclado, nao tinham papel nem nome, e a lista de propostas de
-     PEA era pura e simplesmente inacessivel a quem nao usa rato. */
-  .pea-li,.geo-c,.tchip{font:inherit;color:inherit;text-align:left;width:auto}
-  .pea-li:focus-visible,.geo-c:focus-visible,.tchip:focus-visible{outline:2px solid var(--agua);outline-offset:2px}
-  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer;width:100%}
+  .pea-li{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:var(--surf2);margin-bottom:10px;cursor:pointer}
   .pea-li:hover{border-color:var(--azul)}
   .chk{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:10px 2px;font-size:14.5px}
   .chk:last-child{border-bottom:none}
-  .chk .est{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.5px;padding:3px 9px;border-radius:5px;min-width:112px;text-align:center;flex:none}
+  .chk .est{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.5px;padding:3px 9px;border-radius:5px;min-width:96px;text-align:center;flex:none}
   .est.ok{background:rgba(111,181,106,.16);color:var(--madeira);border:1px solid var(--madeira)}
   .est.falta{background:rgba(224,104,92,.14);color:var(--fogo);border:1px solid var(--fogo)}
   .est.rec{background:rgba(224,184,79,.12);color:var(--terra);border:1px solid var(--terra)}
@@ -824,13 +817,6 @@
   .pd-set .sm{font-family:var(--mono);font-weight:600;font-size:14px}
   .pd details{margin-top:8px}
   .pd summary{cursor:pointer;color:var(--tx2);font-size:13.5px}
-  /* A faixa das pinturas que rebentaram. Vive fora do <main> e acima de tudo: o que ela
-     diz é que parte do ecrã abaixo dela pode estar desatualizada, e uma faixa dessas
-     dentro do conteúdo que ela desmente não se lê. */
-  .pint-q{max-width:1460px;margin:10px auto 0;padding:9px 14px;border:1px solid var(--fogo);
-    border-left:3px solid var(--fogo);border-radius:8px;background:rgba(224,104,92,.10);
-    color:var(--fogo);font-size:12.5px;line-height:1.6}
-  @media(max-width:1100px){.pint-q{margin:10px 12px 0}}
   footer{margin-top:36px;font-size:12px;color:var(--tx3);text-align:center;line-height:1.7}
   /* Sem color-mix, de propósito: é o carimbo que diz que o color-mix não está disponível. */
   .min-nav{margin-top:28px;border:1px solid var(--laranja);border-radius:10px;
@@ -1038,7 +1024,7 @@
   <div class="hstrip"></div>
   <div class="hbar">
     <div class="flame">PEA</div>
-    <h1 class="htit">Estação PEA<small>CSREPC Douro · SGO 4067/2024 · DON 2/2026</small></h1>
+    <div class="htit">Estação PEA<small>CSREPC Douro · SGO 4067/2024 · DON 2/2026</small></div>
     <div class="hacts">
       <div class="occ-tag" id="occ-tag">sem ocorrência carregada</div>
       <button class="sinal v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span>Avisos<span class="qt" id="sinal-qt">0</span></button>
@@ -1055,10 +1041,9 @@
     <button data-p="p-turno" data-cel="turno" title="Continuidade em espelho e rotatividade de funções — DON n.º 2, ponto 7.d.(30)"><span class="rot">Passagem de turno</span></button>
   </nav>
 </header>
-<div class="pint-q" id="pint-q" style="display:none"></div>
 <div class="guia"><div class="guia-in" id="guia"><b>PRÓXIMO PASSO</b><span id="guia-txt">a carregar...</span><button class="btn btn-b" id="guia-ir" style="display:none">Ir</button></div></div>
 
-<main class="wrap">
+<div class="wrap">
 
   <!-- 1 OCORRÊNCIA -->
   <section class="pane on" id="p-comando">
@@ -2210,19 +2195,17 @@
     </div>
   </section>
 
-</main>
-<div class="wrap">
   <div id="min-nav" class="min-nav" style="display:none"></div>
   <footer>
     Proposta de apoio à decisão. <b>O PEA é determinado, aprovado e mantido pelo COS</b> (arts. 8.º, 27.º e 46.º do Despacho n.º 4067/2024 · DL n.º 90-A/2022).<br>
-    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0095</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0095_202609041931_EstacaoPEA_CLD.html</span>
+    Projeto do Núcleo de Apoio às Operações — CSREPC DOURO, realizado com a cooperação de Claude (Anthropic) · protótipo <b>r0093</b> · <span style="font-family:var(--mono);font-size:11px">CSREPCDouro_r0093_202609041726_EstacaoPEA_CLD.html</span>
   </footer>
 </div>
 
 <script>
 /* Carimbados pela montagem: a entrega de onde este código saiu. Vão no pacote exportado,
    para que um ficheiro se saiba sempre de que revisão veio. */
-const REVISAO_APP = "r0095", FICHEIRO_APP = "CSREPCDouro_r0095_202609041931_EstacaoPEA_CLD.html";
+const REVISAO_APP = "r0093", FICHEIRO_APP = "CSREPCDouro_r0093_202609041726_EstacaoPEA_CLD.html";
 
 /* ██████ NÚCLEO ██████ */
 /* ================= NÚCLEO · armazenamento =================
@@ -2417,54 +2400,6 @@ async function prepararArmazem(){
    sobe VERSAO_ESTADO em um. O índice i migra da versão i para a versão i+1.
    Declarado antes de `let O`, que corre no arranque e já precisa da versão. */
 const VERSAO_ESTADO = 26;
-
-/* As três chaves que não são dados, e o que cada uma faz — medido, não suposto.
-
-   `JSON.parse` cria-as como propriedades **próprias** e não dispara setter nenhum: o
-   pacote, em si, é inofensivo. O dano faz-se a seguir, no `Object.assign` da migração 0,
-   que copia por [[Set]]. Das três, só `__proto__` tem acessor no `Object.prototype`: um
-   `dados.topo.__proto__` no ficheiro troca o protótipo do objeto de destino, e o campo
-   que lá estiver passa a ser legível em `O.dados.topo` — comprovado, com o valor a sair
-   à superfície logo à saída do degrau 0. `constructor` e `prototype` não têm acessor e
-   entram como propriedades próprias banais; recusam-se na mesma, porque uma delas tapa
-   `x.constructor` para quem o leia, e porque três chaves numa lista custam o mesmo que
-   uma.
-
-   Duas coisas que isto **não** é, e que convém não crescerem na contagem de quem vier a
-   seguir. Não polui o `Object.prototype` global: o alvo do `Object.assign` é um objeto
-   novo, e medimos o global intacto antes e depois. E, na escada de hoje, o degrau 2 para
-   3 reconstrói o `dados.topo` e lava o protótipo trocado sem querer — isto é, o efeito
-   observável apaga-se por acidente do que os degraus seguintes fazem, e não por desenho.
-   É precisamente por ser por acidente que a porta se fecha aqui: o degrau que amanhã se
-   acrescentar ao fim da escada não tem de saber nada disto. */
-const CHAVES_RECUSADAS = ["__proto__", "constructor", "prototype"];
-
-/**
- * Tira de um estado as chaves que não são dados, e diz quantas tirou.
- *
- * **Tira, não recusa o ficheiro** — que é a doutrina desta aplicação em todo o lado onde
- * entra coisa de fora: num posto de comando, um registo com um campo estragado ainda é o
- * registo, e deitá-lo fora inteiro pode ser a diferença entre ter a ocorrência e não ter
- * nada. O que se recusa é a chave; a ocorrência entra, e quem importou fica a saber.
- *
- * Corrige no lugar. A profundidade é limitada por precaução: um pacote de JSON não tem
- * ciclos, mas o limite custa nada e a alternativa é uma pilha esgotada num PCO.
- *
- * @param {any} v ramo do estado, corrigido no lugar
- * @param {number} [prof] profundidade corrente
- * @returns {number} quantas chaves foram tiradas
- */
-function limparChavesRecusadas(v, prof){
-  const d = prof || 0;
-  if(!v || typeof v !== "object" || d > 40) return 0;
-  let n = 0;
-  if(Array.isArray(v)){ v.forEach(x=>{ n += limparChavesRecusadas(x, d+1); }); return n; }
-  CHAVES_RECUSADAS.forEach(k=>{
-    if(Object.prototype.hasOwnProperty.call(v, k)){ delete v[k]; n++; }
-  });
-  Object.keys(v).forEach(k=>{ n += limparChavesRecusadas(v[k], d+1); });
-  return n;
-}
 
 const MIGRACOES = [
   /* 0 -> 1 · Primeira versão numerada. Preenche contra os valores por omissão os
@@ -2683,13 +2618,6 @@ MIGRACOES.push(e => {
  */
 function migrarGravado(guardado){
   if(!guardado || typeof guardado!=="object") throw new Error("estado gravado ilegível");
-  /* Antes de qualquer migração, porque é a migração 0 que faz o `Object.assign` onde a
-     chave se torna perigosa. Aqui porque é o sítio por onde passam os três caminhos de
-     entrada — ficheiro importado, arquivo do dispositivo e cópia de recuperação — e um
-     estado envenenado numa revisão antiga continua no arquivo depois de a porta fechar.
-     A contagem devolve-se a quem importou por `lerPacoteOcorrencia`, que corre isto antes;
-     aqui a segunda passagem devolve zero e serve só de rede. */
-  limparChavesRecusadas(guardado, 0);
   const de = Number.isInteger(guardado.versao)? guardado.versao : 0;
   if(de > VERSAO_ESTADO){
     const erro = /** @type {Error & {futuro:number}} */ (new Error("gravado na versão "+de+"; esta revisão lê até à "+VERSAO_ESTADO));
@@ -2982,12 +2910,7 @@ const $ = id => document.getElementById(id);
  * tirar os dados de dentro do HTML concatenado, que é o trabalho de fundo — e não chega
  * sozinho onde o dado cai dentro de uma *string de JavaScript* num atributo `onclick`,
  * porque aí o navegador desfaz a entidade antes de o JavaScript ver o texto. Esses
- * sítios foram convertidos para `data-` e `addEventListener`. **Esta linha dizia «nenhum
- * resta» e estava errada:** restavam seis controlos com `onclick` embutido, em quatro
- * listas repintadas. Nenhum deles interpolava texto de campo — levavam índices e números
- * que a aplicação gera —, pelo que a afirmação sobre o XSS mantinha-se de pé; a
- * afirmação sobre a forma é que não. Saíram todos, e são hoje `<button>` ligados por
- * delegação em `ligarListasRepintadas`.
+ * sítios foram convertidos para `data-` e `addEventListener`; nenhum resta.
  */
 const ESCAPES = {"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;"};
 const esc = s => String(s??"").replace(/[<>&"']/g, c=>ESCAPES[c]);
@@ -4130,23 +4053,6 @@ function carimboFich(){ const d=new Date(agora()), p=n=>String(n).padStart(2,"0"
 /* ================= NÚCLEO · arrumação da casa e guia de preenchimento ================= */
 
 /**
- * Avalia uma condição de pendência que pode rebentar a meio.
- *
- * Falha **fechada**: o que não se conseguiu avaliar conta como por cumprir. Estava ao
- * contrário — um `catch` devolvia `true` — e a guia dava a pendência por satisfeita
- * exatamente quando não conseguia saber se estava. Num posto de comando é o sentido
- * errado do erro: o que se cala tem de ser o que falta, nunca o que já está feito.
- *
- * O motivo viaja em `erro` porque «falta preencher» e «não foi possível verificar» são
- * duas coisas diferentes, e a resposta de quem está ao teclado a cada uma também é: uma
- * pede um campo, a outra pede que se olhe para o que rebentou.
- */
-function avaliarPendencia(fn){
-  try{ return { ok: !!fn(), erro: "" }; }
-  catch(e){ return { ok: false, erro: String((e && e.message) || e).slice(0,120) }; }
-}
-
-/**
  * O que falta preencher, campo a campo.
  *
  * `el` é o identificador de um elemento que vive **dentro do cartão a que a pendência diz
@@ -4157,9 +4063,6 @@ function avaliarPendencia(fn){
  */
 function pendencias(){
   const v = id => $(id).value.trim();
-  /* As quatro pendências que se calculam a partir do estado, e não de um campo, avaliam-se
-     por `avaliarPendencia` — que falha fechada. Ver o comentário dessa função. */
-  const q = (c,p,ob,el,fn) => Object.assign({c:c, p:p, ob:ob, el:el}, avaliarPendencia(fn));
   return [
     {c:"N.º de ocorrência", ok:!!v("o-num"), p:"p-occ", ob:true, el:"o-num"},
     {c:"Local", ok:!!v("o-local"), p:"p-occ", ob:true, el:"o-local"},
@@ -4171,15 +4074,11 @@ function pendencias(){
     {c:"Setores e meios", ok:!!v("d-setores"), p:"p-fontes", ob:true, el:"d-setores"},
     {c:"Pontos sensíveis", ok:!!v("d-sensiveis"), p:"p-fontes", ob:false, el:"d-sensiveis"},
     {c:"Início da ocorrência (GDH)", ok:!!v("o-inicio"), p:"p-occ", ob:false, el:"o-inicio"},
-    q("Estrutura do PCO — funções exigíveis nomeadas", "p-pco", true, "pc-f",
-      ()=>funcoesExigiveis().every(x=>x.preenchida)),
-    q("Plano de comunicações — canal de comando", "p-pco", true, "br-gerar",
-      ()=>!!canaisObj().cmd || !(estObj().setores||[]).length),
-    q("Canais de manobra por setor", "p-pco", false, "br-gerar",
-      ()=>(estObj().setores||[]).every(x=>!!x.siresp)),
+    {c:"Estrutura do PCO — funções exigíveis nomeadas", ok:(()=>{ try{ return funcoesExigiveis().every(x=>x.preenchida); }catch(e){ return true; } })(), p:"p-pco", ob:true, el:"pc-f"},
+    {c:"Plano de comunicações — canal de comando", ok:(()=>{ try{ return !!canaisObj().cmd || !(estObj().setores||[]).length; }catch(e){ return true; } })(), p:"p-pco", ob:true, el:"br-gerar"},
+    {c:"Canais de manobra por setor", ok:(()=>{ try{ return (estObj().setores||[]).every(x=>!!x.siresp); }catch(e){ return true; } })(), p:"p-pco", ob:false, el:"br-gerar"},
     {c:"Meteograma analisado", ok:!!ANALISE, p:"p-meteo", ob:true, el:"m-horas"},
-    q("Evolução registada desde o último PEA", "p-evo", false, "evo-ctx",
-      ()=>O.peas.length===0 || evoDesdeUltimoPEA().length>0)
+    {c:"Evolução registada desde o último PEA", ok:O.peas.length===0||evoDesdeUltimoPEA().length>0, p:"p-evo", ob:false, el:"evo-ctx"}
   ];
 }
 /* ================= arrumação da casa por célula =================
@@ -4659,14 +4558,9 @@ function renderCheck(){
   const L = pendencias();
   const falta = L.filter(x=>!x.ok&&x.ob).length;
   $("chk-list").innerHTML = L.map(x=>{
-    /* Três estados, não dois. Uma pendência que não se conseguiu avaliar bloqueia como
-       uma que falta — falha fechada —, mas não se diz «em falta»: não é o campo que está
-       vazio, é a verificação que rebentou, e mandar preencher seria mandar para o sítio
-       errado. */
-    const cls = x.ok? "ok" : (x.erro? "falta" : (x.ob? "falta":"rec"));
-    const rot = x.ok? "COMPLETO" : (x.erro? "POR VERIFICAR" : (x.ob? "EM FALTA":"RECOMENDADO"));
-    const nota = x.erro? ` <span class="hint">não foi possível verificar: ${esc(x.erro)}</span>` : "";
-    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}${nota}</span>${(x.ok||x.erro)? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
+    const cls = x.ok? "ok" : (x.ob? "falta":"rec");
+    const rot = x.ok? "COMPLETO" : (x.ob? "EM FALTA":"RECOMENDADO");
+    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}</span>${x.ok? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
   }).join("") + (falta? `<p class="hint" style="margin-top:10px;color:var(--fogo)">Faltam ${falta} dados obrigatórios — o PEA não pode ser emitido sem eles.</p>`
                        : `<p class="hint" style="margin-top:10px;color:var(--madeira)">Dados obrigatórios completos — pronto para emitir.</p>`);
   /* Sem `onclick="irPara('...')"`: o destino é interno, mas a forma é a mesma que
@@ -4928,28 +4822,7 @@ function canonico(x){
   if(x === undefined) return "null";
   if(x === null || typeof x !== "object") return JSON.stringify(x);
   if(Array.isArray(x)) return "[" + x.map(canonico).join(",") + "]";
-  /* As chaves entram por `for...in`, e não por `Object.keys`.
-
-     `Object.keys` percorre só as chaves próprias, e isso abria um ponto cego no
-     carimbo: um objeto cujo protótipo tenha sido substituído carrega campos que se
-     leem no ecrã, se imprimem no PEA e saem na exportação, e que ficavam **fora do
-     resumo**. Medido antes de mudar: `{a:1}` e o mesmo objeto com um protótipo a
-     trazer `fantasma` davam o mesmo SHA-256, e o `fantasma` lia-se na mesma. O
-     carimbo dizia «confere» por cima de um documento com conteúdo que ninguém
-     escreveu — e o carimbo é o que este projeto oferece como prova de integridade.
-
-     `for...in` percorre próprias **e** herdadas enumeráveis. Num objeto normal isso
-     é exatamente o mesmo conjunto — o `Object.prototype` não tem nada enumerável —,
-     pelo que nenhum resumo já emitido muda. Num objeto adulterado passa a haver
-     diferença, que é o que se queria: o resumo cobre o que se lê.
-
-     Não se recusa nem se lança. Uma primeira tentativa lançava em vez de resumir, e
-     partia o encerramento da ocorrência num objeto vindo de outro contexto de
-     execução — que é plano e inofensivo. A porta de entrada fecha-se em
-     `limparChavesRecusadas`; aqui o trabalho é resumir tudo, não julgar. */
-  const chaves = [];
-  for(const k in x) chaves.push(k);
-  return "{" + chaves.sort()
+  return "{" + Object.keys(x).sort()
     .map(k => JSON.stringify(k) + ":" + canonico(x[k])).join(",") + "}";
 }
 
@@ -6451,16 +6324,10 @@ function lerPacoteOcorrencia(texto){
   if(!estado || typeof estado!=="object" || !estado.meta || typeof estado.meta!=="object"){
     throw new Error("o ficheiro não contém uma ocorrência");
   }
-  /* Aqui, e não só dentro de `migrarGravado`, porque é aqui que há a quem dizer: a
-     contagem entra na mesma linha por onde já se relatam as correções de forma. */
-  const recusadas = limparChavesRecusadas(estado, 0);
   const migrado = migrarGravado(estado);
   /* A forma confere-se **depois** da migração: antes dela um estado antigo tem
      legitimamente ramos que ainda não existiam, e acusá-los seria acusar a idade. */
   migrado.__forma = conferirForma(migrado);
-  if(recusadas) migrado.__forma.unshift(recusadas === 1
-    ? "1 chave recusada por não ser um dado (" + CHAVES_RECUSADAS.join(", ") + ")"
-    : recusadas + " chaves recusadas por não serem dados (" + CHAVES_RECUSADAS.join(", ") + ")");
   return migrado;
 }
 
@@ -6815,7 +6682,7 @@ function mostrarCandidatos(lista, fonte){
   if(lista.length===1){ const c=lista[0]; fixarCoords(c.lat, c.lon, c.nome, fonte); return; }
   $("geo-info").textContent = "Vários resultados — escolhe o correto:";
   $("geo-opts").innerHTML = lista.map((c,i)=>
-    `<button type="button" class="geo-c" data-geo="${esc(i)}"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></button>`).join("");
+    `<div class="geo-c" onclick="escolherGeo(${i})"><b>${esc(c.nome)}</b><span>${(+c.lat).toFixed(4)}, ${(+c.lon).toFixed(4)}</span></div>`).join("");
   window.__geoLista = lista; window.__geoFonte = fonte;
 }
 window.escolherGeo = i => { const c=window.__geoLista[i]; fixarCoords(c.lat, c.lon, c.nome, window.__geoFonte); };
@@ -9750,7 +9617,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos — clica para adotar (quartéis primeiro, depois espaços amplos):";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" data-pt="'+esc(i)+'">'
+        '<span class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" onclick="adotarPT('+i+')">'
         +'<b'+(it.tipo==="fire_station"?' style="color:var(--madeira)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito: "+itens.length+" candidatos na carta entre 1,5 e 8 km");
     }
@@ -9772,7 +9639,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos pelo Photon (Overpass indisponível) — clica para adotar:";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer" data-pt="'+esc(i)+'"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("");
+        '<span class="tchip" style="cursor:pointer" onclick="adotarPT('+i+')"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito pelo Photon: "+itens.length+" candidatos");
     }catch(e2){
       $("pt-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — define o ponto de trânsito manualmente.";
@@ -9818,8 +9685,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Overpass/OSM", 3);
       $("sens-info").textContent = itens.length+" detetados — clica para adicionar (equipamentos sensíveis a vermelho):";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
-        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
+        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
+        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
       fita("Deteção OSM: "+itens.length+" aglomerados/sensíveis num raio de 3 km");
     }
   }catch(err){
@@ -9843,8 +9710,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Photon", 6);
       $("sens-info").textContent = itens.length+" detetados pelo Photon (Overpass indisponível) — clica para adicionar:";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
-        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
+        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
+        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
       fita("Deteção pelo Photon: "+itens.length+" aglomerados/sensíveis");
     }catch(e2){
       $("sens-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — introduz manualmente.";
@@ -10358,35 +10225,6 @@ function marcarMeteo(fonte, modelo, lat, lon, horas){
 }
 
 /**
- * Uma hora do Open-Meteo, em instante e em relógio de parede de Lisboa.
- *
- * Chega um epoch em segundos, **sempre em UTC** — é o que `timeformat=unixtime` garante,
- * e é por isso que se pede. O fuso da resposta vem à parte, em `utc_offset_seconds`, e é
- * o do `timezone` pedido, já com a hora de verão do dia em causa resolvida pelo serviço.
- *
- * A data e a hora de parede obtêm-se a somar o desvio e a ler em UTC. Ler em local seria
- * ler no fuso do equipamento, que é precisamente o que se está a evitar — e o equipamento
- * de um PCO tanto pode estar em Lisboa como com o relógio trocado.
- *
- * Sem `utc_offset_seconds` a resposta não é a que se pediu, e rebenta: melhor ficar com a
- * previsão anterior, com a idade à vista, do que com horas em que ninguém sabe se pode
- * confiar.
- *
- * @param {number} seg epoch em segundos, UTC
- * @param {number} desvio segundos de desvio do fuso pedido face a UTC
- * @returns {{ts:number, data:string, hora:number}}
- */
-function lerHoraOpenMeteo(seg, desvio){
-  if(!isFinite(seg)) throw "hora sem valor numérico na resposta";
-  if(typeof desvio !== "number" || !isFinite(desvio)) throw "resposta sem utc_offset_seconds";
-  const ts = seg*1000;
-  const p = new Date(ts + desvio*1000);
-  return { ts: ts,
-    data: String(p.getUTCDate()).padStart(2,"0")+"/"+String(p.getUTCMonth()+1).padStart(2,"0")+"/"+p.getUTCFullYear(),
-    hora: p.getUTCHours() };
-}
-
-/**
  * Vai buscar a previsão para o ponto da ocorrência, e regista de onde veio.
  *
  * A proveniência fica gravada — serviço, modelo, hora, ponto — porque uma previsão sem
@@ -10401,16 +10239,9 @@ async function meteoAutomatica(){
   }
   const btn = $("b-auto"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A obter previsão...';
   try{
-    /* `timeformat=unixtime`, e não o ISO por omissão. Com `timezone=Europe/Lisbon` a
-       resposta trazia horas como `"2026-09-04T18:00"`, **sem designador de fuso**, e
-       `new Date` de uma cadeia dessas lê-a no fuso do equipamento. O rótulo até saía
-       certo — `getHours()` desfazia o que a leitura tinha feito —, mas o *instante* saía
-       errado pelo desvio do fuso, e é o instante que decide, no filtro abaixo, que horas
-       já passaram. Num tablet com o relógio noutro fuso o meteograma começava horas ao
-       lado. O epoch não tem essa ambiguidade: é sempre UTC. */
     const url = "https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+
       "&hourly=temperature_2m,relative_humidity_2m,wind_direction_10m,wind_speed_10m,precipitation"+
-      "&timezone=Europe%2FLisbon&timeformat=unixtime&forecast_days=3&wind_speed_unit=kmh";
+      "&timezone=Europe%2FLisbon&forecast_days=3&wind_speed_unit=kmh";
     const r = await fetchT(url, {}, 9000);
     if(!r.ok) throw "HTTP "+r.status;
     const d = await r.json();
@@ -10418,9 +10249,10 @@ async function meteoAutomatica(){
     const linhas = ["HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP"];
     let n=0;
     for(let i=0;i<H.time.length && n<36;i++){
-      const t = lerHoraOpenMeteo(H.time[i], d.utc_offset_seconds);
-      if(t.ts < agora) continue;
-      linhas.push([t.data, t.hora, H.temperature_2m[i], H.relative_humidity_2m[i],
+      const t = new Date(H.time[i]);
+      if(t.getTime() < agora) continue;
+      const dd = String(t.getDate()).padStart(2,"0")+"/"+String(t.getMonth()+1).padStart(2,"0")+"/"+t.getFullYear();
+      linhas.push([dd, t.getHours(), H.temperature_2m[i], H.relative_humidity_2m[i],
         String(Math.round(H.wind_direction_10m[i])).padStart(3,"0"), Math.round(H.wind_speed_10m[i]*10)/10,
         H.precipitation[i]].join(","));
       n++;
@@ -10833,47 +10665,14 @@ function instanteDaHora(txt){
   if(d.getTime() <= Date.now()) d.setDate(d.getDate()+1);
   return d.getTime();
 }
-/**
- * Até quando o plano vale: teto de seis horas, antecipado pelo primeiro gatilho.
- *
- * Havia aqui um `Math.max(ts, agora + 3600000)` — mínimo de uma hora de vigência, para que
- * um plano não nascesse a expirar. **Saiu.** Medido: às 17h50, com a janela a fechar às
- * 18h00, o chão empurrava a validade para as 18h50 e o plano passava a declarar-se válido
- * cinquenta minutos para lá do gatilho que o própria aplicação identificou. Um limite de
- * segurança não se prolonga para o documento ficar mais confortável de ler.
- *
- * O que fica no lugar não é nada: é dizer a verdade. Quando o horizonte é curto, é curto, e
- * `validadeCurta` diz a quem lê que o plano nasce com pouco tempo e porquê — que é a
- * informação que a hora inventada escondia.
- */
+/* validade: teto de 6 h, antecipado pelo fecho da janela ou pela próxima rotação de vento */
 function horizonteValidade(m){
   const agora = Date.now();
   let ts = agora + 6*3600000;
   if(m && m.janela){ const f = instanteDaHora(m.janela.fim); if(f && f>agora && f<ts) ts=f; }
   if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h); if(t && t>agora && t<ts) ts=t; });
-  return ts;
-}
-
-/** Minutos de vigência com que um plano nasce, abaixo dos quais se avisa. */
-const VALIDADE_CURTA_MIN = 60;
-
-/**
- * O aviso de um plano que nasce com pouco tempo, ou vazio se não for o caso.
- *
- * Substitui o chão de uma hora que existia antes. A diferença é toda: o chão **alterava** a
- * validade para a fazer parecer razoável; isto deixa-a como é e diz que é curta. Num PCO,
- * saber que o plano vale dez minutos é a informação útil — é o que obriga a rever já.
- *
- * @param {number} ts instante de fim de validade
- * @param {number} agora instante corrente; entra, não se lê o relógio aqui
- * @returns {string}
- */
-function avisoValidadeCurta(ts, agora){
-  const min = Math.round((ts - agora)/60000);
-  if(!Number.isFinite(min) || min >= VALIDADE_CURTA_MIN) return "";
-  return min <= 0
-    ? "Validade esgotada à nascença: o gatilho seguinte já passou. Rever o plano antes de o entregar."
-    : "Validade curta: " + min + (min===1? " minuto" : " minutos") + " até ao primeiro gatilho. Prever já a revisão.";
+  /* um plano não nasce a expirar: mínimo de uma hora de vigência */
+  return Math.max(ts, agora + 3600000);
 }
 /**
  * O retrato do dispositivo no momento em que o plano foi aprovado.
@@ -11408,11 +11207,7 @@ function renderEstadoPEA(){
        <div style="margin-top:12px"><label for="pe-nota">Nota para o processo</label><input id="pe-nota" placeholder="opcional — determinações do COS na aprovação"></div>
        <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pe-aprovar">Registar aprovação do COS</button></div>`
     : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
-         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`
-      + (p.semOrdens
-         ? `<div class="msg err" style="display:block;margin-top:10px">Este PEA está aprovado <b>sem ordens de missão</b>: ${esc(p.semOrdens.motivo)} (${esc(p.semOrdens.g)}). Enquanto assim estiver, não há controlo de execução nesta aplicação e a transmissão das missões faz-se fora dela.</div>`
-           + `<div class="row" style="margin-top:10px"><button class="btn btn-o" type="button" id="pe-ordens">Produzir ordens de missão</button></div>`
-         : "");
+         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`;
 
   C.innerHTML = `<div class="card">
     <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
@@ -11427,14 +11222,6 @@ function renderEstadoPEA(){
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     persistir(false); pintarTudo();
   });
-  const bO = $("pe-ordens");
-  if(bO) bO.addEventListener("click", async ()=>{
-    bO.disabled = true; bO.innerHTML = '<span class="spin"></span> Ordens de missão…';
-    const q = await produzirOrdensDoAprovado(p);
-    await persistir(false); pintarTudo();
-    if(q.ok) aviso("msg-ia","ok","Ordens de missão do PEA n.º "+p.n+" produzidas: "+q.n+" em controlo de execução.");
-    else aviso("pe-msg","err","Continua sem ordens de missão: "+q.motivo+".");
-  });
   const bA = $("pe-aprovar");
   if(bA) bA.addEventListener("click", async ()=>{
     const q = gdhDoCampo("pe-g", "pe-msg");
@@ -11443,31 +11230,17 @@ function renderEstadoPEA(){
       nota:$("pe-nota").value, g:($("pe-g").value.trim()? q.g : "") });
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     bA.disabled = true; bA.innerHTML = '<span class="spin"></span> Ordens de missão…';
-    /* `ord` e não `q`: `q` já é o GDH conferido, três linhas acima. */
-    const ord = await produzirOrdensDoAprovado(r.pea);
+    try{ await produzirOrdens(r.pea); }catch(e){}
     await persistir(false);
     pintarTudo();
-    if(ord.ok) aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas: "+ord.n+" em controlo de execução.");
-    else aviso("msg-ia","err","PEA n.º "+p.n+" APROVADO, mas SEM ORDENS DE MISSÃO: "+ord.motivo
-      + ". A aprovação do COS está registada; a transmissão das missões tem de ser feita fora da aplicação até as ordens serem produzidas.");
+    aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas e em controlo de execução.");
   });
 }
 /* ================= PLANEAMENTO · emissão do PEA (art. 46.º) ================= */
 async function emitirPEA(){
   if(!podeFazer("elaborar")){ aviso("msg-ia","err",motivoPerfil("elaborar")); return; }
-  /* O que não se conseguiu verificar bloqueia como o que falta, e é dito à parte: mandar
-     «usa os botões Preencher» a quem tem uma verificação rebentada é mandá-lo ao sítio
-     errado. */
-  const porFazer = pendencias().filter(x=>!x.ok&&x.ob);
-  const falta = porFazer.filter(x=>!x.erro), quebradas = porFazer.filter(x=>x.erro);
-  if(porFazer.length){
-    renderCheck();
-    aviso("msg-ia","err",
-      (falta.length? "Em falta: "+falta.map(f=>f.c).join(", ")+". Usa os botões Preencher acima." : "")
-      + (falta.length&&quebradas.length? " " : "")
-      + (quebradas.length? "Não foi possível verificar: "+quebradas.map(f=>f.c+" ("+f.erro+")").join("; ")+"." : ""));
-    return;
-  }
+  const falta = pendencias().filter(x=>!x.ok&&x.ob);
+  if(falta.length){ renderCheck(); aviso("msg-ia","err","Em falta: "+falta.map(f=>f.c).join(", ")+". Usa os botões Preencher acima."); return; }
   lerForm();
   const btn=$("b-gerar"); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Planeamento…';
   const n = O.peas.length+1;
@@ -11514,14 +11287,6 @@ async function emitirPEA(){
   O.evolucao.push({g:pea.g, tipo:"posit",
     txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});
   fita("Proposta de PEA n.º "+n+" elaborada ("+modo+"); válida até "+gdhDe(pea.validoTs)+", por aprovar");
-  /* Um plano que nasce com pouco tempo di-lo, em vez de esticar a validade para parecer
-     confortável — que era o que o chão de uma hora fazia. Ver `avisoValidadeCurta`. */
-  const curto = avisoValidadeCurta(pea.validoTs, pea.ts);
-  if(curto){
-    pea.validadeCurta = curto;
-    fita("PEA n.º "+n+": "+curto);
-    O.evolucao.push({g:pea.g, tipo:"posit", txt:"Proposta de PEA n.º "+n+" — "+curto});
-  }
   await persistir(false);
   btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);
@@ -11551,40 +11316,6 @@ async function produzirOrdens(p){
   p.ctrl = controloMissoes(Object.assign({}, p.json.pea, ordens));
   fita("Ordens de missão do PEA n.º "+p.n+" produzidas: "+p.ctrl.length+" em controlo");
   return p.ctrl.length;
-}
-
-/**
- * Produz as ordens de um PEA aprovado, e regista no plano se não conseguiu.
- *
- * A chamada estava dentro de um `try{ ... }catch(e){}` e o ecrã dizia sempre «ordens de
- * missão produzidas e em controlo de execução», tivesse havido ordens ou não. O recuo
- * determinístico de `produzirOrdens` cobre a falta do modelo; o que este `catch` apanhava
- * era o caso raro em que também esse recuo rebenta — e é exatamente o caso em que o
- * oficial fica a pensar que tem missões em controlo e não tem nenhuma.
- *
- * **Não é um estado novo da proposta.** O COS aprovou: o ato de comando aconteceu e está
- * registado — art. 8.º, n.º 2, al. e). O que falhou foi a produção das ordens, que é
- * outro ato, de outra célula. Marcá-lo como «por aprovar» seria apagar uma decisão que
- * foi tomada. Fica um `semOrdens` no plano, que a ficha mostra e um botão limpa quando as
- * ordens saírem. Um plano de antes da marca não tem o campo, e é isso que ela significa.
- *
- * @param {any} p a proposta aprovada
- * @returns {Promise<{ok:boolean, n:number, motivo:string}>}
- */
-async function produzirOrdensDoAprovado(p){
-  try{
-    const n = await produzirOrdens(p);
-    delete p.semOrdens;
-    return { ok:true, n:n, motivo:"" };
-  }catch(e){
-    const motivo = String((e && e.message) || e).slice(0,160);
-    p.semOrdens = { g: gdhAgora(), motivo: motivo };
-    p.ctrl = [];
-    fita("PEA n.º "+p.n+" aprovado SEM ordens de missão: "+motivo);
-    O.evolucao.push({g:gdhAgora(), tipo:"posit",
-      txt:"PEA n.º "+p.n+" aprovado sem ordens de missão produzidas ("+motivo+"). Transmissão das missões fora da aplicação."});
-    return { ok:false, n:0, motivo:motivo };
-  }
 }
 
 
@@ -13653,33 +13384,28 @@ async function colocarFolha(){
 
   const im = await lerImagemDaFolha(fi.files[0]);
   if(!im) return dizer("err", "Não foi possível ler a imagem.");
-  /* A partir daqui há uma `blob:` URL viva, e uma folha digitalizada são megabytes que
-     ficam presos ao separador até ele fechar. Todas as saídas por recusa passam a
-     revogá-la: eram cinco, e a que mais custava era a da projeção incompatível, porque
-     essa é a que acontece a quem já tem uma folha colocada e vai colocar a segunda. */
-  const recusar = (txt)=>{ URL.revokeObjectURL(im.url); return dizer("err", txt); };
 
   let mundo = null, pontos = 0, controlos = [];
   if(ff && ff.files && ff.files.length){
     mundo = lerFicheiroReferenciacao(await lerTextoDoFicheiro(ff.files[0]));
-    if(!mundo) return recusar("O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
+    if(!mundo) return dizer("err", "O ficheiro de referenciação não tem seis linhas numéricas com ponto decimal. Com vírgula decimal é recusado de propósito: «2,5» lido como 2 põe a folha 20 % fora de escala.");
   } else {
     const p1 = {px:numFolha("fo-p1px"), py:numFolha("fo-p1py"), E:numFolha("fo-p1e"), N:numFolha("fo-p1n")};
     const p2 = {px:numFolha("fo-p2px"), py:numFolha("fo-p2py"), E:numFolha("fo-p2e"), N:numFolha("fo-p2n")};
     if([p1, p2].some(p=>Object.values(p).some(v=>v === null)))
-      return recusar("Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
+      return dizer("err", "Sem ficheiro de referenciação, os oito campos dos dois pontos têm de estar preenchidos.");
     mundo = calibrarPorDoisPontos(p1, p2);
-    if(!mundo) return recusar("Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
+    if(!mundo) return dizer("err", "Os dois pontos não chegam: ou têm o mesmo pixel, ou a mesma coordenada no terreno.");
     pontos = 2; controlos = [p1, p2];
   }
 
   const g = $("fo-grelha").value;
   const recusa = recusaPorProjecao(g);
-  if(recusa) return recusar(recusa);
+  if(recusa) return dizer("err", recusa);
   const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
-  if(!f) return recusar("A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
+  if(!f) return dizer("err", "A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
   f.img = im.url;
   FOLHAS.push(f);
   await guardarFolhas();
@@ -17258,83 +16984,16 @@ function fecharTurno(){
 
 /* ██████ ARRANQUE ██████ */
 /* ================= ARRANQUE · render geral ================= */
-/**
- * As pinturas que rebentaram na última passagem, por nome.
- *
- * Guarda-se entre passagens para só se escrever na fita quando o conjunto muda: `pintarTudo`
- * corre a cada tecla, e uma linha por passagem enterrava a fita em segundos.
- */
-let PINTURAS_QUEBRADAS = [];
-
-/**
- * Corre uma pintura isolada das outras, e regista-a se rebentar.
- *
- * Havia nove pinturas num só `try{ ... }catch(e){}`: uma exceção em `autoNivelDECIR`
- * apagava em silêncio a estrutura do PCO, o plano de comunicações, o catálogo, a
- * conformidade DON, o PEA em vigor, o estado da proposta, as ampulhetas e o perfil. O
- * ecrã ficava com a pintura anterior — dados velhos com ar de dados novos — e não dizia
- * nada. É exatamente a regressão silenciosa que este projeto já teve uma vez.
- *
- * Isolar não chega: uma pintura que falha em silêncio continua a mentir, só que sozinha.
- * Por isso o nome vai para `PINTURAS_QUEBRADAS` e a faixa do topo diz quais são.
- */
-function pintura(nome, fn, quebradas){
-  try{ fn(); }
-  catch(e){ quebradas.push(nome + " (" + String((e && e.message) || e).slice(0,80) + ")"); }
-}
-
-/**
- * Escreve a faixa do que não se conseguiu pintar, e diz na fita quando isso muda.
- *
- * A faixa fica enquanto durar; a fita leva uma linha só quando o conjunto de pinturas
- * quebradas passa a ser outro — a entrar e a sair.
- */
-function relatarPinturas(quebradas){
-  const faixa = $("pint-q");
-  if(faixa){
-    faixa.style.display = quebradas.length? "block" : "none";
-    faixa.innerHTML = quebradas.length
-      ? "<b>Parte do ecrã não foi atualizada</b> e pode estar a mostrar dados anteriores: "
-        + quebradas.map(esc).join("; ") + ". Confirma estes pontos noutra fonte antes de decidir sobre eles."
-      : "";
-  }
-  const antes = PINTURAS_QUEBRADAS.join("|"), agora_ = quebradas.join("|");
-  if(antes !== agora_){
-    if(quebradas.length) fita("Pintura do ecrã com falhas: " + quebradas.join("; "));
-    else if(antes) fita("Pintura do ecrã reposta: todas as vistas voltaram a atualizar");
-  }
-  PINTURAS_QUEBRADAS = quebradas;
-}
-
-/**
- * Repinta o ecrã inteiro, uma vista de cada vez.
- *
- * Uma pintura por `try`, e não nove — ver `pintura`, que é onde está a razão. O que não
- * correu sai em `relatarPinturas`, na faixa do topo: um ecrã por atualizar tem de se
- * saber a olhar para ele, e não a olhar para a consola.
- */
 function pintarTudo(){
-  const qb = [];
-  pintura("passagem de turno", renderTurno, qb);
-  pintarArquivo();
-  pintura("lista de verificação", renderCheck, qb);
-  pintura("nível DECIR", autoNivelDECIR, qb);
-  pintura("estrutura do PCO", renderPCO, qb);
-  pintura("plano de comunicações", renderComs, qb);
-  pintura("catálogo de elementos", renderCatalogo, qb);
-  pintura("conformidade DON", pintarDON, qb);
-  pintura("PEA em vigor", renderVigor, qb);
-  pintura("estado da proposta", renderEstadoPEA, qb);
-  pintura("ampulhetas", pintarAmpulhetas, qb);
-  pintura("perfil de elevação", pintarPerfil, qb);
-  pintura("contexto de evolução", pintarEvoCtx, qb);
-  pintura("guia de preenchimento", pintarGuia, qb);
-  pintura("avisos", pintarAvisos, qb);
+  try{ renderTurno(); }catch(e){}
+  pintarArquivo(); try{ renderCheck(); }catch(e){}
+  try{ autoNivelDECIR(); renderPCO(); renderComs(); renderCatalogo(); pintarDON(); renderVigor(); renderEstadoPEA(); pintarAmpulhetas(); pintarPerfil(); }catch(e){}
+  try{ pintarEvoCtx(); }catch(e){}
+  try{ pintarGuia(); }catch(e){}
+  try{ pintarAvisos(); }catch(e){}
   /* A leitura da evolução depende das frentes, dos limites, do relevo e da série: repinta-se
      aqui porque é o único sítio por onde passam todas as quatro. */
-  pintura("leitura da evolução", pintarEvolucao, qb);
-  pintura("intensidade da frente", pintarIntensidade, qb);
-  pintura("focos de calor", pintarFocos, qb);
+  try{ pintarEvolucao(); pintarIntensidade(); pintarFocos(); }catch(e){}
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
   /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
@@ -17346,21 +17005,19 @@ function pintarTudo(){
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
   $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
-    `<button type="button" class="pea-li" data-pea="${esc(p.n)}"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></button>`).join("")
+    `<div class="pea-li" onclick="verPEA(${p.n})"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></div>`).join("")
     : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
   $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
     O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
-  pintura("encerramento", pintarEncerramento, qb);
-  pintura("proveniência do ficheiro", pintarProveniencia, qb);
-  pintura("idade da previsão", pintarMeteoIdade, qb);
-  pintura("sessão", pintarSessao, qb);
-  pintura("cópias de recuperação", pintarCopias, qb);
-  pintura("fase SGO", pintarFase, qb);
-  pintura("croqui", pintarCroqui, qb);
-  pintura("cartão do mapa", pintarMapaCartao, qb);
-  pintura("pontos do mapa", pintarPontos, qb);
-  pintura("contagens", pintarContagens, qb);
-  relatarPinturas(qb);
+  try{ pintarEncerramento(); }catch(e){}
+  try{ pintarProveniencia(); }catch(e){}
+  try{ pintarMeteoIdade(); }catch(e){}
+  try{ pintarSessao(); }catch(e){}
+  try{ pintarCopias(); }catch(e){}
+  try{ pintarFase(); }catch(e){}
+  try{ pintarCroqui(); }catch(e){}
+  try{ pintarMapaCartao(); pintarPontos(); }catch(e){}
+  try{ pintarContagens(); }catch(e){}
 }
 
 /** Texto letra a letra na vertical, para a barra lateral das células no documento. */
@@ -17904,40 +17561,6 @@ async function pintarCopias(){
   });
   const sel = $("o-fase");
   if(sel) sel.addEventListener("change", ()=>{ try{ pintarFase(); }catch(e){} });
-})();
-
-/**
- * Liga os controlos que nascem de uma repintura, por delegação no contentor.
- *
- * Seis listas construíam os seus controlos como `div` e `span` com `onclick` embutido. Não
- * se alcançavam pelo teclado, não tinham papel nem nome acessível, e a lista de propostas
- * de PEA — a que abre o documento — era pura e simplesmente inutilizável para quem não usa
- * rato. São agora `<button>`, que traz o papel, o nome, o foco e a tecla de graça.
- *
- * A ligação é por delegação e não por elemento: as quatro listas repintam-se muitas vezes,
- * e ligar a cada botão obrigava a religar a cada repintura — que é a forma de se perder um
- * ouvinte em silêncio, defeito que este projeto já teve.
- *
- * O comentário do núcleo dizia que nenhum `onclick` embutido restava. **Restavam seis**, e
- * a afirmação estava escrita ao lado da regra que a desmentia.
- */
-(function ligarListasRepintadas(){
-  /** Liga um contentor: ao clique num descendente com `attr`, chama `fn` com o valor. */
-  const delegar = (id, attr, fn) => {
-    const c = $(id); if(!c) return;
-    c.addEventListener("click", ev => {
-      const b = ev.target.closest("[" + attr + "]");
-      if(b && c.contains(b)) fn(b.getAttribute(attr));
-    });
-  };
-  /* Por `window.` e não pelo nome nu: as quatro vivem como propriedades de `window` — era
-     assim que o `onclick` embutido lhes chegava — e não têm ligação léxica nenhuma. O
-     verificador de tipos apanha-o, e tem razão. */
-  delegar("pea-list",  "data-pea",        v => window.verPEA(+v));
-  delegar("geo-opts",  "data-geo",        v => window.escolherGeo(+v));
-  delegar("pt-sug",    "data-pt",         v => window.adotarPT(+v));
-  delegar("sens-sug",  "data-sens",       v => window.addSens(+v));
-  delegar("sens-sug",  "data-sens-todos", () => window.addSensTodos());
 })();
 </script>
 </body>

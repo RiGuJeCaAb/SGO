@@ -16,6 +16,10 @@ import { revisaoMaisRecente } from './verificar.mjs';
 const FONTE = 'fonte';
 const MOLDE = 'fonte/molde.html';
 const MARCA = '@MODULOS@';
+/* A cópia da raiz que o GitHub serve. Exportado para o teste ler o mesmo nome que a
+   montagem escreve: foi a divergência entre os dois — a montagem a escrever `index.html`
+   e o dono a apagá-lo do `main` — que deixou a CI vermelha a 4 de setembro. */
+export const SERVIDO = 'home.html';
 
 /**
  * Lê os módulos por ordem alfabética, que é a ordem de montagem.
@@ -110,13 +114,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const html = montar(await readFile(MOLDE, 'utf8'), texto, revisao, ficheiro);
   await writeFile(saida, html, 'utf8');
 
-  /* O `index.html` da raiz é a cópia que o GitHub serve, e foi lá posto à mão a 2 de
-     setembro. Uma cópia à mão envelhece: ficou a servir a r0081 no dia em que a r0083
-     saiu, e ninguém dava por isso porque nada a confere. Passa a ser reescrita por cada
-     montagem — nunca se edita, e nunca fica atrás da entrega mais recente. Só quando a
-     entrega vai para `app/`: uma montagem de trabalho com `--saida` não mexe no que
-     está publicado. */
-  if (saida === join('app', ficheiro)) await writeFile('index.html', html, 'utf8');
+  /* O `home.html` da raiz é a cópia que o GitHub serve. Nasceu como `index.html`, posto
+     à mão a 2 de setembro; uma cópia à mão envelhece: ficou a servir a r0081 no dia em que
+     a r0083 saiu, e ninguém dava por isso porque nada a confere. Passa a ser reescrita por
+     cada montagem — nunca se edita, e nunca fica atrás da entrega mais recente. Só quando
+     a entrega vai para `app/`: uma montagem de trabalho com `--saida` não mexe no que
+     está publicado. Chama-se `home.html` porque o dono do repositório apagou o
+     `index.html` do `main` a 4 de setembro e carregou este no lugar dele: a decisão de
+     nome é dele, e a montagem segue-a em vez de ressuscitar o ficheiro apagado. */
+  if (saida === join('app', ficheiro)) await writeFile(SERVIDO, html, 'utf8');
 
   console.log(`${nomes.length} módulos montados em ${saida} (${revisao}).`);
 }

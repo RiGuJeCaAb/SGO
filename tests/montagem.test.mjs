@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
-import { lerModulos, montar, carimbo } from '../ferramentas/montar.mjs';
+import { lerModulos, montar, carimbo, SERVIDO } from '../ferramentas/montar.mjs';
 import { revisaoMaisRecente } from '../ferramentas/verificar.mjs';
 
 const recente = await revisaoMaisRecente();
@@ -67,17 +67,19 @@ test('montar sem a marca recusa em vez de produzir lixo', async () => {
   assert.throws(() => montar('<html></html>', 'código', 'r0001', 'x.html'), /marca/);
 });
 
-test('o index.html da raiz é a entrega mais recente, byte a byte', semRevisao, async () => {
-  /* É a cópia que o GitHub serve. Foi posta à mão a 2 de setembro e já nasceu a envelhecer:
-     ficaria a servir a r0081 no dia em que a r0083 saiu, sem nada que o denunciasse — que é
-     a pior espécie de defeito neste projeto, o que só se descobre no terreno. A montagem
-     reescreve-a; este teste é quem confere que foi reescrita. */
+test('o home.html da raiz é a entrega mais recente, byte a byte', semRevisao, async () => {
+  /* É a cópia que o GitHub serve. Foi posta à mão a 2 de setembro, como `index.html`, e já
+     nasceu a envelhecer: ficaria a servir a r0081 no dia em que a r0083 saiu, sem nada que
+     o denunciasse — que é a pior espécie de defeito neste projeto, o que só se descobre no
+     terreno. A montagem reescreve-a; este teste é quem confere que foi reescrita. O nome
+     é `home.html` desde 4 de setembro, quando o dono apagou o `index.html` do `main` e
+     carregou este; o teste lê o nome à montagem para não voltarem a divergir. */
   const [servido, entregue] = await Promise.all([
-    readFile('index.html', 'utf8'),
+    readFile(SERVIDO, 'utf8'),
     readFile(recente, 'utf8'),
   ]);
   assert.equal(servido, entregue,
-    'o index.html não é a entrega mais recente — correr `npm run montar`');
+    'o home.html não é a entrega mais recente — correr `npm run montar`');
 });
 
 /* ---- o que a comparação byte a byte não pode apanhar ---- */

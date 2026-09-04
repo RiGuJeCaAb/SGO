@@ -53,6 +53,35 @@ function marcarMeteo(fonte, modelo, lat, lon, horas){
 }
 
 /**
+ * Uma hora do Open-Meteo, em instante e em relógio de parede de Lisboa.
+ *
+ * Chega um epoch em segundos, **sempre em UTC** — é o que `timeformat=unixtime` garante,
+ * e é por isso que se pede. O fuso da resposta vem à parte, em `utc_offset_seconds`, e é
+ * o do `timezone` pedido, já com a hora de verão do dia em causa resolvida pelo serviço.
+ *
+ * A data e a hora de parede obtêm-se a somar o desvio e a ler em UTC. Ler em local seria
+ * ler no fuso do equipamento, que é precisamente o que se está a evitar — e o equipamento
+ * de um PCO tanto pode estar em Lisboa como com o relógio trocado.
+ *
+ * Sem `utc_offset_seconds` a resposta não é a que se pediu, e rebenta: melhor ficar com a
+ * previsão anterior, com a idade à vista, do que com horas em que ninguém sabe se pode
+ * confiar.
+ *
+ * @param {number} seg epoch em segundos, UTC
+ * @param {number} desvio segundos de desvio do fuso pedido face a UTC
+ * @returns {{ts:number, data:string, hora:number}}
+ */
+function lerHoraOpenMeteo(seg, desvio){
+  if(!isFinite(seg)) throw "hora sem valor numérico na resposta";
+  if(typeof desvio !== "number" || !isFinite(desvio)) throw "resposta sem utc_offset_seconds";
+  const ts = seg*1000;
+  const p = new Date(ts + desvio*1000);
+  return { ts: ts,
+    data: String(p.getUTCDate()).padStart(2,"0")+"/"+String(p.getUTCMonth()+1).padStart(2,"0")+"/"+p.getUTCFullYear(),
+    hora: p.getUTCHours() };
+}
+
+/**
  * Vai buscar a previsão para o ponto da ocorrência, e regista de onde veio.
  *
  * A proveniência fica gravada — serviço, modelo, hora, ponto — porque uma previsão sem
@@ -67,9 +96,16 @@ async function meteoAutomatica(){
   }
   const btn = $("b-auto"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A obter previsão...';
   try{
+    /* `timeformat=unixtime`, e não o ISO por omissão. Com `timezone=Europe/Lisbon` a
+       resposta trazia horas como `"2026-09-04T18:00"`, **sem designador de fuso**, e
+       `new Date` de uma cadeia dessas lê-a no fuso do equipamento. O rótulo até saía
+       certo — `getHours()` desfazia o que a leitura tinha feito —, mas o *instante* saía
+       errado pelo desvio do fuso, e é o instante que decide, no filtro abaixo, que horas
+       já passaram. Num tablet com o relógio noutro fuso o meteograma começava horas ao
+       lado. O epoch não tem essa ambiguidade: é sempre UTC. */
     const url = "https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+
       "&hourly=temperature_2m,relative_humidity_2m,wind_direction_10m,wind_speed_10m,precipitation"+
-      "&timezone=Europe%2FLisbon&forecast_days=3&wind_speed_unit=kmh";
+      "&timezone=Europe%2FLisbon&timeformat=unixtime&forecast_days=3&wind_speed_unit=kmh";
     const r = await fetchT(url, {}, 9000);
     if(!r.ok) throw "HTTP "+r.status;
     const d = await r.json();
@@ -77,10 +113,9 @@ async function meteoAutomatica(){
     const linhas = ["HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP"];
     let n=0;
     for(let i=0;i<H.time.length && n<36;i++){
-      const t = new Date(H.time[i]);
-      if(t.getTime() < agora) continue;
-      const dd = String(t.getDate()).padStart(2,"0")+"/"+String(t.getMonth()+1).padStart(2,"0")+"/"+t.getFullYear();
-      linhas.push([dd, t.getHours(), H.temperature_2m[i], H.relative_humidity_2m[i],
+      const t = lerHoraOpenMeteo(H.time[i], d.utc_offset_seconds);
+      if(t.ts < agora) continue;
+      linhas.push([t.data, t.hora, H.temperature_2m[i], H.relative_humidity_2m[i],
         String(Math.round(H.wind_direction_10m[i])).padStart(3,"0"), Math.round(H.wind_speed_10m[i]*10)/10,
         H.precipitation[i]].join(","));
       n++;

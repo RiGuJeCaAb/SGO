@@ -41,6 +41,7 @@ const navegador = {
   prompt: 'readonly',
   print: 'readonly',
   matchMedia: 'readonly',
+  CSS: 'readonly',
   getComputedStyle: 'readonly',
   Blob: 'readonly',
   File: 'readonly',

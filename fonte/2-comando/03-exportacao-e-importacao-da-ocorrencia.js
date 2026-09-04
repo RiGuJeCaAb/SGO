@@ -49,10 +49,16 @@ function lerPacoteOcorrencia(texto){
   if(!estado || typeof estado!=="object" || !estado.meta || typeof estado.meta!=="object"){
     throw new Error("o ficheiro não contém uma ocorrência");
   }
+  /* Aqui, e não só dentro de `migrarGravado`, porque é aqui que há a quem dizer: a
+     contagem entra na mesma linha por onde já se relatam as correções de forma. */
+  const recusadas = limparChavesRecusadas(estado, 0);
   const migrado = migrarGravado(estado);
   /* A forma confere-se **depois** da migração: antes dela um estado antigo tem
      legitimamente ramos que ainda não existiam, e acusá-los seria acusar a idade. */
   migrado.__forma = conferirForma(migrado);
+  if(recusadas) migrado.__forma.unshift(recusadas === 1
+    ? "1 chave recusada por não ser um dado (" + CHAVES_RECUSADAS.join(", ") + ")"
+    : recusadas + " chaves recusadas por não serem dados (" + CHAVES_RECUSADAS.join(", ") + ")");
   return migrado;
 }
 

@@ -22,14 +22,47 @@ function instanteDaHora(txt){
   if(d.getTime() <= Date.now()) d.setDate(d.getDate()+1);
   return d.getTime();
 }
-/* validade: teto de 6 h, antecipado pelo fecho da janela ou pela próxima rotação de vento */
+/**
+ * Até quando o plano vale: teto de seis horas, antecipado pelo primeiro gatilho.
+ *
+ * Havia aqui um `Math.max(ts, agora + 3600000)` — mínimo de uma hora de vigência, para que
+ * um plano não nascesse a expirar. **Saiu.** Medido: às 17h50, com a janela a fechar às
+ * 18h00, o chão empurrava a validade para as 18h50 e o plano passava a declarar-se válido
+ * cinquenta minutos para lá do gatilho que o própria aplicação identificou. Um limite de
+ * segurança não se prolonga para o documento ficar mais confortável de ler.
+ *
+ * O que fica no lugar não é nada: é dizer a verdade. Quando o horizonte é curto, é curto, e
+ * `validadeCurta` diz a quem lê que o plano nasce com pouco tempo e porquê — que é a
+ * informação que a hora inventada escondia.
+ */
 function horizonteValidade(m){
   const agora = Date.now();
   let ts = agora + 6*3600000;
   if(m && m.janela){ const f = instanteDaHora(m.janela.fim); if(f && f>agora && f<ts) ts=f; }
   if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h); if(t && t>agora && t<ts) ts=t; });
-  /* um plano não nasce a expirar: mínimo de uma hora de vigência */
-  return Math.max(ts, agora + 3600000);
+  return ts;
+}
+
+/** Minutos de vigência com que um plano nasce, abaixo dos quais se avisa. */
+const VALIDADE_CURTA_MIN = 60;
+
+/**
+ * O aviso de um plano que nasce com pouco tempo, ou vazio se não for o caso.
+ *
+ * Substitui o chão de uma hora que existia antes. A diferença é toda: o chão **alterava** a
+ * validade para a fazer parecer razoável; isto deixa-a como é e diz que é curta. Num PCO,
+ * saber que o plano vale dez minutos é a informação útil — é o que obriga a rever já.
+ *
+ * @param {number} ts instante de fim de validade
+ * @param {number} agora instante corrente; entra, não se lê o relógio aqui
+ * @returns {string}
+ */
+function avisoValidadeCurta(ts, agora){
+  const min = Math.round((ts - agora)/60000);
+  if(!Number.isFinite(min) || min >= VALIDADE_CURTA_MIN) return "";
+  return min <= 0
+    ? "Validade esgotada à nascença: o gatilho seguinte já passou. Rever o plano antes de o entregar."
+    : "Validade curta: " + min + (min===1? " minuto" : " minutos") + " até ao primeiro gatilho. Prever já a revisão.";
 }
 /**
  * O retrato do dispositivo no momento em que o plano foi aprovado.
@@ -564,7 +597,11 @@ function renderEstadoPEA(){
        <div style="margin-top:12px"><label for="pe-nota">Nota para o processo</label><input id="pe-nota" placeholder="opcional — determinações do COS na aprovação"></div>
        <div class="row" style="margin-top:12px"><button class="btn btn-o" type="button" id="pe-aprovar">Registar aprovação do COS</button></div>`
     : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
-         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`;
+         (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`
+      + (p.semOrdens
+         ? `<div class="msg err" style="display:block;margin-top:10px">Este PEA está aprovado <b>sem ordens de missão</b>: ${esc(p.semOrdens.motivo)} (${esc(p.semOrdens.g)}). Enquanto assim estiver, não há controlo de execução nesta aplicação e a transmissão das missões faz-se fora dela.</div>`
+           + `<div class="row" style="margin-top:10px"><button class="btn btn-o" type="button" id="pe-ordens">Produzir ordens de missão</button></div>`
+         : "");
 
   C.innerHTML = `<div class="card">
     <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
@@ -579,6 +616,14 @@ function renderEstadoPEA(){
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     persistir(false); pintarTudo();
   });
+  const bO = $("pe-ordens");
+  if(bO) bO.addEventListener("click", async ()=>{
+    bO.disabled = true; bO.innerHTML = '<span class="spin"></span> Ordens de missão…';
+    const q = await produzirOrdensDoAprovado(p);
+    await persistir(false); pintarTudo();
+    if(q.ok) aviso("msg-ia","ok","Ordens de missão do PEA n.º "+p.n+" produzidas: "+q.n+" em controlo de execução.");
+    else aviso("pe-msg","err","Continua sem ordens de missão: "+q.motivo+".");
+  });
   const bA = $("pe-aprovar");
   if(bA) bA.addEventListener("click", async ()=>{
     const q = gdhDoCampo("pe-g", "pe-msg");
@@ -587,9 +632,12 @@ function renderEstadoPEA(){
       nota:$("pe-nota").value, g:($("pe-g").value.trim()? q.g : "") });
     if(!r.ok){ aviso("pe-msg","err",r.motivo); return; }
     bA.disabled = true; bA.innerHTML = '<span class="spin"></span> Ordens de missão…';
-    try{ await produzirOrdens(r.pea); }catch(e){}
+    /* `ord` e não `q`: `q` já é o GDH conferido, três linhas acima. */
+    const ord = await produzirOrdensDoAprovado(r.pea);
     await persistir(false);
     pintarTudo();
-    aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas e em controlo de execução.");
+    if(ord.ok) aviso("msg-ia","ok","PEA n.º "+p.n+" aprovado. Ordens de missão produzidas: "+ord.n+" em controlo de execução.");
+    else aviso("msg-ia","err","PEA n.º "+p.n+" APROVADO, mas SEM ORDENS DE MISSÃO: "+ord.motivo
+      + ". A aprovação do COS está registada; a transmissão das missões tem de ser feita fora da aplicação até as ordens serem produzidas.");
   });
 }

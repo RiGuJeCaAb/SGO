@@ -96,7 +96,28 @@ function canonico(x){
   if(x === undefined) return "null";
   if(x === null || typeof x !== "object") return JSON.stringify(x);
   if(Array.isArray(x)) return "[" + x.map(canonico).join(",") + "]";
-  return "{" + Object.keys(x).sort()
+  /* As chaves entram por `for...in`, e não por `Object.keys`.
+
+     `Object.keys` percorre só as chaves próprias, e isso abria um ponto cego no
+     carimbo: um objeto cujo protótipo tenha sido substituído carrega campos que se
+     leem no ecrã, se imprimem no PEA e saem na exportação, e que ficavam **fora do
+     resumo**. Medido antes de mudar: `{a:1}` e o mesmo objeto com um protótipo a
+     trazer `fantasma` davam o mesmo SHA-256, e o `fantasma` lia-se na mesma. O
+     carimbo dizia «confere» por cima de um documento com conteúdo que ninguém
+     escreveu — e o carimbo é o que este projeto oferece como prova de integridade.
+
+     `for...in` percorre próprias **e** herdadas enumeráveis. Num objeto normal isso
+     é exatamente o mesmo conjunto — o `Object.prototype` não tem nada enumerável —,
+     pelo que nenhum resumo já emitido muda. Num objeto adulterado passa a haver
+     diferença, que é o que se queria: o resumo cobre o que se lê.
+
+     Não se recusa nem se lança. Uma primeira tentativa lançava em vez de resumir, e
+     partia o encerramento da ocorrência num objeto vindo de outro contexto de
+     execução — que é plano e inofensivo. A porta de entrada fecha-se em
+     `limparChavesRecusadas`; aqui o trabalho é resumir tudo, não julgar. */
+  const chaves = [];
+  for(const k in x) chaves.push(k);
+  return "{" + chaves.sort()
     .map(k => JSON.stringify(k) + ":" + canonico(x[k])).join(",") + "}";
 }
 

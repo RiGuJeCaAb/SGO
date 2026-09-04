@@ -1,8 +1,19 @@
 /* ================= PLANEAMENTO · emissão do PEA (art. 46.º) ================= */
 async function emitirPEA(){
   if(!podeFazer("elaborar")){ aviso("msg-ia","err",motivoPerfil("elaborar")); return; }
-  const falta = pendencias().filter(x=>!x.ok&&x.ob);
-  if(falta.length){ renderCheck(); aviso("msg-ia","err","Em falta: "+falta.map(f=>f.c).join(", ")+". Usa os botões Preencher acima."); return; }
+  /* O que não se conseguiu verificar bloqueia como o que falta, e é dito à parte: mandar
+     «usa os botões Preencher» a quem tem uma verificação rebentada é mandá-lo ao sítio
+     errado. */
+  const porFazer = pendencias().filter(x=>!x.ok&&x.ob);
+  const falta = porFazer.filter(x=>!x.erro), quebradas = porFazer.filter(x=>x.erro);
+  if(porFazer.length){
+    renderCheck();
+    aviso("msg-ia","err",
+      (falta.length? "Em falta: "+falta.map(f=>f.c).join(", ")+". Usa os botões Preencher acima." : "")
+      + (falta.length&&quebradas.length? " " : "")
+      + (quebradas.length? "Não foi possível verificar: "+quebradas.map(f=>f.c+" ("+f.erro+")").join("; ")+"." : ""));
+    return;
+  }
   lerForm();
   const btn=$("b-gerar"); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Planeamento…';
   const n = O.peas.length+1;
@@ -49,6 +60,14 @@ async function emitirPEA(){
   O.evolucao.push({g:pea.g, tipo:"posit",
     txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});
   fita("Proposta de PEA n.º "+n+" elaborada ("+modo+"); válida até "+gdhDe(pea.validoTs)+", por aprovar");
+  /* Um plano que nasce com pouco tempo di-lo, em vez de esticar a validade para parecer
+     confortável — que era o que o chão de uma hora fazia. Ver `avisoValidadeCurta`. */
+  const curto = avisoValidadeCurta(pea.validoTs, pea.ts);
+  if(curto){
+    pea.validadeCurta = curto;
+    fita("PEA n.º "+n+": "+curto);
+    O.evolucao.push({g:pea.g, tipo:"posit", txt:"Proposta de PEA n.º "+n+" — "+curto});
+  }
   await persistir(false);
   btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);
@@ -78,6 +97,40 @@ async function produzirOrdens(p){
   p.ctrl = controloMissoes(Object.assign({}, p.json.pea, ordens));
   fita("Ordens de missão do PEA n.º "+p.n+" produzidas: "+p.ctrl.length+" em controlo");
   return p.ctrl.length;
+}
+
+/**
+ * Produz as ordens de um PEA aprovado, e regista no plano se não conseguiu.
+ *
+ * A chamada estava dentro de um `try{ ... }catch(e){}` e o ecrã dizia sempre «ordens de
+ * missão produzidas e em controlo de execução», tivesse havido ordens ou não. O recuo
+ * determinístico de `produzirOrdens` cobre a falta do modelo; o que este `catch` apanhava
+ * era o caso raro em que também esse recuo rebenta — e é exatamente o caso em que o
+ * oficial fica a pensar que tem missões em controlo e não tem nenhuma.
+ *
+ * **Não é um estado novo da proposta.** O COS aprovou: o ato de comando aconteceu e está
+ * registado — art. 8.º, n.º 2, al. e). O que falhou foi a produção das ordens, que é
+ * outro ato, de outra célula. Marcá-lo como «por aprovar» seria apagar uma decisão que
+ * foi tomada. Fica um `semOrdens` no plano, que a ficha mostra e um botão limpa quando as
+ * ordens saírem. Um plano de antes da marca não tem o campo, e é isso que ela significa.
+ *
+ * @param {any} p a proposta aprovada
+ * @returns {Promise<{ok:boolean, n:number, motivo:string}>}
+ */
+async function produzirOrdensDoAprovado(p){
+  try{
+    const n = await produzirOrdens(p);
+    delete p.semOrdens;
+    return { ok:true, n:n, motivo:"" };
+  }catch(e){
+    const motivo = String((e && e.message) || e).slice(0,160);
+    p.semOrdens = { g: gdhAgora(), motivo: motivo };
+    p.ctrl = [];
+    fita("PEA n.º "+p.n+" aprovado SEM ordens de missão: "+motivo);
+    O.evolucao.push({g:gdhAgora(), tipo:"posit",
+      txt:"PEA n.º "+p.n+" aprovado sem ordens de missão produzidas ("+motivo+"). Transmissão das missões fora da aplicação."});
+    return { ok:false, n:0, motivo:motivo };
+  }
 }
 
 

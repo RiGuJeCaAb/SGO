@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-09-02.
+Atualizado em 2026-09-04.
 
 ## Situação atual
 
-A revisão em vigor é a **r0092**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0095**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 130, das anteriores à convenção de nomes até à r0092 |
-| Módulos em `fonte/` | 71, em sete zonas, mais o molde |
-| Testes | 862, todos a passar |
+| Entregas em `app/` | 133, das anteriores à convenção de nomes até à r0095 |
+| Módulos em `fonte/` | 72, em sete zonas, mais o molde |
+| Testes | 911, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -82,22 +82,29 @@ nasce vazio. Passa a haver `RENDIDOS` em `ferramentas/manual.mjs`: cada rótulo 
 declara em que módulo é escrito, e o texto tem de lá estar tal e qual. Provado a renomear
 um botão: a verificação falha, com código de saída 1.
 
-## O que estava na entrada, e o index.html da raiz
+## O que estava na entrada, e o home.html da raiz
 
 **A entrada esvaziou-se.** O que lá estava a 2 de setembro às 15h32 era
 `CSREPCDouro_r0081_202609021450_EstacaoPEA_CLD.html` — **byte a byte a mesma entrega** que
 já estava arrumada em `app/`, confirmado por SHA-256. Não havia nada para arrumar e nada se
 perdeu: apagou-se a cópia.
 
-**O `index.html` da raiz fica, e passa a ser gerado.** Foi carregado à mão no mesmo minuto,
-e é a cópia que o GitHub serve — intenção legítima, e a única forma de abrir a Estação a
-partir de um endereço. Mas uma cópia à mão envelhece: aquela servia a r0081 no momento em
-que a r0083 estava montada, e nada no repositório o denunciava.
+**A cópia da raiz fica, e passa a ser gerada.** Foi carregada à mão no mesmo minuto, como
+`index.html`, e é a cópia que o GitHub serve — intenção legítima, e a única forma de abrir a
+Estação a partir de um endereço. Mas uma cópia à mão envelhece: aquela servia a r0081 no
+momento em que a r0083 estava montada, e nada no repositório o denunciava.
 
 Passa a ser reescrita por `npm run montar`, sempre que a entrega vai para `app/` — uma
 montagem de trabalho com `--saida` não lhe toca. E há um teste que confere que é igual à
 entrega mais recente, byte a byte, provado a acrescentar um comentário ao ficheiro. **Não se
 edita à mão**, tal como as entregas de `app/`.
+
+**Chama-se `home.html` desde 4 de setembro.** O dono do repositório apagou o `index.html`
+do `main` num commit explícito e carregou `home.html` no lugar dele, com a r0092. A
+montagem e o teste seguem o nome dele: o ficheiro que a montagem escreve é `SERVIDO`, em
+`ferramentas/montar.mjs`, e o teste lê o nome de lá para não voltarem a divergir. Foi a
+resolução do conflito entre o `main` e o ramo desta linhagem — o Git juntou as duas
+histórias por deteção de renomeação, e o `home.html` ficou com a r0095.
 
 ## As fases do PCO, na r0084 — e um número com a proveniência de outro
 
@@ -459,6 +466,238 @@ desenhava pela outra**, que é a diferença entre o GDAL e o world file.
 
 Não é grande — 0,5 mm no papel de uma 1:25 000 — mas é sistemático, tem sinal, e soma-se a
 qualquer outra fonte de erro em vez de cancelar.
+
+## A projeção deixa de ser decidida por um índice, e o mínimo do navegador declara-se — r0093
+
+**`FOLHAS[0]` era política, e um índice fixo a decidir política é frágil por construção.** O
+ramo #001 tirou-lhe três consequências, e todas eram más: uma segunda folha noutra projeção
+entrava, aparecia na lista com escala e proveniência, gravava-se na base **e nunca se
+desenhava**, sem uma palavra; duas folhas pela ordem trocada davam mapas diferentes; e
+retirar a primeira reprojetava o mapa inteiro, mudando a posição aparente das frentes, dos
+setores e dos meios — uma operação que parece local a mexer em tudo.
+
+A projeção é agora da sessão, fixada pela primeira folha, e as seguintes são **recusadas na
+colocação com a razão por extenso**. Recusar em voz alta é melhor do que aceitar em silêncio,
+e resolve as três de uma vez. A decisão vive em `recusaPorProjecao`, fora do manipulador de
+clique, para poder ser exercitada sem formulário nem ficheiro — dentro dele só se verificava
+lendo o código-fonte, que é verificar a forma e não o comportamento.
+
+**E o `carregarFolhas` deixou de perder folhas em silêncio**, que era a mesma classe de
+defeito do `null` mudo da IndexedDB corrigido na r0083. Uma colocação gravada que já não
+passe a validação, ou que esteja noutra projeção, é descartada **e contada na fita do tempo**.
+
+### O mínimo do navegador
+
+Do ramo #005, medido em Chromium 141 com perfil vazio a partir de `file://`. **Quem fixa o
+mínimo é o CSS e não o JavaScript**, o que não é intuitivo: o código está em ES2020, Chrome
+80, mas a folha de estilo usa `color-mix()` em sete sítios, e essa é de **Chrome/Edge 111**,
+março de 2023.
+
+A degradação não é cosmética. Abaixo do mínimo a declaração cai por inteiro e vão-se as cores
+das caixas de aviso e o anel de foco de `input[aria-invalid="true"]`. **Um campo inválido que
+perde o anel vermelho continua a parecer normal** — falha com ar de estar bem, que é pior do
+que falhar.
+
+Declara-se e não se bloqueia, na doutrina do carimbo de integridade: um carimbo no fim da
+página, permanente porque é condição da máquina e não acontecimento. A deteção é
+`CSS.supports` e nunca o `userAgent`, que qualquer coisa reescreve — há teste que o exige.
+
+## A auditoria externa de 4 de setembro, verificada e respondida — r0094
+
+Chegou uma auditoria da r0091 produzida por outro modelo. Verificou-se cada afirmação contra
+a fonte antes de a aceitar, que é a regra que este projeto adotou depois de a correção do
+ramo #006 ao POSIT ter sido ela própria errada: **a verificação passa pela fonte e não pela
+palavra de quem a leu, mesmo quando quem leu nos está a corrigir.**
+
+Da verificação saíram três categorias, e as três interessam.
+
+**Confirmadas tal e qual.** O `pendencias()` a falhar para o lado aberto — quatro entradas com
+`catch(e){ return true; }`, isto é, a guia a dar a pendência por satisfeita exatamente quando
+não consegue avaliá-la. A aprovação a dizer sempre «ordens de missão produzidas e em controlo
+de execução», por a chamada estar num `catch` vazio. A CI a correr quatro dos nove portões:
+`tipos`, `morto`, `documentar`, `manual` e `arrumado` nunca correram lá — e são precisamente
+os cinco que guardam as regras próprias deste projeto. A dimensão do PR, que é pior do que a
+auditoria dizia: 87 ficheiros e 181 480 linhas. E a falta de `<main>`, de `<h1>` e de `pt-PT`,
+contadas a zero, zero e um.
+
+**Confirmadas mas mais estreitas do que o afirmado.** O `__proto__` na importação **não polui
+o `Object.prototype` global** — mediu-se intacto antes e depois. O que faz é trocar o
+protótipo de um objeto do estado no `Object.assign` da migração 0, e das três chaves só o
+`__proto__` tem acessor; `constructor` e `prototype` entram como campos banais. Mediu-se ainda
+que, na escada de hoje, o degrau 2 para 3 reconstrói o `dados.topo` e lava o efeito **por
+acidente**, e é por ser por acidente que a porta se fechou. Quanto à hora do Open-Meteo, o
+rótulo saía certo — `getHours()` desfazia o que a leitura tinha feito — e o que saía errado
+era o *instante*, que é o que decide no filtro que horas já passaram.
+
+**Não reproduzida.** «Mil alterações rápidas acabam com uma revisão antiga gravada» não
+acontece: `persistir` é síncrono até ao `await` e `_idb` cria a transação dentro do executor
+da Promise, pelo que ordem de chamada é ordem de escrita, que o IndexedDB garante. O que
+existe, e a achada não apanhou, é que `persistir` nunca lança e quase nenhuma chamada é
+esperada com `nota` — **uma gravação falhada é hoje indistinguível de uma gravação boa**.
+
+**Pior do que o afirmado.** Os 108 `catch` vazios estão certos na contagem, mas o número não
+era o problema: nove pinturas viviam num só `try`, e uma exceção em `autoNivelDECIR` apagava
+em silêncio oito vistas de uma vez — a estrutura do PCO, o plano de comunicações, o catálogo,
+a conformidade, o PEA em vigor, o estado da proposta, as ampulhetas e o perfil. O ecrã ficava
+com a pintura anterior e não dizia nada.
+
+Feito nesta revisão, por esta ordem:
+
+1. **A CI corre `npm run tudo`.** Um comando, nove portões, e acrescentar um portão passa a
+   ser uma linha no `package.json`. Correu-se localmente antes de mudar o ficheiro: os nove
+   passavam já, portanto a CI fica verde de imediato e o buraco fecha sem dívida atrás.
+2. **`pendencias()` falha fechado**, por `avaliarPendencia`, e o motivo viaja com a pendência.
+   Três estados na lista de verificação, e não dois: «POR VERIFICAR» bloqueia como um
+   obrigatório em falta mas não manda preencher um campo que não é o problema.
+3. **`produzirOrdensDoAprovado`** substitui o `catch` vazio. Não é um estado novo da proposta:
+   o COS aprovou, o ato de comando aconteceu e está registado (art. 8.º, n.º 2, al. e); o que
+   falhou foi outro ato, de outra célula. Fica um `semOrdens` no plano, com motivo e hora, um
+   botão para repetir, e uma entrada no registo de evolução — que é o que acompanha a
+   ocorrência quando ela muda de posto.
+4. **Uma pintura por `try`**, por `pintura()`, com faixa no topo a nomear o que não pintou e
+   uma linha na fita à entrada e à saída da falha. Um teste recusa que volte a haver um `try`
+   dentro de `pintarTudo`.
+5. **`timeformat=unixtime`** no Open-Meteo, com `lerHoraOpenMeteo` a separar instante de
+   relógio de parede. Sem `utc_offset_seconds` rebenta em vez de adivinhar: melhor ficar com a
+   previsão anterior, com a idade à vista, do que com horas em que ninguém sabe se confiar.
+6. **`pt-PT`, `<h1>` e `<main>`**, com o rodapé fora do `<main>` e a faixa das pinturas também
+   — uma faixa que desmente o conteúdo não pode viver dentro dele.
+7. **As três chaves recusadas**, em `limparChavesRecusadas`, à entrada do pacote e outra vez
+   dentro de `migrarGravado`, que é por onde passam os três caminhos de entrada. Tira-se a
+   chave e importa-se a ocorrência: num PCO, um registo com um campo estragado ainda é o
+   registo.
+
+Dois erros próprios apanhados pelo caminho, ambos por medição e não por leitura. O primeiro
+teste das chaves envenenadas **passava por vazio**: o pacote estava escrito com um literal de
+JavaScript, onde `__proto__:` é a sintaxe que define o protótipo e não cria propriedade
+nenhuma — o `JSON.stringify` deitava o veneno fora antes de a aplicação o ver. Passou a
+escrever-se em texto, com um teste à cabeça que confere que o pacote leva mesmo as chaves. O
+segundo foi o teste das quatro pendências, que filtrava por elemento e apanhava duas
+pendências que partilham o `br-gerar`, acusando a que estava certa; e o caso da evolução
+passava sem exercitar nada, porque com `O.peas` vazio a condição resolve-se antes de chamar a
+função que se tinha partido.
+
+O que a auditoria pedia e **não** se fez, com a razão: o `PlanDraft` tipado e a renderização
+incremental. São reformulações de arquitetura com custo alto e ganho por demonstrar, e a
+auditoria não mede nenhuma das duas. A única medição de desempenho que este projeto tem foi a
+da repintura das folhas — 103 ms para 4,4 ms — e essa fez-se antes de mexer.
+
+Fica em aberto, e é a achada mais útil que saiu de tudo isto: **duas abas na mesma ocorrência
+escrevem a mesma chave e a última a fechar ganha**, sem `BroadcastChannel`, sem
+`navigator.locks` e sem revisão monótona de estado. E `persistir` continua a não deixar
+ninguém saber se gravou.
+
+## Duas análises da r0093, uma delas de outro modelo ainda — r0095
+
+Chegaram duas, ambas sobre a r0093 e ambas depois de a r0094 já estar feita. Verificaram-se
+as duas contra a fonte. O que se segue é o que a verificação deu, e não o que os documentos
+dizem.
+
+**A segunda análise GPT é boa, e mede.** As contagens batem quase todas com as minhas: 80/70
+chamadas a `persistir()` sem `await` (contei 81/70), 29 `Date.now()` (contei 27), 23 `new
+Date()` (contei 22) — as diferenças são r0093 contra r0094. E traz três coisas que eu não
+tinha:
+
+1. **A fuga de memória das folhas.** `colocarFolha` abre a `blob:` URL da imagem *antes* de
+   conferir a projeção, e as saídas por recusa não a revogavam. Confirmado, e o caminho que
+   mais custa é justamente o da projeção incompatível: é o de quem já tem uma folha colocada
+   e vai colocar a segunda, com megabytes presos ao separador até ele fechar.
+2. **A medição da validade.** Reproduzi-a ao minuto: 17h50, janela a fechar às 18h00,
+   validade produzida 18h50. Cinquenta minutos para lá do gatilho.
+3. **Os controlos `div`/`span`.** Aqui a análise está certa e **eu tinha contado mal**: na
+   resposta à auditoria anterior dei zero, porque procurei no molde. Estavam nas listas
+   repintadas em JavaScript. Eram seis, em quatro listas, e a das propostas de PEA — a que
+   abre o documento — era inalcançável por teclado.
+
+E o ponto cego do carimbo, que é o achado mais afiado dos dois documentos: **a serialização
+canónica percorria só as chaves próprias.** Medido: `{a:1}` e o mesmo objeto com um protótipo
+a trazer `fantasma` davam o mesmo SHA-256, e o `fantasma` lia-se na mesma. O carimbo dizia
+«confere» por cima de conteúdo que ninguém escreveu — e o carimbo é o que este projeto
+oferece como prova de integridade.
+
+**O que a análise GPT diz e está desatualizado:** as sete correções que aponta como não
+resolvidas foram-no na r0094, que ela não viu. Sobra a coordenação da persistência, que
+continua por fazer.
+
+**A CI do `main` estava vermelha, e era verdade.** Confirmado no registo: a execução n.º 216,
+sobre o commit «Delete index.html», falhou. O `tests/montagem.test.mjs` exigia que o
+`index.html` da raiz fosse a entrega mais recente, byte a byte, e o ficheiro deixou de existir
+no `main`. Resolvido ao juntar as duas histórias: a cópia servida passou a ser o `home.html`
+que o dono carregou — ver o fim desta secção.
+
+**A análise Gemini é outra coisa.** Está bem escrita e tem partes corretas, mas descreve um
+projeto que não é este. Diz «monólito imperativo com mais de 2500 linhas» e «ficheiro
+monolítico de 3000 linhas»: a fonte são 72 módulos e 15 608 linhas em sete zonas. Diz
+«ausência de ambiente modular de testes unitários automatizados»: são 911 testes. E a
+«Solução A» que propõe — desenvolvimento em módulos com uma cadeia de compilação para
+entregar um ficheiro único — **é exatamente o que o projeto já faz** desde que `fonte/` e
+`npm run montar` existem. Analisou a entrega e não o repositório, e as três afirmações caem
+daí.
+
+Verifiquei o resto ponto por ponto:
+
+- **`I = H·w·R` (Gemini) reduz exatamente a `I = R·w/2` (o projeto).** Testado em três pontos:
+  idêntico à última casa. O «motor físico retificado» retifica zero na intensidade — é o
+  mesmo número escrito por extenso.
+- **Butler e Cohen (1998) já lá está**, com a distância de quatro vezes a altura da chama e a
+  tolerância de 7 kW/m² de radiação incidente, e a linha de contenção a uma vez e meia. A
+  «Solução D» propõe o que já existe, com as fontes já declaradas.
+- **O comprimento da chama diverge pouco e a fonte do projeto é melhor para aqui.** A 4 000
+  kW/m: 3,65 m pelo `I = 300·L²` de Fernandes (2003), 3,52 m pelo `L = 0,0775·I^0,46` que a
+  Gemini propõe, 3,54 m pelo `I = 258·L^2,17`. Três relações publicadas, diferença de 4 %. A
+  do projeto é a portuguesa e é a que a base doutrinária manda usar.
+- **O envelope PT-TM06 já existe** (`ENVELOPE_PTTM06`), com os limites em coordenadas
+  projetadas em vez do retângulo em graus que a «Solução C» propõe.
+- **As citações legais conferem, menos uma.** Art. 12.º, n.º 2 do DL n.º 90-A/2022 põe mesmo
+  os oficiais do PCO responsáveis pelas células de operações, planeamento, logística e
+  finanças. O art. 2.º, al. c) do Despacho define mesmo a fita do tempo como «o registo
+  temporal explícito e completo das decisões, ações e informações operacionais». Mas o
+  Despacho n.º 4067/2024 é **de 15 de abril, 2.ª série, n.º 74** — e a Gemini escreve «de 16
+  de abril, n.º 75». O projeto tem-no certo em `docs/FONTES.md`. É o género de erro contra o
+  qual existe a quarta restrição não negociável, num documento que se apresenta com
+  referências APA.
+- **A assinatura assimétrica proposta não dá o não-repúdio que promete.** Um par de chaves
+  gerado no próprio dispositivo, sem âncora de confiança nem infraestrutura de chaves, prova
+  que *alguma* chave assinou, não que foi a do COS. E o código proposto gera-o com
+  `extractable: false`, o que impede exportar a chave pública — sem ela ninguém verifica nada
+  fora daquele navegador. Fica por fazer, mas não por esta via: exige credenciais reais que a
+  aplicação não tem, e o projeto não inventa o que não tem fonte.
+- **O código da Gemini não corre como está.** `capacidadeTatíca` está escrito com acento no
+  sítio errado, e `avaliação` entra como chave de objeto com acento — nenhum dos dois é
+  defeito de doutrina, mas dizem alguma coisa sobre o grau de verificação do documento.
+
+Feito nesta revisão:
+
+1. **O chão de uma hora saiu do `horizonteValidade`.** No lugar ficou `avisoValidadeCurta`,
+   que diz quantos minutos faltam até ao primeiro gatilho e manda prever já a revisão, ou que
+   a validade está esgotada à nascença. A diferença é toda: o chão **alterava** a validade
+   para a fazer parecer razoável; isto deixa-a como é e diz que é curta.
+2. **`canonico` passa a percorrer por `for...in`.** Num objeto normal o conjunto de chaves é
+   o mesmo — o `Object.prototype` não tem nada enumerável —, pelo que nenhum carimbo já
+   emitido muda; num objeto adulterado passa a haver diferença, que é o que se queria.
+   A primeira tentativa **lançava** em vez de resumir, e partiu 28 testes do encerramento ao
+   apanhar objetos vindos de outro contexto de execução, que são planos e inofensivos.
+   Recusar era a resposta errada: aqui o trabalho é resumir tudo, não julgar.
+3. **A `blob:` URL é revogada em todas as recusas** posteriores à leitura da imagem, por um
+   `recusar()` que revoga e avisa. As duas que ficam a chamar `dizer` diretamente são as
+   duas certas: uma corre antes de haver URL, a outra depois de a folha estar colocada.
+4. **Os seis controlos são `<button>`**, ligados por delegação no contentor — e não por
+   elemento, porque as listas repintam-se muitas vezes e religar a cada repintura é a forma
+   de se perder um ouvinte em silêncio, defeito que este projeto já teve.
+
+E uma correção a um comentário do próprio código: o núcleo afirmava que dos `onclick`
+embutidos «nenhum resta». **Restavam seis.** A afirmação sobre o XSS mantinha-se de pé —
+nenhum deles interpolava texto de campo, levavam índices que a aplicação gera —, mas a
+afirmação sobre a forma estava errada, e estava escrita ao lado da regra que a desmentia.
+
+**Decidido pelo dono do repositório, e seguido aqui:** o `index.html` da raiz foi apagado do
+`main` a 4 de setembro, num commit explícito, e no mesmo minuto entrou `home.html` com a
+r0092 — a mesma cópia, com outro nome. A aplicação continua a ser servida por URL; só o
+nome mudou. As três saídas que estavam em aberto — repor o ficheiro, tirar a geração e o
+teste, ou tolerar a ausência — caíram todas: a montagem passa a escrever `home.html`, o
+teste passa a conferir `home.html`, e o nome vive num sítio só, `SERVIDO` em
+`ferramentas/montar.mjs`. O `index.html` não volta: ressuscitar um ficheiro que o dono
+apagou de propósito seria desfazer-lhe a decisão em silêncio.
 
 ## Decisões tomadas
 

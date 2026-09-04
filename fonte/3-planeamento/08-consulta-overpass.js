@@ -120,7 +120,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos — clica para adotar (quartéis primeiro, depois espaços amplos):";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<span class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" onclick="adotarPT('+i+')">'
+        '<button type="button" class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" data-pt="'+esc(i)+'">'
         +'<b'+(it.tipo==="fire_station"?' style="color:var(--madeira)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito: "+itens.length+" candidatos na carta entre 1,5 e 8 km");
     }
@@ -142,7 +142,7 @@ async function sugerirPT(){
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos pelo Photon (Overpass indisponível) — clica para adotar:";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<span class="tchip" style="cursor:pointer" onclick="adotarPT('+i+')"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
+        '<button type="button" class="tchip" style="cursor:pointer" data-pt="'+esc(i)+'"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("");
       fita("Sugestão de ponto de trânsito pelo Photon: "+itens.length+" candidatos");
     }catch(e2){
       $("pt-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — define o ponto de trânsito manualmente.";
@@ -188,8 +188,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Overpass/OSM", 3);
       $("sens-info").textContent = itens.length+" detetados — clica para adicionar (equipamentos sensíveis a vermelho):";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
-        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
+        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
+        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
       fita("Deteção OSM: "+itens.length+" aglomerados/sensíveis num raio de 3 km");
     }
   }catch(err){
@@ -213,8 +213,8 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Photon", 6);
       $("sens-info").textContent = itens.length+" detetados pelo Photon (Overpass indisponível) — clica para adicionar:";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<span class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" onclick="addSens('+i+')"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("")
-        + '<span class="tchip" style="cursor:pointer;border-color:var(--agua)" onclick="addSensTodos()"><b>Adicionar todos</b></span>';
+        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
+        + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
       fita("Deteção pelo Photon: "+itens.length+" aglomerados/sensíveis");
     }catch(e2){
       $("sens-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — introduz manualmente.";
