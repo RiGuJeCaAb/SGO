@@ -45,11 +45,24 @@ export async function auditar(chromium, ficheiro, executablePath) {
       const nome = (await pagina.locator('nav button').nth(i).textContent()).trim().replace(/\s+/g, ' ');
       const culpados = await pagina.evaluate(() => {
         const limite = window.innerWidth;
+        /* O que vive dentro de uma faixa que desliza de propósito não fura o ecrã: a barra
+           de separadores, abaixo de 640 px, é `overflow-x:auto` desde a r0100, e os botões
+           que ficam para lá da margem alcançam-se a deslizar. O que se exige é que a
+           **faixa** caiba; o que está dentro dela é dela. Sem isto a auditoria acusava oito
+           transbordos que eram o desenho. */
+        const dentroDeFaixa = (el) => {
+          for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+            const ox = getComputedStyle(a).overflowX;
+            if ((ox === 'auto' || ox === 'scroll') && a.getBoundingClientRect().right <= limite + 1) return true;
+          }
+          return false;
+        };
         return [...new Set(
           [...document.querySelectorAll('body *')]
             .filter((el) => el.getClientRects().length > 0)
             .map((el) => ({ el, r: el.getBoundingClientRect() }))
             .filter(({ r }) => r.width > 0 && r.right > limite + 1)
+            .filter(({ el }) => !dentroDeFaixa(el))
             .map(({ el, r }) => {
               const cls = typeof el.className === 'string' && el.className.trim()
                 ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '';

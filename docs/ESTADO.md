@@ -919,6 +919,14 @@ grupos inativos já ficavam `hidden`. Fica um teste a prová-lo em vez de uma co
 três linhas dentro do cabeçalho fixo; `.g4` passa a duas colunas abaixo de 1000; as larguras
 inline saem para `.larg-p`/`.larg-m`, que encolhem com o ecrã.
 
+**Um erro meu, e o que ensinou.** A cadeia que comita era `npm run visual | tail -1 && ...`, e
+o `tail` mascara o código de saída do `visual`: a r0100 saiu para o `main` com oito
+transbordos acusados. Eram os botões da barra de separadores, que a auditoria contava como a
+furar o ecrã quando estão dentro de uma faixa que desliza de propósito. A ferramenta passou a
+distinguir o que vive dentro de um antepassado com `overflow-x:auto` que cabe no ecrã, com a
+razão escrita; e o código de saída passa a ser lido antes de comitar. A correção é a `f982d42`
+mais um commit, e não uma remontagem da r0100: uma entrega que saiu não se apaga.
+
 ## Decisões tomadas
 
 Por ordem em que foram tomadas.
