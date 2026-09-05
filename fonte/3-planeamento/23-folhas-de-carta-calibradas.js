@@ -256,11 +256,20 @@ function colocacaoDaFolha(f){
            pontos:f.pontos, controlos:f.controlos };
 }
 
-/** Guarda a colocação das folhas, para que uma folha calibrada não se perca ao fechar. */
+/**
+ * Guarda a colocação das folhas, para que uma folha calibrada não se perca ao fechar.
+ *
+ * **Numa transação só.** Era um `clear()` numa transação e um `put()` por folha em
+ * transações seguintes — achado do ramo #001: entre o `clear()` e o primeiro `put()` a loja
+ * estava vazia, e um fecho da aba, uma falha de energia ou um `carregarFolhas` de outra
+ * aba nesse instante liam «sem folhas» e era verdade. Dentro da mesma transação o
+ * IndexedDB ou aplica tudo ou não aplica nada, e nunca há um instante em que a loja
+ * esteja meio escrita.
+ */
 async function guardarFolhas(){
   try{
-    await _idb("folhas", "readwrite", st=>st.clear());
-    for(const f of FOLHAS) await _idb("folhas", "readwrite", st=>st.put(colocacaoDaFolha(f)));
+    const colocacoes = FOLHAS.map(colocacaoDaFolha);
+    await _idb("folhas", "readwrite", st=>{ st.clear(); colocacoes.forEach(c=>st.put(c)); });
   }catch(e){}
 }
 
@@ -307,6 +316,35 @@ function lerTextoDoFicheiro(f){
     r.onerror = ()=>resolve("");
     r.readAsText(f);
   });
+}
+
+/**
+ * A partir de quantos megapixéis uma folha é pesada.
+ *
+ * Uma imagem descodificada ocupa quatro bytes por pixel, seja qual for o tamanho do
+ * ficheiro: 25 Mpx são 100 MB em memória, por folha, enquanto ela estiver colocada — e o
+ * navegador guarda a cópia descodificada de cada uma. Num posto modesto, com duas folhas
+ * assim e o mapa por cima, é o suficiente para o separador começar a arrastar-se ou a cair.
+ *
+ * O limiar é de prudência e não de recusa: uma carta militar 1:25 000 digitalizada a
+ * 300 ppp anda pelos 8 a 10 Mpx e passa folgada; a 600 ppp ultrapassa-o, e é quando
+ * interessa dizer que sim, entra, mas custa.
+ */
+const FOLHA_PESADA_MPX = 25;
+
+/**
+ * O aviso de uma folha pesada, ou vazio se não for o caso.
+ *
+ * **Declara, não bloqueia** — pedido do ramo #005, e a doutrina do carimbo do navegador:
+ * recusar tirava a folha a quem tem uma máquina que a aguenta; dizê-lo deixa-o decidir a
+ * saber. Quem tiver a folha a arrastar o mapa sabe onde procurar.
+ */
+function avisoFolhaPesada(largura, altura){
+  const mpx = (Number(largura) * Number(altura)) / 1e6;
+  if(!Number.isFinite(mpx) || mpx <= FOLHA_PESADA_MPX) return "";   /* «acima de»: no limiar exacto ainda não */
+  return "Folha pesada: " + largura + "×" + altura + " px, " + mpx.toFixed(0) + " Mpx — cerca de "
+    + Math.round(mpx * 4) + " MB em memória enquanto estiver colocada. Num posto modesto pode "
+    + "tornar o mapa lento; se for o caso, digitaliza a 300 ppp ou recorta ao que interessa.";
 }
 
 /**
@@ -384,8 +422,10 @@ async function colocarFolha(){
   f.img = im.url;
   FOLHAS.push(f);
   await guardarFolhas();
+  const pesada = avisoFolhaPesada(f.largura, f.altura);
   fita("Folha de carta colocada: "+f.nome+" ("+(pontos? pontos+" pontos de controlo" : "ficheiro de referenciação")
-    +", "+f.proveniencia+")"+(f.foraDoEnvelope? " — fora do envelope do continente":""));
+    +", "+f.proveniencia+")"+(f.foraDoEnvelope? " — fora do envelope do continente":"")
+    +(pesada? " — "+(f.largura*f.altura/1e6).toFixed(0)+" Mpx, pesada" : ""));
   pintarFolhas();
   try{ pintarMapa(); }catch(e){}
   const af = folhaAfericao(f);
@@ -397,9 +437,9 @@ async function colocarFolha(){
     + (af.mpp*Math.hypot(controlos[1].px-controlos[0].px, controlos[1].py-controlos[0].py)).toFixed(0)
     + " m entre os controlos e a medida esférica dá " + af.esferico + " m, "
     + (af.desvio*100).toFixed(1) + " % de diferença. Não é a colocação: é a projeção. Comunicar.");
-  dizer("ok", "Folha colocada."+(f.foraDoEnvelope
+  dizer(pesada? "av" : "ok", "Folha colocada."+(f.foraDoEnvelope
     ? " Cai fora do envelope do continente — pode ser das ilhas ou de Espanha, ou a colocação estar errada. Confere no mapa."
-    : ""));
+    : "")+(pesada? " "+pesada : ""));
   persistir(false);
 }
 

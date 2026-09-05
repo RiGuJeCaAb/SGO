@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0096**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0097**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 134, das anteriores à convenção de nomes até à r0096 |
+| Entregas em `app/` | 135, das anteriores à convenção de nomes até à r0097 |
 | Módulos em `fonte/` | 73, em sete zonas, mais o molde |
-| Testes | 911, todos a passar |
+| Testes | 929, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -764,6 +764,32 @@ função devolvia a promessa, antes de ela correr.
 **O que a auditoria visual apanhou.** O indicador fez a fila do cabeçalho não caber a 768 px —
 36 px a mais no botão do tema. A partir de 900 px as ações passam para a linha seguinte, que é o
 que já acontecia a 640.
+
+## Três pequenas dos ramos, e uma que não pôde ser — r0097
+
+Do que os ramos tinham deixado e cujas fontes já cá estavam:
+
+- **`guardarFolhas` numa transação só** (#001). Era um `clear()` numa transação e um `put()`
+  por folha em transações seguintes: entre o `clear()` e o primeiro `put()` a loja estava
+  vazia, e quem lesse nesse instante lia «sem folhas» e era verdade. O teste é vermelho na
+  entrega anterior e verde nesta — provou-se assim, ao correr por engano contra a montagem
+  velha antes de remontar.
+- **Uma folha pesada entra, e diz-se que pesa** (#005). Acima de 25 Mpx — quatro bytes por
+  pixel, 100 MB em memória por folha enquanto estiver colocada — a mensagem passa a aviso com
+  o tamanho e o custo. Declara, não bloqueia: uma carta 1:25 000 a 300 ppp anda pelos 8 a
+  10 Mpx e passa calada; a 600 ppp ultrapassa o limiar. O pedido original do #005 chegou nos
+  ficheiros passados à mão na sessão de 4 de setembro e não ficou no repositório; o que aqui
+  está segue o que dele ficou registado — «declarar, não bloquear» — com o limiar fundamentado
+  no comentário. O primeiro código avisava *a partir de* 25 e o manual dizia *acima de*: o
+  teste apanhou a contradição e o código seguiu o manual.
+- **Carlito também no ecrã** (#005). A regra de impressão já o tinha; a pré-visualização em
+  ecrã, que é o que o COS lê antes de aprovar, caía para a Inter num posto sem Office — o
+  mesmo documento com duas caras.
+
+**A que não pôde ser:** integrar o `q005_auditoria.js` no portão de montagem. O ficheiro
+nunca chegou ao repositório — veio nos mesmos ficheiros passados à mão e não foi guardado. Sem
+ele não há o que integrar; se voltar a chegar, entra em `ferramentas/` com uma linha no
+`package.json`.
 
 ## Decisões tomadas
 

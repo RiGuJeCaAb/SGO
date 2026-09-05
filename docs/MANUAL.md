@@ -264,6 +264,12 @@ que viaja por ficheiro de texto. Ao reabrir a aplicação, a folha continua lá 
 e aparece no plano com a sua proveniência — e basta voltar a escolher o ficheiro da imagem
 para a desenhar outra vez.
 
+**Uma folha pesada entra, e diz-se que pesa.** Acima de 25 megapixéis — cerca de 100 MB em
+memória por folha, enquanto estiver colocada — a mensagem de colocação passa a aviso e diz o
+tamanho e o custo. Não recusa: uma máquina que a aguenta não tem de ficar sem ela. Uma carta
+1:25 000 digitalizada a 300 ppp anda pelos 8 a 10 Mpx e passa folgada; a 600 ppp ultrapassa o
+limiar. Se o mapa ficar lento, é aqui que se procura.
+
 ---
 
 ## Relevo, meteorologia e comportamento do fogo
@@ -660,7 +666,8 @@ Mercator os dois números são muito diferentes: a 41° N o metro da projeção 
 escreve o valor do terreno e põe o da projeção entre parênteses, com a latitude a que vale.
 Em PT-TM06 os dois coincidem e nada se corrige.
 
-**O tipo de letra do documento impresso é o Calibri**, com recurso a `Inter` e depois à
+**O tipo de letra do documento impresso é o Calibri**, com recurso ao Carlito — que tem as
+métricas do Calibri e vem com o LibreOffice —, depois a `Inter` e por fim à
 letra sem serifas do sistema. Num computador sem Microsoft Office instalado, o Calibri não
 existe e o PEA impresso deixa de bater exatamente com o modelo `.docx`. O conteúdo é o
 mesmo; o espaçamento não.
