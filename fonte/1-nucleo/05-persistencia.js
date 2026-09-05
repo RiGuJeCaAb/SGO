@@ -177,7 +177,7 @@ function escreverForm(){
  */
 function aviso(id,cls,txt){
   const e=$(id); if(!e) return;
-  e.classList.remove("err","ok","av"); e.classList.add("msg", cls);
+  e.classList.remove("msg--err","msg--ok","msg--av"); e.classList.add("msg", "msg--"+cls);
   /* Um erro é anunciado ao leitor de ecrã na hora; uma confirmação espera a sua vez. */
   e.setAttribute("role", cls === "err"? "alert" : "status");
   e.textContent=txt; e.style.display="block";

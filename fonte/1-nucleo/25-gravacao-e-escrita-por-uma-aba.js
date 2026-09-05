@@ -76,12 +76,12 @@ function pintarGravacao(){
   const hora = E.g? E.g.slice(2,6).replace(/(\d\d)(\d\d)/, "$1:$2") : "";
   const R = {
     "nada":     ["", "Sem gravação ainda", "Ainda não houve nada para gravar nesta sessão."],
-    "a-gravar": ["ag", "A gravar", "Há uma gravação em curso."],
-    "gravado":  ["ok", "Gravado " + hora, "Última gravação bem-sucedida às " + hora + "."],
-    "falhou":   ["falhou", "NÃO GRAVADO", "A última gravação falhou: " + E.erro + ". O que está no ecrã pode não estar em lado nenhum."],
-    "leitura":  ["leitura", "Só leitura", LEITURA.motivo],
+    "a-gravar": ["grav--a-gravar", "A gravar", "Há uma gravação em curso."],
+    "gravado":  ["grav--gravado", "Gravado " + hora, "Última gravação bem-sucedida às " + hora + "."],
+    "falhou":   ["grav--falhou", "NÃO GRAVADO", "A última gravação falhou: " + E.erro + ". O que está no ecrã pode não estar em lado nenhum."],
+    "leitura":  ["grav--leitura", "Só leitura", LEITURA.motivo],
   }[E.estado] || ["", E.estado, ""];
-  el.className = "grav " + R[0];
+  el.className = "grav" + (R[0]? " "+R[0] : "");
   el.textContent = R[1];
   el.title = R[2];
   el.setAttribute("aria-label", "Estado da gravação: " + R[2]);

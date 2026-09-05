@@ -216,7 +216,7 @@ function abrirRendicao(alvo){
       ${u.it.ts? "Rendição devida às <b>"+esc(gdhDe(u.it.ts + teto*3600000))+"</b>." : ""}</p>
     ${jaPedida
       ? `<p class="hint" style="margin:0 0 10px 0"><b>Solicitada a ${esc(u.it.rend.g)}</b>${u.it.rend.por? " por "+esc(u.it.rend.por):""}${u.it.rend.nota? " — "+esc(u.it.rend.nota):""}.</p>`
-      : `<div class="grid g2">
+      : `<div class="grid grid--2">
            <div><label for="rd-por">Quem determina</label><input id="rd-por" placeholder="posto, nome e apelido" value="${esc(quemRegista())}"></div>
            <div><label for="rd-g">GDH do pedido</label><input id="rd-g" placeholder="vazio = agora"></div>
          </div>
@@ -236,7 +236,7 @@ function abrirRendicao(alvo){
         ? `<p class="hint" style="margin:0 0 10px 0"><b>Saiu do TO às ${esc(rd.saida)}</b>${rd.chegada
             ? "; chegou à Entidade às <b>"+esc(rd.chegada)+"</b>." : "; chegada à Entidade por registar."}</p>`
         : ""}
-      ${rd.chegada ? "" : `<div class="grid g2">
+      ${rd.chegada ? "" : `<div class="grid grid--2">
         ${saiu ? "" : `<div><label for="rd-saida">Saída do TO (GDH)</label><input id="rd-saida" placeholder="vazio = agora"></div>`}
         <div><label for="rd-chegada">Chegada à Entidade (GDH)</label><input id="rd-chegada" placeholder="quando a Entidade a confirmar"></div>
       </div>

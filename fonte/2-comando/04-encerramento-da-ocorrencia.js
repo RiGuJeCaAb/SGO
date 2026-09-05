@@ -211,9 +211,9 @@ function pintarEncerramento(){
   if(cPor && !cPor.value.trim() && !encerrada()) cPor.value = quemRegista();
   const E = encObj();
   if(encerrada()){
-    cx.className = "msg ok"; cx.style.display = "block";
+    cx.className = "msg msg--ok"; cx.style.display = "block";
     const bate = E.sha? (E.sha === (()=>{ const g=encObj(), guardado=g.sha; g.sha=""; const r=resumoEstado(O); g.sha=guardado; return r; })()) : null;
-    cx.className = "msg " + (bate === false? "av" : "ok");
+    cx.className = "msg " + (bate === false? "msg--av" : "msg--ok");
     cx.innerHTML = esc("Registo encerrado a "+E.g+" por "+E.por+(E.nota? " — "+E.nota : "")
       + ". O registo está fechado à escrita; para o alterar é preciso reabrir.")
       + (E.sha? "<br><span class=\"mono-sm\">Carimbo de integridade: "+esc(resumoCurto(E.sha))
@@ -221,7 +221,7 @@ function pintarEncerramento(){
   } else {
     const v = verificarEncerramento();
     cx.style.display = "block";
-    cx.className = v.pode? (v.reservas.length? "msg av" : "msg ok") : "msg err";
+    cx.className = v.pode? (v.reservas.length? "msg msg--av" : "msg msg--ok") : "msg msg--err";
     cx.textContent = v.pode
       ? (v.reservas.length? "Pode encerrar-se, com reservas: "+v.reservas.join(" ")
                           : "Pode encerrar-se: nenhum setor em curso e nada por fechar.")

@@ -94,14 +94,14 @@ function pintarAnalise(){
   $("strip").innerHTML = svgMeteo(S, a);
   const m=metricas();
   $("metrics").innerHTML=`
-    <div class="m"><div class="k">Janela</div><div class="v ${m.janela?'c-verde':'c-verm'}">${m.janela?m.janela.inicio+"–"+m.janela.fim:"—"}</div><div class="s">${m.janela?'HR '+m.janela.hr_inicio+' % → '+m.janela.hr_max+' %':'sem HR ≥ 50 %'}</div></div>
-    <div class="m"><div class="k">HR mínima</div><div class="v c-verm">${m.hr_min.v} %</div><div class="s">${m.hr_min.h} · ${m.hr_min.d}</div></div>
-    <div class="m"><div class="k">T máxima</div><div class="v c-lar">${m.t_max.v} °C</div><div class="s">${m.t_max.h} · ${m.t_max.d}</div></div>
-    <div class="m"><div class="k">Rotações</div><div class="v c-am">${m.rotacoes.length}</div><div class="s">${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join(" · ")||"—"}</div></div>
-    ${m.alinhamento_relevo_vento===null? "" : `<div class="m"><div class="k">Alinhamento relevo×vento</div><div class="v ${m.alinhamento_relevo_vento.criticas.length? "c-verm" : (m.alinhamento_relevo_vento.horas.length? "c-am":"c-verde")}">${m.alinhamento_relevo_vento.horas.length? m.alinhamento_relevo_vento.horas.length+" h":"nulo"}</div><div class="s">${m.alinhamento_relevo_vento.horas.length? "encostas "+m.alinhamento_relevo_vento.orient+" · "+resumoHoras(m.alinhamento_relevo_vento.horas)+(m.alinhamento_relevo_vento.criticas.length? " · CRÍTICO "+resumoHoras(m.alinhamento_relevo_vento.criticas):"") : "sem escoamento a subir as encostas "+m.alinhamento_relevo_vento.orient}</div></div>`}
-    <div class="m"><div class="k">Vento máximo</div><div class="v">${m.vento_max.v} km/h</div><div class="s">${m.vento_max.h} · de ${m.vento_max.rumo}</div></div>
-    <div class="m"><div class="k">Precipitação total</div><div class="v ${m.precip_total>0?'c-verde':''}">${m.precip_total} mm</div><div class="s">no horizonte analisado</div></div>
-    <div class="m"><div class="k">Convectivo</div><div class="v ${m.convectivo.length?'c-verm':'c-verde'}">${m.convectivo.length?"SIM":"não"}</div><div class="s">${m.convectivo.map(c=>c.h+" ("+c.mm+" mm)").join(" · ")||"sem precipitação"}</div></div>`;
+    <div class="met-m"><div class="met-k">Janela</div><div class="met-v ${m.janela?'c-verde':'c-verm'}">${m.janela?m.janela.inicio+"–"+m.janela.fim:"—"}</div><div class="met-s">${m.janela?'HR '+m.janela.hr_inicio+' % → '+m.janela.hr_max+' %':'sem HR ≥ 50 %'}</div></div>
+    <div class="met-m"><div class="met-k">HR mínima</div><div class="met-v c-verm">${m.hr_min.v} %</div><div class="met-s">${m.hr_min.h} · ${m.hr_min.d}</div></div>
+    <div class="met-m"><div class="met-k">T máxima</div><div class="met-v c-lar">${m.t_max.v} °C</div><div class="met-s">${m.t_max.h} · ${m.t_max.d}</div></div>
+    <div class="met-m"><div class="met-k">Rotações</div><div class="met-v c-am">${m.rotacoes.length}</div><div class="met-s">${m.rotacoes.map(r=>r.h+" "+r.de+"→"+r.para).join(" · ")||"—"}</div></div>
+    ${m.alinhamento_relevo_vento===null? "" : `<div class="met-m"><div class="met-k">Alinhamento relevo×vento</div><div class="met-v ${m.alinhamento_relevo_vento.criticas.length? "c-verm" : (m.alinhamento_relevo_vento.horas.length? "c-am":"c-verde")}">${m.alinhamento_relevo_vento.horas.length? m.alinhamento_relevo_vento.horas.length+" h":"nulo"}</div><div class="met-s">${m.alinhamento_relevo_vento.horas.length? "encostas "+m.alinhamento_relevo_vento.orient+" · "+resumoHoras(m.alinhamento_relevo_vento.horas)+(m.alinhamento_relevo_vento.criticas.length? " · CRÍTICO "+resumoHoras(m.alinhamento_relevo_vento.criticas):"") : "sem escoamento a subir as encostas "+m.alinhamento_relevo_vento.orient}</div></div>`}
+    <div class="met-m"><div class="met-k">Vento máximo</div><div class="met-v">${m.vento_max.v} km/h</div><div class="met-s">${m.vento_max.h} · de ${m.vento_max.rumo}</div></div>
+    <div class="met-m"><div class="met-k">Precipitação total</div><div class="met-v ${m.precip_total>0?'c-verde':''}">${m.precip_total} mm</div><div class="met-s">no horizonte analisado</div></div>
+    <div class="met-m"><div class="met-k">Convectivo</div><div class="met-v ${m.convectivo.length?'c-verm':'c-verde'}">${m.convectivo.length?"SIM":"não"}</div><div class="met-s">${m.convectivo.map(c=>c.h+" ("+c.mm+" mm)").join(" · ")||"sem precipitação"}</div></div>`;
   $("c-analise").querySelector("h2 .tag").textContent = "núcleo de antecipação (art. 29.º) — próximas "+SERIE.length+" h, calculada por código";
   $("c-analise").style.display="block";
 }
@@ -139,6 +139,6 @@ function analisarCSV(log=true){
     try{ pintarMeteoIdade(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ }
     pintarAnalise(); $("msg-csv").style.display="none";
     if(log){ fita("Meteograma analisado ("+SERIE.length+" h; janela "+(ANALISE.jan?hh(ANALISE.jan.i.h)+"–"+hh(ANALISE.jan.f.h+1):"inexistente")+")"); persistir(false); }
-  }catch(e){ $("msg-csv").className="msg err"; $("msg-csv").textContent="Não foi possível analisar: "+e; $("msg-csv").style.display="block"; }
+  }catch(e){ $("msg-csv").className="msg msg--err"; $("msg-csv").textContent="Não foi possível analisar: "+e; $("msg-csv").style.display="block"; }
 }
 

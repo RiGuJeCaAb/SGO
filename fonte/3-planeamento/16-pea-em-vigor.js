@@ -619,7 +619,7 @@ function renderEstadoPEA(){
        <div class="row"><button class="btn btn-o" type="button" id="pe-entregar">Entregar ao COS para apreciação</button></div>`
     : est === "analise"
     ? `<p class="hint" style="margin:0 0 12px 0">Entregue ao COS a <b>${esc(p.analise.g||"—")}</b>. A aprovação é ato de comando e acontece fora desta aplicação: aqui regista-se quem a determinou, com que função e a que horas. <b>As ordens de missão são produzidas no momento em que a aprovação fica registada</b> — antes disso não há ordens para transmitir.</p>
-       <div class="grid g3">
+       <div class="grid grid--3">
          <div><label for="pe-por">Quem determina</label><input id="pe-por" placeholder="posto, nome e apelido" value="${esc(quemRegista())}"></div>
          <div><label for="pe-fn">Função</label><input id="pe-fn" placeholder="COS" value="COS"></div>
          <div><label for="pe-g">GDH da aprovação</label><input id="pe-g" placeholder="vazio = agora"></div>
@@ -629,13 +629,13 @@ function renderEstadoPEA(){
     : `<p class="hint" style="margin:0">Aprovado e determinado por <b>${esc((ap.funcao||"COS")+" "+(ap.por||"—"))}</b> a <b>${esc(ap.g||"—")}</b>${ap.nota? " — "+esc(ap.nota) : ""}.${
          (p.ctrl&&p.ctrl.length)? " Ordens de missão produzidas: "+p.ctrl.length+" em controlo de execução." : ""}</p>`
       + (p.semOrdens
-         ? `<div class="msg err" style="display:block;margin-top:10px">Este PEA está aprovado <b>sem ordens de missão</b>: ${esc(p.semOrdens.motivo)} (${esc(p.semOrdens.g)}). Enquanto assim estiver, não há controlo de execução nesta aplicação e a transmissão das missões faz-se fora dela.</div>`
+         ? `<div class="msg msg--err" style="display:block;margin-top:10px">Este PEA está aprovado <b>sem ordens de missão</b>: ${esc(p.semOrdens.motivo)} (${esc(p.semOrdens.g)}). Enquanto assim estiver, não há controlo de execução nesta aplicação e a transmissão das missões faz-se fora dela.</div>`
            + `<div class="row" style="margin-top:10px"><button class="btn btn-o" type="button" id="pe-ordens">Produzir ordens de missão</button></div>`
          : "");
 
   C.innerHTML = `<div class="card">
     <h2>Estado da proposta n.º ${p.n} <span class="tag">elaboração da célula · aprovação e determinação do COS — art. 8.º, n.º 2, al. e)</span></h2>
-    <div class="pe-fx">${PEA_ESTADOS.map(k=>`<span class="pe-e ${k===est? "on":""}${PEA_ESTADOS.indexOf(k)<PEA_ESTADOS.indexOf(est)? " feita":""}">${esc(PEA_ROT[k])}</span>`).join("")}</div>
+    <div class="pe-fx">${PEA_ESTADOS.map(k=>`<span class="pe-e ${k===est? "ativo":""}${PEA_ESTADOS.indexOf(k)<PEA_ESTADOS.indexOf(est)? " feita":""}">${esc(PEA_ROT[k])}</span>`).join("")}</div>
     ${corpo}
     <div class="msg" id="pe-msg" style="display:none"></div>
   </div>`;

@@ -29,7 +29,7 @@ function pintarEvoCtx(){
     inserirEvo(c.dataset.ins);
     const iSet = c.getAttribute("data-set");
     EVO_SETOR = (iSet != null)? +iSet : null;
-    el.querySelectorAll("[data-set]").forEach(o=>o.classList.toggle("on", o === c));
+    el.querySelectorAll("[data-set]").forEach(o=>o.classList.toggle("ativo", o === c));
     const ef = $("evo-efeito"); if(ef) ef.style.display = "none";
   }));
 }
@@ -54,18 +54,18 @@ function proporEstadoDaFrase(estado){
   if(!estado || EVO_SETOR === null || !e.setores[EVO_SETOR]){ el.style.display = "none"; return; }
   const s = e.setores[EVO_SETOR], nome = NOMES_SETOR[EVO_SETOR];
   if(s.estado === estado){
-    el.className = "msg ok"; el.style.display = "block";
+    el.className = "msg msg--ok"; el.style.display = "block";
     el.textContent = "O setor "+nome+" já está em \u00ab"+estado+"\u00bb.";
     return;
   }
-  el.className = "msg av"; el.style.display = "block";
+  el.className = "msg msg--av"; el.style.display = "block";
   el.innerHTML = "O setor "+esc(nome)+" está em \u00ab"+esc(s.estado||"sem estado")+"\u00bb. "
     + "A frase diz outra coisa \u2014 passar a \u00ab"+esc(estado)+"\u00bb? "
     + '<button class="btn btn-o" type="button" id="evo-aplicar" style="margin-left:10px">Alterar o estado do setor</button>';
   const b = $("evo-aplicar");
   if(b) b.addEventListener("click", ()=>{
     if(mudarEstadoSetor(EVO_SETOR, estado)){
-      el.className = "msg ok";
+      el.className = "msg msg--ok";
       el.textContent = "Setor "+nome+" passou a \u00ab"+estado+"\u00bb, com registo automático na evolução e na fita.";
       pintarTudo();
     }
@@ -119,7 +119,7 @@ function montarFrases(){
      diz-se; um ecrã vazio sem explicação é defeito. */
   function mostrar(){
     const q = procura.value.trim().toLowerCase();
-    cx.classList.toggle("q", !!q);
+    cx.classList.toggle("com-procura", !!q);
     let achados = 0;
     grupos.forEach((g,i)=>{
       if(!q){
@@ -139,11 +139,11 @@ function montarFrases(){
     });
     const vazio = $("fr-vazio"); if(vazio) vazio.style.display = (q && !achados)? "block" : "none";
     barra.querySelectorAll("[data-g]").forEach(b=>
-      b.classList.toggle("on", !q && +b.getAttribute("data-g") === FR_GRUPO));
+      b.classList.toggle("ativo", !q && +b.getAttribute("data-g") === FR_GRUPO));
   }
 
   barra.innerHTML = grupos.map((g,i)=>
-    '<button type="button" class="fr-t" data-g="'+i+'">'+esc(g.nome)+'<span class="n">'+g.frases.length+'</span></button>').join("");
+    '<button type="button" class="fr-t" data-g="'+i+'">'+esc(g.nome)+'<span class="fr-t-n">'+g.frases.length+'</span></button>').join("");
   barra.querySelectorAll("[data-g]").forEach(b=>b.addEventListener("click", ()=>{
     FR_GRUPO = +b.getAttribute("data-g"); procura.value = ""; mostrar();
   }));

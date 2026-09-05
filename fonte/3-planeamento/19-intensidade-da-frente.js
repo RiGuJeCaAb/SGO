@@ -277,7 +277,7 @@ function pintarEstimativa(){
   const el = $("pr-saida"); if(!el) return;
   /* O elemento pode ter acabado de servir de caixa de erro a `aviso()`: repõe-se a forma
      de saída de estimativa antes de escrever nela, ou a estimativa nascia escondida. */
-  el.classList.remove("msg","err","ok","av"); el.style.display = "";
+  el.classList.remove("msg","msg--err","msg--ok","msg--av"); el.style.display = "";
   cancelarAviso(el);
   const E = O.dados.fogo.est;
   ["modelo","altura","declive","u10","hcm"].forEach((k,i)=>{

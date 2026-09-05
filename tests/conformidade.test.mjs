@@ -495,7 +495,7 @@ test('o medidor diz o estado na cor e o quanto no número', semAplicacao, () => 
   // e a cor da marca é o estado. E sem instante não há medidor nenhum.
   const agora = janela.agora();
   const cheio = janela.medidorTempo({ t: 'VFCI', ts: agora - 13 * 3600000 });
-  assert.match(cheio, /class="med r"/);
+  assert.match(cheio, /class="med nivel-r"/);
   assert.doesNotMatch(cheio, /gm-x/, 'passado o limite, todos os gomos acendem');
   assert.match(cheio, /\u22121,0 h/, 'passado o limite, o número é o excedente com sinal');
   assert.match(cheio, /Limite de 12 h excedido em 1,0 h/);
@@ -503,19 +503,19 @@ test('o medidor diz o estado na cor e o quanto no número', semAplicacao, () => 
 
   // Os gomos são as horas: acesos os que faltam, apagados os que já passaram.
   const meio = janela.medidorTempo({ t: 'VFCI', ts: agora - 9 * 3600000 });
-  assert.equal((meio.match(/class="gm"/g) || []).length, 3, 'faltam 3 h, acendem 3 gomos');
-  assert.equal((meio.match(/class="gm-x"/g) || []).length, 9, 'e os 9 gastos ficam em traço');
+  assert.equal((meio.match(/class="med-gm"/g) || []).length, 3, 'faltam 3 h, acendem 3 gomos');
+  assert.equal((meio.match(/class="med-gm-x"/g) || []).length, 9, 'e os 9 gastos ficam em traço');
   assert.match(meio, /3,0 h/);
   assert.match(meio, /rendição prevista para \d{6}[A-Z]{3}\d{2}/);
 
-  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 1 * 3600000 }), /class="med v"/);
-  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 9 * 3600000 }), /class="med a"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 1 * 3600000 }), /class="med nivel-v"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 9 * 3600000 }), /class="med nivel-a"/);
   assert.match(janela.medidorTempo({ t: 'VFCI', ts: 0 }), /sem relógio/);
 });
 
 test('o medidor usa o limiar aéreo para meios aéreos', semAplicacao, () => {
   const agora = janela.agora();
   // 7 h passa o teto de 6 h dos aéreos, e não passa o de 12 h dos terrestres.
-  assert.match(janela.medidorTempo({ t: 'HEBL', ar: 1, ts: agora - 7 * 3600000 }), /class="med r"/);
-  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 7 * 3600000 }), /class="med v"/);
+  assert.match(janela.medidorTempo({ t: 'HEBL', ar: 1, ts: agora - 7 * 3600000 }), /class="med nivel-r"/);
+  assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 7 * 3600000 }), /class="med nivel-v"/);
 });

@@ -126,7 +126,7 @@ function pintarPerfil(){
     {k:"Declive máximo", v:fmtPT(maxD), u:"%", c:maxD>=20? "sub-i":""},
     {k:"Subida acumulada", v:Math.round(subida), u:"m"},
     {k:"Descida acumulada", v:Math.round(descida), u:"m"}
-  ].map(x=>`<div class="pf-c ${x.c||""}"><span class="k">${esc(x.k)}</span><span class="v">${esc(String(x.v))}<small>${esc(x.u)}</small></span></div>`).join("");
+  ].map(x=>`<div class="pf-c ${x.c||""}"><span class="pf-k">${esc(x.k)}</span><span class="pf-v">${esc(String(x.v))}<small>${esc(x.u)}</small></span></div>`).join("");
   const kmMax = (total*iMax/(N-1));
   const leitura = [];
   leitura.push(medio>=0

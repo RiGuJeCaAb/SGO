@@ -565,7 +565,7 @@ let GP_ASSINATURA = null;
 /** Diz como correu a importação, na caixa do próprio cartão. */
 function gpDizer(cls, texto){
   const m = $("gp-msg"); if(!m) return;
-  m.className = "msg "+cls; m.textContent = texto; m.style.display = "block";
+  m.className = "msg msg--"+cls; m.textContent = texto; m.style.display = "block";
 }
 
 /** Resumo de uma conversão, em texto corrido. */

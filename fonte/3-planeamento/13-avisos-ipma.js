@@ -1,6 +1,6 @@
 /* ================= PLANEAMENTO · avisos IPMA (art. 28.º) ================= */
 let DISTRITOS_IPMA = null;
-const NIVEL_AVISO = {yellow:{c:"am",n:"AMARELO"}, orange:{c:"lr",n:"LARANJA"}, red:{c:"vm",n:"VERMELHO"}};
+const NIVEL_AVISO = {yellow:{c:"av-c--am",n:"AMARELO"}, orange:{c:"av-c--lr",n:"LARANJA"}, red:{c:"av-c--vm",n:"VERMELHO"}};
 const ORDEM_AVISO = {red:0, orange:1, yellow:2};
 /**
  * Qual a área de aviso do IPMA que serve este teatro, e como se lá chegou.

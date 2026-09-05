@@ -89,7 +89,7 @@ function caixaAviso(x){
      fazendo a coisa. */
   const feito = cumprimentoDe(x.id);
   const cump = (x.n === "ob" && CUMPRIVEIS[x.id] && !feito)? CUMPRIVEIS[x.id] : null;
-  return `<div class="avd-b ${x.n}">
+  return `<div class="avd-b avd-b--${x.n}">
     <span class="avd-n">${rot}</span>
     <div class="avd-t">${esc(x.t)}</div>
     <div class="avd-s"><span class="avd-k">Situação</span><div class="avd-v">${esc(x.s)}</div></div>
@@ -155,7 +155,7 @@ function pintarDON(){
   /* sinal no cabeçalho */
   const b = $("b-sinal");
   if(b){
-    b.className = "sinal " + (ob? "r" : (av? "a" : "v"));
+    b.className = "sinal nivel-" + (ob? "r" : (av? "a" : "v"));
     const q = $("sinal-qt"); if(q) q.textContent = ativos.length? String(ativos.length) : "0";
     /* A gravidade por extenso, e não só na cor da lâmpada: um daltónico via «Avisos 3» nos
        dois casos, e o `title` não existe em toque. As palavras são as que a aplicação já
@@ -232,7 +232,7 @@ function pintarAmpulhetas(){
         <span class="amp-mk" style="left:${mkAv.toFixed(1)}%"></span>
       </div>
       <div class="amp-e">rendição às ${hhmm(x.limite)}</div>
-      <div class="amp-s ${x.nivel}">${rot}</div>
+      <div class="amp-s nivel-${x.nivel}">${rot}</div>
     </div>`;
   }).join("");
   /* O bloco da ação, por cima do quadro: quem está para além do limite e ainda não tem

@@ -213,10 +213,10 @@ function renderCatalogo(){
   if(t) t.textContent = CANAIS.ent.length
     ? CANAIS.ent.length+" canais"+(ex.length? " · "+ex.length+" fora do pacote":"")+(O.meta.distrito? " · "+O.meta.distrito:"")
     : "pacote vazio";
-  let h = '<div class="pk-r"><span class="k">Distrito</span><span class="v">'+(O.meta.distrito
+  let h = '<div class="pk-r"><span class="pk-k">Distrito</span><span class="pk-v">'+(O.meta.distrito
       ? esc(O.meta.distrito)+(O.meta.concelho? ", concelho de "+esc(O.meta.concelho):"")+' <span class="pend">— determinado pelas coordenadas do teatro de operações</span>'
       : '<span class="pend">por determinar — depende das coordenadas do TO, em Comando</span>')+'</span></div>';
-  h += '<div class="pk-r"><span class="k">Sub-região do TO</span><span class="v">'+(subregiaoTO()
+  h += '<div class="pk-r"><span class="pk-k">Sub-região do TO</span><span class="pk-v">'+(subregiaoTO()
       ? esc(subregiaoTO())+(semAcento(subregiaoTO())===semAcento(SUBREGIAO_PACOTE)
           ? ' <span class="pend">— a do pacote carregado neste posto</span>'
           : ' <span class="fora">— o pacote carregado é o de '+esc(SUBREGIAO_PACOTE)+'; os canais sub-regionais desta pasta não servem este TO</span>')
@@ -226,17 +226,17 @@ function renderCatalogo(){
     if(!arr.length) return;
     const fora = arr.filter(x=>!canalAplicavel(x));
     const areas = [...new Set(arr.map(x=>x.area).filter(Boolean))];
-    h += '<div class="pk-r"><span class="k">'+esc(PASTAS[k].t)+'</span><span class="v">'+arr.length+
+    h += '<div class="pk-r"><span class="pk-k">'+esc(PASTAS[k].t)+'</span><span class="pk-v">'+arr.length+
       (arr.length===1? " canal":" canais")+(areas.length? " · "+esc(areas.join(", ")):"")+
       (fora.length? ' <span class="fora">'+fora.length+" fora do âmbito deste TO"+(fora.length<=3? ": "+esc(fora.map(x=>x.des).join(", ")):"")+"</span>":"")+
       '</span></div>';
   });
-  resumoPacote().forEach(x=>{ h += '<div class="pk-r"><span class="k">'+esc(x.r)+'</span><span class="v">'+x.t+'</span></div>'; });
+  resumoPacote().forEach(x=>{ h += '<div class="pk-r"><span class="pk-k">'+esc(x.r)+'</span><span class="pk-v">'+x.t+'</span></div>'; });
   if(!pk.length) h += '<p class="cat-vaz">Pacote do distrito por repor.</p>';
   if(ex.length) h += '<div class="atr-g" style="margin-top:14px"><span class="atr-t">fora do pacote · '+ex.length+'</span></div>'+
     '<div class="cat-h"><span>Rede</span><span>Designação</span><span>Nível</span><span>Nota</span><span></span></div>'+
     ex.map(x=>{ const i = CANAIS.ent.indexOf(x);
-      return `<div class="cat-r${canalAplicavel(x)? "":" fora"}"><span class="rd">${esc(PASTAS[x.pasta||"local"].t)}</span><span class="des">${esc(x.des)}</span><span class="nv">${esc(NIVEIS[x.niv]||"—")}</span><span class="nt">${esc(x.area? "âmbito: "+x.area+(canalAplicavel(x)? "":" — não existe neste TO"):(x.nota||""))}</span><button type="button" class="x" data-catdel="${i}" aria-label="remover">×</button></div>`;
+      return `<div class="cat-r${canalAplicavel(x)? "":" fora"}"><span class="cat-rd">${esc(PASTAS[x.pasta||"local"].t)}</span><span class="des">${esc(x.des)}</span><span class="cat-nv">${esc(NIVEIS[x.niv]||"—")}</span><span class="cat-nt">${esc(x.area? "âmbito: "+x.area+(canalAplicavel(x)? "":" — não existe neste TO"):(x.nota||""))}</span><button type="button" class="cat-x" data-catdel="${i}" aria-label="remover">×</button></div>`;
     }).join("");
   L.innerHTML = h;
   L.querySelectorAll("[data-catdel]").forEach(b=>b.addEventListener("click", ()=>{

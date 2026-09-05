@@ -105,7 +105,7 @@ test('irPara com identificador antigo abre a célula certa', semAplicacao, () =>
   assert.ok(antigos.length >= 4, 'a tabela de correspondência está vazia');
   antigos.forEach((antigo) => {
     assert.doesNotThrow(() => janela.irPara(antigo), antigo);
-    const ativo = doc().querySelector('nav button.on');
+    const ativo = doc().querySelector('nav button.ativo');
     assert.ok(ativo && ativo.dataset.p.startsWith('p-'), antigo + ' não abriu separador nenhum');
   });
 });
@@ -113,7 +113,7 @@ test('irPara com identificador antigo abre a célula certa', semAplicacao, () =>
 test('irPara com identificador novo continua a funcionar, e um desconhecido não rebenta',
   semAplicacao, () => {
     janela.irPara('p-logistica');
-    assert.equal(doc().querySelector('nav button.on').dataset.p, 'p-logistica');
+    assert.equal(doc().querySelector('nav button.ativo').dataset.p, 'p-logistica');
     assert.doesNotThrow(() => janela.irPara('p-inexistente'));
   });
 
@@ -226,13 +226,13 @@ test('cada nível de aviso tem peso visual próprio', semAplicacao, () => {
   // O CSS chega serializado pelo motor; compara-se sem depender de espaços.
   const css = [...janela.document.styleSheets[0].cssRules]
     .map((r) => r.cssText).join(' ').replace(/\s+/g, '');
-  assert.match(css, /\.avd-b\.ob\{[^}]*border-left-width:7px/, 'a obrigação não tem barra própria');
-  assert.match(css, /\.avd-b\.av\{[^}]*border-left-width:5px/, 'a antecipação não tem barra própria');
-  assert.match(css, /\.avd-b\.ob[^{]*\{[^}]*box-shadow:[^};]+;/, 'a obrigação não tem relevo');
+  assert.match(css, /\.avd-b--ob\{[^}]*border-left-width:7px/, 'a obrigação não tem barra própria');
+  assert.match(css, /\.avd-b--av\{[^}]*border-left-width:5px/, 'a antecipação não tem barra própria');
+  assert.match(css, /\.avd-b--ob[^{]*\{[^}]*box-shadow:[^};]+;/, 'a obrigação não tem relevo');
   // a etiqueta do nível é bloco cheio nas que exigem ação, e texto na que é só registo
-  assert.match(css, /\.avd-b\.ob\.avd-n\{background:var\(--fogo\)/);
-  assert.match(css, /\.avd-b\.av\.avd-n\{background:var\(--terra\)/);
-  assert.match(css, /\.avd-b\.ok\.avd-n\{color:var\(--madeira\)/);
+  assert.match(css, /\.avd-b--ob\.avd-n\{background:var\(--fogo\)/);
+  assert.match(css, /\.avd-b--av\.avd-n\{background:var\(--terra\)/);
+  assert.match(css, /\.avd-b--ok\.avd-n\{color:var\(--madeira\)/);
 });
 
 /* ---- o que veio da linhagem paralela: p0010 a p0013 ---- */
@@ -254,17 +254,17 @@ test('a ajuda é dobrável e abre fechada', semAplicacao, () => {
   const ajudas = [...doc().querySelectorAll('.help')];
   assert.ok(ajudas.length >= 5, 'só ' + ajudas.length + ' blocos de ajuda');
   ajudas.forEach((h) => {
-    const b = h.querySelector(':scope > .hb');
+    const b = h.querySelector(':scope > .help-hb');
     assert.ok(b, 'bloco de ajuda sem título dobrável');
     assert.equal(b.getAttribute('aria-expanded'), 'false', 'a ajuda abre aberta: o muro volta');
     assert.ok(b.textContent.trim(), 'o título tem de se ver mesmo fechado');
-    assert.ok(h.querySelector(':scope > .hc'), 'o corpo não foi para o contentor dobrável');
+    assert.ok(h.querySelector(':scope > .help-hc'), 'o corpo não foi para o contentor dobrável');
   });
 
   const um = ajudas[0];
-  um.querySelector(':scope > .hb').dispatchEvent(new janela.Event('click', { bubbles: true }));
+  um.querySelector(':scope > .help-hb').dispatchEvent(new janela.Event('click', { bubbles: true }));
   assert.ok(um.classList.contains('aberta'));
-  assert.equal(um.querySelector(':scope > .hb').getAttribute('aria-expanded'), 'true');
+  assert.equal(um.querySelector(':scope > .help-hb').getAttribute('aria-expanded'), 'true');
   assert.equal(ajudas[1].classList.contains('aberta'), false, 'abriu mais do que aquele em que se carregou');
   janela.abrirAjuda(um, false);
 });
@@ -348,7 +348,7 @@ test('a escala do perímetro e a rosa dos ventos não se desmancham', semAplicac
   // cor punha o 75 antes do 10, que é pior do que o mosaico que se queria resolver.
   const mini = (grupo) => [...doc().querySelectorAll('#evo-frases .fr-g')]
     .find((g) => g.querySelector('.fr-l').textContent.trim() === grupo)
-    .querySelectorAll('.fr.mini');
+    .querySelectorAll('.evo-fr.mini');
   assert.deepEqual([...mini('Perímetro')].map((b) => b.textContent),
     ['10 %', '25 %', '50 %', '75 %', '90 %', '100 %']);
   assert.deepEqual([...mini('Propagação')].map((b) => b.textContent),
@@ -360,8 +360,8 @@ test('as teclas do léxico têm o relevo das teclas de canal', semAplicacao, () 
   // e crava-se ao ser carregada. É a mesma mecânica das teclas de canal — e o mesmo CSS.
   const css = [...janela.document.styleSheets[0].cssRules]
     .map((r) => r.cssText).join(' ').replace(/\s+/g, '');
-  assert.match(css, /\.fr\{[^}]*box-shadow:var\(--rel\)/, 'a tecla do léxico não tem relevo');
-  assert.match(css, /\.fr:active\{[^}]*box-shadow:var\(--afund\)/, 'a tecla não afunda ao ser premida');
+  assert.match(css, /\.evo-fr\{[^}]*box-shadow:var\(--rel\)/, 'a tecla do léxico não tem relevo');
+  assert.match(css, /\.evo-fr:active\{[^}]*box-shadow:var\(--afund\)/, 'a tecla não afunda ao ser premida');
   assert.match(css, /\.atc\{[^}]*box-shadow:var\(--rel\)/, 'a tecla de canal perdeu o relevo');
 });
 
@@ -377,7 +377,7 @@ test('o léxico mostra um grupo de cada vez, com a barra composta dos próprios 
   assert.equal(barra.length, grupos.length, 'um separador por grupo');
   assert.match(barra[0].textContent, /^Combate/);
   // A contagem na barra é a do grupo, não um número escrito à mão.
-  barra.forEach((b, i) => assert.equal(b.querySelector('.n').textContent,
+  barra.forEach((b, i) => assert.equal(b.querySelector('.fr-t-n').textContent,
     String(grupos[i].querySelectorAll('[data-fr]').length)));
 
   assert.equal(grupos[0].hidden, false, 'o primeiro grupo está à vista');
@@ -386,7 +386,7 @@ test('o léxico mostra um grupo de cada vez, com a barra composta dos próprios 
   barra[3].dispatchEvent(new janela.Event('click', { bubbles: true }));
   assert.equal(grupos[3].hidden, false);
   assert.equal(grupos[0].hidden, true);
-  assert.ok(barra[3].classList.contains('on'));
+  assert.ok(barra[3].classList.contains('ativo'));
   barra[0].dispatchEvent(new janela.Event('click', { bubbles: true }));
 });
 
@@ -401,7 +401,7 @@ test('a procura corta os grupos todos e diz quando não encontra', semAplicacao,
   assert.ok(vistas.every((b) => /rendição/i.test(b.textContent + b.getAttribute('data-fr'))));
   // Achou fora do grupo à vista: a procura é transversal.
   assert.ok(grupos.some((g, i) => i !== 0 && !g.hidden));
-  assert.ok(doc().getElementById('evo-frases').classList.contains('q'),
+  assert.ok(doc().getElementById('evo-frases').classList.contains('com-procura'),
     'a procurar, o rótulo do grupo volta a aparecer');
 
   escrever('zzz não existe');

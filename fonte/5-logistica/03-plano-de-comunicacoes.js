@@ -50,15 +50,15 @@ function renderNiveis(){
     manobra: ns? ns+(ns===1? " setor ativado":" setores ativados") : "sem setores ativados",
     aereo  : na? na+(na===1? " meio aéreo no TO":" meios aéreos no TO") : "sem meios aéreos no TO"
   };
-  const caixa = k => `<label class="nvb ${N[k]? "on ":""}${k}${(!N[k]&&g[k])? " falta":""}">
+  const caixa = k => `<label class="nvb ${N[k]? "ativo ":""}${k}${(!N[k]&&g[k])? " falta":""}">
       <input type="checkbox" data-nvl="${k}"${N[k]? " checked":""}>
-      <span class="t">${NIVEL_ROT[k].t}</span>
-      <span class="d">${NIVEL_ROT[k].d}</span>
-      <span class="q">${esc(nota[k])}${(!N[k]&&g[k])? " · exigido pelo dispositivo":""}</span></label>`;
+      <span class="nvb-t">${NIVEL_ROT[k].t}</span>
+      <span class="nvb-d">${NIVEL_ROT[k].d}</span>
+      <span class="nvb-q">${esc(nota[k])}${(!N[k]&&g[k])? " · exigido pelo dispositivo":""}</span></label>`;
   el.innerHTML = `<div class="nvg">${NIVEL_ORD.map(caixa).join("")}
-    <label class="nvb ${N.ba? "on ":""}rede"><input type="checkbox" data-nvl="ba"${N.ba? " checked":""}>
-      <span class="t">Banda alta</span><span class="d">rede operacional dos bombeiros em paralelo ao SIRESP</span>
-      <span class="q">${N.ba? "colunas de banda alta visíveis":"apenas SIRESP"}</span></label></div>`;
+    <label class="nvb ${N.ba? "ativo ":""}rede"><input type="checkbox" data-nvl="ba"${N.ba? " checked":""}>
+      <span class="nvb-t">Banda alta</span><span class="nvb-d">rede operacional dos bombeiros em paralelo ao SIRESP</span>
+      <span class="nvb-q">${N.ba? "colunas de banda alta visíveis":"apenas SIRESP"}</span></label></div>`;
   el.querySelectorAll("[data-nvl]").forEach(b=>b.addEventListener("change", ()=>{
     const M = nivObj(), k = b.dataset.nvl; M.tocado = true; M[k] = b.checked;
     fita((b.checked? "Nível ativado":"Nível desativado")+" no plano de comunicações: "+(NIVEL_ROT[k]? NIVEL_ROT[k].t : "banda alta"));
@@ -74,7 +74,7 @@ function renderAtrib(){
   let h = "";
   porGrupos(lista, (rot,arr,r,n)=>{
     h += '<div class="atr-g"><span class="atr-t">'+esc(rot)+'</span><div class="atr-c">'+
-      arr.map(x=>'<button type="button" class="atc'+(A.has(String(x.des).toUpperCase())? " on "+(n||"") : "")+
+      arr.map(x=>'<button type="button" class="atc'+(A.has(String(x.des).toUpperCase())? " ativo "+(n||"") : "")+
         '" data-atr="'+esc(x.des)+'" title="'+esc(x.des+(x.nota? " — "+x.nota:""))+'">'+esc(x.des)+'</button>').join("")+'</div></div>';
   });
   if(!lista.length) h = '<p class="hint">Escolhe primeiro os níveis a utilizar e aparecem aqui os canais do pacote correspondentes.</p>';
@@ -98,11 +98,11 @@ function renderComs(){
   const D = $("cm-dist");
   /* Com nome: era o único controlo gerado sem rótulo que sobrava — o canal por nível,
      que um leitor de ecrã anunciava como «caixa de combinação» e mais nada. */
-  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}" aria-label="Canal ${esc(String(rede).toUpperCase())}${niv? " do nível "+esc((typeof NIVEIS!=="undefined" && NIVEIS[niv])||niv) : ""}"></select><input class="cwo" hidden placeholder="designação do canal" aria-label="Designação do canal"></span>`;
-  const cls = duplo => "cm-f"+((duplo && N.ba)? "" : " nb");
+  const sel = (attrs, rede, niv) => `<span class="cm-cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}" aria-label="Canal ${esc(String(rede).toUpperCase())}${niv? " do nível "+esc((typeof NIVEIS!=="undefined" && NIVEIS[niv])||niv) : ""}"></select><input class="cwo" hidden placeholder="designação do canal" aria-label="Designação do canal"></span>`;
+  const cls = duplo => "cm-f"+((duplo && N.ba)? "" : " cm-f--nb");
   const cab = duplo => `<div class="${cls(duplo)} cm-fh"><span class="atr-t">Interlocutor</span><span class="atr-t">SIRESP</span>${(duplo&&N.ba)? '<span class="atr-t">Banda alta</span>':""}</div>`;
   const linha = (nome, det, s1, s2) => `<div class="${cls(!!s2)}">
-      <span class="nm">${esc(nome)}${det? `<small>${esc(det)}</small>`:""}</span>${s1}${(s2&&N.ba)? s2 : ""}</div>`;
+      <span class="cm-nm">${esc(nome)}${det? `<small>${esc(det)}</small>`:""}</span>${s1}${(s2&&N.ba)? s2 : ""}</div>`;
   const painel = (k, corpo, nota) => `<div class="sub"><span class="stit">Nível ${NIVEL_ROT[k].t} — canais e interlocutores</span>${corpo}${nota? `<p class="hint">${nota}</p>`:""}</div>`;
   const fnDo = k => P.funcoes.map((x,i)=>({x,i})).filter(o=>nivelDaFuncao(o.x.f)===k);
   const linhaFuncao = o => linha(o.x.f, (o.x.nome||"por nomear")+(o.x.entidade? " · "+o.x.entidade:""),
@@ -164,9 +164,9 @@ function renderComs(){
   }
 
   const Q = $("cm-quadro"); if(!Q) return;
-  const lin = (nivel,quem,detalhe,si,ba) => `<div class="cm-r"><span class="lv ${nivel.toLowerCase()}">${nivel}</span>
-    <span class="qm">${esc(quem)}${detalhe? `<small>${esc(detalhe)}</small>`:""}</span>
-    <span class="ch">${si? esc(si):'<i>por atribuir</i>'}</span><span class="ch">${ba? esc(ba):"—"}</span></div>`;
+  const lin = (nivel,quem,detalhe,si,ba) => `<div class="cm-r"><span class="cm-lv ${nivel.toLowerCase()}">${nivel}</span>
+    <span class="cm-qm">${esc(quem)}${detalhe? `<small>${esc(detalhe)}</small>`:""}</span>
+    <span class="cm-ch">${si? esc(si):'<i>por atribuir</i>'}</span><span class="cm-ch">${ba? esc(ba):"—"}</span></div>`;
   let corpo = "";
   if(N.comando){
     corpo += lin("Comando","COS","comando da operação; único contacto rádio com o exterior do TO", canaisObj().cmd, canaisObj().ba);
@@ -180,9 +180,9 @@ function renderComs(){
     corpo += (e.setores||[]).filter(x=>x.siresp).map(x=>lin("Manobra","Equipas do setor "+NOMES_SETOR[(e.setores||[]).indexOf(x)], "", x.siresp, x.ba||"")).join("");
   }
   if(N.aereo){
-    corpo += `<div class="cm-r"><span class="lv aéreo">Aéreo</span>
-      <span class="qm">Ligação terra/ar/terra<small>frequência do ar${canaisObj().aero? ": "+esc(canaisObj().aero) : " por atribuir"} — canal prioritário; SIRESP e banda alta em alternativa e emergência</small></span>
-      <span class="ch">${canaisObj().opar? esc(canaisObj().opar):'<i>por atribuir</i>'}</span><span class="ch">${canaisObj().cmar? esc(canaisObj().cmar):"—"}</span></div>`;
+    corpo += `<div class="cm-r"><span class="cm-lv aéreo">Aéreo</span>
+      <span class="cm-qm">Ligação terra/ar/terra<small>frequência do ar${canaisObj().aero? ": "+esc(canaisObj().aero) : " por atribuir"} — canal prioritário; SIRESP e banda alta em alternativa e emergência</small></span>
+      <span class="cm-ch">${canaisObj().opar? esc(canaisObj().opar):'<i>por atribuir</i>'}</span><span class="cm-ch">${canaisObj().cmar? esc(canaisObj().cmar):"—"}</span></div>`;
     corpo += fnDo("aereo").map(o=>lin("Aéreo", o.x.f, o.x.nome||"", o.x.siresp||canaisObj().opar, o.x.ba||canaisObj().cmar||"")).join("");
   }
   Q.innerHTML = corpo

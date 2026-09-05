@@ -406,22 +406,22 @@ function pintarGuia(){
     const btn = document.querySelector('nav button[data-p="'+p+'"]'); if(!btn) return;
     const itens = L.filter(x=>x.p===p);
     const falta = itens.filter(x=>!x.ok&&x.ob).length, rec = itens.filter(x=>!x.ok&&!x.ob).length;
-    let nb = btn.querySelector(".nb");
-    if(!nb){ nb=document.createElement("span"); nb.className="nb"; btn.appendChild(nb); }
+    let nb = btn.querySelector(".nav-nb");
+    if(!nb){ nb=document.createElement("span"); nb.className="nav-nb"; btn.appendChild(nb); }
     /* o distintivo só aparece quando há algo por fazer: a ausência é o sinal de secção completa */
-    if(falta){ nb.className="nb f"; nb.textContent=String(falta); btn.title=falta+(falta===1? " campo obrigatório em falta nesta secção":" campos obrigatórios em falta nesta secção"); }
-    else if(rec){ nb.className="nb r"; nb.textContent=String(rec); btn.title=rec+(rec===1? " campo recomendado por preencher; nada obrigatório em falta":" campos recomendados por preencher; nada obrigatório em falta"); }
-    else { nb.className="nb c"; nb.textContent=""; btn.title="Secção completa"; }
+    if(falta){ nb.className="nav-nb nav-nb--f"; nb.textContent=String(falta); btn.title=falta+(falta===1? " campo obrigatório em falta nesta secção":" campos obrigatórios em falta nesta secção"); }
+    else if(rec){ nb.className="nav-nb nav-nb--r"; nb.textContent=String(rec); btn.title=rec+(rec===1? " campo recomendado por preencher; nada obrigatório em falta":" campos recomendados por preencher; nada obrigatório em falta"); }
+    else { nb.className="nav-nb nav-nb--c"; nb.textContent=""; btn.title="Secção completa"; }
   });
   // próximo passo
   const g=$("guia"), gt=$("guia-txt"), gi=$("guia-ir");
   const prim = L.find(x=>!x.ok&&x.ob);
   if(prim){
-    g.className="guia-in falta";
+    g.className="guia-in guia-in--falta";
     gt.textContent = prim.c+" ("+(NOMES_PANE[prim.p]||prim.p)+")";
     gi.style.display=""; gi.onclick=()=>irPara(prim.p);
   } else {
-    g.className="guia-in ok";
+    g.className="guia-in guia-in--ok";
     gt.textContent = "Dados obrigatórios completos — podes emitir a proposta de PEA em Planeamento.";
     gi.style.display=""; gi.onclick=()=>irPara("p-pea");
   }
@@ -431,14 +431,14 @@ function pintarGuia(){
    movidos, como na arrumação por células, e mover preserva o que estiver ligado. */
 function dobrarAjudas(){
   document.querySelectorAll(".help").forEach(h=>{
-    if(h.querySelector(":scope > .hb")) return;              /* já dobrado */
-    const ht = h.querySelector(":scope > .ht") || h.querySelector(":scope > h3");
+    if(h.querySelector(":scope > .help-hb")) return;              /* já dobrado */
+    const ht = h.querySelector(":scope > .help-ht") || h.querySelector(":scope > h3");
     const titulo = ht ? ht.textContent.trim() : "Ajuda desta secção";
     const corpo = document.createElement("div");
-    corpo.className = "hc";
+    corpo.className = "help-hc";
     while(h.firstChild) corpo.appendChild(h.firstChild);
     const b = document.createElement("button");
-    b.type = "button"; b.className = "hb"; b.setAttribute("aria-expanded", "false");
+    b.type = "button"; b.className = "help-hb"; b.setAttribute("aria-expanded", "false");
     b.innerHTML = '<span></span><span class="hseta">mostrar</span>';
     b.firstChild.textContent = titulo;
     b.addEventListener("click", ()=>abrirAjuda(h, !h.classList.contains("aberta")));
@@ -448,7 +448,7 @@ function dobrarAjudas(){
 /** Abre ou fecha um bloco de ajuda, e acerta o que o botão diz. */
 function abrirAjuda(h, on){
   h.classList.toggle("aberta", !!on);
-  const b = h.querySelector(":scope > .hb");
+  const b = h.querySelector(":scope > .help-hb");
   if(b){
     b.setAttribute("aria-expanded", on? "true":"false");
     const st = b.querySelector(".hseta"); if(st) st.textContent = on? "ocultar" : "mostrar";
@@ -529,10 +529,10 @@ function renderCheck(){
        uma que falta — falha fechada —, mas não se diz «em falta»: não é o campo que está
        vazio, é a verificação que rebentou, e mandar preencher seria mandar para o sítio
        errado. */
-    const cls = x.ok? "ok" : (x.erro? "falta" : (x.ob? "falta":"rec"));
+    const cls = x.ok? "est--ok" : (x.erro? "est--falta" : (x.ob? "est--falta":"est--rec"));
     const rot = x.ok? "COMPLETO" : (x.erro? "POR VERIFICAR" : (x.ob? "EM FALTA":"RECOMENDADO"));
     const nota = x.erro? ` <span class="hint">não foi possível verificar: ${esc(x.erro)}</span>` : "";
-    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}${nota}</span>${(x.ok||x.erro)? "" : `<button class="ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
+    return `<div class="chk"><span class="est ${cls}">${rot}</span><span class="cmp">${esc(x.c)}${nota}</span>${(x.ok||x.erro)? "" : `<button class="chk-ir" data-ir="${esc(x.p)}">Preencher</button>`}</div>`;
   }).join("") + (falta? `<p class="hint" style="margin-top:10px;color:var(--fogo)">Faltam ${falta} dados obrigatórios — o PEA não pode ser emitido sem eles.</p>`
                        : `<p class="hint" style="margin-top:10px;color:var(--madeira)">Dados obrigatórios completos — pronto para emitir.</p>`);
   /* Sem `onclick="irPara('...')"`: o destino é interno, mas a forma é a mesma que

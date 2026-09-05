@@ -98,9 +98,9 @@ function renderTurno(){
     dec.textContent = h===null? "GDH de início por preencher" : fmtH(h) + (h>=LIMITE_TURNO_H? " — acima das 12 h":"");
     dec.style.borderLeftColor = h===null? "var(--line)" : (h>=LIMITE_TURNO_H? "var(--fogo)" : (h>=LIMITE_TURNO_H-2? "var(--terra)":"var(--madeira)"));
   }
-  box.innerHTML = '<div class="grid g2">' + CELULAS_PCO().map(c=>`
+  box.innerHTML = '<div class="grid grid--2">' + CELULAS_PCO().map(c=>`
     <div class="sub" data-cel="${esc(c.k)}"><span class="stit">${esc(c.n)} <span class="hint" style="font-weight:400">${esc(c.r)}</span></span>
-      <div class="grid g2">
+      <div class="grid grid--2">
         <div><label for="tn-n-${c.k}">Quem assegura</label><input id="tn-n-${c.k}" data-tn="${esc(c.k)}" data-f="n" value="${esc(t.celulas[c.k].n||"")}" placeholder="posto, nome"></div>
         <div><label for="tn-c-${c.k}">Contacto</label><input id="tn-c-${c.k}" data-tn="${esc(c.k)}" data-f="ct" value="${esc(t.celulas[c.k].ct||"")}" placeholder="telemóvel" inputmode="tel"></div>
       </div>
@@ -186,7 +186,7 @@ function renderQuadroTurno(){
       }catch(e){}
       if(f.semRazao.length) partes.push("controlo livre do fecho sem razão declarada — "+f.semRazao.join(", "));
       av.style.display = partes.length? "block" : "none";
-      av.className = "msg err";
+      av.className = "msg msg--err";
       if(partes.length) av.textContent = "Posse por confirmar: " + partes.join(" · ");
     }
   }catch(e){}

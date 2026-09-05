@@ -33,7 +33,7 @@ test('persistir devolve que gravou, e o cabeçalho passa a «gravado» com hora'
   assert.equal(r.ok, true);
   assert.equal(av('GRAVACAO.estado'), 'gravado');
   assert.match(av('$("grav").textContent'), /^Gravado \d\d:\d\d$/);
-  assert.equal(av('$("grav").className'), 'grav ok');
+  assert.equal(av('$("grav").className'), 'grav grav--gravado');
 });
 
 test('uma gravação falhada devolve o motivo e fica à vista, sem lançar', semAplicacao, async () => {

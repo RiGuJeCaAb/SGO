@@ -36,7 +36,7 @@ async function llm(prompt){
 /** Diz em que modo a proposta vai ser redigida, e porquê. Nunca fica implícito. */
 function pintarModoLLM(){
   const e=document.getElementById("llm-modo"); if(!e) return;
-  e.className = "msg " + (LLM.modo==="manual" ? "err" : "ok");
+  e.className = "msg " + (LLM.modo==="manual" ? "msg--err" : "msg--ok");
   e.style.display = "block";
   e.textContent = "Modo de redação: " + LLM.rot + ". " + LLM.nota;
 }

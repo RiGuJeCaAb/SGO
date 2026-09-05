@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0107**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0108**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 145, das anteriores à convenção de nomes até à r0107 |
+| Entregas em `app/` | 146, das anteriores à convenção de nomes até à r0108 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1065, todos a passar |
+| Testes | 1066, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1297,6 +1297,39 @@ revisão que já mexe em nove módulos.
 
 **Números.** 1065 testes, 18 novos; nove portões e o trabalho de navegador verdes — 774
 símbolos conferidos no arranque, consola limpa; auditoria visual limpa nos dois temas.
+
+## As classes curtas ganham o nome do bloco — r0108
+
+A última pendência da r0102, feita como revisão só dela, como lá ficou escrito. **As setenta
+e quatro classes de dois caracteres ou menos saíram todas** — `.a`, `.r`, `.v`, `.k`, `.m`,
+`.on`, `.ok`, `.fr`, `.g2`… — por uma regra só: o que está dentro de um bloco chama-se
+`bloco-elemento` (`met-k`, `pk-v`, `help-hb`, `cat-x`, `evo-fr`), o que modifica um bloco
+chama-se `bloco--estado` (`msg--ok`, `avd-b--ob`, `grav--gravado`, `grid--2`), e os
+estados partilhados por vários blocos ficaram com um nome que se lê sozinho: `nivel-a/r/v`
+no semáforo, no medidor e no quadro de rendições, e `ativo` onde era `on` — o separador, o
+painel, a tecla de canal, o grupo do léxico, o estado do PEA. Na folha ficou o contexto que
+já lá estava (`.sinal .sinal-qt`, `.pd-don .pd-dk`): o prefixo não substitui o pai, diz de
+quem o elemento é quando aparece sozinho num `class="…"` do código, que era o que faltava.
+
+**O que a renomeação encontrou.** Duas regras mortas que o `morto` não via: `.st.off`, cujo
+«off» aparecia noutro literal e passava por vivo, e `.paper h3.l` e `h3.v`, que nenhum `h3`
+trazia. Saíram. E quatro sítios que compõem a classe a partir de um valor do estado —
+`med nivel-${nivel}`, `amp-s nivel-${x.nivel}`, `avd-b avd-b--${x.n}`,
+`pd-don pd-don--${x.n}` — entram em `SABIDOS` com a razão, como a regra manda; os outros
+compostos passaram a literais, para a análise os ver.
+
+**Como se fez, para a próxima.** Não foi um `sed`: um inventário por classe — atributo
+`class` no molde e nos módulos, `classList`, `className`, `querySelector`, e os compostos
+com `${` ou `+` —, e depois substituições exatas com o número de ocorrências esperado em
+cada uma, a recusar quando o número não bate. Trinta e dois ficheiros, 628 linhas. Os
+testes que leem a folha de estilos pelo texto (`.avd-b.ob{`, `.fr{`, `grav ok`) foram os que
+partiram, e é bom que tenham partido: são o que prende a folha ao que se afirma dela. Um
+teste novo recusa qualquer classe de dois caracteres ou menos na folha, com o `\p{L}` que
+o `\w` do JavaScript não tem — sem ele, `.tático` e `.aéreo` liam-se como `t` e `a`.
+
+**Números.** 1066 testes, 1 novo; nove portões e o trabalho de navegador verdes; auditoria
+visual limpa nos dois temas, nas quatro larguras. Os 308 `style=` em linha continuam de
+fora, como a r0102 os deixou: são outra revisão.
 
 ## Decisões tomadas
 

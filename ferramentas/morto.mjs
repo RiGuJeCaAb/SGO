@@ -185,7 +185,11 @@ export const SABIDOS = {
   classes: [
     { prefixo: 'pri-',  onde: '2-comando/01 · `pco-r pri-${prioridadeFuncao(...)}`' },
     { prefixo: 'tipo-', onde: '7-arranque/01 · `evo-i tipo-${esc(e.tipo)}`' },
-    { prefixo: 'marca-', onde: '3-planeamento/19 · `marca-${r.det.marca.grau}`, o grau do tecto de saída' }
+    { prefixo: 'marca-', onde: '3-planeamento/19 · `marca-${r.det.marca.grau}`, o grau do tecto de saída' },
+    /* Os prefixos da r0108: o estado compõe-se a partir do valor que o código já usa. */
+    { prefixo: 'nivel-',  onde: '4-operacoes/01 · `med nivel-${nivel}`; 5-logistica/04 · `amp-s nivel-${x.nivel}` e `sinal nivel-…`' },
+    { prefixo: 'avd-b--', onde: '5-logistica/04 · `avd-b avd-b--${x.n}`, o peso da verificação' },
+    { prefixo: 'pd-don--', onde: '7-arranque/01 · `pd-don pd-don--${x.n}`, o mesmo peso no PEA impresso' }
   ],
   ids: [
     { id: 'c-elementos', porque: 'contentor do cartão de elementos; a arrumação encontra-o pelo título' },

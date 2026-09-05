@@ -201,6 +201,6 @@ test('com a lista em «não marca nada», o clique diz-o em vez de se calar', se
   const msg = janela.document.getElementById('mapa-msg');
   assert.equal(msg.style.display, 'block');
   assert.match(msg.textContent, /escolher primeiro, em «Clicar no mapa marca»/);
-  assert.equal(msg.classList.contains('err'), false, 'não é erro: é uma indicação');
+  assert.equal(msg.classList.contains('msg--err'), false, 'não é erro: é uma indicação');
   assert.equal(daqui(avaliar(janela, 'O').dados.notas).length, antes, 'e continua a não marcar nada');
 });

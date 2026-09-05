@@ -530,14 +530,14 @@ function pintarFolhas(){
         +(af.escalaProj > 1.001? ' no terreno ('+fmtPT(af.mppProj, 3)
           +' m de projeção a '+fmtPT(af.latRef, 2)+'° N)' : "")
       : 'escala por apurar';
-    return '<div class="pk-r"><span class="k">'+esc(f.nome)+'</span><span class="v">'
+    return '<div class="pk-r"><span class="pk-k">'+esc(f.nome)+'</span><span class="pk-v">'
       + f.largura+'×'+f.altura+' px · '+escalaTxt+' · '+esc(g? g.n : f.grelha)
       + ' · '+(f.pontos? f.pontos+' pontos de controlo' : 'ficheiro de referenciação')
       + ' · '+esc(f.proveniencia)
       + (f.foraDoEnvelope? ' <span class="pend">fora do envelope do continente</span>' : "")
       + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+fmtPT(af.desvio*100, 1)+' %</span>' : "")
       + (f.img? "" : ' <span class="pend">sem imagem nesta sessão — volta a escolhê-la para a desenhar</span>')
-      + ' <button class="lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
+      + ' <button class="btn-lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
   }).join("") + orfas;
   el.querySelectorAll("[data-fo-rem]").forEach(b=>b.addEventListener("click", ()=>retirarFolha(b.dataset.foRem)));
 }

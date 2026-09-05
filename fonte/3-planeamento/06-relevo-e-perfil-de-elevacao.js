@@ -64,10 +64,10 @@ function pintarRelevo(){
   }
 
   const chips = '<div class="rel-chips">'
-    + '<div class="rel-c"><div class="k">Cota do ponto</div><div class="v">'+Math.round(R.e0)+' m</div></div>'
-    + '<div class="rel-c"><div class="k">Amplitude (1200 m)</div><div class="v">'+Math.round(eMax-eMin)+' m</div></div>'
-    + '<div class="rel-c"><div class="k">Declive máximo</div><div class="v">'+fmtPT(maxAbs)+' %</div></div>'
-    + '<div class="rel-c"><div class="k">Exposição dominante</div><div class="v" style="color:'+(dom?'var(--fogo)':'var(--madeira)')+'">'+(dom||"plano")+'</div></div>'
+    + '<div class="rel-c"><div class="rel-k">Cota do ponto</div><div class="rel-v">'+Math.round(R.e0)+' m</div></div>'
+    + '<div class="rel-c"><div class="rel-k">Amplitude (1200 m)</div><div class="rel-v">'+Math.round(eMax-eMin)+' m</div></div>'
+    + '<div class="rel-c"><div class="rel-k">Declive máximo</div><div class="rel-v">'+fmtPT(maxAbs)+' %</div></div>'
+    + '<div class="rel-c"><div class="rel-k">Exposição dominante</div><div class="rel-v" style="color:'+(dom?'var(--fogo)':'var(--madeira)')+'">'+(dom||"plano")+'</div></div>'
     + '</div>';
 
   /* rosa de gradientes — escala adaptativa */
@@ -122,8 +122,8 @@ function pintarRelevo(){
     + '<div class="rel-read"><b>Leitura operacional:</b> '+esc(leitura)+'</div>'
     + (fogo? '<div class="rel-read"><b>Declive e vento ('+esc(hh(horaVento.h))+', vento mais forte da série):</b> '+esc(fogo)+'</div>' : '')
     + '<div class="rel-grids">'
-    + '<div class="rel-g"><span class="gt">Rosa de gradientes — vermelho: terreno desce (encosta exposta); verde: sobe</span>'+rr.join("")+'</div>'
-    + '<div class="rel-g"><span class="gt">Perfis de cota nos 8 rumos (0–1200 m) — exposição dominante destacada</span>'+pp.join("")+'</div>'
+    + '<div class="rel-g"><span class="rel-gt">Rosa de gradientes — vermelho: terreno desce (encosta exposta); verde: sobe</span>'+rr.join("")+'</div>'
+    + '<div class="rel-g"><span class="rel-gt">Perfis de cota nos 8 rumos (0–1200 m) — exposição dominante destacada</span>'+pp.join("")+'</div>'
     + '</div>';
 }
 

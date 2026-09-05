@@ -225,11 +225,11 @@ function renderPCO(){
     ? emFalta.length+(emFalta.length===1? " função exigível por nomear":" funções exigíveis por nomear")
     : (P.funcoes.length? P.funcoes.length+(P.funcoes.length===1? " função nomeada":" funções nomeadas") : "artigo 14.º do Despacho n.º 4067/2024");
 
-  const listaFalta = emFalta.length? `<div class="pco-falta"><span class="k">Exigíveis por nomear</span>${
-    emFalta.map(x=>`<div class="pf pf-e"><b>${esc(x.f)}</b><span class="m">${esc(x.motivo)}</span><span class="r">${esc(x.r)}</span></div>`).join("")}</div>` : "";
+  const listaFalta = emFalta.length? `<div class="pco-falta"><span class="pco-falta-k">Exigíveis por nomear</span>${
+    emFalta.map(x=>`<div class="pco-pf pf-e"><b>${esc(x.f)}</b><span class="pco-pf-m">${esc(x.motivo)}</span><span class="pco-pf-r">${esc(x.r)}</span></div>`).join("")}</div>` : "";
   const recom = FUNCOES_PCO.filter(x=>!P.funcoes.some(y=>y.f===x.f) && prioridadeFuncao(x, exig)==="r");
-  const listaRec = recom.length? `<div class="pco-falta pco-rec"><span class="k">Recomendadas — próxima fase ou limiar próximo</span>${
-    recom.map(x=>`<div class="pf pf-r"><b>${esc(x.f)}</b><span class="m">${esc(x.g)}</span><span class="r">${esc(x.r)}</span></div>`).join("")}</div>` : "";
+  const listaRec = recom.length? `<div class="pco-falta pco-rec"><span class="pco-falta-k">Recomendadas — próxima fase ou limiar próximo</span>${
+    recom.map(x=>`<div class="pco-pf pf-r"><b>${esc(x.f)}</b><span class="pco-pf-m">${esc(x.g)}</span><span class="pco-pf-r">${esc(x.r)}</span></div>`).join("")}</div>` : "";
 
   const linhas = P.funcoes.length? P.funcoes.map((x,i)=>`<div class="pco-r pri-${prioridadeFuncao(pcoDef(x.f).f? pcoDef(x.f) : {f:x.f, r:"—", g:"—"}, exig)}">
       <div class="pf-n"><b>${esc(x.f)}</b><small>${esc(pcoDef(x.f).r)}</small></div>

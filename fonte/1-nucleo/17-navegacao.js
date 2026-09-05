@@ -1,10 +1,10 @@
 /* ================= NÚCLEO · navegação ================= */
 $("b-sinal").addEventListener("click", ()=>{
-  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
-  document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("ativo"));
+  document.querySelectorAll(".pane").forEach(x=>x.classList.remove("ativo"));
   const bC = document.querySelector('nav button[data-p="p-comando"]');
-  if(bC) bC.classList.add("on");
-  $("p-comando").classList.add("on");
+  if(bC) bC.classList.add("ativo");
+  $("p-comando").classList.add("ativo");
   try{ pintarDON(); }catch(e){}
   /* O `scrollTo(0)` que aqui estava desfazia o `scrollIntoView` do cartão: o sinal
      abria Comando e ficava no topo da página, longe dos avisos que o acenderam.
@@ -15,9 +15,9 @@ $("b-sinal").addEventListener("click", ()=>{
 });
 ["r-av","r-lim","r-aer"].forEach(id=>{ const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ pintarDON(); renderAereos(); }catch(e){} }); });
 document.querySelectorAll("nav button").forEach(b=>{
-  b.onclick=()=>{ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
-    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on"); $(b.dataset.p).classList.add("on"); if(b.dataset.p==="p-planeamento") renderCheck(); };
+  b.onclick=()=>{ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("ativo"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("ativo"));
+    b.classList.add("ativo"); $(b.dataset.p).classList.add("ativo"); if(b.dataset.p==="p-planeamento") renderCheck(); };
 });
 
 

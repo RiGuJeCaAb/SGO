@@ -120,6 +120,9 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   com nome de rascunho que ninguém sabia o que provavam.
 - Verificar sempre nos dois temas e em largura reduzida: `npm run visual`. O tema alterna
   por botão, não por `prefers-color-scheme`.
+- Classe de estilo diz o bloco: `bloco-elemento` para o que está dentro, `bloco--estado`
+  para o que modifica. Nenhuma com dois caracteres ou menos — um teste recusa-as desde a
+  r0108. Classe composta em tempo de execução declara-se em `SABIDOS`.
 
 ## Base doutrinária
 

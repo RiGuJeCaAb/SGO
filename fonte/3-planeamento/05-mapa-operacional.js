@@ -1144,21 +1144,21 @@ function pintarPontos(){
       + '<span class="hint">'+esc(defNota(nt.tipo).n)+(nt.setor? " · setor "+esc(nt.setor):"")+'</span>'
       + '<span class="mono">'+esc(fmtDec(nt.lat, nt.lon))+'</span>'
       + '<span class="hint">'+esc(nt.g)+(nt.por? " · "+esc(nt.por):"")+'</span>'
-      + '<button type="button" class="lk" data-apagar-nota="'+esc(nt.id)+'">retirar</button></div>').join("")
+      + '<button type="button" class="btn-lk" data-apagar-nota="'+esc(nt.id)+'">retirar</button></div>').join("")
     + MP.map(m=>
       '<div class="mp-li"><b>'+esc(m.nome)+'</b>'
       + '<span class="hint">setor '+esc(NOMES_SETOR[m.setor])+'</span>'
       + '<span class="mono">'+esc(fmtDec(m.it.lat, m.it.lon))+'</span>'
       + '<span class="hint">'+esc(m.it.posG||"")+(m.it.posPor? " · "+esc(m.it.posPor):"")+'</span>'
-      + '<button type="button" class="lk" data-despos-meio="'+esc(m.it.id)+'">retirar a posição</button></div>').join("")
+      + '<button type="button" class="btn-lk" data-despos-meio="'+esc(m.it.id)+'">retirar a posição</button></div>').join("")
     + LN.map(l=>
       '<div class="mp-li"><b>'+esc(defLinha(l.tipo).n)+'</b>'
       + (l.setor? ' <span class="hint">setor '+esc(l.setor)+'</span>' : "")
       + '<span class="mono">'+l.m+' m</span>'
       + '<span class="mono">'+(l.larguraM? String(l.larguraM).replace(".", ",")+" m larg." : "largura por indicar")+'</span>'
       + (defLinha(l.tipo).obra
-          ? '<button type="button" class="lk" data-abrir-linha="'+esc(l.id)+'">'+(l.aberta? "dar por abrir" : "dar por aberta")+'</button>' : "")
-      + '<button type="button" class="lk" data-apagar-linha="'+esc(l.id)+'">retirar</button></div>').join("")
+          ? '<button type="button" class="btn-lk" data-abrir-linha="'+esc(l.id)+'">'+(l.aberta? "dar por abrir" : "dar por aberta")+'</button>' : "")
+      + '<button type="button" class="btn-lk" data-apagar-linha="'+esc(l.id)+'">retirar</button></div>').join("")
     + F.map(f=>
       '<div class="mp-li"><b>'+esc(defFrente(f.tipo).n)+'</b>'
       + (f.setor? ' <span class="hint">setor '+esc(f.setor)+'</span>' : "")
@@ -1167,21 +1167,21 @@ function pintarPontos(){
           + '<span class="hint">'+esc(f.rumoFonte)+'</span>' : '<span class="hint">sem progressão</span>')
       + '<span class="hint">'+esc(f.g)+(f.por? " · "+esc(f.por):"")+'</span>'
       + (defFrente(f.tipo).avanca
-          ? '<button type="button" class="lk" data-rumo-frente="'+esc(f.id)+'">corrigir o rumo</button>' : "")
-      + '<button type="button" class="lk" data-apagar-frente="'+esc(f.id)+'">retirar</button></div>').join("")
+          ? '<button type="button" class="btn-lk" data-rumo-frente="'+esc(f.id)+'">corrigir o rumo</button>' : "")
+      + '<button type="button" class="btn-lk" data-apagar-frente="'+esc(f.id)+'">retirar</button></div>').join("")
     + limites.map(i=>
       '<div class="mp-li"><b>Limite do setor '+esc(NOMES_SETOR[i])+'</b>'
       + '<span class="hint">'+(limiteSetor(i).length-1)+' vértices</span>'
       + '<span class="mono">'+areaSetorHa(i)+' ha</span>'
-      + '<button type="button" class="lk" data-apagar-limite="'+i+'">retirar o limite</button></div>').join("")
+      + '<button type="button" class="btn-lk" data-apagar-limite="'+i+'">retirar o limite</button></div>').join("")
     + setores.map(({s,i})=>
       '<div class="mp-li"><b>Setor '+esc(NOMES_SETOR[i])+'</b><span class="mono">'+esc(fmtDec(s.lat, s.lon))+'</span>'
-      + '<button type="button" class="lk" data-desmarcar-setor="'+i+'">retirar a coordenada</button></div>').join("")
+      + '<button type="button" class="btn-lk" data-desmarcar-setor="'+i+'">retirar a coordenada</button></div>').join("")
     + L.map(p=>
       '<div class="mp-li"><b>'+esc(p.nome)+'</b> <span class="hint">'+esc(defPonto(p.tipo).n)+' · '+esc(defPonto(p.tipo).r)+'</span>'
       + '<span class="mono">'+esc(fmtDec(p.lat, p.lon))+'</span>'
       + '<span class="hint">'+esc(p.g)+(p.por? " · "+esc(p.por):"")+'</span>'
-      + '<button type="button" class="lk" data-apagar-ponto="'+esc(p.id)+'">retirar</button></div>').join("");
+      + '<button type="button" class="btn-lk" data-apagar-ponto="'+esc(p.id)+'">retirar</button></div>').join("");
   el.querySelectorAll("[data-apagar-ponto]").forEach(b=>b.addEventListener("click", ()=>{
     const r = apagarPonto(b.dataset.apagarPonto);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }

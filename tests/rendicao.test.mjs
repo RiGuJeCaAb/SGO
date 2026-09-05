@@ -98,7 +98,7 @@ test('o medidor com endereço é botão, e sem endereço é leitura', semAplicac
   assert.match(janela.medidorTempo(it, false, 's:0:0'), /^<button[^>]*data-rend="s:0:0"/);
   assert.match(janela.medidorTempo(it), /^<span/);
   janela.solicitarRendicao('s:0:0');
-  assert.match(janela.medidorTempo(it, false, 's:0:0'), /class="med r ped"/);
+  assert.match(janela.medidorTempo(it, false, 's:0:0'), /class="med nivel-r ped"/);
   assert.match(janela.medidorTempo(it, false, 's:0:0'), /rend\. pedida/);
 });
 

@@ -92,7 +92,7 @@ function medidorTempo(it, aereo, alvo){
     const [x1,y1] = p(a1), [x2,y2] = p(a2);
     /* Os que restam contam-se a partir do topo, no sentido do relógio. */
     const vivo = h>=teto? true : (k < acesos);
-    gomos.push('<path class="'+(vivo? "gm":"gm-x")+'" d="M'+C+','+C+' L'+x1.toFixed(2)+','+y1.toFixed(2)
+    gomos.push('<path class="'+(vivo? "med-gm":"med-gm-x")+'" d="M'+C+','+C+' L'+x1.toFixed(2)+','+y1.toFixed(2)
       +' A'+R+','+R+' 0 0 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z"/>');
   }
 
@@ -107,7 +107,7 @@ function medidorTempo(it, aereo, alvo){
   const pedida = rendPedida(it), saiu = rendSaiu(it);
   const dentro = '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
     + '<span class="med-h">'+(saiu? "saiu \u00b7 "+it.rend.saida : rot+(pedida? " \u00b7 rend. pedida" : ""))+'</span>';
-  const cls = "med "+(saiu? "v" : nivel)+(pedida? " ped" : "")+(saiu? " ped" : "");
+  const cls = "med nivel-"+(saiu? "v" : nivel)+(pedida? " ped" : "")+(saiu? " ped" : "");
   return alvo
     ? '<button type="button" class="'+cls+'" data-rend="'+esc(alvo)+'" title="'+esc(saiu
         ? "Saiu do TO às "+it.rend.saida+(it.rend.chegada? "; chegou à Entidade às "+it.rend.chegada+"." : ". Carregar para registar a chegada à Entidade.")
@@ -153,7 +153,7 @@ function renderSetores(){
          dizer qual era o comandante. */
       const c = (rot, html) => `<label class="set-c"><span class="set-l">${rot}</span>${html}</label>`;
       return `<div class="set-box"><div class="set-row">
-        <span class="nm">${NOMES_SETOR[i]}</span>
+        <span class="set-nm">${NOMES_SETOR[i]}</span>
         ${c("Estado", `<select data-i="${i}" data-f="estado" aria-label="Estado do setor ${NOMES_SETOR[i]}">${ESTADOS_SETOR.map(o=>`<option${o===x.estado?" selected":""}>${o}</option>`).join("")}</select>`)}
         ${c("Comandante", `<input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">`)}
         ${c("Adjunto", `<input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">`)}
@@ -176,7 +176,7 @@ function renderSetores(){
            trazem vários veículos — brigadas, grupos — declaram o número de meios. */
         const efet = (it.mu||1) > 1? `${(it.mu||1)}m/${(it.ou||0)}op` : `${(it.ou||0)} op`;
         return `<span class="tchip"><b>${esc(it.t)}</b>${it.ent? ` <span class="ent">${esc(it.ent)}</span>`:""} ${efet} ${medidorTempo(it, false, "s:"+i+":"+j)}
-          <select data-mv="${i}" data-j="${j}" class="mv">${destinos}</select>
+          <select data-mv="${i}" data-j="${j}" class="tchip-mv">${destinos}</select>
           <button type="button" data-del="${i}" data-j="${j}" aria-label="remover">×</button></span>`;
       }).join("")}</div></div>`;
     }).join("");

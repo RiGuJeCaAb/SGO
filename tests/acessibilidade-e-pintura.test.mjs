@@ -71,9 +71,9 @@ test('a nota de ajuda de um campo fica-lhe ligada', semAplicacao, () => {
 });
 
 test('os botões de uma letra dizem a frase inteira', semAplicacao, () => {
-  const maus = av(`[...document.querySelectorAll(".fr.mini")].filter(b => b.getAttribute("aria-label") !== b.getAttribute("data-fr")).length`);
+  const maus = av(`[...document.querySelectorAll(".evo-fr.mini")].filter(b => b.getAttribute("aria-label") !== b.getAttribute("data-fr")).length`);
   assert.equal(maus, 0);
-  assert.ok(av('document.querySelectorAll(".fr.mini").length') >= 14);
+  assert.ok(av('document.querySelectorAll(".evo-fr.mini").length') >= 14);
 });
 
 test('só um grupo de frases está visível de cada vez — os outros já eram hidden', semAplicacao, () => {
@@ -169,7 +169,7 @@ test('o catálogo de elementos liga o ouvinte uma vez, por delegação', semApli
 
 test('as regras de largura reduzida existem, e os estilos inline de largura saíram', () => {
   assert.match(molde, /@media\(max-width:640px\)\{\s*\/\*[^*]*\*\/\s*nav\{flex-wrap:nowrap;overflow-x:auto/);
-  assert.match(molde, /@media\(max-width:1000px\)\{\.g4\{grid-template-columns:repeat\(2,1fr\)\}\}/);
+  assert.match(molde, /@media\(max-width:1000px\)\{\.grid--4\{grid-template-columns:repeat\(2,1fr\)\}\}/);
   assert.match(molde, /:where\(button,a,\[tabindex\],input,select,textarea,summary\):focus-visible/);
   assert.doesNotMatch(molde, /style="width:130px"|style="width:160px"|style="width:150px"|style="max-width:200px"/);
 });

@@ -96,7 +96,7 @@ test('nenhum rótulo com espaço rígido serve de calço, e nenhuma etiqueta faz
 });
 
 test('as ações de remover têm alvo de 24 px', () => {
-  assert.match(molde, /\.cat-r \.x,\.tchip button,\.lk,\.av-atual\{min-width:24px;min-height:24px/);
+  assert.match(molde, /\.cat-r \.cat-x,\.tchip button,\.btn-lk,\.av-atual\{min-width:24px;min-height:24px/);
 });
 
 /* ---- os campos de ficheiro ---- */
@@ -152,4 +152,15 @@ test('um erro não expira; uma confirmação expira; e a confirmação anterior 
   av('aviso("msg-occ","err","falhou")');
   assert.equal(av('AVISO_TEMPOS.has($("msg-occ"))'), false, 'o erro não tem, e cancelou o da confirmação');
   assert.equal(av('$("msg-occ").style.display'), 'block');
+});
+
+test('a folha de estilos não tem classes de dois caracteres ou menos: cada uma diz o bloco a que pertence', () => {
+  /* Setenta e quatro classes curtas saíram na r0108 — `.a`, `.v`, `.k`, `.on`, `.ok` —,
+     todas presas a um pai na folha e soltas no código, onde `class="v"` não dizia de que
+     bloco era. Ficou `bloco-elemento` para o que está dentro e `bloco--estado` para o que
+     modifica; a rename apanhou uma regra morta (`.st.off`) que o `morto` não via porque
+     «off» aparecia noutro literal. Aqui recusa-se o regresso. */
+  const folha = molde.slice(molde.indexOf('<style>'), molde.indexOf('</style>'));
+  const curtas = [...new Set([...folha.matchAll(/\.([A-Za-z_][\p{L}\w-]*)/gu)].map((m) => m[1]).filter((c) => c.length <= 2))];
+  assert.deepEqual(curtas, []);
 });
