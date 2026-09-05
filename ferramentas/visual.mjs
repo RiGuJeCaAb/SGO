@@ -52,7 +52,7 @@ export async function auditar(chromium, ficheiro, executablePath) {
            transbordos que eram o desenho. */
         const dentroDeFaixa = (el) => {
           for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
-            const ox = getComputedStyle(a).overflowX;
+            const ox = window.getComputedStyle(a).overflowX;
             if ((ox === 'auto' || ox === 'scroll') && a.getBoundingClientRect().right <= limite + 1) return true;
           }
           return false;
