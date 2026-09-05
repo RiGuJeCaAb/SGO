@@ -183,7 +183,12 @@ function avisarOutrasAbas(id){
  */
 async function receberDeOutraAba(m){
   if(!m || m.tipo !== "gravado" || !emLeitura()) return false;
-  const minha = String(O.meta.id || "");
+  /* Uma aba em branco segue o que a outra gravar; uma aba com ocorrência própria só segue
+     a sua. Desde a r0101 o canal fala pelo identificador, e toda a aba tem um — a que
+     nasceu vazia também —, pelo que comparar sem esta condição fazia a aba em leitura
+     ignorar tudo o que a outra gravava. Apanhado pela prova das abas na primeira corrida
+     do trabalho de navegador da CI, na r0103. */
+  const minha = ocorrenciaTemConteudo()? String(O.meta.id || "") : "";
   if(minha && m.id && m.id !== minha) return false;
   try{ await carregar(m.id || null); }catch(e){}
   try{ aplicarFechoDeEscrita(); }catch(e){}

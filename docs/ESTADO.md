@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0103**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0104**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 141, das anteriores à convenção de nomes até à r0103 |
+| Entregas em `app/` | 142, das anteriores à convenção de nomes até à r0104 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
 | Testes | 1041, todos a passar |
 | Análise estática | sem problemas |
@@ -1142,6 +1142,13 @@ decisões do dono** que o documento lista, e não se tomaram aqui. O achado maio
 alerta não consta do registo obrigatório da DON e é o t=0 de P1 e P2 — fica com uma
 pergunta: o campo «Início da ocorrência» é a hora de alerta? Se for, muda o rótulo; se não
 for, é campo novo com degrau de estado.
+
+**O trabalho de navegador pagou-se na primeira corrida.** A `prova-abas` acusou no `main`
+o que nenhum portão de disco via: desde a r0101 o canal entre abas fala pelo identificador,
+e uma aba nascida em branco também tem um — por isso a aba em leitura ignorava tudo o que a
+outra gravava, e a segunda aba nunca repunha a ocorrência. Corrigido na r0104: uma aba sem
+conteúdo segue o que a outra gravar; uma com ocorrência própria só segue a sua. A partir
+daqui `npm run navegador` corre aqui antes de qualquer push, e não só na CI.
 
 **Números.** 1041 testes, 20 novos; nove portões e o trabalho de navegador verdes;
 auditoria visual limpa nos dois temas; a entrada vazia.
