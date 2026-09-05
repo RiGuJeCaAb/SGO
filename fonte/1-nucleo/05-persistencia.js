@@ -133,7 +133,37 @@ function escreverForm(){
  * @param {"ok"|"err"|"av"} cls peso da mensagem, que decide a cor
  * @param {string} txt o que se diz
  */
-function aviso(id,cls,txt){ const e=$(id); e.className="msg "+cls; e.textContent=txt; e.style.display="block"; setTimeout(()=>e.style.display="none", 5500); }
+/**
+ * Mostra uma mensagem num elemento, sem lhe apagar as outras classes.
+ *
+ * Fazia `className = "msg " + cls`, e isso apagava tudo o que o elemento já era: o
+ * `#pr-saida` da intensidade nasce com `class="ev-f"`, perdia-a ao primeiro erro, ficava
+ * `display:none` aos 5,5 s, e as estimativas seguintes eram escritas para um elemento que
+ * nunca voltava a aparecer. Achado da revisão de 5 de setembro.
+ *
+ * Um erro **não expira**: apagar «não foi possível guardar» ao fim de cinco segundos e meio
+ * é apagá-lo antes de ser lido. As confirmações e os avisos continuam a sair sozinhos. E o
+ * temporizador anterior é cancelado antes de pôr outro, ou uma confirmação de há quatro
+ * segundos apagava o erro que acabou de aparecer.
+ */
+function aviso(id,cls,txt){
+  const e=$(id); if(!e) return;
+  e.classList.remove("err","ok","av"); e.classList.add("msg", cls);
+  e.textContent=txt; e.style.display="block";
+  cancelarAviso(e);
+  if(cls !== "err") AVISO_TEMPOS.set(e, setTimeout(()=>{ e.style.display="none"; AVISO_TEMPOS.delete(e); }, 5500));
+}
+
+/** Os temporizadores das mensagens que expiram, por elemento — fora do DOM, para o
+    verificador de tipos e para quem venha a seguir não encontrar nada pendurado. */
+const AVISO_TEMPOS = new WeakMap();
+
+/** Cancela o temporizador de uma mensagem, se houver. Devolve se havia. */
+function cancelarAviso(e){
+  const t = AVISO_TEMPOS.get(e);
+  if(t === undefined) return false;
+  clearTimeout(t); AVISO_TEMPOS.delete(e); return true;
+}
 /* A fita vive dentro da ocorrência; o diário do posto vive fora dela e sobrevive-lhe.
    Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
 function fita(evento){

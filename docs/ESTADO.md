@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0097**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0098**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 135, das anteriores à convenção de nomes até à r0097 |
+| Entregas em `app/` | 136, das anteriores à convenção de nomes até à r0098 |
 | Módulos em `fonte/` | 73, em sete zonas, mais o molde |
-| Testes | 929, todos a passar |
+| Testes | 945, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -790,6 +790,47 @@ Do que os ramos tinham deixado e cujas fontes já cá estavam:
 nunca chegou ao repositório — veio nos mesmos ficheiros passados à mão e não foi guardado. Sem
 ele não há o que integrar; se voltar a chegar, entra em `ferramentas/` com uma linha no
 `package.json`.
+
+## O que se vê — r0098, a primeira do plano de 5 de setembro
+
+Primeira das cinco revisões do plano (`docs/CSREPCDouro_202609050220_d_PlanoDeMelhoriasFrontendEBackend_CLD.md`):
+os campos de ficheiro, o alinhamento, as alturas, o contraste, e o `aviso()` que partia o
+cartão da intensidade.
+
+**Contraste, por cálculo.** Os tokens de texto do tema claro foram recalculados para
+ficarem todos acima de 4,5:1 sobre `--surf2`, que é o fundo dos cartões, mantendo `--tx3`
+mais claro que `--tx2`: tx2 6,35 · tx3 5,11 · agua 5,09 · madeira 4,82 · fogo 5,14 · terra
+5,07 · laranja 4,71 · metal 4,79. Um teste confere-os a partir dos hexadecimais do molde, sem
+navegador. **O teste trouxe dois achados que o plano não tinha:** o `--fogo` do tema escuro
+já falhava (3,97) antes de eu lhe tocar, e os botões usavam a mesma cor com texto branco e
+com texto escuro nos dois temas — no escuro o azul claro com branco dava 2,55, e o laranja
+que escureci no claro passou a falhar com o texto escuro. A cor do texto do botão passa a
+seguir o tema. A `.tag` legal deixa de viver a 0,62 de opacidade, onde dava 1,9.
+
+**Alturas em tokens.** `--ctl-h` 45, `--ctl-h-p` 36, `--ctl-h-m` 28. Os campos passam a 45 em
+todo o lado e não só dentro da grelha; os botões a `min-height` 45; o sinal a 45; o
+indicador de gravação a 36. As quatro ações de remover com alvo abaixo de 24 px passam a 24.
+
+**Os onze campos de ficheiro numa forma só.** Não havia uma única regra para
+`::file-selector-button`. O nativo fica no documento, fora do ecrã, com o foco e a tecla; o
+que se vê é «Escolher ficheiro» como botão da aplicação e o nome do escolhido ao lado,
+escrito por um ouvinte único por delegação. Os três que já usavam botão ficam como estão.
+
+**Os três remendos.** O rótulo com espaço rígido a servir de calço ao botão da passagem de
+turno sai (`.g-fundo`); a etiqueta do cabeçalho reaproveitada como campo de leitura passa a
+`.campo-leitura`; a célula do botão das coordenadas passa a linha (`.g-linha`) em vez de
+esticar o botão à largura toda. O cartão dos focos, que é a captura do dono, passa a
+`.par-campo-botao`, alinhado pelo fundo.
+
+**`aviso()` deixa de apagar as classes.** Fazia `className = "msg …"`: o `#pr-saida` nasce
+com `ev-f`, perdia-a ao primeiro erro, ficava escondido aos 5,5 s, e as estimativas seguintes
+iam para um elemento que não voltava a aparecer. Passa a `classList`, `pintarEstimativa`
+repõe a forma antes de escrever, **um erro não expira**, e o temporizador anterior é
+cancelado — uma confirmação de há quatro segundos apagava o erro acabado de aparecer.
+
+Um erro meu no arnês: o ficheiro falso do teste não tinha `text()`, e o ouvinte real do
+campo dos focos lê o CSV assim que o `change` dispara; rebentava fora do teste, como
+rejeição sem dono. Passou a ter a forma de um `File`.
 
 ## Decisões tomadas
 

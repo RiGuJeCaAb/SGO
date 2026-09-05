@@ -681,6 +681,18 @@ diário» diz se alguma coisa foi mexida depois.
 
 ---
 
+## Como se escolhe um ficheiro
+
+Todos os campos de ficheiro têm a mesma forma: um botão «Escolher ficheiro» — «Escolher
+pasta» na carta pré-descarregada — e, ao lado, o nome do que foi escolhido, ou "Nenhum
+ficheiro". Com vários ficheiros diz quantos são; o nome de cada um aparece ao pousar o rato.
+
+O campo nativo do sistema continua no documento, para o teclado e para quem usa leitor de
+ecrã: o botão é só a cara que se vê. Antes disto cada campo mostrava o botão do sistema
+operativo dentro da caixa do tema, em onze sítios, com quatro alturas diferentes.
+
+---
+
 ## O que a aplicação recusa fazer, e porquê
 
 Isto não é lista de limitações: é a garantia de que o que ela diz, sustenta.

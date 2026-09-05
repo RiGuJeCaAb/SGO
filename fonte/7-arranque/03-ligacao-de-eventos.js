@@ -366,3 +366,25 @@ async function pintarCopias(){
   delegar("sens-sug",  "data-sens",       v => window.addSens(+v));
   delegar("sens-sug",  "data-sens-todos", () => window.addSensTodos());
 })();
+
+/**
+ * Escreve ao lado do botão o nome do ficheiro escolhido, porque o campo nativo está fora
+ * do ecrã.
+ *
+ * Um ouvinte só, por delegação no documento: os campos de ficheiro estão espalhados por
+ * cinco separadores e alguns nascem de repinturas. Vários ficheiros dizem quantos são; a
+ * pasta da carta pré-descarregada diz quantos ficheiros trouxe.
+ */
+function ligarNomesDosFicheiros(){
+  document.addEventListener("change", ev=>{
+    /* Por `instanceof` e não por `tagName`: é o que estreita o tipo para o verificador. */
+    const i = ev.target instanceof HTMLInputElement ? ev.target : null;
+    if(!i || i.type !== "file") return;
+    const c = i.closest(".campo-ficheiro"); if(!c) return;
+    const n = c.querySelector(".cf-nome"); if(!n) return;
+    const fs = i.files ? Array.prototype.slice.call(i.files) : [];
+    n.textContent = !fs.length ? "Nenhum ficheiro" : (fs.length === 1 ? fs[0].name : fs.length + " ficheiros");
+    n.setAttribute("title", fs.map(f=>f.name).join("\n"));
+  });
+}
+ligarNomesDosFicheiros();

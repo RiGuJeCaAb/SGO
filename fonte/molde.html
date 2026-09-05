@@ -15,15 +15,21 @@
   :root{
     /* ÁGUA profunda — modo escuro (suavizado) */
     --bg:#0E141B; --surf:#1B2530; --surf2:#243140; --line:#3A4A5E;
-    --tx:#F2F5F9; --tx2:#AEBDCD; --tx3:#78899B;
+    --tx:#F2F5F9; --tx2:#AEBDCD; --tx3:#95A5B6;
     --agua:#6BA6E8;
     --madeira:#6FB56A;
-    --fogo:#E0685C;
+    /* #E0685C dava 3,97:1 sobre --surf2 no próprio tema escuro, e é a cor dos erros e das
+       ações de remover. Um passo mais claro passa os 4,5. Achado do teste de contraste. */
+    --fogo:#EC8377;
     --terra:#E0B84F;
     --metal:#B8C2CC;
     --azul:var(--agua); --verde:var(--madeira); --laranja:#E89354; --vermelho:var(--fogo); --amarelo:var(--terra);
     /* Escala de estado do medidor de tempos. No tema escuro coincide com a de sempre. */
     --med-v:var(--madeira); --med-a:var(--terra); --med-r:var(--fogo);
+    /* Alturas dos controlos, em três degraus. Havia 21 tamanhos de botão e só dois com
+       altura declarada; os campos tinham 45 px dentro de uma grelha e 44 fora dela. A
+       altura passa a ser do desenho e vive num sítio só. */
+    --ctl-h:45px; --ctl-h-p:36px; --ctl-h-m:28px;
     --mono:'JetBrains Mono',ui-monospace,monospace;
     --disp:'Barlow Semi Condensed','Inter',sans-serif;
     --body:'Inter',system-ui,sans-serif;
@@ -31,13 +37,19 @@
   html[data-tema="claro"]{
     /* TERRA/areia zen — modo claro */
     --bg:#F1EEE6; --surf:#FBFAF5; --surf2:#F2EFE7; --line:#DCD5C6;
-    --tx:#2C2A25; --tx2:#6E6858; --tx3:#9A927F;
-    --agua:#3E7CB1; --madeira:#4E8F57; --fogo:#B84B3F; --terra:#B08A2E; --metal:#8A9099;
-    --azul:var(--agua); --verde:var(--madeira); --laranja:#C4703C; --vermelho:var(--fogo); --amarelo:var(--terra);
-    /* O âmbar de texto do tema claro (#B08A2E) só dá 2,80:1 contra a superfície do
-       cartão, abaixo do mínimo de 3:1 para uma marca não textual. O medidor usa um passo
-       mais escuro da mesma cor, que dá 3,96:1. Medido, não estimado. */
-    --med-v:var(--madeira); --med-a:#957020; --med-r:var(--fogo);
+    /* Medido a 5 de setembro sobre --surf2, que é o fundo dos cartões: o texto de ajuda
+       (--tx3, #9A927F) dava 2,69:1, o âmbar 2,80, o verde 3,39, o azul 3,87 — todos
+       abaixo dos 4,5:1 do mínimo AA, e o texto de ajuda é o mais lido da aplicação. Os
+       valores seguintes foram calculados para ficarem todos acima de 4,5 sobre --surf2 e
+       os de botão acima de 5,4 com texto branco, mantendo --tx3 mais claro que --tx2 para
+       a hierarquia não se perder: tx2 6,35 · tx3 5,11 · agua 5,09 · madeira 4,82 ·
+       fogo 5,14 · terra 5,07 · laranja 4,71 · metal 4,79. Há um teste que os confere. */
+    --tx:#2C2A25; --tx2:#5C5647; --tx3:#6B6454;
+    --agua:#33689A; --madeira:#3E7446; --fogo:#A8443A; --terra:#806018; --metal:#5F6771;
+    --azul:var(--agua); --verde:var(--madeira); --laranja:#9E5828; --vermelho:var(--fogo); --amarelo:var(--terra);
+    /* O medidor usava um âmbar mais escuro que o texto porque o texto não chegava aos
+       3:1. Chega agora aos 5, e o medidor volta a ser da mesma cor que o texto. */
+    --med-v:var(--madeira); --med-a:var(--terra); --med-r:var(--fogo);
   }
     *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--tx);font-family:var(--body);font-size:15px;line-height:1.55}
@@ -91,7 +103,7 @@
   .occ-tag b{color:var(--laranja)}
 
   /* sinal de avisos no cabeçalho */
-  .sinal{display:inline-flex;align-items:center;gap:9px;min-height:40px;padding:0 14px;border-radius:9px;cursor:pointer;font-family:var(--disp);font-weight:600;font-size:14.5px;border:1px solid var(--line);background:var(--surf2);color:var(--tx);white-space:nowrap;transition:filter .12s}
+  .sinal{display:inline-flex;align-items:center;gap:9px;min-height:var(--ctl-h);padding:0 14px;border-radius:9px;cursor:pointer;font-family:var(--disp);font-weight:600;font-size:14.5px;border:1px solid var(--line);background:var(--surf2);color:var(--tx);white-space:nowrap;transition:filter .12s}
   .sinal:hover{filter:brightness(1.05)}
   .sinal .lamp{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(0,0,0,.05)}
   .sinal .qt{font-family:var(--mono);font-size:12px;font-weight:700;padding:2px 7px;border-radius:5px}
@@ -181,6 +193,8 @@
   .cat-r .des{font-family:var(--mono);font-size:14.5px;font-weight:700;color:var(--tx)}
   .cat-r .nv{font-size:12.5px;color:var(--tx2)}
   .cat-r .nt{font-size:12.5px;color:var(--tx3)}
+  /* Alvo mínimo de 24 px: são ações de remover, num posto de comando, com o dedo. */
+  .cat-r .x,.tchip button,.lk,.av-atual{min-width:24px;min-height:24px;display:inline-flex;align-items:center;justify-content:center}
   .cat-r .x{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;line-height:1;padding:0}
   .cat-r .x:hover{color:var(--vermelho)}
   .cat-vaz{font-size:13px;color:var(--tx3);padding:10px 4px}
@@ -368,8 +382,9 @@
     /* A citação da norma é o que sustenta a aplicação e estava a competir com o
      conteúdo em todas as superfícies. Fica sempre presente e nunca em primeiro plano:
      ao passar o rato, ou ao focar o cartão, volta à força plena. */
-.card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--tx3);border:1px solid var(--line);padding:2px 7px;border-radius:5px;letter-spacing:.5px;opacity:.62;transition:opacity .12s}
-  .card:hover h2 .tag, .card:focus-within h2 .tag, .card h2 .tag:hover{opacity:1}
+  /* Sem opacidade: a 0,62 sobre --tx3 a referência legal dava 1,9:1 no tema claro. Uma
+     citação de artigo que não se lê não é discreta, é inútil. */
+  .card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--tx3);border:1px solid var(--line);padding:2px 7px;border-radius:5px;letter-spacing:.5px}
 
   .grid{display:grid;gap:12px}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
   /* Um rótulo que quebre em duas linhas empurrava o seu campo para baixo do dos
@@ -383,6 +398,8 @@
      proporção, porque só era preciso para abrir as maiúsculas. */
   label{display:block;font-size:12.5px;font-weight:600;letter-spacing:.1px;color:var(--tx2);margin-bottom:7px}
   input,textarea,select{width:100%;background:var(--surf2);border:1px solid var(--line);border-radius:8px;color:var(--tx);padding:12px 14px;font-family:var(--body);font-size:15px}
+  /* A altura dos campos é do desenho, em todo o lado e não só dentro de uma grelha. */
+  input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),select{height:var(--ctl-h);padding-top:0;padding-bottom:0}
   textarea{font-family:var(--mono);font-size:13.5px;resize:vertical}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
   .hint{font-size:13px;color:var(--tx3);margin-top:6px}
@@ -396,11 +413,32 @@
      e o campo desce em relação aos vizinhos. */
   .grid > div > label{margin-top:0;line-height:18px;min-height:18px}
   .grid > div > input, .grid > div > select, .grid > div > textarea{margin-top:0}
-  /* Altura de controlo constante: o campo-âncora tem letra maior e a caixa crescia
-     um pixel, o que numa grelha se repete em todas as linhas. A altura passa a ser
-     do desenho, não do tamanho da letra. */
-  .grid > div > input, .grid > div > select{height:45px;box-sizing:border-box}
-  .grid > div > textarea{min-height:45px}
+  /* A altura constante dos campos passou a regra global (--ctl-h), acima. */
+  .grid > div > textarea{min-height:var(--ctl-h)}
+  /* Um botão ao lado de campos, na mesma linha da grelha: encosta ao fundo da célula,
+     onde os campos estão, em vez de um rótulo vazio a servir de calço. */
+  .grid > div.g-fundo{justify-content:flex-end}
+  .g-full{grid-column:1/-1}
+  /* Uma célula que é uma linha: botão e nota lado a lado, com o que vier a seguir por
+     baixo a ocupar a largura toda. */
+  .grid > div.g-linha{flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px}
+  .g-quebra{flex-basis:100%}
+  /* Um campo e o seu botão, alinhados pelo fundo: o rótulo do campo empurra-o para baixo
+     e o botão tem de descer com ele, não centrar-se na pilha. */
+  .par-campo-botao{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .par-campo-botao > div{display:flex;flex-direction:column;min-width:0}
+  /* Um valor só de leitura com a forma de um campo, para alinhar com os vizinhos. */
+  .campo-leitura{display:flex;align-items:center;min-height:var(--ctl-h);padding:0 14px;border:1px solid var(--line);border-radius:8px;background:var(--surf2);font-family:var(--mono);font-size:13px;color:var(--tx)}
+  /* O campo de ficheiro. O nativo fica no documento — recebe o foco e a tecla — mas fora
+     do ecrã; o que se vê é um botão da aplicação e o nome do que foi escolhido. Não havia
+     uma única regra para ::file-selector-button e onze campos mostravam o botão do sistema
+     dentro da caixa do tema. */
+  .campo-ficheiro{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:100%;position:relative}
+  .campo-ficheiro input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .campo-ficheiro input[type=file]:focus-visible + label{outline:2px solid var(--azul);outline-offset:2px}
+  .campo-ficheiro > label.btn{margin:0}
+  .campo-ficheiro .cf-rot{font-size:13px;color:var(--tx2)}
+  .campo-ficheiro .cf-nome{font-family:var(--mono);font-size:12.5px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
   /* Campo âncora: aquele de que o resto do cartão depende. O número da ocorrência
      ancora os noventa minutos e o arquivo; o local ancora as coordenadas, a meteorologia
      e os avisos do distrito. Sem eles o cartão não serve, e isso deve ver-se antes de
@@ -425,9 +463,13 @@
      botão é dizê-lo tarde, com o oficial já noutro campo. */
   input[aria-invalid="true"]{border-color:var(--fogo);box-shadow:var(--ranhura), 0 0 0 2px color-mix(in srgb, var(--fogo) 28%, transparent)}
 
-  .btn{font-family:var(--disp);font-weight:600;font-size:15px;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .btn{font-family:var(--disp);font-weight:600;font-size:15px;border:none;border-radius:8px;padding:0 18px;min-height:var(--ctl-h);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .btn:hover{filter:brightness(1.12)}.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
-  .btn-o{background:var(--laranja);color:#14100A}.btn-b{background:var(--azul);color:#fff}
+  /* A cor do texto do botão segue o tema, porque a cor de fundo também segue. No tema
+     escuro o laranja e o azul são claros e pedem texto escuro; no claro são escuros e
+     pedem texto branco. Com uma cor só, o azul do tema escuro dava 2,55:1 com branco. */
+  .btn-o{background:var(--laranja);color:#14100A}.btn-b{background:var(--azul);color:#14100A}
+  html[data-tema="claro"] .btn-o, html[data-tema="claro"] .btn-b{color:#fff}
   .btn-g{background:transparent;color:var(--tx);border:1px solid var(--line)}
   .btn-r{background:transparent;color:var(--vermelho);border:1px solid var(--vermelho)}
   .btn[disabled]{opacity:.45;cursor:not-allowed}
@@ -525,7 +567,7 @@
   .set-row input,.set-row select{padding:10px 12px;font-size:14px}
   .xtr{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;max-width:100%}
   .xtr input[type=file]{max-width:100%}
-  .xtr input[type=number]{width:64px;padding:7px 8px;font-size:12.5px}
+  .xtr input[type=number]{width:64px;height:var(--ctl-h-p);padding:0 8px;font-size:12.5px}
   @media(max-width:820px){.set-head{display:none}.set-row{grid-template-columns:1fr 1fr;row-gap:6px}.set-row .nm{grid-column:1/-1}}
   .lk{background:none;border:none;color:var(--fogo);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:2px 0}
   .av-box{border:1px solid var(--line);border-radius:10px;background:var(--surf2);padding:12px 16px}
@@ -704,7 +746,7 @@
     .guia-in{flex-wrap:wrap;gap:8px}.guia-in .btn{margin-left:0}
     .fr-l{min-width:100%;margin-bottom:2px}
     .fr-q{width:100%;margin-left:0}
-    .btn{padding:10px 14px;font-size:13px}
+    .btn{padding:0 14px;font-size:13px}
     .p-cab td,.p-pco td{font-size:10.5px;padding:4px 6px}
     nav button{font-size:13px;padding:0 10px;min-height:42px}
   }
@@ -837,7 +879,7 @@
   /* O indicador da gravação. Permanente, no cabeçalho, ao lado da etiqueta da ocorrência:
      «gravado» sem hora não distingue há um segundo de há uma hora. Em largura reduzida
      fica, ao contrário da etiqueta — saber se gravou pesa mais do que saber qual é. */
-  .grav{font-family:var(--mono);font-size:11.5px;letter-spacing:.3px;padding:7px 11px;border-radius:8px;
+  .grav{font-family:var(--mono);font-size:11.5px;letter-spacing:.3px;padding:0 11px;min-height:var(--ctl-h-p);display:inline-flex;align-items:center;border-radius:8px;
     border:1px solid var(--line);background:var(--surf2);color:var(--tx2);white-space:nowrap;flex:none}
   .grav.ok{color:var(--madeira);border-color:rgba(111,181,106,.55)}
   .grav.ag{color:var(--tx2);border-style:dashed}
@@ -1206,11 +1248,11 @@
           </select></div>
         <div><label for="o-lat">Latitude</label><input id="o-lat" data-campo="meta.lat" placeholder="preenchida a partir do local"></div>
         <div><label for="o-lon">Longitude</label><input id="o-lon" data-campo="meta.lon" placeholder="preenchida a partir do local"></div>
-        <div style="grid-column:1/-1">
+        <div class="g-full g-linha">
           <button class="btn btn-b" id="b-geo">Obter coordenadas a partir do local</button>
-          <span class="hint" id="geo-info" style="margin-left:10px">Escreve o local acima e a app procura as coordenadas (tenta também automaticamente ao sair do campo).</span>
-          <div id="geo-opts" style="margin-top:10px"></div>
-          <div class="mono-sm" id="coord-fonte" style="margin-top:8px"></div>
+          <span class="hint" id="geo-info" style="margin:0">Escreve o local acima e a app procura as coordenadas (tenta também automaticamente ao sair do campo).</span>
+          <div id="geo-opts" class="g-quebra"></div>
+          <div class="mono-sm g-quebra" id="coord-fonte"></div>
         </div>
         <div style="grid-column:1/-1">
           <label for="c-any">Colar coordenadas em qualquer formato (decimal, graus-minutos ou graus-minutos-segundos)</label>
@@ -1271,7 +1313,7 @@
         <div class="grid g2">
           <div>
             <label for="d-perim">Perímetro (GeoJSON — FEB Monitorização / fogos.pt)</label>
-            <input type="file" id="d-perim" accept=".json,.geojson">
+            <div class="campo-ficheiro"><input type="file" id="d-perim" accept=".json,.geojson"><label class="btn btn-g" for="d-perim">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div>
             <div id="croqui-box" style="display:none;margin:12px 0 4px">
               <span class="stit">Croqui do teatro de operações <span class="hint" style="font-weight:400">art. 28.º — apoio à análise da ZI</span></span>
               <div id="croqui-svg" class="croqui"></div>
@@ -1361,8 +1403,7 @@
           </div>
           <div class="row" style="margin-top:10px">
             <button class="btn btn-o" type="button" id="wm-ler">Ler o serviço</button>
-            <span class="xtr"><span class="hint" style="margin:0">ou do ficheiro</span>
-              <input type="file" id="wm-fich" accept=".xml,text/xml,application/xml"></span>
+            <div class="campo-ficheiro"><label class="cf-rot" for="wm-fich">ou do ficheiro</label><input type="file" id="wm-fich" accept=".xml,text/xml,application/xml"><label class="btn btn-g" for="wm-fich">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div>
           </div>
           <div class="mono-sm" id="wm-servico" style="margin-top:10px"></div>
           <div id="wm-filtro-linha" style="margin-top:10px;display:none">
@@ -1423,7 +1464,7 @@
           <p class="hint" style="margin:8px 0 10px 0">A projeção não se adivinha pelos nomes dos ficheiros: as duas
           árvores são numeradas do mesmo modo e só a aritmética difere. Declarada errada, a carta aparece e fica
           fora do sítio sem dizer nada — que é pior do que não aparecer.</p>
-          <input type="file" id="carta-fich" webkitdirectory directory multiple>
+          <div class="campo-ficheiro"><input type="file" id="carta-fich" webkitdirectory directory multiple><label class="btn btn-g" for="carta-fich">Escolher pasta</label><span class="cf-nome">Nenhum ficheiro</span></div>
           <div class="mono-sm" id="carta-fich-info" style="margin-top:8px"></div>
         </div>
 
@@ -1445,13 +1486,13 @@
                 <option value="mercator">Web Mercator (EPSG:3857)</option>
               </select></div>
             <div><label for="fo-img">Imagem da folha</label>
-              <input type="file" id="fo-img" accept="image/*"></div>
+              <div class="campo-ficheiro"><input type="file" id="fo-img" accept="image/*"><label class="btn btn-g" for="fo-img">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div></div>
           </div>
           <p class="hint" style="margin:10px 0 8px 0">Depois, uma de duas vias. Se a imagem veio de um sistema de
           informação geográfica, traz um ficheiro de referenciação de seis linhas ao lado: escolha-o e está
           colocada. Se não trouxer, indique dois pontos que reconheça na imagem e cuja coordenada saiba.</p>
           <div><label for="fo-wf">Ficheiro de referenciação (.pgw, .jgw, .wld)</label>
-            <input type="file" id="fo-wf"></div>
+            <div class="campo-ficheiro"><input type="file" id="fo-wf"><label class="btn btn-g" for="fo-wf">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div></div>
           <div class="grid g4" style="margin-top:8px">
             <div><label for="fo-p1px">Ponto 1: pixel X</label><input id="fo-p1px" inputmode="numeric"></div>
             <div><label for="fo-p1py">Ponto 1: pixel Y</label><input id="fo-p1py" inputmode="numeric"></div>
@@ -1615,9 +1656,9 @@
         razão por que não traz serviço de cartografia: um endereço escrito de cor já foi uma fechadura sem chave neste
         projeto. Declara-se aqui, com a chave de acesso lá dentro, ou carrega-se o ficheiro descarregado no gabinete —
         que é o caminho que serve sem rede.</p>
-        <div class="row">
-          <span class="xtr"><span class="hint" style="margin:0">Do ficheiro</span>
-            <input type="file" id="foc-fich" accept=".csv,text/csv,text/plain"></span>
+        <div class="par-campo-botao">
+          <div><label for="foc-fich">Do ficheiro</label>
+            <div class="campo-ficheiro"><input type="file" id="foc-fich" accept=".csv,text/csv,text/plain"><label class="btn btn-g" for="foc-fich">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div></div>
           <button class="btn btn-b" type="button" id="foc-limpar">Retirar os focos do mapa</button>
         </div>
         <div class="grid g2" style="margin-top:10px">
@@ -1670,7 +1711,7 @@
 
           <div>
             <label for="d-anexos">Cartas topográficas / anexos (referência)</label>
-            <input type="file" id="d-anexos" multiple accept="image/*,.pdf">
+            <div class="campo-ficheiro"><input type="file" id="d-anexos" multiple accept="image/*,.pdf"><label class="btn btn-g" for="d-anexos">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div>
             <div class="hint" id="d-anexos-info">Referência documental: listadas por nome no PEA, sem leitura automática do conteúdo. Para o relevo, usar a análise automática abaixo (Fase 3 substituirá por DEM completo).</div>
             <button type="button" class="lk" id="a-limpar">Remover anexos</button>
           </div>
@@ -2111,7 +2152,7 @@
             <option value="24">24 h</option><option value="36">36 h</option>
           </select></span>
         <button class="btn btn-o" id="b-auto">Obter previsão automática (coordenadas da ocorrência)</button>
-        <span class="xtr"><span class="hint" style="margin:0">ou carregar ficheiro CSV</span><input type="file" id="f-csvfile" accept=".csv,.txt" style="width:auto"></span>
+        <div class="campo-ficheiro"><label class="cf-rot" for="f-csvfile">ou carregar ficheiro CSV</label><input type="file" id="f-csvfile" accept=".csv,.txt"><label class="btn btn-g" for="f-csvfile">Escolher ficheiro</label><span class="cf-nome">Nenhum ficheiro</span></div>
       </div>
       <div class="mono-sm" id="meteo-idade" style="margin-bottom:8px"></div>
       <div class="hint" id="meteo-info" style="margin-bottom:10px">Automática: Open-Meteo (síntese dos modelos ECMWF/ICON/GFS) no ponto exato da ocorrência, 36 horas. O CSV fica visível abaixo — editável antes de analisar. Avisos IPMA: consultar em paralelo (integração prevista).</div>
@@ -2202,7 +2243,7 @@
       <div class="grid g3">
         <div class="campo-chave"><label for="tn-eq">Designação da equipa</label><input id="tn-eq" placeholder="ex.: EPCO Douro — turno A"></div>
         <div><label for="tn-ini">GDH de início do turno</label><input id="tn-ini" placeholder="vazio = agora"></div>
-        <div><label>Decorrido</label><div class="occ-tag" id="tn-dec" style="min-height:40px;display:flex;align-items:center">—</div></div>
+        <div><label>Decorrido</label><div class="campo-leitura" id="tn-dec">—</div></div>
       </div>
       <div id="tn-celulas" style="margin-top:14px"></div>
       <p class="hint">O limite de 12 horas é o da rotatividade de funções da EPCO. Ultrapassado, nasce um aviso na secção respetiva.</p>
@@ -2219,7 +2260,7 @@
       <div class="grid g3">
         <div><label for="tn-eq2">Equipa que entra</label><input id="tn-eq2" placeholder="ex.: EPCO Douro — turno B"></div>
         <div><label for="tn-g">GDH da passagem</label><input id="tn-g" placeholder="vazio = agora"></div>
-        <div><label>&nbsp;</label><button class="btn btn-o" type="button" id="tn-fechar" style="width:100%">Registar passagem de turno</button></div>
+        <div class="g-fundo"><button class="btn btn-o" type="button" id="tn-fechar">Registar passagem de turno</button></div>
       </div>
       <div class="msg" id="msg-turno"></div>
     </div>

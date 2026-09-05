@@ -273,3 +273,20 @@ Antes da r0096 duas abas na mesma ocorrência escreviam a mesma chave e a últim
 ganhava, em silêncio. A prova é o que `tests/escrita-por-uma-aba.test.mjs` não consegue
 provar com o `navigator.locks` de mentira do jsdom: que o Chromium partilha a origem entre
 abas `file://`, que o trinco atravessa, e que quem o perde fica a saber.
+
+## qa0034 — o cartão dos focos reparado, e o cabeçalho com os tokens novos, nos dois temas
+
+`CSREPCDouro_qa0034_202609051140_CartaoDosFocosReparadoTemaClaro_CLD.png`
+`CSREPCDouro_qa0034_202609051140_CartaoDosFocosReparadoTemaEscuro_CLD.png`
+`CSREPCDouro_qa0034_202609051140_CabecalhoETokensTemaClaro_CLD.png`
+`CSREPCDouro_qa0034_202609051140_CabecalhoETokensTemaEscuro_CLD.png`
+
+O «antes» é a captura que o dono enviou a 5 de setembro: o botão «Retirar os focos do mapa»
+centrado na pilha rótulo-mais-campo em vez de alinhado ao campo, e o campo de ficheiro com o
+botão do sistema operativo dentro da caixa do tema.
+
+As duas primeiras mostram o depois: campo e botão alinhados pelo fundo (`.par-campo-botao`),
+e o campo de ficheiro na forma única da r0098 — «Escolher ficheiro» como botão da aplicação
+e o nome do que foi escolhido ao lado. As duas últimas mostram o cabeçalho com as alturas em
+tokens e, no tema claro, os tokens de texto recalculados para 4,5:1 — o texto de ajuda dava
+2,69 e as etiquetas dos cartões 1,9 a 0,62 de opacidade.
