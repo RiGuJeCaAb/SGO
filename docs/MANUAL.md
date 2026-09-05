@@ -216,6 +216,14 @@ Há três caminhos:
   mesmo modo e só a aritmética difere: declarada errada, a carta aparece e fica fora do
   sítio sem dizer nada, que é pior do que não aparecer.
 
+**Mudar de carta não mostra os quadrados da anterior.** Cada mosaico guardado leva a
+impressão da carta que o deu — o endereço e, num WMTS, a camada, o conjunto de matrizes e a
+data. Antes disto a chave era só o número do quadrado: quem passasse de um serviço em Web
+Mercator para um WMTS da DGT em PT-TM06 via a carta anterior na projeção errada, sem aviso.
+Os quadrados da carta pré-descarregada continuam a servir seja qual for o serviço declarado.
+Se a declaração de um serviço não conseguir ficar gravada, a aplicação diz que a carta fica
+em uso só nesta sessão — antes respondia que sim e ao recarregar não havia carta.
+
 ---
 
 ## Folhas de carta calibradas
@@ -269,6 +277,13 @@ memória por folha, enquanto estiver colocada — a mensagem de colocação pass
 tamanho e o custo. Não recusa: uma máquina que a aguenta não tem de ficar sem ela. Uma carta
 1:25 000 digitalizada a 300 ppp anda pelos 8 a 10 Mpx e passa folgada; a 600 ppp ultrapassa o
 limiar. Se o mapa ficar lento, é aqui que se procura.
+
+**As folhas são da ocorrência, e não do dispositivo.** Uma folha colocada sobre o teatro de
+operações da ocorrência A não aparece na B: cada folha guarda o número da ocorrência em que
+foi colocada, «Nova / limpar» tira-as do ecrã, e repor uma ocorrência do arquivo traz as
+dela. Antes disto as folhas atravessavam ocorrências — e podiam até decidir a projeção do
+mapa da seguinte. Uma folha colocada antes de a ocorrência ter número fica com ele na
+gravação seguinte.
 
 ---
 
@@ -796,6 +811,16 @@ Significa que a aplicação não conseguiu avaliar aquele ponto — não que o c
 Bloqueia a emissão do PEA como bloqueia um obrigatório em falta, e é de propósito: o que não
 se consegue verificar conta como por cumprir, nunca como cumprido. Não traz botão «Preencher»
 porque não há campo nenhum para preencher; o que há é uma verificação que rebentou.
+
+---
+
+## Ficheiros importados: o teto de tamanho
+
+Um ficheiro de ocorrência acima de 8 MB é recusado antes de ser lido, com o tamanho e o
+teto na mensagem. Uma ocorrência exportada por esta aplicação anda pelas dezenas de KB; oito
+megabytes é cem vezes isso e ainda cabe quem exportou com croquis e anexos. Acima disso não é
+um ficheiro desta aplicação, ou traz o que não devia — e um pacote de 50 MB bloqueava a aba
+dezenas de segundos sem mensagem nenhuma. O mesmo teto vale para o ficheiro da Gestão PCO.
 
 ---
 

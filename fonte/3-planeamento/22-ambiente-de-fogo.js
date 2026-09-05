@@ -32,7 +32,7 @@ function retratoDoFogo(){
      existe: defender-se do que ela promete é desconfiar do próprio contrato e perder a
      verificação em troca de nada. */
   const D = O.dados, F = D.fogo, E = F.est;
-  const num = v => { const n = parseFloat(String(v).replace(",", ".")); return Number.isFinite(n)? n : null; };
+  const num = numPT;   /* o auxiliar que nasceu aqui vive agora no núcleo */
 
   const rV = num(F.r), wV = num(F.w);
   const rEst = num(E.rEst);

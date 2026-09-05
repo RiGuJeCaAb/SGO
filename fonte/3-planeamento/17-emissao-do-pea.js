@@ -16,6 +16,10 @@ async function emitirPEA(){
   }
   lerForm();
   const btn=$("b-gerar"); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Planeamento…';
+  /* `finally`: entre o desativar e o repor havia chamadas fora de qualquer `try` —
+     `metricas()`, `baseVigor()` —, e uma exceção deixava «Elaborar proposta de PEA» morto
+     até recarregar a página, que perde o que não foi gravado. */
+  try{
   const n = O.peas.length+1;
   const novas = evoDesdeUltimoPEA();
   const anterior = O.peas.length? O.peas[O.peas.length-1] : null;
@@ -69,8 +73,13 @@ async function emitirPEA(){
     O.evolucao.push({g:pea.g, tipo:"posit", txt:"Proposta de PEA n.º "+n+" — "+curto});
   }
   await persistir(false);
-  btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
   verPEA(n);
+  }catch(e){
+    aviso("msg-ia","err","A proposta não foi elaborada: "+String((e&&e.message)||e).slice(0,120)+".");
+    fita("Elaboração de PEA falhou: "+String((e&&e.message)||e).slice(0,80));
+  }finally{
+    btn.disabled=false; btn.textContent="Elaborar proposta de PEA";
+  }
 }
 
 /**

@@ -34,7 +34,32 @@ const FORMA_OCORRENCIA = [
   { p:"evolucao",      t:"lista", campos:{ g:"texto", tipo:"texto", txt:"texto" } },
   { p:"fita",          t:"lista", campos:{ g:"texto", e:"texto" } },
   { p:"peas",          t:"lista", campos:{ n:"numero" } },
+  /* Os ramos interiores que o mapa e a setorização interpolam em HTML, e que até à r0099
+     chegavam lá como viessem: nove dos treze ramos de cima só se conferiam como «é
+     objeto?». `campos:{}` exige que cada elemento seja um objeto; um campo com tipo exige
+     que exista com esse tipo. Os caminhos são por pontos e resolvem-se em `ramoDe`. */
+  { p:"dados.est.setores", t:"lista", campos:{ estado:"texto" } },
+  { p:"dados.pontos",      t:"lista", campos:{ tipo:"texto" } },
+  { p:"dados.frentes",     t:"lista", campos:{} },
+  { p:"dados.linhas",      t:"lista", campos:{} },
+  { p:"dados.notas",       t:"lista", campos:{} },
+  { p:"dados.anexos",      t:"lista", campos:{} },
+  { p:"pco.funcoes",       t:"lista", campos:{ f:"texto" } },
 ];
+
+/** O valor num caminho por pontos, ou `undefined` se um dos pais não existir. */
+function ramoDe(e, caminho){
+  return caminho.split(".").reduce((o,k)=>(o && typeof o === "object")? o[k] : undefined, e);
+}
+
+/** Escreve num caminho por pontos. Sem pai não escreve nada: a escada de migrações é quem
+    cria os pais, e a forma confere-se depois dela. Devolve se escreveu. */
+function porRamo(e, caminho, v){
+  const ks = caminho.split("."), ult = ks.pop();
+  const pai = ks.reduce((o,k)=>(o && typeof o === "object")? o[k] : undefined, e);
+  if(!pai || typeof pai !== "object") return false;
+  pai[ult] = v; return true;
+}
 
 /** O tipo de um valor, no vocabulário da tabela. */
 function tipoDe(v){
@@ -62,27 +87,30 @@ function conferirForma(e){
   if(!e || typeof e !== "object" || Array.isArray(e)) return ["o ficheiro não contém uma ocorrência"];
 
   FORMA_OCORRENCIA.forEach(f=>{
-    const t = tipoDe(e[f.p]);
+    const t = tipoDe(ramoDe(e, f.p));
     if(t === f.t) return;
     if(t === "vazio"){
       /* Um ramo em falta não é defeito do ficheiro: pode ser de uma versão anterior, e a
          escada de migrações trata disso. Repõe-se o vazio do tipo e segue. */
-      e[f.p] = JSON.parse(JSON.stringify(VAZIO_DE[f.t]));
+      porRamo(e, f.p, JSON.parse(JSON.stringify(VAZIO_DE[f.t])));
       return;
     }
-    probs.push("«"+f.p+"» era "+t+" e devia ser "+f.t+"; reposto vazio");
-    e[f.p] = JSON.parse(JSON.stringify(VAZIO_DE[f.t]));
+    if(porRamo(e, f.p, JSON.parse(JSON.stringify(VAZIO_DE[f.t]))))
+      probs.push("«"+f.p+"» era "+t+" e devia ser "+f.t+"; reposto vazio");
   });
 
   /* Elementos de lista com a forma errada saem da lista. Um registo de evolução sem
      texto, ou cujo texto é um objeto, não é registo nenhum — e é o que chegaria ao ecrã. */
   FORMA_OCORRENCIA.filter(f=>f.t === "lista" && f.campos).forEach(f=>{
-    const antes = e[f.p].length;
-    e[f.p] = e[f.p].filter(x=>{
+    const lista = ramoDe(e, f.p);
+    if(!Array.isArray(lista)) return;
+    const antes = lista.length;
+    const limpa = lista.filter(x=>{
       if(!x || typeof x !== "object" || Array.isArray(x)) return false;
       return Object.keys(f.campos).every(k=>tipoDe(x[k]) === f.campos[k]);
     });
-    const fora = antes - e[f.p].length;
+    porRamo(e, f.p, limpa);
+    const fora = antes - limpa.length;
     if(fora) probs.push(fora + (fora===1? " entrada de «" : " entradas de «") + f.p + "» sem a forma esperada; retirada"
       + (fora===1? "" : "s"));
   });

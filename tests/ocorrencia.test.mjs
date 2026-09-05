@@ -59,18 +59,18 @@ test('o pacote leva a revisão da app e o carimbo do estado', semAplicacao, () =
 test('o carimbo apanha o ficheiro alterado depois de exportado', semAplicacao, () => {
   ocorrenciaDeEnsaio();
   const texto = JSON.stringify(janela.pacoteOcorrencia());
-  assert.equal(janela.conferirCarimbo(texto).bate, true, 'o pacote acabado de escrever confere');
+  assert.equal(janela.conferirCarimboDoPacote(JSON.parse(texto)).bate, true, 'o pacote acabado de escrever confere');
 
   // alguém abriu o ficheiro e mudou o local, sem tocar no carimbo
   const mexido = JSON.parse(texto);
   mexido.estado.meta.local = 'Outro sítio qualquer';
-  const q = janela.conferirCarimbo(JSON.stringify(mexido));
+  const q = janela.conferirCarimboDoPacote(JSON.parse(JSON.stringify(mexido)));
   assert.equal(q.bate, false);
   assert.match(q.nota, /não confere/);
 
   // e um pacote de antes do carimbo não é acusado de nada: diz-se que não o traz
   const antigo = JSON.parse(texto); delete antigo.sha;
-  assert.equal(janela.conferirCarimbo(JSON.stringify(antigo)).bate, null);
+  assert.equal(janela.conferirCarimboDoPacote(JSON.parse(JSON.stringify(antigo))).bate, null);
 });
 
 test('sem número de ocorrência o nome continua a ser válido', semAplicacao, () => {
@@ -103,22 +103,25 @@ test('a importação repõe também o formulário', semAplicacao, async () => {
 });
 
 test('um estado nu, sem invólucro, também é aceite', semAplicacao, () => {
-  const lido = janela.lerPacoteOcorrencia(JSON.stringify({ meta: { num: '2026/1' }, dados: {} }));
+  const lido = janela.lerPacoteDeObjeto(JSON.parse(JSON.stringify({ meta: { num: '2026/1' }, dados: {} })));
   assert.equal(lido.meta.num, '2026/1');
   assert.equal(lido.versao, avaliar(janela, 'VERSAO_ESTADO'), 'migrado pelo mesmo caminho');
 });
 
-test('o que não é uma ocorrência é recusado com motivo', semAplicacao, () => {
-  assert.throws(() => janela.lerPacoteOcorrencia('isto não é json'), /não é JSON válido/);
-  assert.throws(() => janela.lerPacoteOcorrencia('"texto"'), /forma esperada/);
-  assert.throws(() => janela.lerPacoteOcorrencia('{"outra":"coisa"}'), /não contém uma ocorrência/);
-  assert.throws(() => janela.lerPacoteOcorrencia('[]'), /não contém uma ocorrência/);
+test('o que não é uma ocorrência é recusado com motivo', semAplicacao, async () => {
+  // O JSON inválido recusa-se em `importarOcorrencia`, que é quem analisa o texto — uma vez
+  // só, desde a r0099; o leitor por objeto já recebe o pacote analisado.
+  assert.equal(await janela.importarOcorrencia('isto não é json'), false);
+  assert.match(janela.document.getElementById('msg-occ').textContent, /não é JSON válido/);
+  assert.throws(() => janela.lerPacoteDeObjeto(JSON.parse('"texto"')), /forma esperada/);
+  assert.throws(() => janela.lerPacoteDeObjeto(JSON.parse('{"outra":"coisa"}')), /não contém uma ocorrência/);
+  assert.throws(() => janela.lerPacoteDeObjeto(JSON.parse('[]')), /não contém uma ocorrência/);
 });
 
 test('um ficheiro de revisão posterior é recusado, não adivinhado', semAplicacao, () => {
   const futuro = avaliar(janela, 'VERSAO_ESTADO') + 3;
   assert.throws(
-    () => janela.lerPacoteOcorrencia(JSON.stringify({ tipo: 'peaapp:ocorrencia', estado: { meta: {}, versao: futuro } })),
+    () => janela.lerPacoteDeObjeto(JSON.parse(JSON.stringify({ tipo: 'peaapp:ocorrencia', estado: { meta: {}, versao: futuro } }))),
     (e) => e.futuro === futuro,
   );
 });

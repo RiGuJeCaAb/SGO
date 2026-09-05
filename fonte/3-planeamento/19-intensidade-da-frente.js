@@ -28,8 +28,10 @@
  * @returns {number|null} kW/m, ou nada se faltar um dos dois
  */
 function intensidadeByram(rMh, wTha){
-  const r = Number(rMh), w = Number(wTha);
-  if(!Number.isFinite(r) || !Number.isFinite(w) || r <= 0 || w <= 0) return null;
+  /* Por `numPT` e não por `Number`: «1,5 t/ha» é o que o oficial escreve, e `Number("1,5")`
+     era `NaN` — a aplicação dizia-lhe que faltava o que ele tinha acabado de escrever. */
+  const r = numPT(rMh), w = numPT(wTha);
+  if(r === null || w === null || r <= 0 || w <= 0) return null;
   return r * w / 2;
 }
 
@@ -41,8 +43,8 @@ function intensidadeByram(rMh, wTha){
  * as duas dão cerca de 3,6 m para os 4 000 kW/m do limite de ataque direto.
  */
 function comprimentoDaChama(kWm){
-  const i = Number(kWm);
-  return Number.isFinite(i) && i > 0 ? Math.sqrt(i/300) : null;
+  const i = numPT(kWm);
+  return i !== null && i > 0 ? Math.sqrt(i/300) : null;
 }
 
 /**

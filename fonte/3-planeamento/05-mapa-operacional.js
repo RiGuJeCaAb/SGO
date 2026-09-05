@@ -118,7 +118,11 @@ async function guardarCarta(u, atrib, termos, zMax){
   if(!/^https:\/\//.test(t)) return { ok:false, motivo:"Indicar o endereço dos termos de uso do serviço." };
   const z = Math.max(3, Math.min(22, parseInt(String(zMax||"19"), 10) || 19));
   CARTA = { tipo:"xyz", u:url, atrib:a, termos:t, zMin:3, zMax:z, por:quemRegista(), g:gdhAgora() };
-  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
+  /* Respondia `ok` mesmo quando a declaração não ficava gravada: ao recarregar não havia
+     carta e o ecrã tinha dito que sim. A carta fica em uso nesta sessão, mas diz-se. */
+  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }
+  catch(e){ fita("Serviço de mosaicos declarado só nesta sessão: não ficou gravado ("+String((e&&e.message)||e).slice(0,60)+")");
+    return { ok:false, carta:CARTA, motivo:"O serviço fica em uso nesta sessão, mas não ficou gravado no dispositivo: "+String((e&&e.message)||e).slice(0,80)+"." }; }
   fita("Serviço de mosaicos declarado: "+a);
   return { ok:true, carta:CARTA };
 }
@@ -134,7 +138,9 @@ async function adotarCartaWMTS(carta){
   if(!carta || carta.tipo !== "wmts") return { ok:false, motivo:"Carta inválida." };
   if(!carta.atrib) return { ok:false, motivo:"O serviço não declara atribuição, e carta de terceiros não se mostra sem dizer de quem é." };
   CARTA = carta;
-  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }catch(e){}
+  try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }
+  catch(e){ fita("Carta WMTS adotada só nesta sessão: não ficou gravada ("+String((e&&e.message)||e).slice(0,60)+")");
+    return { ok:false, carta:CARTA, motivo:"A carta fica em uso nesta sessão, mas não ficou gravada no dispositivo: "+String((e&&e.message)||e).slice(0,80)+"." }; }
   fita("Carta WMTS adotada: "+carta.camadaTitulo+" ("+carta.atrib+")");
   return { ok:true, carta:CARTA };
 }
@@ -411,8 +417,37 @@ function cartaZMin(){ return (CARTA && isFinite(CARTA.zMin))? CARTA.zMin : grelh
 /** O maior. Sem carta, o da grelha em uso. */
 function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : grelhaAtual().zMax; }
 
-/** A chave de um mosaico no arquivo local. Uma só, seja qual for a sua proveniência. */
-function chaveMosaico(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
+/**
+ * A impressão da carta em uso, para entrar na chave dos seus mosaicos.
+ *
+ * A chave era `m/z/x/y` seja qual for a carta: quem passasse de um serviço `{z}/{x}/{y}` em
+ * Web Mercator para um WMTS da DGT em PT-TM06 via no ecrã os quadrados do serviço anterior,
+ * na projeção errada, sem nada o assinalar — precisamente o que `grelhaAtual` diz querer
+ * evitar. Duas cartas diferentes nunca podem partilhar chave: entra o endereço e, num WMTS,
+ * a camada, o conjunto de matrizes e a data quando houver. Sem carta declarada não há
+ * impressão, e a chave é a de sempre — que é a dos mosaicos locais, ver `chaveMosaicoLocal`.
+ */
+function impressaoDaCarta(){
+  if(!CARTA) return "";
+  const partes = CARTA.tipo === "wmts"
+    ? ["wmts", CARTA.base || CARTA.u || "", CARTA.camada || "", CARTA.matrizes || CARTA.tms || "", CARTA.tempo || CARTA.time || ""]
+    : ["xyz", CARTA.u || ""];
+  /* FNV-1a sobre o texto, como `impressaoMosaico` faz sobre os bytes: só se pergunta se é
+     a mesma carta, e um endereço inteiro numa chave de base é peso sem préstimo. */
+  const t = partes.join("|"); let h = 0x811c9dc5;
+  for(let i=0;i<t.length;i++){ h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16);
+}
+
+/** A chave de um mosaico vindo do serviço em uso: leva a impressão da carta. */
+function chaveMosaico(z, x, y){
+  const imp = impressaoDaCarta();
+  return "m/"+(imp? imp+"/" : "")+z+"/"+x+"/"+y;
+}
+
+/** A chave de um mosaico da carta pré-descarregada: sem impressão, porque não tem serviço,
+    e é a forma de sempre — o que já está no arquivo continua a ser encontrado. */
+function chaveMosaicoLocal(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
 
 /**
  * Uma impressão digital dos bytes de um mosaico, para reconhecer o que se repete.
@@ -443,18 +478,24 @@ async function impressaoMosaico(b){
  * @returns {Promise<Blob|null>}
  */
 async function mosaicoBlob(z, x, y){
-  const chave = chaveMosaico(z, x, y);
   if(IDB){
     try{
-      const g = await _idb("mosaicos", "readonly", st=>st.get(chave));
-      /* A carta carregada de ficheiro não caduca: foi posta ali de propósito, para o
-         teatro, e apagá-la ao fim de dois meses seria dar cabo do que se preparou. */
-      if(g && g.b && (g.local || (Date.now() - (g.ts||0)) < MOSAICO_DIAS*86400000)) return g.b;
+      /* Primeiro o do serviço em uso, pela sua chave; depois o local, pela dele. A carta
+         carregada de ficheiro não caduca: foi posta ali de propósito, para o teatro, e
+         apagá-la ao fim de dois meses seria dar cabo do que se preparou. */
+      if(CARTA){
+        const g = await _idb("mosaicos", "readonly", st=>st.get(chaveMosaico(z, x, y)));
+        if(g && g.b && !g.local && (Date.now() - (g.ts||0)) < MOSAICO_DIAS*86400000) return g.b;
+      }
+      const l = await _idb("mosaicos", "readonly", st=>st.get(chaveMosaicoLocal(z, x, y)));
+      if(l && l.b && l.local) return l.b;
     }catch(e){}
   }
   if(!CARTA) return null;
   try{
-    const r = await fetchT(mosaicoURL(z, x, y), {}, 12000);
+    /* `semCache`: o arquivo do mosaico é a base, não a cache da rede — que o retinha em
+       memória até a aba fechar. */
+    const r = await fetchT(mosaicoURL(z, x, y), { semCache:true }, 12000);
     if(!r.ok) return null;
     const b = await r.blob();
     /* Não se guarda já: só depois de se saber que é carta e não uma recusa repetida.
@@ -494,7 +535,7 @@ async function carregarMosaicosLocais(ficheiros){
     if(!t){ semArvore++; if(!exemplo) exemplo = c; continue; }
     if(!IDB){ semArquivo++; continue; }
     try{
-      await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaico(t.z, t.x, t.y)));
+      await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaicoLocal(t.z, t.x, t.y)));
       niveis.add(t.z); n++;
     }catch(e){ semArquivo++; }
   }

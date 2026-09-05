@@ -462,7 +462,7 @@ test('a geometria, os pontos e as coordenadas dos setores viajam na exportação
 
   janela.eval('O = novoEstado()');
   janela.escreverForm();
-  const lido = janela.lerPacoteOcorrencia(texto);
+  const lido = janela.lerPacoteDeObjeto(JSON.parse(texto));
 
   assert.equal(lido.versao, avaliar(janela, 'VERSAO_ESTADO'));
   assert.equal(lido.dados.pontos.length, 1);
@@ -472,10 +472,10 @@ test('a geometria, os pontos e as coordenadas dos setores viajam na exportação
 });
 
 test('uma ocorrência da versão 15 abre sem geometria e sem pontos, e não os inventa', semAplicacao, () => {
-  const lido = janela.lerPacoteOcorrencia(JSON.stringify({
+  const lido = janela.lerPacoteDeObjeto(JSON.parse(JSON.stringify({
     versao: 15, meta: { num: '2026/900', lat: '41', lon: '-7,8' },
     dados: { area: '120', est: { n: 1, setores: [{ estado: 'Em curso (ativo)', cmd: 'Cmdt A', tip: [] }] } }
-  }));
+  })));
   assert.equal(lido.dados.perim, null, 'não se reconstrói a forma a partir dos hectares');
   assert.deepEqual(daqui(lido.dados.pontos), []);
   assert.equal(lido.dados.est.setores[0].lat, '', 'o setor ganha o campo, vazio');

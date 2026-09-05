@@ -93,7 +93,7 @@ test('o pacote de teste leva mesmo as chaves — senão nada abaixo prova nada',
 });
 
 test('as três chaves saem do pacote, e a ocorrência entra na mesma', semAplicacao, () => {
-  const r = av(`(()=>{ const m = lerPacoteOcorrencia(${JSON.stringify(pacoteEnvenenado())});
+  const r = av(`(()=>{ const m = lerPacoteDeObjeto(JSON.parse(${JSON.stringify(pacoteEnvenenado())}));
     return JSON.stringify({ num:m.meta.num, forma:m.__forma,
       topoProto: Object.getPrototypeOf(m.dados.topo) === Object.prototype,
       intruso: m.dados.topo.intruso === undefined && m.pco.intruso === undefined }); })()`);
@@ -131,7 +131,7 @@ test('o Object.prototype global fica intacto, antes e depois', semAplicacao, () 
   // Nunca esteve em risco — `JSON.parse` não dispara o setter — e é preciso dizê-lo, para
   // que ninguém volte a ler esta correção como sendo maior do que é.
   assert.equal(av('({}).intruso === undefined'), true);
-  av(`lerPacoteOcorrencia(${JSON.stringify(pacoteEnvenenado())})`);
+  av(`lerPacoteDeObjeto(JSON.parse(${JSON.stringify(pacoteEnvenenado())}))`);
   assert.equal(av('({}).intruso === undefined'), true);
 });
 

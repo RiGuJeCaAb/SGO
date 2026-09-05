@@ -82,10 +82,8 @@ function comportamentoFogo(entrada){
      `Number("1,5")` é NaN, e o efeito era pior do que um erro: a razão declive/vento
      entrava como se estivesse por preencher, e a aplicação dizia «sem ε informado» a quem
      acabara de a informar. Sem aviso, sem sinal, e com o desvio da cabeça por calcular. */
-  const eps = typeof entrada.eps === "string"
-    ? parseFloat(entrada.eps.replace(",", "."))
-    : Number(entrada.eps);
-  const temEps = Number.isFinite(eps) && eps >= 0;
+  const eps = numPT(entrada.eps);
+  const temEps = eps !== null && eps >= 0;
   const fora = { beta: g.beta, subida: g.subida, empurra: g.empurra, eps: temEps? eps : null };
 
   /* No caso limite ε = 1 o artigo dá δ = β/2 de forma fechada; fora dele é preciso ε. */

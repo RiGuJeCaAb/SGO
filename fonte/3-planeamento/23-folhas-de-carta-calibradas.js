@@ -107,6 +107,7 @@ function folhaCalibrada(desc){
     largura: larg, altura: alt,
     mundo: {A, D, B, E, C, F},
     grelha: desc.grelha,
+    num: String(desc.num || ""),
     proveniencia: String(desc.proveniencia),
     /* Zero é o ficheiro de referenciação, dois é a calibração manual. Não é enfeite: a
        confiança na colocação depende de quantos pontos a fixaram, e quem lê o retrato
@@ -251,9 +252,13 @@ let FOLHAS = [];
 
 /** A colocação de uma folha, sem a imagem — é isto que se grava e que se lê de volta. */
 function colocacaoDaFolha(f){
+  /* `num`: a ocorrência a que a folha pertence. Sem isto `carregarFolhas` trazia todas as
+     folhas da base e a do TO da ocorrência A ficava desenhada sobre a B — e podia até
+     decidir a projeção do mapa dela. Uma folha colocada antes de a ocorrência ter número
+     fica com o número na próxima gravação, porque é aqui que ele se carimba. */
   return { id:f.id, nome:f.nome, largura:f.largura, altura:f.altura,
            mundo:f.mundo, grelha:f.grelha, proveniencia:f.proveniencia,
-           pontos:f.pontos, controlos:f.controlos };
+           pontos:f.pontos, controlos:f.controlos, num:String((O && O.meta && O.meta.num) || "") };
 }
 
 /**
@@ -284,7 +289,10 @@ async function carregarFolhas(){
   let guardadas = null;
   try{ guardadas = await _idb("folhas", "readonly", st=>st.getAll()); }catch(e){ return; }
   if(!Array.isArray(guardadas)) return;
-  const lidas = guardadas.map(x=>folhaCalibrada(x));
+  /* Só as desta ocorrência. As de antes da r0099 não têm número e contam como de nenhuma:
+     aparecem enquanto não houver ocorrência aberta e ganham o número na próxima gravação. */
+  const minha = String((O && O.meta && O.meta.num) || "");
+  const lidas = guardadas.filter(x=>String((x && x.num) || "") === minha).map(x=>folhaCalibrada(x));
   /* **O que se perde anuncia-se.** Uma folha gravada que deixe de passar a validação — por
      a revisão ter apertado uma recusa, ou por a base ter uma colocação de antes da regra da
      projeção única — desaparecia sem uma palavra. É a mesma classe do `null` silencioso da
@@ -302,10 +310,7 @@ async function carregarFolhas(){
 
 /** O número escrito num campo, com vírgula ou ponto, ou nada quando o campo não tem número. */
 function numFolha(id){
-  const v = String(($(id) && $(id).value) || "").trim().replace(",", ".");
-  if(v === "") return null;
-  const n = Number(v);
-  return isFinite(n)? n : null;
+  return numPT(($(id) && $(id).value) || "");
 }
 
 /** Lê um ficheiro escolhido como texto, para o ficheiro de referenciação. */

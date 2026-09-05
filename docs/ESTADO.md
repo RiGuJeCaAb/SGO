@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0098**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0099**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 136, das anteriores à convenção de nomes até à r0098 |
-| Módulos em `fonte/` | 73, em sete zonas, mais o molde |
-| Testes | 945, todos a passar |
+| Entregas em `app/` | 137, das anteriores à convenção de nomes até à r0099 |
+| Módulos em `fonte/` | 75, em sete zonas, mais o molde |
+| Testes | 962, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -831,6 +831,52 @@ cancelado — uma confirmação de há quatro segundos apagava o erro acabado de
 Um erro meu no arnês: o ficheiro falso do teste não tinha `text()`, e o ouvinte real do
 campo dos focos lê o CSV assim que o `change` dispara; rebentava fora do teste, como
 rejeição sem dono. Passou a ter a forma de um `File`.
+
+## O que perde ou mente — r0099, a segunda do plano
+
+**Números à portuguesa, num sítio só.** `numPT` e `fmtPT` no núcleo (`26-numeros-em-portugues`).
+`intensidadeByram` lia com `Number(...)`: «1,5 t/ha» dava `NaN` e a aplicação dizia ao oficial
+que faltava o que ele tinha acabado de escrever — o mesmo defeito já corrigido para a razão
+declive/vento e nunca propagado. Passam por `numPT` a intensidade, o comprimento da chama, o
+ambiente de fogo, o `eps` e os pontos de controlo das folhas.
+
+**Os mosaicos levam a impressão da carta.** A chave era `m/z/x/y` fosse qual fosse a carta:
+mudar de serviço mostrava os quadrados do anterior na projeção errada. Entra na chave uma
+impressão FNV-1a do endereço e, num WMTS, da camada, do conjunto de matrizes e da data. Os
+mosaicos da carta pré-descarregada ficam na chave de sempre, própria (`chaveMosaicoLocal`), e
+continuam a servir seja qual for o serviço — o que já estava no arquivo continua a ser
+encontrado. Os mosaicos deixam de entrar na cache da rede (`semCache`), que retinha cada
+quadrado até a aba fechar, e a cache ganha teto (120) com poda das entradas mais antigas.
+
+**As folhas são da ocorrência.** Cada colocação leva o `num`; `carregarFolhas` filtra por
+ele e volta a correr em `carregar`; «Nova / limpar» tira-as do ecrã. As de antes da r0099 não
+têm número e contam como de nenhuma: aparecem sem ocorrência aberta e ganham o número na
+gravação seguinte.
+
+**A importação tem teto e analisa uma vez.** `lerTextoComTeto` recusa acima de 8 MB antes de
+ler — pelo `size`, com o tamanho e o teto na mensagem. `importarOcorrencia` analisava o mesmo
+texto quatro vezes; passa a uma, com o carimbo conferido sobre o objeto **antes** da limpeza
+e da migração, que o alteram no lugar. Os dois invólucros por texto saíram — a aplicação não
+os chamava e o `morto` recusou-os — e os testes passaram às formas por objeto.
+
+**A forma confere ramos interiores.** `FORMA_OCORRENCIA` aceita caminhos por pontos e passa
+a exigir que `dados.est.setores`, `dados.pontos`, `dados.frentes`, `dados.linhas`,
+`dados.notas`, `dados.anexos` e `pco.funcoes` sejam listas de objetos, com o campo que os
+identifica onde o há. Nove dos treze ramos de topo só se conferiam como «é objeto?», e eram
+estes os que o mapa e a setorização interpolam em HTML. Sem pai não se escreve nada: quem
+cria os pais é a escada de migrações, e a forma corre depois dela.
+
+**Os erros que se calavam passam a dizer.** `emitirPEA` ganha `finally`: `metricas()` e
+`baseVigor()` corriam fora de qualquer `try` e uma exceção deixava o botão morto até
+recarregar. `apagarOcc` deixa de tirar do índice uma ocorrência que não conseguiu apagar —
+ficava gravada e invisível, e voltava no `carregar` seguinte. `guardarCarta` e
+`adotarCartaWMTS` deixam de responder `ok` quando a declaração não ficou gravada. O carimbo
+do encerramento que não chega ao disco acende o indicador de gravação com o motivo. A linha
+do diário que se perde — `diarioAcrescentar` devolvia `null` e ninguém o lia — acende-o
+também. A passagem do arquivo antigo para a base que fique a meio diz-o no ecrã.
+
+**O que fica para o #005:** a regra `no-empty` estrita, com razão obrigatória nos `catch` que
+ficam. A classificação está pedida a quem fez a auditoria de portabilidade.
 
 ## Decisões tomadas
 

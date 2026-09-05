@@ -9,8 +9,28 @@ const REDE = {
   espera: 6000,      /* prazo por omissão, em milissegundos */
   validade: 90000,   /* durante quanto tempo uma resposta idêntica ainda serve */
   cache: new Map(),
+  cacheMax: 120,     /* entradas; acima disto sai a mais antiga — ver `podarCacheRede` */
   ultimo: null       /* último desfecho, para diagnóstico */
 };
+
+/**
+ * Mantém a cache de pedidos abaixo do teto, a largar as entradas mais antigas.
+ *
+ * A cache só largava uma entrada quando o mesmo endereço voltava a ser pedido depois de
+ * expirar. Os mosaicos de carta eram pedidos por aqui sem `semCache`, e cada quadrado
+ * descarregado ficava agarrado à sua `Response` até a aba fechar — dezenas de MB numa
+ * sessão de mapa, num equipamento de PCO. Os mosaicos passaram a pedir `semCache`; isto é
+ * a rede para tudo o resto. O `Map` guarda por ordem de inserção, e é por isso que a
+ * primeira chave é a mais antiga.
+ */
+function podarCacheRede(){
+  while(REDE.cache.size > REDE.cacheMax){
+    const antiga = REDE.cache.keys().next().value;
+    if(antiga === undefined) break;
+    REDE.cache.delete(antiga);
+  }
+  return REDE.cache.size;
+}
 
 /** @param {string} motivo @param {string} texto @returns {Error & {motivo:string, estado?:number}} */
 function erroRede(motivo, texto){ const e = /** @type {Error & {motivo:string}} */ (new Error(texto)); e.motivo = motivo; return e; }
@@ -61,7 +81,7 @@ async function fetchT(url, opts={}, ms){
     throw erroRede(motivo, String((err && err.message) || err));
   }).finally(()=>clearTimeout(t));
 
-  if(guardavel) REDE.cache.set(url, {ts:inicio, p});
+  if(guardavel){ REDE.cache.set(url, {ts:inicio, p}); podarCacheRede(); }
   return (await p).clone();
 }
 /**

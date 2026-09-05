@@ -68,6 +68,8 @@ async function carregar(num){
     if(!num){ aviso("msg-occ","err","Nenhuma ocorrência guardada neste dispositivo."); return; }
     const r = await ARMAZEM.get("peaapp:occ:"+num);
     O = migrarGravado(JSON.parse(r.value));
+    /* As folhas de carta são desta ocorrência e não do dispositivo: repõem-se as dela. */
+    try{ await carregarFolhas(); pintarFolhas(); }catch(e){ /* ignorado: sem base não há folhas a repor */ }
     escreverForm(); pintarTudo();
     if(O.csv){ $("f-csv").value=O.csv; analisarCSV(false); }
     aviso("msg-occ","ok","Ocorrência "+num+" reposta ("+O.peas.length+" PEA, "+O.evolucao.length+" registos).");
@@ -168,7 +170,13 @@ function cancelarAviso(e){
    Um só sítio a escrever nos dois, para não haver eventos que só entrem num. */
 function fita(evento){
   O.fita.push({g:gdhAgora(), e:evento});
-  try{ diarioAcrescentar(evento); }catch(e){}
+  /* O diário encadeado existe para provar que nada se perdeu, e `diarioAcrescentar`
+     devolve `null` quando a linha não ficou — que ninguém lia. Passa a acender o
+     indicador de gravação com o motivo; a gravação boa seguinte apaga-o. */
+  try{
+    const p = diarioAcrescentar(evento);
+    if(p && typeof p.then === "function") p.then(r=>{ if(r === null) registarGravacao({ ok:false, erro:"linha do diário não gravada" }); });
+  }catch(e){ registarGravacao({ ok:false, erro:"diário: "+String((e&&e.message)||e).slice(0,60) }); }
 }
 
 /* A proveniência de uma ocorrência que entrou por ficheiro. Fica à vista enquanto a
@@ -225,9 +233,13 @@ function pintarArquivo(){
 window.abrirOcc = num => carregar(num);
 window.apagarOcc = async num => {
   if(!window.confirm("Apagar a ocorrência "+num+" e todos os seus PEA deste dispositivo?")) return;
-  try{ await ARMAZEM.del("peaapp:occ:"+num); }catch(e){}
+  /* Se apagar falhar, a ocorrência **não sai do índice**: saía, e ficava gravada mas
+     invisível no arquivo — até voltar no `carregar` seguinte como se nada fosse. */
+  try{ await ARMAZEM.del("peaapp:occ:"+num); }
+  catch(e){ aviso("msg-occ","err","Não foi possível apagar a ocorrência "+num+" ("+String((e&&e.message)||e).slice(0,60)+"). Continua no arquivo."); return; }
   INDEX = INDEX.filter(x=>x.num!==num);
-  try{ await ARMAZEM.set("peaapp:index", JSON.stringify(INDEX)); }catch(e){}
+  try{ await ARMAZEM.set("peaapp:index", JSON.stringify(INDEX)); }
+  catch(e){ aviso("msg-occ","err","A ocorrência foi apagada mas o índice do arquivo não ficou gravado ("+String((e&&e.message)||e).slice(0,60)+"): ao recarregar pode voltar a aparecer na lista, já sem conteúdo."); }
   if(O.meta.num===num){ O=novoEstado(); escreverForm(); }
   pintarTudo();
 };

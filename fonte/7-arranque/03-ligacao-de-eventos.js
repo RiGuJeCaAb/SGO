@@ -18,7 +18,10 @@ document.addEventListener("keydown", e=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="s"){ e.preventDefault(); guardarGlobal(); }
 });
 $("b-carregar").onclick=()=>carregar(null);
-$("b-nova").onclick=()=>{ O=novoEstado(); escreverForm(); $("f-csv").value=""; $("c-analise").style.display="none"; SERIE=[]; ANALISE=null; $("pea-view").innerHTML=""; pintarTudo(); aviso("msg-occ","ok","Estado limpo — nova ocorrência."); };
+$("b-nova").onclick=()=>{ O=novoEstado(); escreverForm(); $("f-csv").value=""; $("c-analise").style.display="none"; SERIE=[]; ANALISE=null; $("pea-view").innerHTML="";
+  /* As folhas eram da ocorrência que acabou: ficam na base, saem do ecrã. */
+  FOLHAS.forEach(f=>{ if(f.img){ try{ URL.revokeObjectURL(f.img); }catch(e){ /* ignorado: URL já revogada */ } } }); FOLHAS = []; pintarFolhas();
+  pintarTudo(); aviso("msg-occ","ok","Estado limpo — nova ocorrência."); };
 $("b-evo").onclick=addEvo;
 $("b-analisar").onclick=()=>analisarCSV(true);
 $("m-horas").addEventListener("change", ()=>{ if($("f-csv").value.trim()) analisarCSV(false); });
@@ -96,8 +99,8 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
     bImpO.addEventListener("click", ()=>fImpO.click());
     fImpO.addEventListener("change", async ()=>{
       const f = fImpO.files && fImpO.files[0]; if(!f) return;
-      try{ await importarOcorrencia(await f.text()); }
-      catch(e){ aviso("msg-occ","err","Não foi possível ler o ficheiro ("+e+")."); }
+      try{ await importarOcorrencia(await lerTextoComTeto(f)); }
+      catch(e){ aviso("msg-occ","err","Não foi possível ler o ficheiro: "+((e&&e.message)||e)+"."); }
       fImpO.value = "";
     });
   }
@@ -110,8 +113,8 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
     bF.addEventListener("click", ()=>inF.click());
     inF.addEventListener("change", async ()=>{
       const f = inF.files && inF.files[0]; if(!f) return;
-      try{ await importarGestaoPCO(await f.text()); }
-      catch(e){ aviso("gp-msg","err","Não foi possível ler o ficheiro ("+e+")."); }
+      try{ await importarGestaoPCO(await lerTextoComTeto(f)); }
+      catch(e){ aviso("gp-msg","err","Não foi possível ler o ficheiro: "+((e&&e.message)||e)+"."); }
       inF.value = "";
     });
   }

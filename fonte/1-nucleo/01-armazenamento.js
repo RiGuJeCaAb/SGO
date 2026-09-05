@@ -179,7 +179,14 @@ async function prepararArmazem(){
         try{ await ARMAZEM.get(k); }catch(e){ ja = false; }
         if(!ja) await ARMAZEM.set(k, localStorage.getItem(k));
       }
-    }catch(e){}
+    }catch(e){
+      /* Uma passagem a meio deixava as ocorrências na camada de trás e o arquivo a
+         parecer vazio, sem uma palavra. A camada de trás não se perde — volta a tentar-se
+         no próximo arranque — mas diz-se onde se possa. */
+      ARMAZEM.passagemIncompleta = String((e && e.message) || e).slice(0,80);
+      if(typeof aviso === "function" && typeof $ === "function" && $("msg-occ"))
+        aviso("msg-occ","err","A passagem do arquivo antigo para a base ficou a meio ("+ARMAZEM.passagemIncompleta+"). O que faltar volta a passar no próximo arranque.");
+    }
   }
   return true;
 }

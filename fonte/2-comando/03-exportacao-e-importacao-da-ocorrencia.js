@@ -39,11 +39,15 @@ function exportarOcorrencia(){
 
 /* Um pacote importado é dados, nunca código: valida-se a forma, migra-se pelo mesmo
    caminho do estado gravado, e o que não se reconhece é recusado com motivo. */
-/** @param {string} texto @returns {Estado} */
-function lerPacoteOcorrencia(texto){
-  let pacote;
-  try{ pacote = JSON.parse(texto); }
-  catch(e){ throw new Error("o ficheiro não é JSON válido"); }
+/**
+ * Lê um pacote de ocorrência já analisado, e devolve o estado limpo e migrado.
+ *
+ * A importação analisava o mesmo texto **quatro vezes** — aqui, no carimbo, e duas vezes
+ * na própria `importarOcorrencia` — e cada análise de um pacote grande é síncrona no fio
+ * principal. Passa a analisar-se uma vez e a passar o objeto. Atenção à ordem: o carimbo
+ * confere-se **antes** disto, porque isto limpa e migra o estado no lugar.
+ */
+function lerPacoteDeObjeto(pacote){
   if(!pacote || typeof pacote!=="object") throw new Error("o ficheiro não tem a forma esperada");
   const estado = (pacote.tipo==="peaapp:ocorrencia")? pacote.estado : pacote;
   if(!estado || typeof estado!=="object" || !estado.meta || typeof estado.meta!=="object"){
@@ -70,8 +74,14 @@ function lerPacoteOcorrencia(texto){
  * em vez de o deixar decidir. O que não se pode é entrar em silêncio.
  */
 async function importarOcorrencia(texto){
-  let estado;
-  try{ estado = lerPacoteOcorrencia(texto); }
+  let pacote = null, estado, q = { bate:null, nota:"" };
+  try{
+    try{ pacote = JSON.parse(texto); }catch(e){ throw new Error("o ficheiro não é JSON válido"); }
+    /* Conferir antes de importar, e sobre o objeto ainda por limpar e por migrar: o
+       carimbo cobre o estado como foi escrito. */
+    q = conferirCarimboDoPacote(pacote);
+    estado = lerPacoteDeObjeto(pacote);
+  }
   catch(e){
     aviso("msg-occ","err", e && e.futuro
       ? "Ficheiro exportado por uma revisão posterior (versão "+e.futuro+"). Abre-o na revisão mais recente."
@@ -82,9 +92,6 @@ async function importarOcorrencia(texto){
      !window.confirm("Substituir a ocorrência "+O.meta.num+" em memória pela ocorrência "+(estado.meta.num||"sem número")+" do ficheiro?")){
     return false;
   }
-  /* Conferir antes de importar: depois de `O = estado` o ficheiro já não é o que está
-     à frente, e a fita a escrever teria de ser a do estado novo. */
-  const q = conferirCarimbo(texto);
 
   /* Um carimbo que não confere passa a exigir decisão expressa. Continua a não haver
      recusa automática — num PCO pode ser preferível recuperar um ficheiro suspeito do
@@ -103,7 +110,6 @@ async function importarOcorrencia(texto){
   const problemas = estado.__forma || [];
   delete estado.__forma;
   O = estado;
-  const pacote = (()=>{ try{ return JSON.parse(texto); }catch(e){ return {}; } })();
   O.integridade = {
     estado: q.bate === true? "valida" : (q.bate === false? "falhou" : "legado"),
     g: gdhAgora(),
@@ -115,7 +121,7 @@ async function importarOcorrencia(texto){
   if(O.csv){ $("f-csv").value=O.csv; try{ analisarCSV(false); }catch(e){} }
   fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":""));
   await persistir(false);
-  if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(JSON.parse(texto).sha));
+  if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(pacote.sha));
   else if(q.bate === false) fita("ATENÇÃO: o carimbo de integridade do ficheiro importado não confere");
   if(problemas.length){
     fita("Forma corrigida na importação: "+problemas.join("; "));
@@ -144,12 +150,10 @@ async function importarOcorrencia(texto){
  * **Avisa, não recusa.** Recusar podia ser a diferença entre ter a ocorrência e não ter
  * nada. Diz-se o que se sabe, fica na fita do tempo, e quem decide é quem está no PCO.
  *
- * @param {string} texto o pacote como veio do ficheiro
+ * @param {any} p o pacote já analisado — ver `lerPacoteDeObjeto` para a razão de ser o objeto
  * @returns {{bate:(boolean|null), nota:string}}
  */
-function conferirCarimbo(texto){
-  let p = null;
-  try{ p = JSON.parse(texto); }catch(e){ p = null; }
+function conferirCarimboDoPacote(p){
   if(!p || typeof p !== "object") return { bate:null, nota:"" };
   const sha = p.sha;
   if(!sha) return { bate:null, nota:"O ficheiro não traz carimbo de integridade: foi exportado por uma revisão anterior à que passou a carimbar." };

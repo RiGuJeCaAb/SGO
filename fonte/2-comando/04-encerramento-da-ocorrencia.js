@@ -96,7 +96,11 @@ async function encerrarOcorrencia(por, nota, ts){
   await persistir(false);
   E.sha = "";
   E.sha = resumoEstado(O);
-  try{ await ARMAZEM.set(chave(), JSON.stringify(O)); }catch(e){}
+  /* Se o carimbo não ficar no disco, a ocorrência está encerrada em memória com um
+     carimbo que ninguém mais vê. Não se lança — o encerramento aconteceu —, mas o
+     indicador de gravação acende e diz porquê. */
+  try{ await ARMAZEM.set(chave(), JSON.stringify(O)); }
+  catch(e){ registarGravacao({ ok:false, erro:"carimbo do encerramento não gravado: "+String((e&&e.message)||e).slice(0,60) }); }
   pintarEncerramento();
   return { ok:true, reservas:v.reservas };
 }
