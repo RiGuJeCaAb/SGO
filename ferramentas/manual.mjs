@@ -61,6 +61,13 @@ function existe(rotulo, textos) {
  * verificação, porque o literal deixa de aparecer no ficheiro onde se disse que estava.
  */
 const RENDIDOS = [
+  /* O painel da rendição compõe-se ao abrir, e os botões dele com ele. */
+  { rotulo: 'Registar a solicitação ao CSREPC', ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
+  { rotulo: 'Copiar o texto',                   ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
+  { rotulo: 'Registar a saída do TO',           ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
+  { rotulo: 'Registar a chegada à Entidade',    ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
+  /* A linha de estado do mapa, composta a cada pintura. */
+  { rotulo: 'Sem serviço de mosaicos configurado', ficheiro: 'fonte/3-planeamento/05-mapa-operacional.js' },
   { rotulo: 'Consultar agora',   ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
   { rotulo: 'Atualizar',         ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
   { rotulo: 'por confirmar',     ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },

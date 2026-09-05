@@ -91,8 +91,21 @@ interface Setor {
    * setor sem limite é um setor por delimitar, e não um setor de área nula.
    */
   limite?: number[][];
+  /** As unidades do setor. Cada uma pode trazer o ramo `rend` — ver `RendicaoUnidade`. */
   tip?: any[];
   [outro: string]: any;
+}
+
+/**
+ * A rendição de uma unidade: o pedido ao CSREPC e, desde a r0107, o fim do empenhamento.
+ * `saida` é a hora de saída do TO (DON n.º 2, 7.e.(5)(r)); `chegada` é a hora de entrada
+ * na Entidade pela definição de 9.d.(6) — o local de estacionamento ou quartel, ou o fim
+ * da participação na ocorrência —, por decisão do dono a 5 de setembro de 2026. GDH, ou
+ * vazio enquanto não se souber.
+ */
+interface RendicaoUnidade {
+  g: string; por: string; nota: string;
+  saida: string; chegada: string;
 }
 
 interface FuncaoPCO {

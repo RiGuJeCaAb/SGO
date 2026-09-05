@@ -98,9 +98,15 @@ function briefingPassagem(ts){
   let R = [];
   try{ R = rendicoes(instante); }catch(err){ R = []; }
   const vencidas = R.filter(x=>x.nivel==="r"), proximas = R.filter(x=>x.nivel==="a");
+  /* Quem já saiu do TO: quem entra tem de saber que chegadas à Entidade ainda deve ao
+     CSREPC — 9.d.(6) —, porque é um registo que se fecha depois de o meio partir. */
+  let rendidas = [];
+  try{ rendidas = estadoDasRendicoes(instante).rendidas; }catch(err){ rendidas = []; }
   const tempos = [
     vencidas.length? "Rendição vencida: "+vencidas.map(x=>x.nome+" ("+x.local+"), "+x.txt).join("; ")+"." : null,
     proximas.length? "Rendição a preparar: "+proximas.map(x=>x.nome+" ("+x.local+"), "+x.txt).join("; ")+"." : null,
+    rendidas.length? "Rendidas: "+rendidas.map(x=>x.nome+" ("+x.onde+"), saída do TO às "+x.saida
+      +(x.chegada? ", chegada à Entidade às "+x.chegada : ", chegada à Entidade por registar")).join("; ")+"." : null,
     (R.length && !vencidas.length && !proximas.length)? plural(R.length,"meio")+" em contagem; o mais antigo há "+R[0].txt+"." : null,
     !R.length? "Sem instantes de empenhamento registados — não há projeção de rendições." : null
   ];

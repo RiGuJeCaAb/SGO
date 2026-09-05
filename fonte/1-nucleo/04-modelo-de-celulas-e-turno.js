@@ -435,6 +435,23 @@ MIGRACOES.push(e => {
   }
   return e;
 });
+/* 28 → 29: a rendição de uma unidade ganha a saída do TO e a chegada à Entidade — DON n.º 2,
+   7.e.(5)(r) e 9.d.(6). Só o ramo que já existe se completa; a unidade sem pedido continua
+   sem ramo, e `rendObj` dá-lho quando for preciso. */
+MIGRACOES.push(e => {
+  const completar = it => {
+    if(it && it.rend && typeof it.rend === "object"){
+      if(typeof it.rend.saida !== "string") it.rend.saida = "";
+      if(typeof it.rend.chegada !== "string") it.rend.chegada = "";
+    }
+  };
+  const est = e.dados && e.dados.est;
+  if(est){
+    (est.setores||[]).forEach(s => (s && Array.isArray(s.tip)? s.tip : []).forEach(completar));
+    (est.aerL||[]).forEach(completar);
+  }
+  return e;
+});
 
 /* `let O` só depois do último degrau. Estava a meio da escada, com sete degraus antes e
    dezasseis depois: latente, porque `novoEstado` não corre a escada, mas é a classe de

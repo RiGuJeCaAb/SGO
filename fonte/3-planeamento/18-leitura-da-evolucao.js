@@ -48,7 +48,7 @@ function difRumo(a, b){
 function pontaMaisProxima(linha, lat, lon){
   let melhor = null;
   linha.forEach(c=>{
-    const d = distanciaM(c[1], c[0], lat, lon);
+    const d = distanciaPlanaM(c[1], c[0], lat, lon);
     if(!melhor || d < melhor.d) melhor = { d, lat:c[1], lon:c[0] };
   });
   return melhor;

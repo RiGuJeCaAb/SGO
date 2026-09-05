@@ -115,6 +115,8 @@ const PONTOS_DON2 = [
   '7.d.(20)', '7.d.(22)', '7.d.(23)', '7.d.(25)(d)', '7.d.(27)', '7.d.(29)', '7.d.(30)',
   '7.e.(4)', '7.e.(4)(o)', '7.e.(4)(t)', '7.e.(5)', '7.e.(5)(a)', '7.e.(5)(r)', '7.e.(5)(t)',
   '7.k.(1)', '7.k.(2)', '7.l.(1)', '7.l.(2)',
+  /* As duas definições da hora de entrada na Entidade, conferidas na r0105; grava-se a de 9.d.(6). */
+  '7.d.(14)(d)', '9.d.(6)',
 ];
 
 test('nenhuma citação da DON n.º 2 entra sem estar conferida contra o PDF', semAplicacao, () => {

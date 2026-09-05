@@ -22,6 +22,7 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run prova-idb` | Num Chromium a sério, a abertura da base pela versão que ela tiver, e o `VersionError` que isso evita |
 | `npm run prova-abas` | Num Chromium a sério e de `file://`, duas abas: uma escreve, a outra lê, o trinco rouba-se, o canal avisa |
 | `npm run navegador` | As três provas e a auditoria visual, por esta ordem. É o segundo trabalho da CI, depois dos nove portões |
+| `npm run sondar` | **Corre-se onde há rede, não na CI.** Abre a entrega de `file://` num Chromium e pede a cada origem que a fonte declara, com a origem opaca que o posto tem; diz o que respondeu, com que código, e o que o CORS recusou. Mais origens com `-- --url <endereço>`; o serviço de focos com a chave em `FOCOS_URL`, que nunca é escrita no registo. Deixa um JSON em `entrada/`, para a sessão seguinte o ler. É a resposta possível às tarefas 11 e 14: daqui, o ambiente recusa tudo com 403 |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.
 Sem argumento, escolhem a revisão de numeração mais alta em `app/`.

@@ -66,7 +66,7 @@ function agruparTip(tip){
  * A cor é o estado; o número diz quanto, em tinta de texto, para que a leitura não
  * dependa de distinguir cores. O limiar é o mesmo do quadro de rendições.
  *
- * @param {{t?:string, ar?:number, ts?:number, rend?:{g:string,por:string,nota:string}}} it unidade
+ * @param {{t?:string, ar?:number, ts?:number, rend?:RendicaoUnidade}} it unidade
  * @param {boolean} [aereo] força o limiar aéreo, para a lista de meios aéreos
  * @param {string} [alvo] endereço da unidade; com ele o medidor passa a botão
  */
@@ -104,13 +104,14 @@ function medidorTempo(it, aereo, alvo){
   /* Com endereço, o medidor é o botão por onde se pede a rendição: quem vê a laranja
      quase vazia é quem tem de agir, e a ação tem de estar onde está o sinal. Sem
      endereço — no quadro de rendições, no PEA — continua a ser só leitura. */
-  const pedida = rendPedida(it);
+  const pedida = rendPedida(it), saiu = rendSaiu(it);
   const dentro = '<svg class="med-o" viewBox="0 0 18 18" aria-hidden="true">'+gomos.join("")+'</svg>'
-    + '<span class="med-h">'+rot+(pedida? " \u00b7 rend. pedida" : "")+'</span>';
-  const cls = "med "+nivel+(pedida? " ped" : "");
+    + '<span class="med-h">'+(saiu? "saiu \u00b7 "+it.rend.saida : rot+(pedida? " \u00b7 rend. pedida" : ""))+'</span>';
+  const cls = "med "+(saiu? "v" : nivel)+(pedida? " ped" : "")+(saiu? " ped" : "");
   return alvo
-    ? '<button type="button" class="'+cls+'" data-rend="'+esc(alvo)+'" title="'+esc(titulo
-        +(pedida? " Rendição solicitada a "+it.rend.g+"." : " Carregar para solicitar a rendição ao CSREPC."))+'">'+dentro+'</button>'
+    ? '<button type="button" class="'+cls+'" data-rend="'+esc(alvo)+'" title="'+esc(saiu
+        ? "Saiu do TO às "+it.rend.saida+(it.rend.chegada? "; chegou à Entidade às "+it.rend.chegada+"." : ". Carregar para registar a chegada à Entidade.")
+        : titulo+(pedida? " Rendição solicitada a "+it.rend.g+"." : " Carregar para solicitar a rendição ao CSREPC."))+'">'+dentro+'</button>'
     : '<span class="'+cls+'" title="'+esc(titulo)+'">'+dentro+'</span>';
 }
 

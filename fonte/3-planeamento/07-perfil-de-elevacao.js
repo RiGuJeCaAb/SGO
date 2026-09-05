@@ -11,13 +11,23 @@ function pontosDoEixo(latA, lonA, latB, lonB, n){
   return P;
 }
 /**
- * Lê um par de coordenadas escrito à mão, com vírgula, ponto e vírgula ou espaço.
+ * Lê um par de coordenadas escrito à mão, separado por ponto e vírgula, espaço ou vírgula.
+ *
+ * A vírgula é decimal em português e separador em quase todo o lado, e até à r0107 era
+ * sempre separador: «41,0975 -7,8103», que é como um teclado português o escreve, lia-se
+ * como quatro números e dava latitude 41 e longitude 975. Decide-se pelo que mais houver:
+ * com ponto e vírgula ou espaço a separar, a vírgula é decimal; sem eles, a vírgula só
+ * separa se houver um ponto decimal algures — «41.16,-7.79». Sem ponto nem espaço,
+ * «41,16» é um número só, e não é par; e «41,16,-7,79» também não se lê, em vez de se ler
+ * como latitude 41 e longitude 16. Os testes do #002 (r0107) apanharam-no.
  *
  * Recusa o que não couber nos limites de latitude e longitude, em vez de devolver números
  * que passariam por coordenadas.
  */
 function parPar(txt){
-  const m = String(txt||"").split(/[,;\s]+/).map(numPT).filter(x=>x!==null);
+  const s = String(txt||"").trim();
+  const partes = /[;\s]/.test(s)? s.split(/[;\s]+/).map(x=>x.replace(/^,+|,+$/g, "")) : (s.includes(".")? s.split(",") : [s]);
+  const m = partes.map(numPT).filter(x=>x!==null);
   return (m.length>=2 && Math.abs(m[0])<=90 && Math.abs(m[1])<=180)? {lat:m[0], lon:m[1]} : null;
 }
 /**

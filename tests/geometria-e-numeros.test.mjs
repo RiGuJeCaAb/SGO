@@ -228,3 +228,17 @@ test('o botão de atualizar os avisos e o de imprimir respondem sem onclick', se
   assert.ok(b, 'o painel vazio dos avisos tem o botão de consultar');
   assert.equal(av('document.querySelectorAll("[onclick]").length'), 0, 'e nada no documento tem onclick');
 });
+
+test('a distância esférica só se usa onde se confere contra a geodésica: a aferição das folhas', () => {
+  /* Decidido por uso na r0107, depois de a pergunta ao #003 ficar sem resposta: dentro do
+     teatro a plana chega — um por mil a cinquenta quilómetros, abaixo do que qualquer saída
+     escreve — e a esférica é a referência independente da grelha contra que a escala de
+     uma folha calibrada se confere. Tudo o resto chama `distanciaPlanaM`. */
+  const culpados = modulosDaFonte()
+    .filter(({ caminho }) => !caminho.endsWith('28-geometria-do-terreno.js') && !caminho.endsWith('23-folhas-de-carta-calibradas.js'))
+    .filter(({ texto }) => /\bdistanciaM\(/.test(texto))
+    .map(({ caminho }) => caminho);
+  assert.deepEqual(culpados, []);
+  const folhas = modulosDaFonte().find(({ caminho }) => caminho.endsWith('23-folhas-de-carta-calibradas.js'));
+  assert.match(folhas.texto, /distanciaM\(/, 'a aferição das folhas é o uso que fica');
+});

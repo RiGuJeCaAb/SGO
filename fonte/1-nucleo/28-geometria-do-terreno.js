@@ -5,10 +5,13 @@
    de rumos com três formas diferentes, uma delas só de oito pontos. Quem precisar de medir,
    deslocar ou nomear um rumo chama aqui, e o número que sai é o mesmo em todo o lado.
 
-   A planar chega para o que se mede a menos de uns quilómetros — perfil, frentes, linhas,
-   distâncias aos sensíveis; a esta escala a diferença para a esférica é de centímetros. O
-   semiverseno fica para quem precise da esfera sem correção de latitude a esquecer. Qual
-   das duas serve cada uso é pergunta ao #003; até lá cada sítio mantém a que tinha. */
+   **A plana serve tudo o que se mede dentro do teatro** — perfil, frentes, linhas,
+   distâncias aos sensíveis, o corredor de progressão: a menos de cinquenta quilómetros a
+   diferença para a esférica é de um por mil, abaixo do que qualquer saída escreve. A
+   esférica fica para um uso só, a aferição das folhas calibradas, onde a distância é a
+   referência independente da grelha contra que a escala da folha se confere. A pergunta
+   ficou posta ao #003 na r0102 e não veio resposta; decidiu-se aqui, na r0107, por uso, e
+   um teste lê a fonte e recusa `distanciaM` fora desses dois módulos. */
 
 /** Metros por grau de latitude no elipsoide, à escala a que a aplicação mede. */
 const M_POR_GRAU = 111320;

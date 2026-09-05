@@ -1241,7 +1241,10 @@ function pintarPontos(){
 /** O que um clique no mapa faz, consoante o alvo escolhido. */
 function cliqueNoMapa(px, py){
   const alvo = ($("mapa-alvo")||{}).value || "";
-  if(!alvo) return;
+  /* Sem alvo o clique não marca nada, de propósito: um toque acidental não pousa um ponto.
+     Mas calar-se era deixar quem clica a pensar que a carta não responde — foi o que o dono
+     viu na r0106, com um perímetro carregado e a lista ainda na opção vazia. Diz-se. */
+  if(!alvo){ aviso("mapa-msg","av","O clique não marcou nada: escolher primeiro, em «Clicar no mapa marca», o que o clique faz. Arrastar desloca a carta."); return; }
   const z = MAPA.z, ox = MAPA.cx - MAPA.larg/2, oy = MAPA.cy - MAPA.alt/2;
   const { lat, lon } = gDe(ox + px, oy + py, z);
 

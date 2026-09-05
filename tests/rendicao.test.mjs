@@ -189,3 +189,87 @@ test('o chip passa a dizer que a rendição foi pedida, sem ser preciso recarreg
   assert.match(depois.className, /ped/, 'o medidor continuou a mostrar o que mostrava antes do pedido');
   assert.match(depois.textContent, /rend\. pedida/);
 });
+
+/* ---- o fim da rendição: saída do TO e chegada à Entidade — r0107 ---- */
+
+test('a saída do TO tira a unidade da contagem e fica na evolução e na fita', semAplicacao, async () => {
+  const it = comUnidade(13);
+  await janela.assumirTeclado('Silva', 'Cmdt', 'cos');
+  assert.equal(janela.rendicoes().length, 1, 'antes de sair, conta');
+  const r = janela.registarRendicao('s:0:0', { saida: '051430SET26' });
+  assert.equal(r.ok, true, r.motivo);
+  assert.equal(it.rend.saida, '051430SET26');
+  assert.equal(it.rend.chegada, '', 'a chegada não se inventa: regista-se quando a Entidade a confirmar');
+  assert.equal(janela.rendSaiu(it), true);
+  assert.equal(janela.rendicoes().length, 0, 'quem saiu do TO não está em empenhamento');
+  const RD = janela.estadoDasRendicoes();
+  assert.equal(RD.rendidas.length, 1);
+  assert.equal(RD.rendidas[0].saida, '051430SET26');
+  const ev = estado().evolucao.slice(-1)[0];
+  assert.equal(ev.tipo, 'meios');
+  assert.match(ev.txt, /Rendição de VFCI · CB Lamego \(Setor Alfa\): saída do TO às 051430SET26\./);
+  assert.ok(estado().fita.some((x) => /saída do TO às 051430SET26/.test(x.e)));
+});
+
+test('a chegada à Entidade é a de 9.d.(6), vem depois da saída e não pode ser anterior a ela', semAplicacao, async () => {
+  const it = comUnidade(13);
+  await janela.assumirTeclado('Silva', 'Cmdt', 'cos');
+  const soChegada = janela.registarRendicao('s:0:0', { chegada: '051600SET26' });
+  assert.equal(soChegada.ok, false);
+  assert.match(soChegada.motivo, /primeiro a saída/);
+  assert.equal(janela.registarRendicao('s:0:0', { saida: '051430SET26' }).ok, true);
+  const antes = janela.registarRendicao('s:0:0', { chegada: '051400SET26' });
+  assert.equal(antes.ok, false);
+  assert.match(antes.motivo, /anterior à saída/);
+  const r = janela.registarRendicao('s:0:0', { chegada: '051600SET26' });
+  assert.equal(r.ok, true, r.motivo);
+  assert.equal(it.rend.chegada, '051600SET26');
+  const ev = estado().evolucao.slice(-1)[0];
+  assert.match(ev.txt, /chegada à Entidade às 051600SET26 \(DON n\.º 2, 9\.d\.\(6\)\)/,
+    'a evolução diz qual das duas definições da DON se gravou');
+  assert.equal(janela.registarRendicao('s:0:0', { chegada: '051600SET26' }).ok, false, 'repetir não é registar');
+  assert.equal(janela.registarRendicao('s:0:0', {}).ok, false, 'sem hora nenhuma não há o que registar');
+});
+
+test('o fim da rendição não exige pedido, e retirar o pedido não apaga a saída', semAplicacao, async () => {
+  const it = comUnidade(13);
+  await janela.assumirTeclado('Silva', 'Cmdt', 'cos');
+  assert.equal(janela.registarRendicao('s:0:0', { saida: '051430SET26' }).ok, true,
+    'um meio rendido por iniciativa do CSREPC também sai, e sem pedido deste posto');
+  assert.equal(janela.solicitarRendicao('s:0:0', { nota: 'tarde' }).ok, true);
+  assert.equal(janela.retirarSolicitacaoRendicao('s:0:0').ok, true);
+  assert.equal(it.rend.saida, '051430SET26', 'a saída é facto de outro momento');
+  assert.equal(it.rend.g, '');
+});
+
+test('o painel da rendição pede a saída e depois a chegada, e o briefing diz quem já saiu', semAplicacao, async () => {
+  const it = comUnidade(13);
+  await janela.assumirTeclado('Silva', 'Cmdt', 'cos');
+  /* O jsdom não desloca a vista; o painel a sério fá-lo depois de se pintar. */
+  if (!janela.Element.prototype.scrollIntoView) janela.Element.prototype.scrollIntoView = () => {};
+  janela.abrirRendicao('s:0:0');
+  assert.ok(doc().getElementById('rd-saida'), 'antes de sair, pede-se a saída');
+  assert.match(doc().getElementById('rend-painel').textContent, /9\.d\.\(6\)/, 'a definição está escrita onde se regista');
+  doc().getElementById('rd-saida').value = '051430SET26';
+  doc().getElementById('rd-registar').click();
+  assert.equal(it.rend.saida, '051430SET26');
+  assert.ok(!doc().getElementById('rd-saida'), 'saída registada: já não se pede');
+  assert.ok(doc().getElementById('rd-chegada'), 'a chegada continua por registar');
+  const b = janela.textoBriefing(janela.briefingPassagem(janela.agora()));
+  assert.match(b, /Rendidas: VFCI · CB Lamego \(Setor Alfa\), saída do TO às 051430SET26, chegada à Entidade por registar/);
+  const chip = doc().querySelector('[data-rend="s:0:0"]');
+  assert.ok(chip && /saiu · 051430SET26/.test(chip.textContent), 'o medidor diz que saiu');
+  janela.abrirRendicao('');
+});
+
+test('um estado da versão 28 ganha saída e chegada vazias em cada rendição que já existia', semAplicacao, () => {
+  const m = janela.migrarGravado({
+    versao: 28, meta: { num: '2026/900' }, pco: { funcoes: [] },
+    dados: { est: { n: 1, setores: [{ tip: [{ t: 'VFCI', ts: 1, rend: { g: '051200SET26', por: 'x', nota: '' } }, { t: 'VUCI' }] }],
+      aerL: [{ t: 'HEBL', ts: 1, rend: { g: '', por: '', nota: '' } }] } },
+  });
+  assert.equal(m.versao, avaliar(janela, 'VERSAO_ESTADO'));
+  assert.deepEqual(daqui(m.dados.est.setores[0].tip[0].rend), { g: '051200SET26', por: 'x', nota: '', saida: '', chegada: '' });
+  assert.equal(m.dados.est.setores[0].tip[1].rend, undefined, 'a unidade sem pedido continua sem ramo');
+  assert.deepEqual(daqui(m.dados.est.aerL[0].rend), { g: '', por: '', nota: '', saida: '', chegada: '' });
+});

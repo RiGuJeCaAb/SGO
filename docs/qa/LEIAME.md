@@ -323,3 +323,16 @@ confirmação e de erro partilham desde a r0102 a mesma caixa — uma aresta de 
 de dez, o mesmo enchimento — e diferem só no tom e no filete de três pixéis à esquerda das
 faixas. Antes cada uma trazia o seu raio e a sua aresta. Medido no Chromium ao capturar: raio
 de 10 px na faixa, na mensagem e na guia, aresta de 1 px nas três e filete de 3 px na faixa.
+
+## qa0038 — as três gravidades das notas no mapa, com os dois graus, nos dois temas
+
+`CSREPCDouro_qa0038_202609052225_TresGravidadesDasNotasTemaClaro_CLD.png`
+`CSREPCDouro_qa0038_202609052225_TresGravidadesDasNotasTemaEscuro_CLD.png`
+
+A 1440 px, sem serviço de carta — o tracejado é a falta de mosaicos, não um defeito —, com
+cinco notas escritas por `escreverNota`: três da gravidade 1 a vermelho, uma com o grau
+«Interdição» e outra com «Condicionamento» à cabeça do texto e uma zona de segurança sem
+grau; uma de «Acesso e circulação» a azul; uma de «Reconhecimento» a cinzento. A lista
+«Clicar no mapa marca» está em «Nota — Ameaça, ponto crítico ou segurança · Interdição à
+circulação», que é um dos dois alvos próprios dos graus, decisão do dono na r0105. Ficou por
+capturar na r0105 e na r0106; entra na r0107.

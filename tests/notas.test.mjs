@@ -186,3 +186,21 @@ test('as notas viajam na exportação', semAplicacao, () => {
   assert.equal(N[0].txt, 'interdito a VFCI');
   assert.equal(N[0].tipo, 'ameaca');
 });
+
+/* ---- o clique sem alvo — r0107 ---- */
+
+test('com a lista em «não marca nada», o clique diz-o em vez de se calar', semAplicacao, () => {
+  /* O dono carregou um perímetro do geojson.io, clicou na carta e não aconteceu nada, e
+     perguntou o que estava a fazer mal. Nada: a lista estava na opção vazia, e a aplicação
+     não o dizia. */
+  comTeatro();
+  janela.medirMapa(); janela.enquadrarMapa(640, 420); janela.pintarAlvos();
+  janela.document.getElementById('mapa-alvo').value = '';
+  const antes = daqui(avaliar(janela, 'O').dados.notas).length;
+  janela.cliqueNoMapa(100, 100);
+  const msg = janela.document.getElementById('mapa-msg');
+  assert.equal(msg.style.display, 'block');
+  assert.match(msg.textContent, /escolher primeiro, em «Clicar no mapa marca»/);
+  assert.equal(msg.classList.contains('err'), false, 'não é erro: é uma indicação');
+  assert.equal(daqui(avaliar(janela, 'O').dados.notas).length, antes, 'e continua a não marcar nada');
+});

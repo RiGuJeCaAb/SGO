@@ -105,6 +105,8 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   `gDe` e `gEscala` e não sabe em que grelha está. **Os eixos entram e saem em par** — a
   Transversa de Mercator não é separável, e projetar cada um sozinho já pôs um ponto do
   Douro a trinta quilómetros do sítio.
+- Distância dentro do teatro é `distanciaPlanaM`, do núcleo. A esférica, `distanciaM`, só
+  serve a aferição das folhas calibradas, e um teste recusa-a noutro sítio.
 - As capturas em `tests/fixtures/capacidades/` são prova de proveniência do que os
   serviços responderam. **Não se editam**: um ficheiro alterado à mão deixa de ser prova,
   e `tests/capacidades.test.mjs` confere o resumo de cada um. Captura nova entra com o

@@ -101,7 +101,13 @@ tarifada; pedir dezenas de quadrados de carta assim que a página abre é gastar
 alguém sem ela ter pedido nada. Carregue em «Carregar a carta» quando quiser.
 
 Tudo o que se desenha no mapa se faz da mesma maneira: escolher **o que** em «Clicar no mapa
-marca», e depois clicar no mapa.
+marca», e depois clicar no mapa. Enquanto a lista estiver na opção vazia, o clique não marca
+nada, de propósito, e a aplicação di-lo por baixo do mapa em vez de se calar. Arrastar
+desloca a carta; clicar marca.
+
+O tracejado no lugar da carta não é erro seu: é falta de serviço de carta, e a linha por
+baixo do mapa diz «Sem serviço de mosaicos configurado». Tudo o que se marca sem fundo fica
+marcado e gravado na mesma — ver a secção sobre a carta de fundo, abaixo.
 
 ### Traçar o limite de um setor
 
@@ -501,6 +507,20 @@ Operações → **Setorização do TO e quadro de meios**. Declare quantos setor
 atribuído a cada um, por tipologia do Anexo 1 da DON n.º 2.
 
 Operações → **Meios aéreos no TO**: indicativo e hora de entrada, com «Registar».
+
+### Pedir a rendição, e registar a saída e a chegada
+
+O medidor de tempo de cada unidade é um botão. Abre o painel da rendição, com o texto do
+pedido ao CSREPC já composto: «Registar a solicitação ao CSREPC» deixa o pedido na unidade,
+na evolução e na fita, e «Copiar o texto» leva-o para o rádio ou para o correio.
+
+Quando a unidade parte, no mesmo painel, «Registar a saída do TO»: a unidade sai da contagem
+de empenhamento e passa a constar como rendida. Quando a Entidade confirmar a chegada,
+«Registar a chegada à Entidade». A hora que se grava é a do ponto 9.d.(6) da DON n.º 2: a
+hora em que o veículo chega ao seu local de estacionamento ou quartel, ou encerra a sua
+participação na ocorrência. Não é a chegada ao destino final de um meio reencaminhado a meio
+da marcha. As duas horas ficam na evolução e na fita, e o briefing de passagem de turno diz
+que chegadas ainda estão por registar.
 
 ---
 

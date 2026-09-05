@@ -24,6 +24,7 @@
     "prova-arranque": "node ferramentas/prova-arranque.mjs",
     "prova-abas": "node ferramentas/prova-abas.mjs",
     "prova-idb": "node ferramentas/prova-idb.mjs",
+    "sondar": "node ferramentas/sondar-rede.mjs",
     "navegador": "npm run prova-arranque && npm run prova-idb && npm run prova-abas && npm run visual"
   },
   "devDependencies": {

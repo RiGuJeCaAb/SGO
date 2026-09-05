@@ -188,6 +188,27 @@ que trata do vento, do declive e da convecção, **não se tem**. É a fonte que
 junho. Toda a distância de segurança impressa leva a frase de que é valor teórico e não
 substitui o reconhecimento no local (DON n.º 2, Anexo 3, situação n.º 3).
 
+A referência de Butler (2014), **escrita de memória e por obter** — o ambiente de trabalho
+não chega ao DOI para a confirmar, e o artigo não está em `docs/fontes/`:
+
+> Butler, B. W. (2014). Wildland firefighter safety zones: a review of past science and
+> summary of future needs. *International Journal of Wildland Fire*, 23(3), 295–308.
+> DOI 10.1071/WF13021.
+
+O que dela se espera, e que a aplicação não afirma enquanto não a ler: a revisão do fator 4
+em vento e declive, e a parte convectiva do aquecimento. Até lá a distância de segurança
+fica como está — 4 × a altura, tomada igual ao comprimento — com a frase de que a margem
+pode já estar gasta. Quem obtiver o artigo põe-no em `docs/fontes/` com a linha no
+catálogo, e a chave passa a conferida.
+
+**As distâncias no teatro são planas, por decisão da r0107.** A pergunta ficou posta ao
+#003 na r0102 — planar com correção de latitude ou semiverseno — e não veio resposta. A
+diferença entre as duas é de um por mil a cinquenta quilómetros, abaixo do que qualquer
+saída da aplicação escreve; a plana serve tudo o que se mede dentro do teatro. A esférica
+fica num uso só: a aferição das folhas de carta calibradas, onde a distância é a referência
+independente da grelha contra que a escala da folha se confere. Um teste lê a fonte e
+recusa `distanciaM` fora do núcleo e desse módulo.
+
 E um aviso que interessa registar: **Portugal adotou o sistema canadiano de indexação de
 perigo** — FFMC, DMC, DC, ISI, BUI, FWI —, mas *"os limites das classes de perigo do índice
 FWI definiram-se em função das estatísticas de ocorrência de incêndios a nível distrital, ou

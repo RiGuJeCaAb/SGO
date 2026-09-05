@@ -17,7 +17,8 @@ function rendicoes(ts){
   const instante = (ts==null? agora() : ts);
   (e.setores||[]).forEach((x,i)=>{
     (x.tip||[]).forEach(it=>{
-      if(!it.ts) return;
+      /* A unidade que saiu do TO não está em empenhamento: o relógio dela parou à saída. */
+      if(!it.ts || rendSaiu(it)) return;
       const d = catDef(it.t);
       const aereo = !!(it.ar || d.ar);
       const teto = aereo? L.aer : L.lim, avi = aereo? Math.max(1,L.aer-2) : L.av;
@@ -34,7 +35,7 @@ function rendicoes(ts){
     });
   });
   aerLista().forEach(a=>{
-    if(!a.ts) return;
+    if(!a.ts || rendSaiu(a)) return;
     const h = (instante-a.ts)/3600000;
     out.push({
       nome: (a.ind||a.t)+(a.ind? " ("+a.t+")":""), local:"Meios aéreos", op:0,
@@ -203,7 +204,13 @@ function pintarAmpulhetas(){
       +(venc? " · "+venc+" com rendição vencida":"")+(avi? " · "+avi+" a preparar":""))
       : "nenhum meio em contagem"; }
   if(!R.length){
-    el.innerHTML = '<div class="avd-vazio">Nenhum meio em contagem. Os relógios arrancam ao atribuir tipologias aos setores em Operações e ao registar meios aéreos com hora de entrada.</div>';
+    /* Sem contagem pode haver rendidas: um TO em que já todos saíram continua a dever ao
+       CSREPC as horas de chegada à Entidade. Mostram-se. */
+    const RD0 = (()=>{ try{ return estadoDasRendicoes(); }catch(e){ return {rendidas:[]}; } })();
+    el.innerHTML = '<div class="avd-vazio">Nenhum meio em contagem. Os relógios arrancam ao atribuir tipologias aos setores em Operações e ao registar meios aéreos com hora de entrada.</div>'
+      + (RD0.rendidas.length? '<p class="hint" style="margin:8px 0 0 0">Rendidas: '+RD0.rendidas.map(x=>
+          esc(x.nome)+" ("+esc(x.onde)+"; saída do TO às "+esc(x.saida)+", "
+          +(x.chegada? "chegada à Entidade às "+esc(x.chegada) : "chegada à Entidade por registar")+")").join("; ")+'.</p>' : "");
     return;
   }
   const L = limiares();
@@ -231,8 +238,8 @@ function pintarAmpulhetas(){
   /* O bloco da ação, por cima do quadro: quem está para além do limite e ainda não tem
      rendição pedida, e quem já tem. É a leitura que interessa a quem comanda — o quadro
      diz os tempos, isto diz o que falta fazer com eles. */
-  const RD = (()=>{ try{ return estadoDasRendicoes(); }catch(e){ return {pedidas:[],porPedir:[]}; } })();
-  const acao = (!RD.porPedir.length && !RD.pedidas.length)? ""
+  const RD = (()=>{ try{ return estadoDasRendicoes(); }catch(e){ return {pedidas:[],porPedir:[],rendidas:[]}; } })();
+  const acao = (!RD.porPedir.length && !RD.pedidas.length && !RD.rendidas.length)? ""
     : `<div class="sub" style="margin-bottom:14px">
         <span class="stit">Solicitações de rendição ao CSREPC</span>
         ${RD.porPedir.length? `<p class="hint" style="margin:0 0 8px 0">${RD.porPedir.length===1
@@ -242,6 +249,9 @@ function pintarAmpulhetas(){
             `<button type="button" class="btn btn-o" data-rend="${esc(x.alvo)}">Solicitar rendição — ${esc(x.nome)} · ${esc(x.onde)}</button>`).join("")}</div>` : ""}
         ${RD.pedidas.length? `<p class="hint" style="margin:8px 0 0 0">Solicitadas: ${RD.pedidas.map(x=>
             esc(x.nome)+" ("+esc(x.onde)+", "+esc(x.g)+")").join("; ")}.</p>` : ""}
+        ${RD.rendidas.length? `<p class="hint" style="margin:8px 0 0 0">Rendidas: ${RD.rendidas.map(x=>
+            esc(x.nome)+" ("+esc(x.onde)+"; saída do TO às "+esc(x.saida)+", "
+            +(x.chegada? "chegada à Entidade às "+esc(x.chegada) : "chegada à Entidade por registar")+")").join("; ")}.</p>` : ""}
       </div>`;
   el.innerHTML = acao + `<div class="amp-h"><span>Meio</span><span>Resta</span><span>Decorrido</span><span>Capacidade restante</span><span>Rendição prevista</span><span>Estado</span></div>${linhas}
     <p class="amp-leg">Cada barra nasce cheia à entrada no TO e esvazia-se até ao limite de empenhamento: o que se vê é a capacidade que resta, não o tempo já gasto. A marca vertical assinala o momento em que a rendição deve começar a ser preparada, ${L.av} h de trabalho em terra e ${Math.max(1,L.aer-2)} h no ar, sobre limites de ${L.lim} h e ${L.aer} h. A hora de rendição prevista é a hora de entrada somada ao limite, e é o valor a transmitir ao CSREPC no pedido de substituição, junto com o número de elementos, o veículo que entra e a hora de saída dos rendidos.</p>`;

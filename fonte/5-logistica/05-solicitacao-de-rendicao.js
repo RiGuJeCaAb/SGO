@@ -10,15 +10,27 @@
    e a aplicação compõe o texto a transmitir, para não se transmitir de cabeça.
 
    **Pedir não é render.** O que fica registado é a solicitação; a substituição em si
-   regista-se quando acontecer, movendo ou desmobilizando a unidade como sempre. */
+   regista-se quando acontecer, movendo ou desmobilizando a unidade como sempre.
+
+   **Desde a r0107 regista-se também o fim.** A DON n.º 2 manda ao CSREPC o registo da
+   hora de entrada na Entidade de cada meio, e dá-lhe duas definições que não coincidem
+   para o meio reencaminhado a meio da marcha: 7.d.(14)(d), «a hora a que o mesmo chega ao
+   seu destino final», e 9.d.(6), «hora em que o veículo chega ao seu local de
+   estacionamento/quartel ou encerra a sua participação na ocorrência». **Grava-se a de
+   9.d.(6)**, por decisão do dono a 5 de setembro: é o registo que a DON manda ao CSREPC, e
+   é o CSREPC quem usa isto. A hora de saída do TO é a que o pedido de rendição indica,
+   7.e.(5)(r). As duas ficam na unidade, na evolução e na fita — e a evolução e a fita
+   sobrevivem à desmobilização da unidade, para que a decisão se possa estudar depois. */
 
 /** O ramo da rendição de uma unidade, com omissão segura. */
 function rendObj(it){
   if(!it.rend || typeof it.rend !== "object") it.rend = {};
-  return preencher(it.rend, { g:"", por:"", nota:"" });
+  return preencher(it.rend, { g:"", por:"", nota:"", saida:"", chegada:"" });
 }
 /** Foi pedida a rendição desta unidade? */
 function rendPedida(it){ return !!(it && it.rend && it.rend.g); }
+/** Esta unidade já saiu do TO? A saída registada é o que a tira da contagem. */
+function rendSaiu(it){ return !!(it && it.rend && it.rend.saida); }
 
 /**
  * Localiza uma unidade pelo endereço que os botões carregam.
@@ -87,12 +99,51 @@ function solicitarRendicao(alvo, quem){
   return { ok:true, texto, unidade:u };
 }
 
+/**
+ * Regista a saída do TO e a chegada à Entidade de uma unidade rendida.
+ *
+ * São dois momentos e chegam a horas diferentes: a saída sabe-se quando o meio parte, a
+ * chegada quando a Entidade a confirma. Por isso cada chamada grava o que trouxer, e a
+ * chegada pode vir sozinha depois. A chegada é a de 9.d.(6) — ver o cabeçalho — e não
+ * pode ser anterior à saída. Não exige pedido prévio: um meio pode ser rendido por
+ * iniciativa do CSREPC sem que este posto o tenha solicitado, e isso não o tira do registo.
+ *
+ * @param {string} alvo endereço da unidade
+ * @param {{saida?:string, chegada?:string}} q GDH de saída do TO e de chegada à Entidade
+ */
+function registarRendicao(alvo, q){
+  if(encerrada()) return { ok:false, motivo:"O registo está encerrado. Reabrir antes de registar." };
+  if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
+  const u = unidadeDe(alvo);
+  if(!u) return { ok:false, motivo:"Unidade não encontrada." };
+  const r = rendObj(u.it);
+  const saida = String((q&&q.saida)||"").trim(), chegada = String((q&&q.chegada)||"").trim();
+  if(!saida && !chegada) return { ok:false, motivo:"Indicar a hora de saída do TO, a de chegada à Entidade, ou as duas." };
+  if(saida && !parseGDH(saida)) return { ok:false, motivo:"Saída do TO: "+motivoGDH(saida) };
+  if(chegada && !parseGDH(chegada)) return { ok:false, motivo:"Chegada à Entidade: "+motivoGDH(chegada) };
+  const saidaFinal = saida || r.saida;
+  if(chegada && !saidaFinal) return { ok:false, motivo:"A chegada à Entidade regista-se depois da saída do TO: indicar primeiro a saída." };
+  if(chegada && parseGDH(chegada).getTime() < parseGDH(saidaFinal).getTime())
+    return { ok:false, motivo:"A chegada à Entidade ("+chegada+") é anterior à saída do TO ("+saidaFinal+")." };
+
+  const feito = [];
+  if(saida && saida !== r.saida){ r.saida = saida; feito.push("saída do TO às "+saida); }
+  if(chegada && chegada !== r.chegada){ r.chegada = chegada; feito.push("chegada à Entidade às "+chegada+" (DON n.º 2, 9.d.(6))"); }
+  if(!feito.length) return { ok:false, motivo:"Nada de novo a registar: essas horas já lá estão." };
+  const g = chegada || saida;
+  O.evolucao.push({ g, tipo:"meios",
+    txt:"Rendição de " + u.nome + " (" + u.onde + "): " + feito.join("; ") + "." });
+  fita("Rendição de "+u.nome+" ("+u.onde+"): "+feito.join("; "));
+  return { ok:true, unidade:u, saida:r.saida, chegada:r.chegada };
+}
+
 /** Desfaz a solicitação — porque um pedido pode ser retirado, e isso também é facto. */
 function retirarSolicitacaoRendicao(alvo){
   const u = unidadeDe(alvo);
   if(!u || !rendPedida(u.it)) return { ok:false, motivo:"Não há solicitação para retirar." };
   const antes = u.it.rend.g;
-  u.it.rend = { g:"", por:"", nota:"" };
+  /* Retirar o pedido não apaga a saída nem a chegada: são factos de outro momento. */
+  u.it.rend = { g:"", por:"", nota:"", saida:u.it.rend.saida||"", chegada:u.it.rend.chegada||"" };
   O.evolucao.push({ g:gdhAgora(), tipo:"meios",
     txt:"Retirada a solicitação de rendição de " + u.nome + " (" + u.onde + "), pedida a " + antes + "." });
   fita("Retirada a solicitação de rendição: "+u.nome);
@@ -108,8 +159,11 @@ function retirarSolicitacaoRendicao(alvo){
 function estadoDasRendicoes(ts){
   const instante = (ts==null? agora() : ts);
   const L = limiares(), e = estObj();
-  const pedidas = [], porPedir = [];
+  const pedidas = [], porPedir = [], rendidas = [];
   const ver = (it, alvo, onde, nome, aereo)=>{
+    /* A que já saiu do TO lista-se à parte, com as duas horas, e não conta para o pedido:
+       a rendição dela está feita, ou a caminho da Entidade. */
+    if(rendSaiu(it)){ rendidas.push({ alvo, onde, nome, saida:it.rend.saida, chegada:it.rend.chegada||"" }); return; }
     if(!it.ts) return;
     const teto = aereo? L.aer : L.lim;
     const h = (instante - it.ts)/3600000;
@@ -122,7 +176,7 @@ function estadoDasRendicoes(ts){
     ver(it, "s:"+i+":"+j, "Setor "+NOMES_SETOR[i], it.t+(it.ent? " · "+it.ent : ""), !!(it.ar||d.ar));
   }));
   aerLista().forEach((a,j)=>ver(a, "a:"+j, "Meios aéreos", (a.ind||a.t)+(a.ind? " ("+a.t+")":""), true));
-  return { pedidas, porPedir };
+  return { pedidas, porPedir, rendidas };
 }
 
 /** Repinta os sítios onde os medidores vivem, para a marca do pedido aparecer. */
@@ -152,7 +206,8 @@ function abrirRendicao(alvo){
 
   const L = limiares(), teto = u.aereo? L.aer : L.lim;
   const h = u.it.ts? (agora() - u.it.ts)/3600000 : 0;
-  const jaPedida = rendPedida(u.it);
+  const jaPedida = rendPedida(u.it), saiu = rendSaiu(u.it);
+  const rd = rendObj(u.it);
   cx.style.display = "block";
   cx.innerHTML = `<div class="sub" style="margin-top:12px">
     <span class="stit">Rendição — ${esc(u.nome)} · ${esc(u.onde)}</span>
@@ -175,8 +230,40 @@ function abrirRendicao(alvo){
       <button class="btn btn-b" type="button" id="rd-copiar">Copiar o texto</button>
       <button class="btn btn-b" type="button" id="rd-fechar">Fechar</button>
     </div>
+    <div class="sub" style="margin-top:14px">
+      <span class="stit stit--menor">Saída do TO e chegada à Entidade</span>
+      ${saiu
+        ? `<p class="hint" style="margin:0 0 10px 0"><b>Saiu do TO às ${esc(rd.saida)}</b>${rd.chegada
+            ? "; chegou à Entidade às <b>"+esc(rd.chegada)+"</b>." : "; chegada à Entidade por registar."}</p>`
+        : ""}
+      ${rd.chegada ? "" : `<div class="grid g2">
+        ${saiu ? "" : `<div><label for="rd-saida">Saída do TO (GDH)</label><input id="rd-saida" placeholder="vazio = agora"></div>`}
+        <div><label for="rd-chegada">Chegada à Entidade (GDH)</label><input id="rd-chegada" placeholder="quando a Entidade a confirmar"></div>
+      </div>
+      <p class="hint" style="margin:6px 0 10px 0">A chegada à Entidade é a hora em que o veículo chega ao seu local de estacionamento ou quartel, ou encerra a sua participação na ocorrência — DON n.º 2, ponto 9.d.(6), que é o registo que o CSREPC recebe. Não é a chegada ao destino final de um meio reencaminhado a meio da marcha.</p>
+      <div class="row"><button class="btn btn-o" type="button" id="rd-registar">${saiu ? "Registar a chegada à Entidade" : "Registar a saída do TO"}</button></div>`}
+    </div>
     <div class="msg" id="rd-msg" style="display:none"></div>
   </div>`;
+
+  const bS = $("rd-registar");
+  if(bS) bS.addEventListener("click", ()=>{
+    const cs = $("rd-saida"), cc = $("rd-chegada");
+    let saida = "";
+    if(cs){
+      /* Vazio é agora, como no pedido; escrito, tem de ser um GDH que se leia. */
+      if(cs.value.trim()){ const q = gdhDoCampo("rd-saida", "rd-msg"); if(!q.ok) return; saida = q.g; }
+      else saida = gdhAgora();
+    }
+    let chegada = "";
+    if(cc && cc.value.trim()){ const q = gdhDoCampo("rd-chegada", "rd-msg"); if(!q.ok) return; chegada = q.g; }
+    const r = registarRendicao(alvo, { saida, chegada });
+    if(!r.ok){ aviso("rd-msg","err",r.motivo); return; }
+    persistir(false);
+    repintarMedidores();
+    abrirRendicao(""); abrirRendicao(alvo);
+    aviso("rd-msg","ok", r.chegada? "Saída e chegada registadas. A unidade saiu da contagem." : "Saída do TO registada; a chegada à Entidade regista-se quando a Entidade a confirmar.");
+  });
 
   const bP = $("rd-pedir");
   if(bP) bP.addEventListener("click", ()=>{

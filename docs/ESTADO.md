@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0106**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0107**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,13 +15,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 144, das anteriores à convenção de nomes até à r0106 |
+| Entregas em `app/` | 145, das anteriores à convenção de nomes até à r0107 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1047, todos a passar |
+| Testes | 1065, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 26 |
+| Versão do estado gravado | 29 |
 | Regras de conformidade | 15, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -1226,6 +1226,77 @@ pelo dono; a sigla sai do alvo na r0106, junto com a decisão do 9.d.(6).
 **Números.** 1047 testes — o número que aqui estava, 1045, era o de uma corrida a meio, e
 ficou por um erro meu de guião; nove portões e o trabalho de navegador verdes; auditoria
 visual limpa nos dois temas.
+
+## O que ficou por fazer, feito — r0107
+
+O dono pediu a 5 de setembro, à noite, a lista inteira do que as revisões anteriores
+deixaram registado como por fazer, mais o clique que o apanhou. Por ordem do pedido:
+
+**O clique sem alvo diz-o.** O dono carregou um perímetro do geojson.io, clicou na carta e
+não aconteceu nada, e perguntou o que estava a fazer mal. Nada: a lista «Clicar no mapa
+marca» estava na opção vazia, e o clique era silencioso de propósito — um toque acidental
+não deve pousar um ponto — mas calado. Passa a dizer por baixo do mapa que não marcou nada
+e onde se escolhe o que o clique faz. O manual diz o mesmo, e diz que o tracejado no lugar
+da carta é falta de serviço de mosaicos e não erro de quem usa.
+
+**A prova de imagem das três gravidades** — qa0038, nos dois temas, com os dois graus à
+cabeça do texto. Ficara por capturar na r0105 e na r0106.
+
+**Os testes das funções puras do #002.** `variantes`, `normalizarDistrito`, `motivoRede`,
+`carimboFich` e `parPar`, em `tests/funcoes-puras.test.mjs`. **Um deles apanhou um defeito
+com dois anos de idade:** `parPar` partia pelo que fosse vírgula, ponto e vírgula ou
+espaço, e «41,0975 -7,8103», que é o que um teclado português escreve, lia-se como quatro
+números — latitude 41, longitude 975, recusada por não caber — ou, pior, «41,16, -7,79»
+como latitude 41 e longitude 16, aceite. Decide-se agora pelo que mais houver: com ponto e
+vírgula ou espaço a separar, a vírgula é decimal; sem eles, só separa se houver um ponto
+algures; «41,16» sozinho é um número e não um par, e «41,16,-7,79» não se adivinha. É a
+razão de estas funções merecerem teste: cada uma decide sozinha uma coisa que o resto toma
+por certa.
+
+**Plana ou esférica: decidido por uso.** A pergunta ficou ao #003 na r0102 e não veio
+resposta. A plana serve tudo o que se mede dentro do teatro — perfil, frentes, linhas,
+distâncias aos sensíveis, e agora também o corredor de progressão, que era o último a usar
+o semiverseno —: a um por mil a cinquenta quilómetros, abaixo do que qualquer saída
+escreve. A esférica fica num uso só, a aferição das folhas calibradas, onde a distância é a
+referência independente da grelha contra que a escala da folha se confere. Um teste lê a
+fonte e recusa `distanciaM` fora do núcleo e desse módulo; o `CLAUDE.md` e o `FONTES.md`
+dizem a regra. **Butler (2014)** fica em `FONTES.md` com a referência completa, escrita de
+memória e por obter — o ambiente não chega ao DOI para a confirmar —, e com o que dela se
+espera e a aplicação não afirma enquanto não a ler.
+
+**O campo «chegada à Entidade», em si.** A decisão da r0105 era uma definição sem campo; o
+campo entra. O ramo `rend` de cada unidade ganha `saida`, a hora de saída do TO que o pedido
+de rendição indica (7.e.(5)(r)), e `chegada`, a hora de entrada na Entidade pela definição
+de 9.d.(6), com degrau 28 → 29 a completar os ramos que já existem. São dois momentos e
+chegam a horas diferentes, e o painel da rendição pede-os por essa ordem: «Registar a saída
+do TO» tira a unidade da contagem de empenhamento e passa-a a rendida; «Registar a chegada
+à Entidade» fecha-a, e recusa uma chegada anterior à saída. Não exige pedido prévio — um
+meio rendido por iniciativa do CSREPC também sai — e retirar o pedido não apaga a saída,
+que é facto de outro momento. As duas horas vão à evolução, com a citação de 9.d.(6), e à
+fita, que sobrevivem à desmobilização da unidade: é o que o dono pediu na r0105, que a
+aplicação não descarte informação. O quadro de rendições lista as rendidas com as duas
+horas; o briefing de passagem de turno diz que chegadas ainda estão por registar, porque
+é um registo que se fecha depois de o meio partir; o medidor da unidade diz «saiu» e a
+hora. Manual e tipos atualizados. A definição está escrita no painel, onde se regista.
+
+**As tarefas 11 e 14 — o que daqui se consegue.** Voltou a tentar-se: as dezoito origens
+que a fonte declara, mais o FIRMS, o GIBS, a DGT e o OpenStreetMap, respondem todas 403
+daqui, do proxy do ambiente, e uma lista de 403 não prova nada sobre o posto. Entra
+`ferramentas/sondar-rede.mjs`, `npm run sondar`, para correr onde há rede: abre a entrega
+de `file://` num Chromium — a origem opaca que o posto tem — e pede a cada origem que a
+fonte declara, com uma consulta de amostra válida por anfitrião; diz o que respondeu, com
+que código, e o que o CORS recusou antes de a página ver. A lista sai da fonte e não de
+uma escrita à mão. Mais origens entram por `--url`, o serviço de focos com a chave por
+`FOCOS_URL`, e a chave nunca é escrita no registo, que fica em `entrada/` para a sessão
+seguinte o arrumar. **O que continua a depender de terceiros:** correr a sonda num posto, e
+obter a chave do FIRMS.
+
+**Os prefixos das classes CSS curtas** são a revisão seguinte, a r0108, como a r0102 já
+dizia: são setenta e quatro classes por HTML, JS, testes e ferramentas, e não cabem numa
+revisão que já mexe em nove módulos.
+
+**Números.** 1065 testes, 18 novos; nove portões e o trabalho de navegador verdes — 774
+símbolos conferidos no arranque, consola limpa; auditoria visual limpa nos dois temas.
 
 ## Decisões tomadas
 
