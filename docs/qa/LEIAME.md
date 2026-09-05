@@ -312,3 +312,14 @@ a escrita» colado ao fim do texto, com o resto da faixa vazio, e a faixa mais l
 cartão de baixo em vinte pixéis de cada lado. A causa do botão era `entrarEmLeitura` a mostrar
 a faixa com `display:block` em linha, por cima do `display:flex` da folha de estilos. Agora a
 faixa vai de 20 a 1420 como a guia, e o botão e o «Ir» da guia acabam os dois a 1401.
+
+## qa0037 — as caixas do topo com uma base só, nos dois temas
+
+`CSREPCDouro_qa0037_202609051810_CaixasComUmaBaseTemaClaro_CLD.png`
+`CSREPCDouro_qa0037_202609051810_CaixasComUmaBaseTemaEscuro_CLD.png`
+
+A 1440 px, com a aba em leitura. A faixa da leitura, a das pinturas e as mensagens de
+confirmação e de erro partilham desde a r0102 a mesma caixa — uma aresta de um pixel, um raio
+de dez, o mesmo enchimento — e diferem só no tom e no filete de três pixéis à esquerda das
+faixas. Antes cada uma trazia o seu raio e a sua aresta. Medido no Chromium ao capturar: raio
+de 10 px na faixa, na mensagem e na guia, aresta de 1 px nas três e filete de 3 px na faixa.

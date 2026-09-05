@@ -497,15 +497,15 @@ test('o medidor diz o estado na cor e o quanto no número', semAplicacao, () => 
   const cheio = janela.medidorTempo({ t: 'VFCI', ts: agora - 13 * 3600000 });
   assert.match(cheio, /class="med r"/);
   assert.doesNotMatch(cheio, /gm-x/, 'passado o limite, todos os gomos acendem');
-  assert.match(cheio, /\u22121\.0 h/, 'passado o limite, o número é o excedente com sinal');
-  assert.match(cheio, /Limite de 12 h excedido em 1\.0 h/);
+  assert.match(cheio, /\u22121,0 h/, 'passado o limite, o número é o excedente com sinal');
+  assert.match(cheio, /Limite de 12 h excedido em 1,0 h/);
   assert.match(cheio, /rendição era devida às \d{6}[A-Z]{3}\d{2}/);
 
   // Os gomos são as horas: acesos os que faltam, apagados os que já passaram.
   const meio = janela.medidorTempo({ t: 'VFCI', ts: agora - 9 * 3600000 });
   assert.equal((meio.match(/class="gm"/g) || []).length, 3, 'faltam 3 h, acendem 3 gomos');
   assert.equal((meio.match(/class="gm-x"/g) || []).length, 9, 'e os 9 gastos ficam em traço');
-  assert.match(meio, /3\.0 h/);
+  assert.match(meio, /3,0 h/);
   assert.match(meio, /rendição prevista para \d{6}[A-Z]{3}\d{2}/);
 
   assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 1 * 3600000 }), /class="med v"/);

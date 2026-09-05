@@ -1,14 +1,13 @@
 /* ================= PLANEAMENTO · relevo e perfil de elevação (art. 28.º) ================= */
 async function analisarRelevo(){
-  const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
+  const c0 = coordenadaDoFormulario(), lat = c0? c0.lat : NaN, lon = c0? c0.lon : NaN;
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("t-relevo-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-relevo"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A amostrar o terreno...';
   try{
-    const RUMOS=["N","NE","E","SE","S","SO","O","NO"], DIST=[400,800,1200];
+    const RUMOS=ROSA8, DIST=[400,800,1200];
     const lats=[lat], lons=[lon];
-    RUMOS.forEach((r,k)=>{ const b=k*45*Math.PI/180;
-      DIST.forEach(d=>{ lats.push(lat + d*Math.cos(b)/111320); lons.push(lon + d*Math.sin(b)/(111320*Math.cos(lat*Math.PI/180))); }); });
-    const r = await fetchT("https://api.open-meteo.com/v1/elevation?latitude="+lats.map(v=>v.toFixed(5)).join(",")+"&longitude="+lons.map(v=>v.toFixed(5)).join(","), {}, 9000);
+    RUMOS.forEach((r,k)=>{ DIST.forEach(d=>{ const q = pontoADistancia(lat, lon, k*45, d); lats.push(q.lat); lons.push(q.lon); }); });
+    const r = await fetchT("https://api.open-meteo.com/v1/elevation?latitude="+lats.map(v=>v.toFixed(5)).join(",")+"&longitude="+lons.map(v=>v.toFixed(5)).join(","), { repetir:true }, 9000);
     if(!r.ok) throw "HTTP "+r.status;
     const e = (await r.json()).elevation;
     if(!e || e.length!==lats.length) throw "resposta incompleta";
@@ -24,12 +23,12 @@ async function analisarRelevo(){
       orient = RUMOS.reduce((a,b)=>grad[a]<grad[b]?a:b);            // rumo de descida mais pronunciada = exposição
       declive = maxAbs<10? "suave" : maxAbs<20? "moderado" : maxAbs<35? "acentuado" : "muito";
     }
-    const resumo = RUMOS.map(rm=>rm+" "+(grad[rm]>=0?"+":"")+grad[rm].toFixed(0)+"%").join(" · ");
+    const resumo = RUMOS.map(rm=>rm+" "+(grad[rm]>=0?"+":"")+fmtPT(grad[rm])+"%").join(" · ");
     $("t-orient").value = orient==="planalto"? "planalto" : orient;
     $("t-declive").value = declive;
     $("t-obs").value = "Cota do ponto ~"+Math.round(e0)+" m; gradientes: "+resumo;
     lerForm();
-    $("t-relevo-info").textContent = "Relevo amostrado: exposição dominante "+(orient==="planalto"?"indiferenciada (planalto)":orient)+", declive "+declive+" (máx. "+maxAbs.toFixed(0)+" %).";
+    $("t-relevo-info").textContent = "Relevo amostrado: exposição dominante "+(orient==="planalto"?"indiferenciada (planalto)":orient)+", declive "+declive+" (máx. "+fmtPT(maxAbs)+" %).";
     fita("Relevo analisado automaticamente (Elevation API): exposição "+orient+", declive "+declive);
     pintarRelevo();
     persistir(false);
@@ -45,8 +44,7 @@ $("b-relevo").addEventListener("click", analisarRelevo);
 function pintarRelevo(){
   const R = O.dados.relevo; const el=$("relevo-dash"); if(!el) return;
   if(!R){ el.innerHTML=""; return; }
-  const RUMOS=["N","NE","E","SE","S","SO","O","NO"];
-  const OPOSTO={N:"S",NE:"SO",E:"O",SE:"NO",S:"N",SO:"NE",O:"E",NO:"SE"};
+  const RUMOS=ROSA8;
   const maxAbs = Math.max(...Object.values(R.grad).map(Math.abs));
   const descidas = RUMOS.filter(r=>R.grad[r]<=-3).sort((a,b)=>R.grad[a]-R.grad[b]);
   const subidas  = RUMOS.filter(r=>R.grad[r]>=3).sort((a,b)=>R.grad[b]-R.grad[a]);
@@ -58,17 +56,17 @@ function pintarRelevo(){
   let leitura;
   if(!dom && maxAbs<3) leitura = "Terreno praticamente plano num raio de 1200 m (gradientes < 3 %) — o vento manda; o relevo não condiciona a propagação.";
   else {
-    leitura = "O terreno desce para "+descidas.map(r=>r+" ("+R.grad[r].toFixed(0)+" %)").join(", ")
-      + (subidas.length? " e sobe para "+subidas.map(r=>r+" (+"+R.grad[r].toFixed(0)+" %)").join(", ") : "")
+    leitura = "O terreno desce para "+descidas.map(r=>r+" ("+fmtPT(R.grad[r])+" %)").join(", ")
+      + (subidas.length? " e sobe para "+subidas.map(r=>r+" (+"+fmtPT(R.grad[r])+" %)").join(", ") : "")
       + ". Encostas expostas a "+descidas.join("/")
-      + " — com vento de "+dom+", o fogo corre encosta acima para "+OPOSTO[dom]
+      + " — com vento de "+dom+", o fogo corre encosta acima para "+rumoOposto(dom)
       + "; o cruzamento com a previsão horária está em Planeamento.";
   }
 
   const chips = '<div class="rel-chips">'
     + '<div class="rel-c"><div class="k">Cota do ponto</div><div class="v">'+Math.round(R.e0)+' m</div></div>'
     + '<div class="rel-c"><div class="k">Amplitude (1200 m)</div><div class="v">'+Math.round(eMax-eMin)+' m</div></div>'
-    + '<div class="rel-c"><div class="k">Declive máximo</div><div class="v">'+maxAbs.toFixed(0)+' %</div></div>'
+    + '<div class="rel-c"><div class="k">Declive máximo</div><div class="v">'+fmtPT(maxAbs)+' %</div></div>'
     + '<div class="rel-c"><div class="k">Exposição dominante</div><div class="v" style="color:'+(dom?'var(--fogo)':'var(--madeira)')+'">'+(dom||"plano")+'</div></div>'
     + '</div>';
 
@@ -78,7 +76,7 @@ function pintarRelevo(){
   const rr=[];
   rr.push('<svg viewBox="0 0 320 320" width="100%" style="max-width:330px;font-family:JetBrains Mono,monospace">');
   [0.5,1].forEach(f=>rr.push('<circle cx="'+cx+'" cy="'+cy+'" r="'+(rMax*f)+'" fill="none" stroke="var(--line)"/>'
-    +'<text x="'+(cx+5)+'" y="'+(cy-rMax*f-3)+'" font-size="9" fill="var(--tx3)">'+(esc10*f).toFixed(0)+'%</text>'));
+    +'<text x="'+(cx+5)+'" y="'+(cy-rMax*f-3)+'" font-size="9" fill="var(--tx3)">'+fmtPT(esc10*f)+'%</text>'));
   RUMOS.forEach((rm,k)=>{
     const b=(k*45-90)*Math.PI/180, g=R.grad[rm];
     const L=Math.max(8, Math.min(1,Math.abs(g)/esc10)*rMax);
@@ -87,7 +85,7 @@ function pintarRelevo(){
     rr.push('<line x1="'+cx+'" y1="'+cy+'" x2="'+x2+'" y2="'+y2+'" stroke="'+cor+'" stroke-width="'+(rm===dom?9:6)+'" stroke-linecap="round"/>');
     const xt=cx+(rMax+24)*Math.cos(b), yt=cy+(rMax+24)*Math.sin(b);
     rr.push('<text x="'+xt+'" y="'+(yt)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+(rm===dom?"var(--fogo)":"var(--tx)")+'">'+rm+'</text>');
-    rr.push('<text x="'+xt+'" y="'+(yt+12)+'" text-anchor="middle" font-size="9.5" fill="'+cor+'">'+(g>=0?"+":"")+g.toFixed(0)+'%</text>');
+    rr.push('<text x="'+xt+'" y="'+(yt+12)+'" text-anchor="middle" font-size="9.5" fill="'+cor+'">'+(g>=0?"+":"")+fmtPT(g)+'%</text>');
   });
   rr.push('<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="var(--tx)"/>');
   rr.push('</svg>');

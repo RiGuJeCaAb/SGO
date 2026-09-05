@@ -74,8 +74,9 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   que repete o nome da função ocupa o lugar do que faria falta.
 - `npm run morto` relata o que está escrito e ninguém usa: identificadores procurados
   que o HTML não tem, identificadores e classes que ninguém usa, funções nunca chamadas.
-  **Lê-se, não se aplica.** O que a análise não consegue ver — uma classe composta em
-  tempo de execução, um rótulo fixo — declara-se em `SABIDOS`, com a razão.
+  **Lê-se antes de apagar, e recusa acima da linha de base**, que é zero desde a r0102 e só
+  desce. O que a análise não consegue ver — uma classe composta em tempo de execução, um
+  rótulo fixo — declara-se em `SABIDOS`, com a razão, em vez de subir a linha.
 - Campo novo no estado declara-se em `tipos/estacao.d.ts`; o verificador apanha o nome mal
   escrito.
 - Ao substituir blocos grandes de código, confirmar por pesquisa que nenhuma função ficou

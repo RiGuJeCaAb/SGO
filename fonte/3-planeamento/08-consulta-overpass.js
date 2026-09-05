@@ -89,7 +89,7 @@ const TIPO_PT = {fire_station:"quartel", parking:"parque de estacionamento", fue
  * decisão da logística.
  */
 async function sugerirPT(){
-  const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
+  const c0 = coordenadaDoFormulario(), lat = c0? c0.lat : NaN, lon = c0? c0.lon : NaN;
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("pt-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-pt"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A consultar OSM...';
   try{
@@ -106,11 +106,10 @@ async function sugerirPT(){
       if(typeof c.lat!=="number" || typeof c.lon!=="number") return null;
       const tipo = tg.amenity || tg.leisure || tg.highway || tg.landuse || "";
       if(!TIPO_PT[tipo]) return null;
-      const dx=(c.lon-lon)*111320*Math.cos(lat*Math.PI/180), dy=(c.lat-lat)*111320;
-      const dist=Math.sqrt(dx*dx+dy*dy)/1000;
+      const dist=distanciaPlanaM(lat, lon, c.lat, c.lon)/1000, rumoG=rumoGraus(lat, lon, c.lat, c.lon);
       if(dist < 1.5 || dist > 8) return null;
       return {nome: tg.name || TIPO_PT[tipo], tipo, rot:TIPO_PT[tipo], dist,
-        rumo: card((Math.atan2(dx,dy)*180/Math.PI+360)%360), lat:c.lat, lon:c.lon, p:peso(tipo)};
+        rumo: rumoDoAngulo(rumoG), lat:c.lat, lon:c.lon, p:peso(tipo)};
     }).filter(Boolean)
       .sort((a,b)=> a.p!==b.p? a.p-b.p : a.dist-b.dist)
       .filter((x,i,arr)=>arr.findIndex(y=>y.nome===x.nome && Math.abs(y.dist-x.dist)<0.2)===i)
@@ -121,7 +120,7 @@ async function sugerirPT(){
       $("pt-info").textContent = itens.length+" candidatos — clica para adotar (quartéis primeiro, depois espaços amplos):";
       $("pt-sug").innerHTML = itens.map((it,i)=>
         '<button type="button" class="tchip" style="cursor:pointer'+(it.tipo==="fire_station"?';border-color:var(--madeira)':'')+'" data-pt="'+esc(i)+'">'
-        +'<b'+(it.tipo==="fire_station"?' style="color:var(--madeira)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</span>').join("");
+        +'<b'+(it.tipo==="fire_station"?' style="color:var(--madeira)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+fmtPT(it.dist, 1)+' km a '+it.rumo+'</span>').join("");
       fita("Sugestão de ponto de trânsito: "+itens.length+" candidatos na carta entre 1,5 e 8 km");
     }
   }catch(err){
@@ -132,17 +131,16 @@ async function sugerirPT(){
         {q:"parque de estacionamento", osm:"amenity:parking", rot:"parque de estacionamento"},
         {q:"campo de futebol", osm:"leisure:pitch", rot:"campo de jogos"}], 8);
       const itens = alt.map(e=>{
-        const dx=(e.lon-lon)*111320*Math.cos(lat*Math.PI/180), dy=(e.lat-lat)*111320;
-        const dist=Math.sqrt(dx*dx+dy*dy)/1000;
+        const dist=distanciaPlanaM(lat, lon, e.lat, e.lon)/1000, rumoG=rumoGraus(lat, lon, e.lat, e.lon);
         if(dist<1.5 || dist>12) return null;
         return {nome:e.tags.name||e.tags.__rot, tipo:"", rot:e.tags.__rot, dist,
-          rumo:card((Math.atan2(dx,dy)*180/Math.PI+360)%360), lat:e.lat, lon:e.lon, p:1};
+          rumo:rumoDoAngulo(rumoG), lat:e.lat, lon:e.lon, p:1};
       }).filter(Boolean).sort((a,b)=>a.dist-b.dist).slice(0,10);
       if(!itens.length) throw "sem candidatos";
       window.__ptLista = itens;
       $("pt-info").textContent = itens.length+" candidatos pelo Photon (Overpass indisponível) — clica para adotar:";
       $("pt-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer" data-pt="'+esc(i)+'"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("");
+        '<button type="button" class="tchip" style="cursor:pointer" data-pt="'+esc(i)+'"><b>'+esc(it.nome)+'</b> '+esc(it.rot)+' · '+fmtPT(it.dist, 1)+' km a '+it.rumo+'</button>').join("");
       fita("Sugestão de ponto de trânsito pelo Photon: "+itens.length+" candidatos");
     }catch(e2){
       $("pt-info").textContent = "Sem resposta dos servidores de cartografia ("+String(err).slice(0,70)+") — define o ponto de trânsito manualmente.";
@@ -152,10 +150,10 @@ async function sugerirPT(){
 }
 window.adotarPT = i => {
   const it = (window.__ptLista||[])[i]; if(!it) return;
-  $("pt-des").value = it.nome+" ("+it.rot+"), a "+it.dist.toFixed(1)+" km "+it.rumo+" do TO";
+  $("pt-des").value = it.nome+" ("+it.rot+"), a "+fmtPT(it.dist, 1)+" km "+it.rumo+" do TO";
   $("pt-cd").value = it.lat.toFixed(5)+", "+it.lon.toFixed(5);
   lerForm(); persistir(false); pintarDON(); renderCheck();
-  fita("Ponto de trânsito definido: "+it.nome+" a "+it.dist.toFixed(1)+" km "+it.rumo);
+  fita("Ponto de trânsito definido: "+it.nome+" a "+fmtPT(it.dist, 1)+" km "+it.rumo);
   aviso("msg-pt","ok","Ponto de trânsito adotado. Falta indicar o responsável e o contacto.");
 };
 /**
@@ -166,16 +164,15 @@ window.adotarPT = i => {
  * rumo, que é como se transmitem e como o croqui os recoloca.
  */
 async function detetarSensiveis(){
-  const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
+  const c0 = coordenadaDoFormulario(), lat = c0? c0.lat : NaN, lon = c0? c0.lon : NaN;
   if(Number.isNaN(lat)||Number.isNaN(lon)){ $("sens-info").textContent="Sem coordenadas na ocorrência — preenche-as em Comando."; irPara("p-occ"); return; }
   const btn=$("b-sens"); btn.disabled=true; const rot=btn.textContent; btn.innerHTML='<span class="spin"></span> A consultar OSM...';
   try{
     const q = '[out:json][timeout:12];(node(around:3000,'+lat+','+lon+')[place~"^(village|hamlet|town|suburb|locality)$"];node(around:3000,'+lat+','+lon+')[amenity~"^(school|kindergarten|hospital|nursing_home)$"];);out body 40;';
     const d = await overpass(q, t=>{ $("sens-info").textContent = t; });
     const itens = (d.elements||[]).filter(e=>e.tags&&e.tags.name).map(e=>{
-      const dx=(e.lon-lon)*111320*Math.cos(lat*Math.PI/180), dy=(e.lat-lat)*111320;
-      const dist=Math.sqrt(dx*dx+dy*dy)/1000;
-      const rumo=card((Math.atan2(dx,dy)*180/Math.PI+360)%360);
+      const dist=distanciaPlanaM(lat, lon, e.lat, e.lon)/1000, rumoG=rumoGraus(lat, lon, e.lat, e.lon);
+      const rumo=rumoDoAngulo(rumoG);
       const tipo=TIPO_OSM[e.tags.place||e.tags.amenity]||"";
       return {nome:e.tags.name, tipo, dist, rumo, sens:!!e.tags.amenity};
     }).sort((a,b)=>a.dist-b.dist).slice(0,14);
@@ -188,7 +185,7 @@ async function detetarSensiveis(){
       guardarDetecao(itens, "Overpass/OSM", 3);
       $("sens-info").textContent = itens.length+" detetados — clica para adicionar (equipamentos sensíveis a vermelho):";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
+        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+fmtPT(it.dist, 1)+' km a '+it.rumo+'</button>').join("")
         + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
       fita("Deteção OSM: "+itens.length+" aglomerados/sensíveis num raio de 3 km");
     }
@@ -201,19 +198,18 @@ async function detetarSensiveis(){
         {q:"escola", osm:"amenity:school", rot:"escola"},
         {q:"lar de idosos", osm:"amenity:nursing_home", rot:"lar"}], 8);
       const itens = alt.map(e=>{
-        const dx=(e.lon-lon)*111320*Math.cos(lat*Math.PI/180), dy=(e.lat-lat)*111320;
-        const dist=Math.sqrt(dx*dx+dy*dy)/1000;
+        const dist=distanciaPlanaM(lat, lon, e.lat, e.lon)/1000, rumoG=rumoGraus(lat, lon, e.lat, e.lon);
         if(dist>6) return null;
         const sens = ["school","nursing_home","hospital","kindergarten"].includes(e.tags.amenity);
         return {nome:e.tags.name||e.tags.__rot, tipo:e.tags.__rot, dist,
-          rumo:card((Math.atan2(dx,dy)*180/Math.PI+360)%360), sens};
+          rumo:rumoDoAngulo(rumoG), sens};
       }).filter(Boolean).sort((a,b)=>a.dist-b.dist).slice(0,14);
       if(!itens.length) throw "sem candidatos";
       window.__sensLista = itens;
       guardarDetecao(itens, "Photon", 6);
       $("sens-info").textContent = itens.length+" detetados pelo Photon (Overpass indisponível) — clica para adicionar:";
       $("sens-sug").innerHTML = itens.map((it,i)=>
-        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+it.dist.toFixed(1)+' km a '+it.rumo+'</button>').join("")
+        '<button type="button" class="tchip" style="cursor:pointer'+(it.sens?';border-color:var(--fogo)':'')+'" data-sens="'+esc(i)+'"><b'+(it.sens?' style="color:var(--fogo)"':'')+'>'+esc(it.nome)+'</b> '+esc(it.tipo)+' · '+fmtPT(it.dist, 1)+' km a '+it.rumo+'</button>').join("")
         + '<button type="button" class="tchip" style="cursor:pointer;border-color:var(--agua)" data-sens-todos="1"><b>Adicionar todos</b></button>';
       fita("Deteção pelo Photon: "+itens.length+" aglomerados/sensíveis");
     }catch(e2){
@@ -225,7 +221,7 @@ async function detetarSensiveis(){
 window.addSens = i => {
   const it = window.__sensLista[i];
   const atual = $("d-sensiveis").value.trim();
-  const entrada = it.nome+" ("+(it.sens?"prioridade":"vigilância")+" — "+(it.tipo? it.tipo+", ":"")+it.dist.toFixed(1)+" km a "+it.rumo+")";
+  const entrada = it.nome+" ("+(it.sens?"prioridade":"vigilância")+" — "+(it.tipo? it.tipo+", ":"")+fmtPT(it.dist, 1)+" km a "+it.rumo+")";
   if(atual.includes(it.nome)) return;
   $("d-sensiveis").value = (atual? atual+"; ":"")+entrada;
   O.dados.sensiveis = $("d-sensiveis").value; persistir(false);
@@ -234,7 +230,7 @@ window.addSensTodos = () => { (window.__sensLista||[]).forEach((_,i)=>addSens(i)
 $("b-sens").addEventListener("click", detetarSensiveis);
 $("b-pt").addEventListener("click", sugerirPT);
 $("b-perfil").addEventListener("click", tracarPerfil);
-$("pf-rumo").innerHTML = RUMOS16.map(r=>'<option value="'+r[1]+'"'+(r[0]==="N"?" selected":"")+'>'+r[0]+' ('+r[1]+'\u00b0)</option>').join("");
+$("pf-rumo").innerHTML = ROSA16.map((n,i)=>[n, i*22.5]).map(r=>'<option value="'+r[1]+'"'+(r[0]==="N"?" selected":"")+'>'+r[0]+' ('+r[1]+'\u00b0)</option>').join("");
 $("pf-modo").addEventListener("change", ()=>{
   const porRumo = $("pf-modo").value==="rumo";
   $("pf-w-rumo").style.display = porRumo? "":"none";

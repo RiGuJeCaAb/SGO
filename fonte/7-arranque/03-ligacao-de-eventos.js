@@ -434,3 +434,10 @@ function ligarNotasAosCampos(){
   return n;
 }
 ligarNotasAosCampos();
+
+/* O botão de imprimir vive dentro da ficha do PEA, que é reescrita a cada proposta: um
+   ouvinte no documento apanha-o seja qual for a ficha. Era o último `onclick` do molde. */
+document.addEventListener("click", ev=>{
+  const b = ev.target instanceof Element ? ev.target.closest("[data-imprimir]") : null;
+  if(b) window.print();
+});

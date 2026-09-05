@@ -122,7 +122,7 @@ function fmtAvisoT(iso){
  *   corre junto com a previsão, sem interromper quem está a fazer outra coisa
  */
 async function obterAvisos(silencioso){
-  const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
+  const c0 = coordenadaDoFormulario(), lat = c0? c0.lat : NaN, lon = c0? c0.lon : NaN;
   const el = $("avisos-ipma");
   if(Number.isNaN(lat)||Number.isNaN(lon)){ if(!silencioso){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Sem coordenadas na ocorrência — preenche-as em Comando.</span></div>'; } return; }
   try{
@@ -163,7 +163,7 @@ function chipAviso(a, classe){
 function pintarAvisos(){
   const el = $("avisos-ipma"); if(!el) return;
   const A = O.avisos;
-  if(!A){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Obtidos automaticamente com a previsão, para o distrito do TO.</span><button class="av-atual" onclick="obterAvisos(false)">Consultar agora</button></div>'; return; }
+  if(!A){ el.innerHTML='<div class="av-box"><span class="avt">Avisos IPMA</span><span class="hint" style="margin:0">Obtidos automaticamente com a previsão, para o distrito do TO.</span><button type="button" class="av-atual" data-av-atualizar>Consultar agora</button></div>'; ligarAtualizarAvisos(el); return; }
   const vigor = A.lista||[], margem = A.margem||[], previstos = A.previstos||[];
   const chips = vigor.length
     ? '<span class="av-chips">'+vigor.map(a=>chipAviso(a, "")).join("")+'</span>'
@@ -180,7 +180,13 @@ function pintarAvisos(){
   el.innerHTML = '<div class="av-box"><span class="avt">Avisos IPMA · '+esc(A.distrito)
     +' <small style="font-family:var(--mono);font-weight:500">('+esc(A.g)+')</small></span>'
     +(A.porProximidade? '<span class="pend" style="margin-right:10px">distrito presumido</span>':"")+chips+extra
-    +'<button class="av-atual" onclick="obterAvisos(false)">Atualizar</button>'
+    +'<button type="button" class="av-atual" data-av-atualizar>Atualizar</button>'
     +notas.map(n=>'<div class="hint" style="margin:8px 0 0 0">'+esc(n)+'</div>').join("")+'</div>';
+  ligarAtualizarAvisos(el);
+}
+/* O ouvinte liga-se ao botão que se acabou de escrever, dentro do próprio painel. Eram os
+   dois últimos `onclick` embutidos em HTML composto — o «Atualizar» e o «Consultar agora». */
+function ligarAtualizarAvisos(el){
+  el.querySelectorAll("[data-av-atualizar]").forEach(b=>b.addEventListener("click", ()=>obterAvisos(false)));
 }
 window.obterAvisos = obterAvisos;

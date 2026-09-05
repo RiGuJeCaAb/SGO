@@ -271,7 +271,7 @@ function blocoPcoGP(pco, avisos){
       avisos.push(nome+": solicitado a "+gdhDe(pedido)+" e ainda por nomear pela "+(quem||"entidade externa")+".");
     } else if(pedido && nomeado){
       const h = (nomeado-pedido)/3600000;
-      if(h >= 1) avisos.push(nome+": "+h.toFixed(1)+" h entre a solicitação e a nomeação.");
+      if(h >= 1) avisos.push(nome+": "+fmtPT(h, 1)+" h entre a solicitação e a nomeação.");
     }
     /* Os dois instantes dos arts. 23.º, n.º 2, 24.º, n.º 2 e 25.º, n.º 2 gravam-se
        ambos: `solicitado` é o pedido do COS, `g` a nomeação pela entidade. Já eram

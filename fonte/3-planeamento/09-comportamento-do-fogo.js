@@ -20,14 +20,7 @@
    extingue. A aplicação não inventa nenhuma das duas: sem ε informado, apresenta
    apenas o que se deduz da geometria, e nunca uma velocidade em metros por minuto. */
 
-/** Rumos de oito pontos, na ordem dos graus. */
-const RUMOS_GRAUS = { N:0, NE:45, E:90, SE:135, S:180, SO:225, O:270, NO:315 };
-
-/** Converte um rumo de oito pontos em graus. Devolve null se não for um rumo. */
-function grausDoRumo(rumo){
-  const g = RUMOS_GRAUS[String(rumo||"").trim().toUpperCase()];
-  return g === undefined ? null : g;
-}
+/* `grausDoRumo` e a rosa vivem no núcleo desde a r0102: eram cinco tabelas em cinco módulos. */
 
 /** Normaliza um ângulo para [0, 360). */
 function normalizarGraus(g){ return ((g % 360) + 360) % 360; }
@@ -121,7 +114,7 @@ function leituraComportamentoFogo(entrada){
       + Math.round(c.deltaSeIguais)+"°.");
   } else {
     partes.push("Com razão declive/vento de "+c.eps+", a cabeça desvia-se "+Math.round(c.delta)
-      + "° da linha de maior declive, rumo "+card(c.cabeca)+", e progride a "+c.xi.toFixed(1)
+      + "° da linha de maior declive, rumo "+card(c.cabeca)+", e progride a "+fmtPT(c.xi, 1)
       + "× a velocidade que o vento sozinho daria.");
   }
 

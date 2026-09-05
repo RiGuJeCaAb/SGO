@@ -10,6 +10,7 @@ const REDE = {
   validade: 90000,   /* durante quanto tempo uma resposta idêntica ainda serve */
   cache: new Map(),
   cacheMax: 120,     /* entradas; acima disto sai a mais antiga — ver `podarCacheRede` */
+  recuo: 600,        /* milissegundos antes da única repetição, quando pedida — ver `fetchT` */
   ultimo: null       /* último desfecho, para diagnóstico */
 };
 
@@ -67,19 +68,31 @@ async function fetchT(url, opts={}, ms){
     throw erroRede("sem-rede", "sem ligação de dados");
   }
 
-  const pedido = {}; for(const k in opts){ if(k!=="semCache") pedido[k]=opts[k]; }
-  const ac = new AbortController();
-  const t = setTimeout(()=>ac.abort(), prazo);
-  const p = fetch(url, {...pedido, signal:ac.signal}).then(r=>{
-    REDE.ultimo = {url, ok:r.ok, motivo:r.ok? null:"recusado", estado:r.status, ts:agora()};
-    if(!r.ok) REDE.cache.delete(url);   /* recusa não se guarda */
-    return r;
-  }).catch(err=>{
-    const motivo = (err && err.name==="AbortError")? "tempo-esgotado" : "falhou";
-    REDE.ultimo = {url, ok:false, motivo, ts:agora()};
-    REDE.cache.delete(url);
-    throw erroRede(motivo, String((err && err.message) || err));
-  }).finally(()=>clearTimeout(t));
+  const pedido = {}; for(const k in opts){ if(k!=="semCache" && k!=="repetir") pedido[k]=opts[k]; }
+  const tentar = ()=>{
+    const ac = new AbortController();
+    const t = setTimeout(()=>ac.abort(), prazo);
+    return fetch(url, {...pedido, signal:ac.signal}).then(r=>{
+      REDE.ultimo = {url, ok:r.ok, motivo:r.ok? null:"recusado", estado:r.status, ts:agora()};
+      if(!r.ok) REDE.cache.delete(url);   /* recusa não se guarda */
+      return r;
+    }).catch(err=>{
+      const motivo = (err && err.name==="AbortError")? "tempo-esgotado" : "falhou";
+      REDE.ultimo = {url, ok:false, motivo, ts:agora()};
+      REDE.cache.delete(url);
+      throw erroRede(motivo, String((err && err.message) || err));
+    }).finally(()=>clearTimeout(t));
+  };
+  /* Uma repetição, e só uma, e só a quem a pede com `repetir`: um pedido único que caia
+     por corte momentâneo da ligação — o caso normal num PCO com dados intermitentes —
+     merece segunda tentativa depois de um recuo; uma recusa da origem não, porque a
+     resposta seria a mesma, e sem rede também não, porque nem se chega a tentar. Quem
+     consulta serviços em ciclo, como os mosaicos da carta, não pede: já tem o seu ritmo. */
+  const p = opts.repetir
+    ? tentar().catch(err => (err && (err.motivo==="falhou" || err.motivo==="tempo-esgotado"))
+        ? new Promise(r=>setTimeout(r, REDE.recuo)).then(tentar)
+        : Promise.reject(err))
+    : tentar();
 
   if(guardavel){ REDE.cache.set(url, {ts:inicio, p}); podarCacheRede(); }
   return (await p).clone();
@@ -229,9 +242,8 @@ async function distritoPorCoords(lat, lon){
  * @param {boolean} [forcar] perguntar mesmo que a coordenada não tenha mudado
  */
 async function atualizarDistrito(forcar){
-  const lat = parseFloat(String($("o-lat").value).replace(",",".")),
-        lon = parseFloat(String($("o-lon").value).replace(",","."));
-  if(!isFinite(lat) || !isFinite(lon)) return;
+  const c0 = coordenadaDoFormulario(); if(!c0) return;
+  const lat = c0.lat, lon = c0.lon;
   const ch = lat.toFixed(3)+","+lon.toFixed(3);
   if(!forcar && O.meta.distrito && O.meta.distritoChave===ch) return;
   const r = await distritoPorCoords(lat, lon);

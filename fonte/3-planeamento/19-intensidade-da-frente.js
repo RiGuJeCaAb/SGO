@@ -125,7 +125,7 @@ function leituraDaIntensidade(){
   const p = [];
   p.push("Com " + f.r + " m/h e " + f.w + " t/ha, a intensidade da frente é de "
     + Math.round(L.i).toLocaleString("pt-PT") + " kW/m e a chama mede cerca de "
-    + L.chama.toFixed(1).replace(".", ",") + " m (Byram 1959, via Fernandes 2003).");
+    + fmtPT(L.chama, 1) + " m (Byram 1959, via Fernandes 2003).");
   p.push(L.classe.t);
   p.push(L.direto
     ? "Abaixo dos 4 000 kW/m: o ataque direto à cabeça é admissível (Alexander 2000)."
@@ -254,8 +254,8 @@ function pintarEstimativa(){
     + "</b> — " + esc(r.det.marca.d));
 
   p.push("Velocidade de propagação estimada: <b>" + Math.round(r.r) + " m/h</b>"
-    + " (" + (r.r/60).toFixed(1).replace(".", ",") + " m/min), para "
-    + esc(r.modelo.c) + ", vento de " + r.u2.toFixed(1).replace(".", ",") + " km/h à superfície, "
+    + " (" + fmtPT(r.r/60, 1) + " m/min), para "
+    + esc(r.modelo.c) + ", vento de " + fmtPT(r.u2, 1) + " km/h à superfície, "
     + "humidade do combustível morto " + Math.round(r.hcm) + " % e declive " + Math.round(r.decl) + " %.");
 
   if(r.modelo.w[0] !== null){
@@ -269,7 +269,7 @@ function pintarEstimativa(){
   }
 
   if(r.eps !== null && Number.isFinite(r.eps)){
-    p.push("Razão declive/vento pela ponte declarada: <b>ε ≈ " + r.eps.toFixed(3).replace(".", ",")
+    p.push("Razão declive/vento pela ponte declarada: <b>ε ≈ " + fmtPT(r.eps, 3)
       + "</b>. Os quadros de Fernandes são multiplicativos e o Viegas é vetorial; a passagem de um ao outro"
       + " é um pressuposto desta aplicação, não resultado de nenhuma das fontes.");
   }

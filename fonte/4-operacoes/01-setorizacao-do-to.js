@@ -98,9 +98,9 @@ function medidorTempo(it, aereo, alvo){
 
   const limite = gdhDe(it.ts + teto*3600000);
   const titulo = h>=teto
-    ? "Limite de "+teto+" h excedido em "+(h-teto).toFixed(1)+" h. No TO desde "+gdhDe(it.ts)+"; rendição era devida às "+limite+"."
-    : "Faltam "+resta.toFixed(1)+" h para o limite de "+teto+" h. No TO desde "+gdhDe(it.ts)+"; rendição prevista para "+limite+".";
-  const rot = h>=teto? "\u2212"+(h-teto).toFixed(1)+" h" : resta.toFixed(1)+" h";
+    ? "Limite de "+teto+" h excedido em "+fmtPT(h-teto, 1)+" h. No TO desde "+gdhDe(it.ts)+"; rendição era devida às "+limite+"."
+    : "Faltam "+fmtPT(resta, 1)+" h para o limite de "+teto+" h. No TO desde "+gdhDe(it.ts)+"; rendição prevista para "+limite+".";
+  const rot = h>=teto? "\u2212"+fmtPT(h-teto, 1)+" h" : fmtPT(resta, 1)+" h";
   /* Com endereço, o medidor é o botão por onde se pede a rendição: quem vê a laranja
      quase vazia é quem tem de agir, e a ação tem de estar onde está o sinal. Sem
      endereço — no quadro de rendições, no PEA — continua a ser só leitura. */
@@ -224,7 +224,7 @@ function renderSetores(){
       if(dest===""){ return; }
       const it = e.setores[i].tip[j];
       if(dest==="D"){
-        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+((agora()-(it.ts||agora()))/3600000).toFixed(1)+" h de empenhamento)");
+        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+fmtPT((agora()-(it.ts||agora()))/3600000, 1)+" h de empenhamento)");
         e.setores[i].tip.splice(j,1);
       } else {
         const k=+dest;

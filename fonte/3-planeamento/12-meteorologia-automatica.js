@@ -89,7 +89,7 @@ function lerHoraOpenMeteo(seg, desvio){
  * previsão está velha de mais para sustentar o plano.
  */
 async function meteoAutomatica(){
-  const lat = parseFloat($("o-lat").value.replace(",",".")), lon = parseFloat($("o-lon").value.replace(",","."));
+  const c0 = coordenadaDoFormulario(), lat = c0? c0.lat : NaN, lon = c0? c0.lon : NaN;
   if(Number.isNaN(lat)||Number.isNaN(lon)){
     $("meteo-info").textContent = "Sem coordenadas na ocorrência — preenche-as em Comando (a app leva-te lá).";
     irPara("p-occ"); return;

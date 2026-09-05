@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0101**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0102**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 139, das anteriores à convenção de nomes até à r0101 |
-| Módulos em `fonte/` | 75, em sete zonas, mais o molde |
-| Testes | 1001, todos a passar |
+| Entregas em `app/` | 140, das anteriores à convenção de nomes até à r0102 |
+| Módulos em `fonte/` | 76, em sete zonas, mais o molde |
+| Testes | 1021, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -992,6 +992,68 @@ instante que cada uma recebe é o que a DON manda contar.
 
 **Números.** 1001 testes, 22 novos; 573 funções de topo a 100 %; nove portões verdes;
 auditoria visual limpa nos dois temas.
+
+## Arrumação — r0102, a quinta do plano
+
+**Uma conta, um sítio.** Entra `1-nucleo/28-geometria-do-terreno.js`: `M_POR_GRAU`,
+`metrosPorGrau`, `deslocamentoM`, `distanciaPlanaM`, `distanciaM` (o semiverseno, que vivia
+na leitura da evolução), `rumoGraus`, `pontoADistancia`, e a rosa — `ROSA16`, `ROSA8`,
+`grausDoRumo`, `rumoDoAngulo`, `rumoOposto`. Saem dezasseis `111320·cos(lat)` de oito
+módulos, o `distKm` do perfil, e cinco tabelas de rumos em cinco módulos com três formas
+diferentes (`RUMOS`, `RUMOS16`, `RUMO_GRAUS`, `RUMOS_GRAUS`, `CARD`). O `pontoPorRumo` do
+croqui fica, por nome e por quilómetros, a chamar o núcleo. Um teste lê a fonte e recusa a
+constante e qualquer tabela fora do núcleo. A planar e a esférica diferem um por mil — 111 320
+contra 111 195 metros por grau, elipsoide contra esfera —, e é essa a pergunta que continua
+posta ao **#003**: qual serve cada uso. Até haver resposta, cada sítio mantém a que tinha.
+
+**A coordenada lê-se num sítio.** `parCoordenadas` e `coordenadaDoFormulario`, no núcleo:
+era `parseFloat(x.replace(",","."))` em dez sítios de nove módulos, cada um a decidir sozinho
+o que fazer com `NaN`, e nenhum a recusar uma latitude de 91. O CSV meteorológico e o par
+escrito à mão do perfil passam por `numPT`. Um teste recusa a troca da vírgula à mão fora de
+`numPT`.
+
+**O que vai para o ecrã leva vírgula.** Trinta e dois sítios de `toFixed` em texto para o
+oficial — horas de empenhamento, quilómetros ao ponto de trânsito, percentagens de declive,
+metros por pixel, metros de chama — passam por `fmtPT`. As coordenadas ficam com ponto, de
+propósito: são o formato das APIs e do que se dita ao rádio como decimal. Três testes que
+esperavam `1.0 h` e `2.3 h` passaram a esperar a vírgula.
+
+**A rede repete uma vez, a pedido.** `fetchT` ganha `repetir`: um pedido que caia por corte
+momentâneo ou por prazo esgotado tem segunda tentativa depois de `REDE.recuo` (600 ms); uma
+recusa da origem não, porque a resposta seria a mesma, e sem rede também não. Pedem-no a
+amostragem do relevo e o perfil de elevação, que são pedidos únicos e à mão. Os mosaicos da
+carta e as consultas em ciclo não pedem. Testado com um `fetch` de mentira que cai e depois
+responde.
+
+**Os últimos `onclick`.** O «Imprimir / PDF» da ficha do PEA passa a `data-imprimir` com um
+ouvinte no documento; o «Atualizar» e o «Consultar agora» dos avisos do IPMA ligam-se ao
+painel acabado de escrever. Um teste lê a entrega e recusa qualquer `<button` com `onclick`.
+
+**Ferramentas.** `morto` ganha `LINHA_DE_BASE = 0`: recusa acima dela, e ela só desce — o
+falso positivo declara-se em `SABIDOS`. `montagem.test` ganha o teto de tamanho da entrega,
+1 250 000 bytes, com a razão ao lado e a regra de que sobe só com razão escrita: a r0101
+tinha 1 141 852. O `CLAUDE.md` e o `tests/README.md` dizem-no. O trabalho de CI com Chromium
+fica com o **#005**, como distribuído; os testes das funções puras que restam (`variantes`,
+`normalizarDistrito`, `motivoRede`, `carimboFich`, `parPar`) com o **#002**.
+
+**A folha de estilos: uma caixa, um subtítulo.** `.caixa` com `--faixa`, `--aviso` e
+`--erro`; `.msg` e `.av-box` herdam a base (uma aresta, um raio de 10, um enchimento), e as
+duas faixas do topo declaram-no no molde em vez de repetir cada uma a sua. `.stit` deixa de
+depender de `.sub`, ganha `.stit--menor` — o subtítulo dos meios aéreos estava reescrito em
+linha — e a referência legal dentro do subtítulo perde o peso do título por regra, e não por
+`style`. O contador da linha de evolução é `.cd-cnt` desde o molde, e não uma `.tag` que a
+dobra depois convertia. Provas em `docs/qa` (qa0037), nos dois temas.
+
+**O que ficou de fora, e porquê.** Os prefixos por bloco nas 74 classes de dois caracteres
+ou menos não se fizeram: sessenta e seis delas estão sempre sob um pai (`.sinal.v`,
+`.pk-r .v`, `.m .k`), e as oito soltas (`.m`, `.cw`, `.ht`, `.st`, `.lk`, `.fr`, `.hz`, `.pd`)
+são de bloco por nome. Renomear 74 classes por HTML, JS e testes numa revisão que já mexe em
+vinte módulos era mais risco do que ganho; fica a lista para o **#005** decidir se vale a
+pena. Os 185 `style=` em linha do molde e os 123 do JS — quase todos margens — também não
+saíram: não estão no F5, e são uma revisão só deles.
+
+**Números.** 1021 testes, 20 novos; 582 funções de topo a 100 %; nove portões verdes;
+auditoria visual limpa nos dois temas; entrega com 1,15 MB, dentro do teto.
 
 ## Decisões tomadas
 

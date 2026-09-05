@@ -21,7 +21,7 @@
  */
 function simplificarAnel(anel, tolM, latRef){
   if(!Array.isArray(anel) || anel.length < 4) return anel;
-  const mLat = 111320, mLon = 111320*Math.cos((latRef||41)*Math.PI/180);
+  const { mLat, mLon } = metrosPorGrau(latRef||41);
   const dist2 = (p, a, b) => {
     const ax=a[0]*mLon, ay=a[1]*mLat, bx=b[0]*mLon, by=b[1]*mLat, px=p[0]*mLon, py=p[1]*mLat;
     const dx=bx-ax, dy=by-ay, L=dx*dx+dy*dy;
@@ -96,16 +96,11 @@ function guardarPerimetro(gj, nome){
 
 /* Aglomerados e sensíveis: a deteção guarda distância e rumo em relação ao ponto da
    ocorrência, e é daí que se recoloca cada um no croqui. O rumo vem em cardinal. */
-const RUMO_GRAUS = {N:0,NNE:22.5,NE:45,ENE:67.5,E:90,ESE:112.5,SE:135,SSE:157.5,
-  S:180,SSO:202.5,SO:225,OSO:247.5,O:270,ONO:292.5,NO:315,NNO:337.5};
-
-/** Recoloca um ponto a partir do rumo cardinal e da distância em quilómetros. */
+/** Recoloca um ponto a partir do rumo cardinal e da distância em quilómetros. Nulo se o rumo não for da rosa. */
 function pontoPorRumo(lat, lon, distKm, rumo){
-  const g = RUMO_GRAUS[String(rumo||"").toUpperCase()];
-  if(g===undefined || !isFinite(distKm)) return null;
-  const r = g*Math.PI/180, m = distKm*1000;
-  return { lat: lat + (m*Math.cos(r))/111320,
-           lon: lon + (m*Math.sin(r))/(111320*Math.cos(lat*Math.PI/180)) };
+  const g = grausDoRumo(rumo);
+  if(g===null || !isFinite(distKm)) return null;
+  return pontoADistancia(lat, lon, g, distKm*1000);
 }
 
 /** Escala redonda: 100 m, 200, 500, 1 km, 2, 5, 10, 20, 50. */
@@ -139,9 +134,8 @@ function escalaRedonda(metrosPorPx, larguraPx){
 function enquadrarCroqui(larg, alt){
   larg = larg||640; alt = alt||400;
   const P = perimObj();
-  const lat0 = parseFloat(String(O.meta.lat).replace(",",".")),
-        lon0 = parseFloat(String(O.meta.lon).replace(",","."));
-  const temPonto = isFinite(lat0) && isFinite(lon0);
+  const c0 = parCoordenadas(O.meta.lat, O.meta.lon), lat0 = c0? c0.lat : NaN, lon0 = c0? c0.lon : NaN;
+  const temPonto = !!c0;
   const det = (O.dados.sensDet && Array.isArray(O.dados.sensDet.itens)) ? O.dados.sensDet.itens : [];
   /* Um triângulo sozinho não é um croqui: sem perímetro e sem nada detetado à volta
      não há forma nem dimensão para mostrar, e a caixa só ocupava espaço. */
@@ -162,7 +156,7 @@ function enquadrarCroqui(larg, alt){
   });
 
   const latM = (minLat+maxLat)/2;
-  const mLat = 111320, mLon = 111320*Math.cos(latM*Math.PI/180);
+  const { mLat, mLon } = metrosPorGrau(latM);
 
   /* Extensão mínima. Uma caixa envolvente degenerada — um ponto só, ou um perímetro
      de poucas dezenas de metros — fazia a escala dividir por quase zero, e a barra

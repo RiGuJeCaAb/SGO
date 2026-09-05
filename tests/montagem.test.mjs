@@ -4,7 +4,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { lerModulos, montar, carimbo, SERVIDO } from '../ferramentas/montar.mjs';
 import { revisaoMaisRecente } from '../ferramentas/verificar.mjs';
@@ -57,6 +57,20 @@ test('montar a fonte reproduz a revisão mais recente, byte a byte', semRevisao,
 
   assert.equal(montado, entregue,
     'a entrega em app/ não corresponde à fonte em fonte/ — não editar o HTML à mão');
+});
+
+/**
+ * Teto de tamanho da entrega, em bytes. A r0101 tinha 1 141 852 e a r0097 1 103 035: cresce
+ * uns quilobytes por revisão, e ninguém media. Um único ficheiro que se abre de `file://`
+ * num portátil de PCO não pode crescer sem se dar por isso. Subir o teto é uma linha aqui,
+ * com a razão ao lado; o que não pode é subir sozinho.
+ */
+const TETO_ENTREGA_BYTES = 1_250_000;
+
+test('a entrega cabe no teto de tamanho declarado', semRevisao, async () => {
+  const { size } = await stat(recente);
+  assert.ok(size <= TETO_ENTREGA_BYTES,
+    `a entrega tem ${size} bytes e o teto é ${TETO_ENTREGA_BYTES}: sobe-se o teto com razão escrita, não em silêncio`);
 });
 
 test('o carimbo tem doze dígitos', () => {

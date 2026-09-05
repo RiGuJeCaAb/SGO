@@ -247,8 +247,13 @@ function relatar(r) {
     + r.classesSemUso.length + r.funcoesSoDeclaradas.length;
   console.log(`\n  ${total} candidato(s). Ler antes de apagar: uma classe composta em tempo`
     + ' de execução, ou um identificador só usado a partir do HTML, é falso positivo.');
-  return r.idsQueFaltam.length;   /* só isto é defeito certo: procurar o que não existe */
+  if(total > LINHA_DE_BASE) console.log(`  Acima da linha de base (${LINHA_DE_BASE}): o que a análise não vê declara-se em SABIDOS, com a razão.`);
+  /* Procurar o que não existe é defeito certo; o resto conta contra a linha de base. */
+  return r.idsQueFaltam.length > 0 || total > LINHA_DE_BASE;
 }
+
+/** Quantos candidatos se toleram. Pode descer; subir é declarar em `SABIDOS` porquê. */
+export const LINHA_DE_BASE = 0;
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const alvo = process.argv[2] || (await revisaoMaisRecente('app'));

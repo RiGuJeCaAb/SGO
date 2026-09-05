@@ -483,7 +483,7 @@ test('regra 10 — mais de uma hora entre a solicitação e a nomeação é assi
   const p = JSON.parse(V12);
   p.pco.nucleos_externos[0].nomeado = '251530AGO26';
   const c = converter(JSON.stringify(p));
-  assert.match(c.avisos.join(' | '), /Núcleo de Segurança: 2\.3 h entre a solicitação e a nomeação/);
+  assert.match(c.avisos.join(' | '), /Núcleo de Segurança: 2,3 h entre a solicitação e a nomeação/);
 });
 
 test('regra 11 — o ponto de trânsito é opcional, e sem ele nada se perde', semAplicacao, () => {

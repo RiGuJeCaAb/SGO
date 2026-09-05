@@ -353,7 +353,7 @@ function enquadrarMapa(larg, altMax){
   /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
      frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
   if(!Q0){
-    const MIN = 2000, mLat = 111320, mLon = 111320*Math.cos((Q.minLat+Q.maxLat)/2*Math.PI/180);
+    const MIN = 2000, { mLat, mLon } = metrosPorGrau((Q.minLat+Q.maxLat)/2);
     const abrir = (min, max, mPorGrau)=>{
       const falta = MIN - (max-min)*mPorGrau;
       if(falta <= 0) return [min, max];
@@ -710,9 +710,8 @@ function camadaMapa(){
 
   /* Os aglomerados detetados, recolocados por distância e rumo a partir do ponto da
      ocorrência — a mesma conta do croqui, porque é a mesma informação. */
-  const lat0 = parseFloat(String(O.meta.lat).replace(",",".")),
-        lon0 = parseFloat(String(O.meta.lon).replace(",","."));
-  const temPonto = isFinite(lat0) && isFinite(lon0);
+  const c0 = parCoordenadas(O.meta.lat, O.meta.lon), lat0 = c0? c0.lat : NaN, lon0 = c0? c0.lon : NaN;
+  const temPonto = !!c0;
   const det = (O.dados.sensDet && Array.isArray(O.dados.sensDet.itens))? O.dados.sensDet.itens : [];
   if(temPonto) det.forEach(x=>{
     const p = pontoPorRumo(lat0, lon0, +x.dist, x.rumo); if(!p) return;
@@ -810,8 +809,8 @@ function camadaMapa(){
 
   /* Os setores com coordenada. */
   (estObj().setores||[]).forEach((s,i)=>{
-    const la = parseFloat(String(s.lat||"").replace(",",".")), lo = parseFloat(String(s.lon||"").replace(",","."));
-    if(!isFinite(la) || !isFinite(lo)) return;
+    const cs = parCoordenadas(s.lat, s.lon); if(!cs) return;
+    const la = cs.lat, lo = cs.lon;
     const q = pxy(la, lo), x0 = n(q.x), y0 = n(q.y);
     g += '<rect x="'+n(x0-9)+'" y="'+n(y0-9)+'" width="18" height="18" rx="3" fill="#1F4E79" stroke="#fff" stroke-width="1.8"/>';
     g += '<text x="'+x0+'" y="'+n(y0+4)+'" font-size="11" font-weight="700" text-anchor="middle" fill="#fff">'
@@ -984,7 +983,7 @@ function pintarEstadoMapa(vieram, total){
     const total = P0 ? areaGeoJSON({ type:"Polygon", coordinates:P0.aneis }) : 0;
     partes.push("Setorizado: "+haSet+" ha"+(total > 0 ? " de "+total+" ha da ZI" : "")+".");
   }
-  partes.push("Ampliação "+MAPA.z+" · "+gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z).toFixed(2)+" m por pixel."
+  partes.push("Ampliação "+MAPA.z+" · "+fmtPT(gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z), 2)+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
 }

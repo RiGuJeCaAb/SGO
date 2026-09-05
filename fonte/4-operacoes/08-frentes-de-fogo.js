@@ -74,10 +74,7 @@ function comprimentoLinhaM(linha){
   let t = 0;
   for(let i=0;i<linha.length-1;i++){
     const [x1,y1] = linha[i], [x2,y2] = linha[i+1];
-    const latM = (y1+y2)/2;
-    const dx = (x2-x1) * 111320 * Math.cos(latM*Math.PI/180);
-    const dy = (y2-y1) * 111320;
-    t += Math.hypot(dx, dy);
+    t += distanciaPlanaM(y1, x1, y2, x2);
   }
   return Math.round(t);
 }

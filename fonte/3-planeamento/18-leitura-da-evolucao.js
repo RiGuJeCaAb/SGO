@@ -40,19 +40,6 @@ function difRumo(a, b){
 }
 
 /**
- * Distância entre dois pontos em metros, pela fórmula do semiverseno.
- *
- * A esta escala a diferença para a planar é de centímetros, mas esta não precisa de
- * correção de latitude e não há por onde a esquecer.
- */
-function distanciaM(lat1, lon1, lat2, lon2){
-  const r = Math.PI/180, R = 6371008.8;
-  const dφ = (lat2-lat1)*r, dλ = (lon2-lon1)*r;
-  const a = Math.sin(dφ/2)**2 + Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dλ/2)**2;
-  return Math.round(2*R*Math.asin(Math.min(1, Math.sqrt(a))));
-}
-
-/**
  * O ponto da frente mais próximo de um alvo, e a distância a ele.
  *
  * Mede-se do vértice mais próximo e não do meio da linha: uma frente de dois quilómetros
@@ -199,7 +186,7 @@ function leituraDaFrente(f){
   const corredor = noCorredorDaFrente(f);
   /* Os meios no corredor saem à parte e primeiro. O resto do que está no caminho é
      património e terreno; isto são pessoas, e a decisão que gera é outra e é imediata. */
-  const dist = x => x.m >= 1000 ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m";
+  const dist = x => x.m >= 1000 ? fmtPT(x.m/1000, 1) + " km" : x.m + " m";
   const meios = corredor.filter(x=>x.especie === "meio");
   if(meios.length)
     p.push("**No corredor de progressão desta frente: "
@@ -211,7 +198,7 @@ function leituraDaFrente(f){
   if(corredor.length){
     p.push("No corredor de progressão, do mais próximo para o mais longe: "
       + corredor.slice(0, 6).map(x=>x.nome + " (" + x.especie + ") a " + (x.m >= 1000
-          ? (x.m/1000).toFixed(1).replace(".", ",") + " km" : x.m + " m") + ", " + card(x.rumo)).join("; ") + "."
+          ? fmtPT(x.m/1000, 1) + " km" : x.m + " m") + ", " + card(x.rumo)).join("; ") + "."
       + (corredor.length > 6 ? " E mais " + (corredor.length - 6) + "." : ""));
   } else {
     p.push("Nada do que a aplicação conhece cai no corredor de progressão — o que significa que nada foi marcado nem detetado ali, e não que o terreno esteja livre.");

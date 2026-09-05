@@ -23,7 +23,7 @@ function areaGeoJSON(gj){
     const lats = anel.map(p=>+p[1]).filter(x=>isFinite(x));
     if(!lats.length) return 0;
     const latM = lats.reduce((a,b)=>a+b,0)/lats.length;
-    const mLat = 111320, mLon = 111320*Math.cos(latM*Math.PI/180);
+    const { mLat, mLon } = metrosPorGrau(latM);
     let a = 0;
     for(let i=0;i<anel.length-1;i++){
       const p1=anel[i], p2=anel[i+1];

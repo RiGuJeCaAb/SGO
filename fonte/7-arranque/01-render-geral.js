@@ -174,7 +174,7 @@ window.verPEA = function(n){
   $("pea-view").innerHTML = `
     <div class="row no-print" style="margin-top:8px;justify-content:flex-end">
       <span class="occ-tag">Redação: <b>${esc(p.modo)}</b></span>
-      <button class="btn btn-b" onclick="window.print()">Imprimir / PDF</button>
+      <button type="button" class="btn btn-b" data-imprimir>Imprimir / PDF</button>
     </div>
     <div class="pea-dash">
       <div class="pd-head">

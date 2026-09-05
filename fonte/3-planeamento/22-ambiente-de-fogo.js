@@ -158,7 +158,7 @@ function resumoDoFogo(f){
 
   if(f.lim && f.r && f.w) p.push("Comportamento: " + Math.round(f.r.v) + " m/h ("
     + f.r.origem + ") sobre " + f.w.v + " t/ha dão " + Math.round(f.lim.i).toLocaleString("pt-PT")
-    + " kW/m de intensidade frontal e chama de " + f.lim.chama.toFixed(1).replace(".", ",")
+    + " kW/m de intensidade frontal e chama de " + fmtPT(f.lim.chama, 1)
     + " m (Byram 1959). " + f.lim.classe.t);
   else p.push("Intensidade da frente por determinar: falta "
     + (!f.r? "a velocidade de propagação" : "") + (!f.r && !f.w? " e " : "")
@@ -169,7 +169,7 @@ function resumoDoFogo(f){
     + (f.topo.obs? " (" + f.topo.obs + ")" : "") + ".");
 
   if(f.perfil) p.push("Perfil segundo " + f.perfil.rot + " ao longo de "
-    + f.perfil.totalKm.toFixed(1).replace(".", ",") + " km: de " + Math.round(f.perfil.cotaIni)
+    + fmtPT(f.perfil.totalKm, 1) + " km: de " + Math.round(f.perfil.cotaIni)
     + " a " + Math.round(f.perfil.cotaFim) + " m, com declive máximo de "
     + f.perfil.declMaxPc + " % a " + String(f.perfil.kmDeclMax).replace(".", ",") + " km.");
 

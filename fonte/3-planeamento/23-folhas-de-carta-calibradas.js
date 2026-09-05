@@ -441,7 +441,7 @@ async function colocarFolha(){
     + "não concordam: a escala em PT-TM06 dá "
     + (af.mpp*Math.hypot(controlos[1].px-controlos[0].px, controlos[1].py-controlos[0].py)).toFixed(0)
     + " m entre os controlos e a medida esférica dá " + af.esferico + " m, "
-    + (af.desvio*100).toFixed(1) + " % de diferença. Não é a colocação: é a projeção. Comunicar.");
+    + fmtPT(af.desvio*100, 1) + " % de diferença. Não é a colocação: é a projeção. Comunicar.");
   dizer(pesada? "av" : "ok", "Folha colocada."+(f.foraDoEnvelope
     ? " Cai fora do envelope do continente — pode ser das ilhas ou de Espanha, ou a colocação estar errada. Confere no mapa."
     : "")+(pesada? " "+pesada : ""));
@@ -474,16 +474,16 @@ function pintarFolhas(){
        era violada aqui: `af? af.mpp : 0` imprimia «0,000 m/px», que é uma escala e não é
        uma ausência. Apanhado pelo ramo #001. */
     const escalaTxt = af
-      ? af.mpp.toFixed(3).replace(".", ",")+' m/px'
-        +(af.escalaProj > 1.001? ' no terreno ('+af.mppProj.toFixed(3).replace(".", ",")
-          +' m de projeção a '+af.latRef.toFixed(2).replace(".", ",")+'° N)' : "")
+      ? fmtPT(af.mpp, 3)+' m/px'
+        +(af.escalaProj > 1.001? ' no terreno ('+fmtPT(af.mppProj, 3)
+          +' m de projeção a '+fmtPT(af.latRef, 2)+'° N)' : "")
       : 'escala por apurar';
     return '<div class="pk-r"><span class="k">'+esc(f.nome)+'</span><span class="v">'
       + f.largura+'×'+f.altura+' px · '+escalaTxt+' · '+esc(g? g.n : f.grelha)
       + ' · '+(f.pontos? f.pontos+' pontos de controlo' : 'ficheiro de referenciação')
       + ' · '+esc(f.proveniencia)
       + (f.foraDoEnvelope? ' <span class="pend">fora do envelope do continente</span>' : "")
-      + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+(af.desvio*100).toFixed(1)+' %</span>' : "")
+      + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+fmtPT(af.desvio*100, 1)+' %</span>' : "")
       + (f.img? "" : ' <span class="pend">sem imagem nesta sessão — volta a escolhê-la para a desenhar</span>')
       + ' <button class="lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
   }).join("");

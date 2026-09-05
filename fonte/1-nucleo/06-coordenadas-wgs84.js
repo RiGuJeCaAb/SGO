@@ -1,4 +1,19 @@
 /* ================= NÚCLEO · coordenadas WGS84 ================= */
+/**
+ * Um par de coordenadas escrito à mão, ou nulo.
+ *
+ * Aceita vírgula e ponto, por `numPT`, e recusa o que não cabe nos limites de latitude e
+ * longitude — números que passariam por coordenadas. Era `parseFloat(x.replace(",","."))`
+ * escrito dez vezes em nove módulos, cada um a decidir sozinho o que fazer com `NaN`.
+ */
+function parCoordenadas(lat, lon){
+  const la = numPT(lat), lo = numPT(lon);
+  if(la === null || lo === null || Math.abs(la) > 90 || Math.abs(lo) > 180) return null;
+  return { lat: la, lon: lo };
+}
+/** A coordenada da ocorrência tal como está no formulário, ou nula. */
+function coordenadaDoFormulario(){ return parCoordenadas($("o-lat").value, $("o-lon").value); }
+/** Decimal com cinco casas e ponto: é o formato das APIs, e por isso não passa por `fmtPT`. */
 function fmtDec(lat,lon){ return (+lat).toFixed(5)+", "+(+lon).toFixed(5); }
 /**
  * Graus e minutos decimais — o formato que se lê ao rádio e se passa aos meios aéreos.
@@ -50,10 +65,11 @@ function pintarOrigemCoord(){
  * de uma ocorrência é como se enganam coordenadas.
  */
 function renderFormats(){
-  const lat=parseFloat($("o-lat").value.replace(",",".")), lon=parseFloat($("o-lon").value.replace(",","."));
+  const c = coordenadaDoFormulario();
   const el=$("coord-formats");
   try{ pintarOrigemCoord(); }catch(e){}
-  if(Number.isNaN(lat)||Number.isNaN(lon)){ el.innerHTML=""; return; }
+  if(!c){ el.innerHTML=""; return; }
+  const lat = c.lat, lon = c.lon;
   el.innerHTML = `
     <div class="cfmt"><span class="lab">Decimal (WGS84)</span><span class="val">${fmtDec(lat,lon)}</span><span class="uso">APIs · SpotWX · Open-Meteo</span></div>
     <div class="cfmt"><span class="lab">Graus e minutos (GMD)</span><span class="val">${fmtGMD(lat,true)} &nbsp; ${fmtGMD(lon,false)}</span><span class="uso">comunicacao radio · meios aereos</span></div>

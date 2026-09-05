@@ -3,19 +3,12 @@
    O declive ao longo do eixo é a variável que comanda a velocidade de propagação
    ascendente e o tempo de fuga disponível: por isso o perfil é lido em termos
    operacionais e não apenas desenhado. */
-const RUMOS16 = [["N",0],["NNE",22.5],["NE",45],["ENE",67.5],["E",90],["ESE",112.5],["SE",135],["SSE",157.5],
-  ["S",180],["SSO",202.5],["SO",225],["OSO",247.5],["O",270],["ONO",292.5],["NO",315],["NNO",337.5]];
 /** `n` pontos igualmente espaçados entre dois extremos, para amostrar o terreno. */
 function pontosDoEixo(latA, lonA, latB, lonB, n){
   const P = [];
   for(let i=0;i<n;i++){ const t=i/(n-1);
     P.push({lat: latA+(latB-latA)*t, lon: lonA+(lonB-lonA)*t}); }
   return P;
-}
-/** Distância em quilómetros, planar com correção de latitude — chega a esta escala. */
-function distKm(latA, lonA, latB, lonB){
-  const dx=(lonB-lonA)*111320*Math.cos((latA+latB)/2*Math.PI/180), dy=(latB-latA)*111320;
-  return Math.sqrt(dx*dx+dy*dy)/1000;
 }
 /**
  * Lê um par de coordenadas escrito à mão, com vírgula, ponto e vírgula ou espaço.
@@ -24,7 +17,7 @@ function distKm(latA, lonA, latB, lonB){
  * que passariam por coordenadas.
  */
 function parPar(txt){
-  const m = String(txt||"").split(/[,;\s]+/).map(x=>parseFloat(x.replace(",","."))).filter(x=>isFinite(x));
+  const m = String(txt||"").split(/[,;\s]+/).map(numPT).filter(x=>x!==null);
   return (m.length>=2 && Math.abs(m[0])<=90 && Math.abs(m[1])<=180)? {lat:m[0], lon:m[1]} : null;
 }
 /**
@@ -40,10 +33,9 @@ async function tracarPerfil(){
   let fim = null, rot = "";
   if($("pf-modo").value === "rumo"){
     const g = parseFloat($("pf-rumo").value), km = Math.max(0.5, Math.min(25, parseFloat($("pf-dist").value)||4));
-    const b = g*Math.PI/180;
-    fim = {lat: base.lat + km*1000*Math.cos(b)/111320,
-           lon: base.lon + km*1000*Math.sin(b)/(111320*Math.cos(base.lat*Math.PI/180))};
-    rot = (RUMOS16.find(r=>r[1]===g)||["",""])[0]+" · "+km.toFixed(1)+" km";
+    fim = pontoADistancia(base.lat, base.lon, g, km*1000);
+    /* Só um rumo da rosa tem nome; um ângulo intermédio escrito à mão fica sem ele. */
+    rot = (Number.isInteger(g/22.5)? rumoDoAngulo(g) : "")+" · "+fmtPT(km, 1)+" km";
   } else {
     fim = parPar($("pf-b").value);
     if(!fim){ info.textContent = "Indica as coordenadas de destino."; return; }
@@ -55,14 +47,14 @@ async function tracarPerfil(){
   try{
     const N = 100, P = pontosDoEixo(base.lat, base.lon, fim.lat, fim.lon, N);
     const r = await fetchT("https://api.open-meteo.com/v1/elevation?latitude="+P.map(p=>p.lat.toFixed(5)).join(",")
-      +"&longitude="+P.map(p=>p.lon.toFixed(5)).join(","), {}, 12000);
+      +"&longitude="+P.map(p=>p.lon.toFixed(5)).join(","), { repetir:true }, 12000);
     if(!r.ok) throw "HTTP "+r.status;
     const e = (await r.json()).elevation;
     if(!e || e.length!==N) throw "resposta incompleta";
-    const total = distKm(base.lat, base.lon, fim.lat, fim.lon);
+    const total = distanciaPlanaM(base.lat, base.lon, fim.lat, fim.lon)/1000;
     O.dados.perfil = {a:base, b:fim, rot, total, e};
     pintarPerfil();
-    fita("Perfil de elevação traçado: "+rot+", "+total.toFixed(1)+" km, cotas de "+Math.round(Math.min(...e))+" a "+Math.round(Math.max(...e))+" m");
+    fita("Perfil de elevação traçado: "+rot+", "+fmtPT(total, 1)+" km, cotas de "+Math.round(Math.min(...e))+" a "+Math.round(Math.max(...e))+" m");
     info.textContent = "Perfil traçado sobre "+N+" cotas reais.";
     persistir(false);
   }catch(err){ info.textContent = "Perfil do terreno indisponível: "+motivoRede(err)+" — tenta novamente quando houver ligação."; }
@@ -116,12 +108,12 @@ function pintarPerfil(){
   if(!L) return;
   const dir = medio>=0? "sub-i" : "desc";
   const cartoes = [
-    {k:"Extensão", v:total.toFixed(1), u:"km"},
+    {k:"Extensão", v:fmtPT(total, 1), u:"km"},
     {k:"Cota inicial", v:Math.round(e[0]), u:"m"},
     {k:"Cota final", v:Math.round(e[N-1]), u:"m"},
     {k:"Desnível líquido", v:(e[N-1]-e[0]>=0? "+":"")+Math.round(e[N-1]-e[0]), u:"m", c:dir},
-    {k:"Declive médio", v:(medio>=0? "+":"")+medio.toFixed(1), u:"%", c:dir},
-    {k:"Declive máximo", v:maxD.toFixed(0), u:"%", c:maxD>=20? "sub-i":""},
+    {k:"Declive médio", v:(medio>=0? "+":"")+fmtPT(medio, 1), u:"%", c:dir},
+    {k:"Declive máximo", v:fmtPT(maxD), u:"%", c:maxD>=20? "sub-i":""},
     {k:"Subida acumulada", v:Math.round(subida), u:"m"},
     {k:"Descida acumulada", v:Math.round(descida), u:"m"}
   ].map(x=>`<div class="pf-c ${x.c||""}"><span class="k">${esc(x.k)}</span><span class="v">${esc(String(x.v))}<small>${esc(x.u)}</small></span></div>`).join("");
@@ -130,8 +122,8 @@ function pintarPerfil(){
   leitura.push(medio>=0
     ? "O eixo é ascendente no seu conjunto, com "+Math.abs(medio).toFixed(0)+" % de declive médio: o fogo que progrida nesta direção ganha velocidade e o tempo de fuga a montante encurta."
     : "O eixo é descendente no seu conjunto, com "+Math.abs(medio).toFixed(0)+" % de declive médio: a progressão nesta direção é mais lenta, mas o ataque descendente fica desaconselhado sem rota de fuga confirmada.");
-  if(maxD>=35) leitura.push("Há um troço de "+maxD.toFixed(0)+" % ao quilómetro "+kmMax.toFixed(1)+": declive muito acentuado, sem condições para progressão a pé com carga nem para veículo fora de estrada.");
-  else if(maxD>=20) leitura.push("O troço mais inclinado tem "+maxD.toFixed(0)+" % ao quilómetro "+kmMax.toFixed(1)+": exige cadência reduzida e vigia próprio.");
+  if(maxD>=35) leitura.push("Há um troço de "+fmtPT(maxD)+" % ao quilómetro "+fmtPT(kmMax, 1)+": declive muito acentuado, sem condições para progressão a pé com carga nem para veículo fora de estrada.");
+  else if(maxD>=20) leitura.push("O troço mais inclinado tem "+fmtPT(maxD)+" % ao quilómetro "+fmtPT(kmMax, 1)+": exige cadência reduzida e vigia próprio.");
   if(subida>50 && descida>50) leitura.push("O perfil alterna subidas e descidas ("+Math.round(subida)+" m a subir, "+Math.round(descida)+" m a descer): há linhas de água e cumeadas intermédias, com inversões de vento local e mudanças bruscas de comportamento em cada uma.");
   const t = O.dados.topo||{orient:"",declive:"",obs:""};
   if(t.orient) leitura.push("A exposição dominante registada na análise de relevo é "+t.orient+", declive "+(t.declive||"—")+": cruza este perfil com a previsão de vento em Planeamento antes de fixar o eixo de esforço.");

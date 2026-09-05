@@ -1,6 +1,6 @@
 /* ================= PLANEAMENTO · meteorologia (art. 29.º) ================= */
-const CARD = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
-const card = d => CARD[Math.round((((d%360)+360)%360)/22.5)%16];
+/** O rumo escrito de um ângulo, em dezasseis pontos — a rosa é a do núcleo. */
+const card = d => rumoDoAngulo(d);
 const angDiff = (a,b)=>{let x=Math.abs(a-b)%360;return x>180?360-x:x;};
 const hh = n => String(n).padStart(2,"0")+"h";
 
@@ -54,9 +54,10 @@ function parseCSV(txt){
   const out=[];
   for(let i=st;i<L.length;i++){
     const c=L[i].split(sep).map(x=>x.trim()); if(c.length<4) continue;
-    const p={d:c[iDt]||"",h:parseInt(c[iH],10),t:parseFloat(String(c[iT]).replace(",",".")),
-      rh:parseFloat(String(c[iR]).replace(",",".")),wd:parseFloat(c[iD]),
-      ws:parseFloat(String(c[iW]).replace(",",".")),pr:iP>=0?parseFloat(String(c[iP]).replace(",",".")):0};
+    /* `numPT` devolve nulo ao que não é número; aqui fica `NaN`, que é o que a triagem
+       das linhas abaixo já sabe recusar. */
+    const n = v => { const x = numPT(v); return x === null ? NaN : x; };
+    const p={d:c[iDt]||"",h:parseInt(c[iH],10),t:n(c[iT]), rh:n(c[iR]), wd:parseFloat(c[iD]), ws:n(c[iW]), pr:iP>=0? n(c[iP]) : 0};
     if([p.h,p.t,p.rh,p.wd].some(Number.isNaN)) continue;
     if(p.rh<0||p.rh>100) throw "HR fora de 0–100 % na linha "+(i+1)+".";
     out.push(p);
@@ -144,9 +145,8 @@ function metricas(){
     avisos_ipma: O.avisos? {distrito:O.avisos.distrito, ativos:O.avisos.lista.map(a=>a.tipo+" "+a.nivel.toUpperCase()+" até "+fmtAvisoT(a.fim))} : null,
     topografia: O.dados.topo && (O.dados.topo.orient||O.dados.topo.declive) ? O.dados.topo : null,
     alinhamento_relevo_vento: (()=>{
-      const t=O.dados.topo||{orient:"",declive:"",obs:""}; const idx=["N","NE","E","SE","S","SO","O","NO"].indexOf(t.orient);
-      if(idx<0) return null;
-      const deg=idx*45;
+      const t=O.dados.topo||{orient:"",declive:"",obs:""}; const deg=grausDoRumo(t.orient);
+      if(deg===null) return null;
       const horas=SERIE.filter(p=>angDiff(p.wd,deg)<=45);
       if(!horas.length) return {orient:t.orient, declive:t.declive||"", horas:[], criticas:[]};
       return {orient:t.orient, declive:t.declive||"",

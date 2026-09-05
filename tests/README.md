@@ -13,7 +13,7 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run tipos` | Verifica os tipos com o TypeScript, sem compilar nada |
 | `npm run montar` | Junta os módulos de `fonte/` e produz a entrega seguinte em `app/` |
 | `npm run validar-gp -- <ficheiro>` | Corre o leitor da Gestão PCO sobre uma exportação e diz o que a Estação fará com ela |
-| `npm run morto` | Relata identificadores e funções que ninguém usa. **Lê-se, não se aplica** |
+| `npm run morto` | Relata identificadores e funções que ninguém usa, e recusa acima da linha de base — zero desde a r0102. **Lê-se antes de apagar**: o falso positivo declara-se em `SABIDOS` |
 | `npm run documentar` | Confere que toda a função de topo diz o que promete; recusa que a cobertura desça de 100 % |
 | `npm run manual` | Confere que todo o rótulo que `docs/MANUAL.md` cita entre «aspas angulares» existe mesmo na entrega |
 | `npm run tudo` | Sintaxe, testes, análise estática, tipos, código morto, cobertura de documentação e manual, por esta ordem |

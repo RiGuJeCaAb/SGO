@@ -460,7 +460,7 @@ function detDecisao(novas, anterior){
         texto:`Interdição de ataque direto à cabeça: a intensidade frontal estimada é de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m. `
           +`Ataque à cabeça apenas por meios aéreos ou indiretamente, com ancoragem pelos flancos e pela retaguarda. `
           +`Ninguém a menos de ${F.lim.seguranca} m da frente de chamas.`,
-        fundamento:`${Math.round(F.r.v)} m/h (${F.r.origem}) sobre ${F.w.v} t/ha dão ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m e chama de ${F.lim.chama.toFixed(1).replace(".", ",")} m — acima dos 4 000 kW/m o controlo frontal é impossível (Alexander 2000, via Fernandes 2003); DON n.º 2, Anexo 3, situação n.º 10.`},
+        fundamento:`${Math.round(F.r.v)} m/h (${F.r.origem}) sobre ${F.w.v} t/ha dão ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m e chama de ${fmtPT(F.lim.chama, 1)} m — acima dos 4 000 kW/m o controlo frontal é impossível (Alexander 2000, via Fernandes 2003); DON n.º 2, Anexo 3, situação n.º 10.`},
       (P.k === "aereo")&&{id:"PI", ch:"LIM-AEREO",
         texto:`Ataque à cabeça com apoio de meios aéreos; vigilância permanente de focos secundários a sotavento, com equipa dedicada.`,
         fundamento:`Intensidade frontal de ${Math.round(F.lim.i).toLocaleString("pt-PT")} kW/m (${Math.round(F.r.v)} m/h, ${F.r.origem}): acima dos 2 000 kW/m a projeção de faúlhas é expectável e acima dos 4 000 o fogo de copas é quase certo (Alexander 2000).`},
@@ -475,7 +475,7 @@ function detDecisao(novas, anterior){
         fundamento:`Passar de ${F.perfil.salto.deRef} % para ${F.perfil.salto.para} % multiplica a componente de declive por cerca de ${String(F.perfil.salto.k).replace(".", ",")}. A razão entre declives é independente do modelo de combustível, pelo que o salto é afirmável mesmo sem ele.`},
       (F.lim && F.linhas.some(l=>l.estreita))&&{id:"PL", ch:"LINHA-ESTREITA",
         texto:`Alargar as linhas de contenção com menos de ${String(F.lim.contencao).replace(".", ",")} m de largura útil antes de as considerar ancoragem: ${F.linhas.filter(l=>l.estreita).map(l=>(l.setor? "setor "+l.setor+", ":"")+String(l.larguraM).replace(".", ",")+" m").join("; ")}.`,
-        fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${F.lim.chama.toFixed(1).replace(".", ",")} m), e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).`},
+        fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${fmtPT(F.lim.chama, 1)} m), e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).`},
       (F.linhas.some(l=>l.semLargura))&&{id:"PW", ch:"LINHA-SEM-LARGURA",
         texto:`Declarar a largura útil das linhas já traçadas sem dimensão indicada${F.linhas.filter(l=>l.semLargura).some(l=>l.setor)? " ("+F.linhas.filter(l=>l.semLargura&&l.setor).map(l=>"setor "+l.setor).join(", ")+")":""}: sem largura não é possível aferir se servem de ancoragem.`,
         fundamento:"Linhas traçadas no teatro sem largura útil registada; a largura decide se a linha suporta a frente ou se apenas a atrasa."},

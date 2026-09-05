@@ -801,6 +801,25 @@ veredicto atual mas não o regista: quem regista é a aba que escreve.
 
 ---
 
+## Os números que a aplicação escreve, e a rede que repete
+
+**Os números para ler levam vírgula.** Horas de empenhamento, quilómetros ao ponto de
+trânsito, percentagens de declive, metros de chama: "2,3 h", "1,5 km", "12,5 %". As
+coordenadas ficam com ponto — "41.16330, -7.78890" — porque é o formato que as APIs e os
+serviços recebem e o que se dita como decimal. Um número que a aplicação não consegue calcular
+aparece como travessão, e não como "NaN".
+
+**Coordenadas com vírgula ou com ponto, tanto faz.** Os campos de latitude e longitude
+aceitam "41,1633" e "41.1633". Uma latitude fora de −90 a 90, ou uma longitude fora de −180 a
+180, é tratada como coordenada em falta, e não como número.
+
+**A amostragem do relevo e o perfil de elevação tentam duas vezes.** Se o pedido ao serviço de
+altimetria cair por um corte momentâneo da ligação ou por prazo esgotado, a aplicação espera
+um instante e repete uma vez, sozinha. Se o serviço recusar o pedido, não insiste: a resposta
+seria a mesma. Sem ligação de dados, nem tenta.
+
+---
+
 ## Para quem usa o teclado ou um leitor de ecrã
 
 Cada cartão tem um título que é um cabeçalho — um leitor de ecrã salta de cartão em cartão
