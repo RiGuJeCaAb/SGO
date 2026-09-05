@@ -301,3 +301,14 @@ desaparece e, até à r0100, ficavam seis caixas por setor sem dizer qual era o 
 qual era o contacto — os campos gerados não tinham rótulo nenhum, nem para ver nem para
 ouvir. Cada campo vive agora dentro de um `<label>` com o nome da coluna, que se mostra
 quando o cabeçalho some e que o leitor de ecrã lê sempre.
+
+## qa0036 — a faixa da aba em leitura alinhada pelos cartões, com o botão na ponta, nos dois temas
+
+`CSREPCDouro_qa0036_202609051745_FaixaDeLeituraAlinhadaTemaClaro_CLD.png`
+`CSREPCDouro_qa0036_202609051745_FaixaDeLeituraAlinhadaTemaEscuro_CLD.png`
+
+A 1440 px, com a aba em leitura. A captura que o dono mandou na r0100 tinha o botão «Assumir
+a escrita» colado ao fim do texto, com o resto da faixa vazio, e a faixa mais larga do que o
+cartão de baixo em vinte pixéis de cada lado. A causa do botão era `entrarEmLeitura` a mostrar
+a faixa com `display:block` em linha, por cima do `display:flex` da folha de estilos. Agora a
+faixa vai de 20 a 1420 como a guia, e o botão e o «Ir» da guia acabam os dois a 1401.

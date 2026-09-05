@@ -143,7 +143,9 @@ function pintarDON(){
   const vg = $("pea-vigor");
   const focoLa = !!(vg && document.activeElement && vg.contains(document.activeElement));
   try{ if(typeof renderVigor==="function" && !window.__emVigor && !focoLa){ window.__emVigor=1; renderVigor(); window.__emVigor=0; } }catch(e){ window.__emVigor=0; }
-  try{ O.meta.inicio = $("o-inicio").value.trim(); O.meta.fase = $("o-fase").value.trim(); }catch(err){}
+  /* Escrevia aqui `O.meta.inicio` e `O.meta.fase` a partir do formulário — uma pintura a
+     alterar o estado, de 30 em 30 segundos pelo temporizador. Os dois campos declaram
+     `data-campo` e entram no estado ao serem escritos; a pintura só lê. */
   let v = [];
   try{ v = verificacoesDON(); }catch(err){ v = []; }
   const ativos = v.filter(x=>x.n!=="ok"), conformes = v.filter(x=>x.n==="ok");
@@ -249,7 +251,7 @@ function pintarAmpulhetas(){
 /* nível DECIR derivado da data, quando não imposto manualmente */
 function autoNivelDECIR(){
   const sel = $("o-nivel"); if(!sel) return;
-  const base = parseGDH($("o-inicio").value.trim()) || new Date();
+  const base = parseGDH($("o-inicio").value.trim()) || new Date(agora());
   const n = nivelDECIR(base);
   const inf = $("o-inicio-info");
   if(inf) inf.textContent = "Base do cálculo dos 90 minutos (ATI para ATA, DON n.º 2, ponto 7.e.(5)). "

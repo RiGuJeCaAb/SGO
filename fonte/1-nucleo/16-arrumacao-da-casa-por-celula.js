@@ -508,6 +508,12 @@ function agendarPintarDON(){
  * `pintarDON` que sabe não repintar o cartão quando o foco está lá dentro.
  */
 function reavaliarPeriodicamente(){
+  /* Um veredicto que mudou é estado, e grava-se: `persistir` regista-o e repinta tudo.
+     Ficava em memória — a fita dizia «caducado» e o arquivo dizia «em vigor» até alguém
+     carregar num botão. Sem mudança, só se repinta. */
+  let pendente = false;
+  try{ pendente = !emLeitura() && veredictoPendente(); }catch(e){ pendente = false; }
+  if(pendente){ persistir(false); return; }
   try{ pintarDON(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ }
 }
 ["o-num","o-local","o-pco","o-fase","o-pasta","o-lat","o-lon","o-inicio","o-nivel","d-area","d-sensiveis"].forEach(id=>{

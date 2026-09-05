@@ -1,5 +1,22 @@
 /* ================= NÚCLEO · persistência ================= */
-function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
+/* A chave do arquivo é o identificador interno, e não o número. O número é rótulo, escrito
+   à mão: uma ocorrência sem ele gravava em `sem-num`, `peaapp:ultima` ficava vazio, e
+   `carregar` tratava o vazio como ausência — ficava gravada e nunca mais se repunha. E
+   corrigir o número duplicava a ocorrência no arquivo, com a antiga a apontar para o que
+   já não era. O que foi gravado antes da r0101 está na chave do número: `carregar` lembra a
+   chave que leu, e a gravação seguinte passa o registo para a nova e apaga a antiga. */
+function chave(){ return "peaapp:occ:"+O.meta.id; }
+/** A chave curta de uma entrada do índice: o identificador, ou o número nas de antes da r0101. */
+function chaveDoIndice(x){ return String((x && (x.id || x.num)) || ""); }
+/* A chave de onde cada estado foi lido, presa ao objeto e não a uma variável: «Nova» e a
+   importação trocam o `O`, e uma variável solta apagaria, na gravação seguinte, a ocorrência
+   que se tinha acabado de deixar. */
+const CHAVE_LIDA = new WeakMap();
+/** Há alguma coisa que dê nome a esta ocorrência no arquivo? Uma em branco não entra lá. */
+function ocorrenciaTemConteudo(){
+  return !!(O.meta.num || O.meta.local || O.meta.lat || O.peas.length || O.evolucao.length
+    || (O.dados.est && O.dados.est.setores && O.dados.est.setores.length));
+}
 /**
  * Grava a ocorrência e o índice do arquivo, e repinta.
  *
@@ -27,6 +44,8 @@ async function persistir(nota){
     return r;
   }
   lerForm();
+  /* O veredicto do plano em vigor regista-se aqui, onde se grava, e não na pintura. */
+  try{ registarVeredicto(); }catch(e){ /* ignorado: o veredicto não pode impedir a gravação */ }
   iniciarGravacao();
   let resultado = { ok:false, erro:"" };
   try{
@@ -34,16 +53,21 @@ async function persistir(nota){
        duas deixava o arquivo a apontar para uma ocorrência que não ficou gravada, ou uma
        ocorrência gravada que o arquivo não conhecia. Onde não houver transação, escreve-se
        na mesma ordem de sempre — e `ARMAZEM.atomico` diz qual dos dois casos é. */
-    const pares = [[chave(), JSON.stringify(O)], ["peaapp:ultima", O.meta.num]];
-    if(O.meta.num){
-      INDEX = INDEX.filter(x=>x.num!==O.meta.num);
-      INDEX.push({num:O.meta.num, local:O.meta.local, pasta:O.meta.pasta||"Sem pasta", pco:O.meta.pco, g:gdhAgora(), peas:O.peas.length});
-      pares.push(["peaapp:index", JSON.stringify(INDEX)]);
-    }
+    const pares = [[chave(), JSON.stringify(O)], ["peaapp:ultima", O.meta.id]];
+    const lida = CHAVE_LIDA.get(O) || "";
+    const antiga = lida && lida !== chave()? lida : "";
+    /* Sai do índice a entrada desta mesma ocorrência — pela chave nova ou pela antiga que
+       `carregar` leu — e entra a atual, com ou sem número. Sem número lê-se «sem número». */
+    INDEX = INDEX.filter(x=>{ const k = "peaapp:occ:"+chaveDoIndice(x); return k !== chave() && k !== antiga; });
+    if(ocorrenciaTemConteudo())
+      INDEX.push({id:O.meta.id, num:O.meta.num, local:O.meta.local, pasta:O.meta.pasta||"Sem pasta", pco:O.meta.pco, g:gdhAgora(), peas:O.peas.length});
+    pares.push(["peaapp:index", JSON.stringify(INDEX)]);
     await ARMAZEM.setVarias(pares);
+    CHAVE_LIDA.set(O, chave());
+    if(antiga){ try{ await ARMAZEM.del(antiga); }catch(e){ /* fica uma cópia a mais na chave antiga; o índice já não a lista */ } }
     resultado = { ok:true, erro:"" };
-    if(nota) aviso("msg-occ","ok","Ocorrência "+O.meta.num+" guardada.");
-    avisarOutrasAbas(O.meta.num);
+    if(nota) aviso("msg-occ","ok","Ocorrência "+(O.meta.num||"sem número")+" guardada.");
+    avisarOutrasAbas(O.meta.id);
   }catch(e){
     resultado = { ok:false, erro:String((e && e.message) || e) };
     if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+").");
@@ -60,19 +84,20 @@ async function persistir(nota){
  * haver nada gravado, e haver algo gravado por uma revisão posterior — que se diz com
  * todas as letras, porque a saída é abrir noutra revisão e não insistir nesta.
  *
- * @param {string} [num] número da ocorrência; vazio para a última
+ * @param {string} [k] identificador interno; nas gravadas antes da r0101, o número. Vazio para a última
  */
-async function carregar(num){
+async function carregar(k){
   try{
-    if(!num){ const u=await ARMAZEM.get("peaapp:ultima"); num=u?u.value:null; }
-    if(!num){ aviso("msg-occ","err","Nenhuma ocorrência guardada neste dispositivo."); return; }
-    const r = await ARMAZEM.get("peaapp:occ:"+num);
+    if(!k){ const u=await ARMAZEM.get("peaapp:ultima"); k=u?u.value:null; }
+    if(!k){ aviso("msg-occ","err","Nenhuma ocorrência guardada neste dispositivo."); return; }
+    const r = await ARMAZEM.get("peaapp:occ:"+k);
     O = migrarGravado(JSON.parse(r.value));
+    CHAVE_LIDA.set(O, "peaapp:occ:"+k);
     /* As folhas de carta são desta ocorrência e não do dispositivo: repõem-se as dela. */
     try{ await carregarFolhas(); pintarFolhas(); }catch(e){ /* ignorado: sem base não há folhas a repor */ }
     escreverForm(); pintarTudo();
     if(O.csv){ $("f-csv").value=O.csv; analisarCSV(false); }
-    aviso("msg-occ","ok","Ocorrência "+num+" reposta ("+O.peas.length+" PEA, "+O.evolucao.length+" registos).");
+    aviso("msg-occ","ok","Ocorrência "+(O.meta.num||"sem número")+" reposta ("+O.peas.length+" PEA, "+O.evolucao.length+" registos).");
     setTimeout(()=>{ try{ atualizarDistrito(); }catch(e){} }, 0);
   }catch(e){ aviso("msg-occ","err", e && e.futuro
       ? "Ocorrência gravada por uma revisão posterior (versão "+e.futuro+"). Abre-a na revisão mais recente; esta não lhe toca."
@@ -213,9 +238,9 @@ function pintarArquivo(){
   INDEX.slice().sort((a,b)=>a.pasta.localeCompare(b.pasta)).forEach(x=>{ (pastas[x.pasta]=pastas[x.pasta]||[]).push(x); });
   el.innerHTML = Object.keys(pastas).map(p=>
     `<div class="arq-p">${esc(p)}</div>`+
-    pastas[p].map(x=>`<div class="arq-i"><div><b>${esc(x.num)} — ${esc(x.local||"")}</b><p>PCO ${esc(x.pco||"—")} · ${x.peas} PEA · atualizada ${esc(x.g)}</p></div>
-      <div class="acts"><button class="btn btn-b" data-enc-livre data-occ-abrir="${esc(x.num)}">Abrir</button>
-      <button class="btn btn-r" data-enc-livre data-occ-apagar="${esc(x.num)}">Apagar</button></div></div>`).join("")
+    pastas[p].map(x=>`<div class="arq-i"><div><b>${esc(x.num||"sem número")} — ${esc(x.local||"")}</b><p>PCO ${esc(x.pco||"—")} · ${x.peas} PEA · atualizada ${esc(x.g)}</p></div>
+      <div class="acts"><button class="btn btn-b" data-enc-livre data-occ-abrir="${esc(chaveDoIndice(x))}">Abrir</button>
+      <button class="btn btn-r" data-enc-livre data-occ-apagar="${esc(chaveDoIndice(x))}">Apagar</button></div></div>`).join("")
   ).join("");
 
   /* `data-enc-livre`: o arquivo lista **outras** ocorrências, e o fecho protege o registo
@@ -232,17 +257,18 @@ function pintarArquivo(){
   el.querySelectorAll("[data-occ-apagar]").forEach(b=>
     b.addEventListener("click", ()=>window.apagarOcc(b.getAttribute("data-occ-apagar"))));
 }
-window.abrirOcc = num => carregar(num);
-window.apagarOcc = async num => {
-  if(!window.confirm("Apagar a ocorrência "+num+" e todos os seus PEA deste dispositivo?")) return;
+window.abrirOcc = k => carregar(k);
+window.apagarOcc = async k => {
+  const ent = INDEX.find(x=>chaveDoIndice(x)===k), rot = (ent && ent.num) || "sem número";
+  if(!window.confirm("Apagar a ocorrência "+rot+" e todos os seus PEA deste dispositivo?")) return;
   /* Se apagar falhar, a ocorrência **não sai do índice**: saía, e ficava gravada mas
      invisível no arquivo — até voltar no `carregar` seguinte como se nada fosse. */
-  try{ await ARMAZEM.del("peaapp:occ:"+num); }
-  catch(e){ aviso("msg-occ","err","Não foi possível apagar a ocorrência "+num+" ("+String((e&&e.message)||e).slice(0,60)+"). Continua no arquivo."); return; }
-  INDEX = INDEX.filter(x=>x.num!==num);
+  try{ await ARMAZEM.del("peaapp:occ:"+k); }
+  catch(e){ aviso("msg-occ","err","Não foi possível apagar a ocorrência "+rot+" ("+String((e&&e.message)||e).slice(0,60)+"). Continua no arquivo."); return; }
+  INDEX = INDEX.filter(x=>chaveDoIndice(x)!==k);
   try{ await ARMAZEM.set("peaapp:index", JSON.stringify(INDEX)); }
   catch(e){ aviso("msg-occ","err","A ocorrência foi apagada mas o índice do arquivo não ficou gravado ("+String((e&&e.message)||e).slice(0,60)+"): ao recarregar pode voltar a aparecer na lista, já sem conteúdo."); }
-  if(O.meta.num===num){ O=novoEstado(); escreverForm(); }
+  if(O.meta.id===k || CHAVE_LIDA.get(O)==="peaapp:occ:"+k){ O=novoEstado(); escreverForm(); }
   pintarTudo();
 };
 

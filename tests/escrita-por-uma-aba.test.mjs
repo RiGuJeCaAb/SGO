@@ -81,7 +81,7 @@ test('em leitura, persistir recusa sem tocar no armazém, e os campos ficam iner
   assert.match(r.erro, /leitura/);
   assert.equal(av('window.__n'), 0, 'nem uma escrita pode ter chegado ao armazém');
   assert.equal(av('$("o-num").disabled'), true, 'o campo tem de estar inerte');
-  assert.equal(av('$("leitura-faixa").style.display'), 'block');
+  assert.equal(av('$("leitura-faixa").style.display'), 'flex', 'uma fila, com o botão na ponta: era block, e o botão caía colado ao texto');
   assert.match(av('$("leitura-txt").textContent'), /não grava/);
   assert.equal(av('$("grav").textContent'), 'Só leitura');
   assert.equal(av('document.documentElement.classList.contains("leitura")'), true);
@@ -174,16 +174,20 @@ test('assumir a escrita rouba o trinco e devolve a aba à escrita', semAplicacao
 /* ---- o canal entre abas ---- */
 
 test('a aba em leitura repõe do arquivo quando a outra grava a mesma ocorrência', semAplicacao, async () => {
+  // O canal fala pelo identificador interno, e não pelo número: o número pode faltar ou
+  // mudar, e o identificador é a chave do arquivo que a aba em leitura vai repor.
   av('window.__c = carregar; window.__pedido = null; window.carregar = async n => { window.__pedido = n; };');
+  const id = av('O.meta.id');
+  assert.match(id, /^o[0-9a-z]{6,}$/, 'a ocorrência nasce com identificador');
   av('entrarEmLeitura("x")');
-  assert.equal(await av('receberDeOutraAba({tipo:"gravado", num:"2026-T"})'), true);
-  assert.equal(av('window.__pedido'), '2026-T');
+  assert.equal(await av(`receberDeOutraAba({tipo:"gravado", id:"${id}"})`), true);
+  assert.equal(av('window.__pedido'), id);
   // Outra ocorrência: não é para aqui.
   av('window.__pedido = null;');
-  assert.equal(await av('receberDeOutraAba({tipo:"gravado", num:"2026-OUTRA"})'), false);
+  assert.equal(await av('receberDeOutraAba({tipo:"gravado", id:"oOUTRA"})'), false);
   assert.equal(av('window.__pedido'), null);
   // A aba que escreve não reage: é a fonte.
   av('sairDeLeitura()');
-  assert.equal(await av('receberDeOutraAba({tipo:"gravado", num:"2026-T"})'), false);
+  assert.equal(await av(`receberDeOutraAba({tipo:"gravado", id:"${id}"})`), false);
   av('window.carregar = window.__c; delete window.__c; delete window.__pedido;');
 });

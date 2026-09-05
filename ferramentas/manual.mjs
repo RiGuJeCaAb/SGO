@@ -80,6 +80,9 @@ const RENDIDOS = [
      na proposta que ficou aprovada sem elas. */
   { rotulo: 'Registar aprovação do COS', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
   { rotulo: 'Produzir ordens de missão', ficheiro: 'fonte/3-planeamento/16-pea-em-vigor.js' },
+  /* O rótulo de uma ocorrência sem número no arquivo, escrito por `pintarArquivo` no lugar
+     do número. O arquivo nasce vazio, e o molde não o tem. */
+  { rotulo: 'sem número', ficheiro: 'fonte/1-nucleo/05-persistencia.js' },
 ];
 
 /** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */

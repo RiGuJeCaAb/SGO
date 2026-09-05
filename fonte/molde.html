@@ -874,10 +874,13 @@
   /* A faixa das pinturas que rebentaram. Vive fora do <main> e acima de tudo: o que ela
      diz é que parte do ecrã abaixo dela pode estar desatualizada, e uma faixa dessas
      dentro do conteúdo que ela desmente não se lê. */
-  .pint-q{max-width:1460px;margin:10px auto 0;padding:9px 14px;border:1px solid var(--fogo);
+  /* As duas faixas do topo alinham pela caixa dos cartões, e não pela do ecrã: o `.wrap` e a
+     `.guia` têm 20 px de margem de cada lado dentro dos 1460, e a faixa a 1460 saía 20 px
+     para fora do cartão de baixo em cada lado. Apontado pelo dono na r0100. */
+  .pint-q{max-width:1420px;margin:10px 20px 0;padding:9px 18px;border:1px solid var(--fogo);
     border-left:3px solid var(--fogo);border-radius:8px;background:rgba(224,104,92,.10);
     color:var(--fogo);font-size:12.5px;line-height:1.6}
-  @media(max-width:1100px){.pint-q{margin:10px 12px 0}}
+  @media(min-width:1461px){.pint-q,.leitura-faixa{margin-left:auto;margin-right:auto}}
   /* O indicador da gravação. Permanente, no cabeçalho, ao lado da etiqueta da ocorrência:
      «gravado» sem hora não distingue há um segundo de há uma hora. Em largura reduzida
      fica, ao contrário da etiqueta — saber se gravou pesa mais do que saber qual é. */
@@ -888,10 +891,14 @@
   .grav.falhou{color:var(--fogo);border-color:var(--fogo);background:rgba(224,104,92,.12);font-weight:700;animation:pulsa 1.8s ease-in-out infinite}
   .grav.leitura{color:var(--terra);border-color:var(--terra);background:rgba(224,184,79,.12);font-weight:700}
   /* A faixa da aba em leitura. Fora do <main>, como a das pinturas, e pela mesma razão. */
-  .leitura-faixa{max-width:1460px;margin:10px auto 0;padding:9px 14px;border:1px solid var(--terra);
+  .leitura-faixa{max-width:1420px;margin:10px 20px 0;padding:9px 18px;border:1px solid var(--terra);
     border-left:3px solid var(--terra);border-radius:8px;background:rgba(224,184,79,.10);
     color:var(--tx);font-size:12.5px;line-height:1.6;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  @media(max-width:1100px){.leitura-faixa{margin:10px 12px 0}.grav{padding:5px 8px;font-size:10.5px;letter-spacing:0}}
+  /* O botão vai para a ponta direita, como o «Ir» da guia: estava colado ao fim do texto, com
+     o resto da faixa vazio à direita. Abaixo de 640 px cai para a linha seguinte, à esquerda. */
+  .leitura-faixa .btn{margin-left:auto}
+  @media(max-width:1100px){.grav{padding:5px 8px;font-size:10.5px;letter-spacing:0}}
+  @media(max-width:640px){.pint-q,.leitura-faixa{margin-left:12px;margin-right:12px}.leitura-faixa .btn{margin-left:0}}
   /* Com o indicador da gravação, a fila do cabeçalho deixou de caber a 768 px: o botão do
      tema saía 36 px para fora. A partir de 900 px as ações passam para a linha seguinte, que
      é o que já acontecia a 640 — quebrar cedo é o que garante que nada transborda, e o

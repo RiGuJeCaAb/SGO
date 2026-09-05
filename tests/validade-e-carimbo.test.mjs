@@ -29,37 +29,45 @@ const av = (e) => avaliar(janela, e);
 
 /* ---- validade ---- */
 
-/** Corre `expr` com o relógio parado em `hh:mm` de hoje. */
-function comRelogioEm(hh, mm, expr) {
+/**
+ * Corre `expr` com o instante `hh:mm` de hoje em `T`. Até à r0101 substituía `Date.now`,
+ * porque `horizonteValidade` lia o relógio; agora o instante entra por argumento, que é
+ * o que torna a regra exercitável sem tocar no relógio de ninguém.
+ */
+function comInstanteEm(hh, mm, expr) {
   return av(`(()=>{
-    const b = new Date(); b.setHours(${hh}, ${mm}, 0, 0);
-    const real = Date.now; Date.now = () => b.getTime();
-    try { return (${expr}); } finally { Date.now = real; }
+    const b = new Date(); b.setHours(${hh}, ${mm}, 0, 0); const T = b.getTime();
+    return (${expr});
   })()`);
 }
 
 test('a validade nunca ultrapassa o fecho da janela', semAplicacao, () => {
   // O caso exacto que a análise mediu: 17h50, janela a fechar às 18h00.
-  const r = comRelogioEm(17, 50, `(()=>{
-    const ts = horizonteValidade({ janela:{inicio:"14", fim:"18"}, rotacoes:[] });
-    const fecho = new Date(); fecho.setHours(18,0,0,0);
+  const r = comInstanteEm(17, 50, `(()=>{
+    const ts = horizonteValidade({ janela:{inicio:"14", fim:"18"}, rotacoes:[] }, T);
+    const fecho = new Date(T); fecho.setHours(18,0,0,0);
     return ts - fecho.getTime();
   })()`);
   assert.equal(r, 0, 'a validade tem de bater certo com o fecho, e não estendê-lo em 50 minutos');
 });
 
 test('a validade nunca ultrapassa a próxima rotação de vento', semAplicacao, () => {
-  const r = comRelogioEm(17, 50, `(()=>{
-    const ts = horizonteValidade({ janela:{inicio:"10", fim:"23"}, rotacoes:[{h:"18"}] });
-    const rot = new Date(); rot.setHours(18,0,0,0);
+  const r = comInstanteEm(17, 50, `(()=>{
+    const ts = horizonteValidade({ janela:{inicio:"10", fim:"23"}, rotacoes:[{h:"18"}] }, T);
+    const rot = new Date(T); rot.setHours(18,0,0,0);
     return ts - rot.getTime();
   })()`);
   assert.equal(r, 0);
 });
 
 test('sem gatilho nenhum, o tecto continua a ser de seis horas', semAplicacao, () => {
-  const r = comRelogioEm(9, 0, 'horizonteValidade({}) - Date.now()');
+  const r = comInstanteEm(9, 0, 'horizonteValidade({}, T) - T');
   assert.equal(r, 6 * 3600000);
+});
+
+test('sem instante, a validade conta do relógio da aplicação', semAplicacao, () => {
+  const r = av('(()=>{ const a = agora(); const ts = horizonteValidade({}); return ts - a; })()');
+  assert.ok(r >= 6 * 3600000 - 50 && r <= 6 * 3600000 + 50, 'seis horas a contar de agora, com folga de execução');
 });
 
 test('um horizonte curto é dito, e não esticado', semAplicacao, () => {

@@ -19,7 +19,7 @@ function meteoObj(){
 function idadeMeteo(){
   const M = meteoObj();
   if(!M.ts) return null;
-  const h = (Date.now() - M.ts)/3600000;
+  const h = (agora() - M.ts)/3600000;
   return { h, velha: h >= METEO_VALIDADE_H, rot: fmtH(h) };
 }
 
@@ -43,7 +43,7 @@ function pintarMeteoIdade(){
 function marcarMeteo(fonte, modelo, lat, lon, horas){
   const M = meteoObj();
   M.fonte = fonte; M.modelo = modelo || "";
-  M.g = gdhAgora(); M.ts = Date.now();
+  M.g = gdhAgora(); M.ts = agora();
   M.lat = lat==null? "" : String(lat); M.lon = lon==null? "" : String(lon);
   M.horas = horas || 0; M.mexido = false;
   /* O resumo da série como chegou. É com ele que se sabe, mais tarde, se alguém lhe
@@ -109,12 +109,12 @@ async function meteoAutomatica(){
     const r = await fetchT(url, {}, 9000);
     if(!r.ok) throw "HTTP "+r.status;
     const d = await r.json();
-    const H = d.hourly, agora = Date.now()-3600000;
+    const H = d.hourly, limite = agora()-3600000;
     const linhas = ["HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP"];
     let n=0;
     for(let i=0;i<H.time.length && n<36;i++){
       const t = lerHoraOpenMeteo(H.time[i], d.utc_offset_seconds);
-      if(t.ts < agora) continue;
+      if(t.ts < limite) continue;
       linhas.push([t.data, t.hora, H.temperature_2m[i], H.relative_humidity_2m[i],
         String(Math.round(H.wind_direction_10m[i])).padStart(3,"0"), Math.round(H.wind_speed_10m[i]*10)/10,
         H.precipitation[i]].join(","));

@@ -36,7 +36,8 @@ const POSSE = [
       { p:"dados.topo",       r:"art. 28.º",                d:"Exposição, declive e razão declive/vento" },
       { p:"dados.fogo",       r:"art. 28.º",                d:"Velocidade de propagação e carga de combustível, para a intensidade da frente" },
       { p:"dados.fogo.est",   r:"art. 28.º",                d:"Modelo de combustível e entradas da estimativa de propagação" },
-      { p:"dados.perfil",     r:"art. 28.º",                d:"Perfil de elevação do eixo" }
+      { p:"dados.perfil",     r:"art. 28.º",                d:"Perfil de elevação do eixo" },
+      { p:"dados.relevo",     r:"art. 28.º",                d:"Relevo amostrado à volta do ponto: cota, gradiente por rumo e perfis" }
     ] },
   { k:"operacoes", n:"Operações", r:"Despacho n.º 4067/2024, arts. 16.º a 25.º",
     nota:"Executa e implementa as decisões do plano e transmite as ordens de missão.",

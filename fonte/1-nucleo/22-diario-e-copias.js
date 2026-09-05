@@ -69,7 +69,7 @@ function diarioAdicionarIDB(base){
  * proteger é pior do que não haver diário.
  */
 async function diarioAcrescentar(evento){
-  const base = { g: gdhAgora(), ts: Date.now(),
+  const base = { g: gdhAgora(), ts: agora(),
     num: (O && O.meta && O.meta.num) || "", quem: quemRegista(), evento: String(evento||"") };
   try{
     if(IDB){
@@ -131,7 +131,7 @@ async function diarioConferir(){
 async function copiaGuardar(motivo){
   try{
     lerForm();
-    const c = { id:"c"+Date.now().toString(36), ts:Date.now(), g:gdhAgora(),
+    const c = { id:"c"+agora().toString(36), ts:agora(), g:gdhAgora(),
       num:(O.meta.num||""), local:(O.meta.local||""), motivo:String(motivo||"automática"),
       sha:resumoEstado(O), estado:JSON.parse(JSON.stringify(O)) };
     if(IDB) await _idb("copias","readwrite", st=>st.put(c));
@@ -191,6 +191,6 @@ async function copiaRepor(id){
 /** Guarda uma cópia se já passou o intervalo. Chamado a cada gravação. */
 async function copiaSeDevida(){
   if(!O || !O.meta || !O.meta.num) return null;          /* sem ocorrência não há o que copiar */
-  if(Date.now() - COPIA_ULT_TS < COPIA_CADA_MIN*60000) return null;
+  if(agora() - COPIA_ULT_TS < COPIA_CADA_MIN*60000) return null;
   return copiaGuardar("automática");
 }

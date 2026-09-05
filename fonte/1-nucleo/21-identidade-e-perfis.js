@@ -101,7 +101,7 @@ async function assumirTeclado(nome, posto, perfil){
   const n = String(nome||"").trim();
   if(!n) return { ok:false, motivo:"Indica o nome de quem regista." };
   SESSAO = { nome:n, posto:String(posto||"").trim(), perfil: perfilDe(perfil).k,
-    desde: gdhAgora(), id: SESSAO.id || ("s"+Date.now().toString(36)) };
+    desde: gdhAgora(), id: SESSAO.id || ("s"+agora().toString(36)) };
   await gravarSessao();
   fita("Ao teclado: "+quemRegista()+" ("+perfilDe(SESSAO.perfil).n+")");
   return { ok:true };

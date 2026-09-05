@@ -37,7 +37,7 @@ function renderAereos(){
     b.addEventListener("click", ()=>abrirRendicao(b.getAttribute("data-rend"))));
   ch.querySelectorAll("[data-aerdel]").forEach(b=>b.addEventListener("click", ()=>{
     const j=+b.dataset.aerdel, a=L[j];
-    fita("Meio aéreo desmobilizado: "+(a.ind||a.t)+(a.ts? " ("+((Date.now()-a.ts)/3600000).toFixed(1)+" h no TO)":""));
+    fita("Meio aéreo desmobilizado: "+(a.ind||a.t)+(a.ts? " ("+((agora()-a.ts)/3600000).toFixed(1)+" h no TO)":""));
     L.splice(j,1); aerLista(); renderAereos(); comporSetores(); pintarDON(); persistir(false);
   }));
 }

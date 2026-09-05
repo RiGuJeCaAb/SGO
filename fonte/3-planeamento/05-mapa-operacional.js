@@ -485,7 +485,7 @@ async function mosaicoBlob(z, x, y){
          apagá-la ao fim de dois meses seria dar cabo do que se preparou. */
       if(CARTA){
         const g = await _idb("mosaicos", "readonly", st=>st.get(chaveMosaico(z, x, y)));
-        if(g && g.b && !g.local && (Date.now() - (g.ts||0)) < MOSAICO_DIAS*86400000) return g.b;
+        if(g && g.b && !g.local && (agora() - (g.ts||0)) < MOSAICO_DIAS*86400000) return g.b;
       }
       const l = await _idb("mosaicos", "readonly", st=>st.get(chaveMosaicoLocal(z, x, y)));
       if(l && l.b && l.local) return l.b;
@@ -507,7 +507,7 @@ async function mosaicoBlob(z, x, y){
 /** Guarda um mosaico vindo do serviço, depois de reconhecido como carta. */
 async function guardarMosaico(z, x, y, b){
   if(!IDB) return;
-  try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:Date.now()}, chaveMosaico(z, x, y))); }catch(e){}
+  try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:agora()}, chaveMosaico(z, x, y))); }catch(e){}
 }
 
 /**
@@ -535,7 +535,7 @@ async function carregarMosaicosLocais(ficheiros){
     if(!t){ semArvore++; if(!exemplo) exemplo = c; continue; }
     if(!IDB){ semArquivo++; continue; }
     try{
-      await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:Date.now(), local:true }, chaveMosaicoLocal(t.z, t.x, t.y)));
+      await _idb("mosaicos","readwrite", st=>st.put({ b:f, ts:agora(), local:true }, chaveMosaicoLocal(t.z, t.x, t.y)));
       niveis.add(t.z); n++;
     }catch(e){ semArquivo++; }
   }
@@ -619,7 +619,7 @@ function marcarPonto(tipo, lat, lon, nome){
   if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
   if(!isFinite(lat) || !isFinite(lon)) return { ok:false, motivo:"Coordenada fora do mapa." };
   const d = defPonto(tipo);
-  const p = { id:"p"+Date.now().toString(36), tipo:d.k, nome:String(nome||d.n),
+  const p = { id:"p"+agora().toString(36), tipo:d.k, nome:String(nome||d.n),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6), g:gdhAgora(), por:quemRegista(), nota:"" };
   pontosLista().push(p);
   /* Se houver limites traçados, diz-se em que setor o ponto caiu. É a pergunta que se faz

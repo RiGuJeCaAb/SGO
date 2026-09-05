@@ -38,8 +38,8 @@ async function emitirPEA(){
         : "Modelo indisponível ("+String(e).slice(0,80)+") — emitida a versão determinística da proposta."));
     plano = detCompleto(novas,anterior).pea;
   }
-  const mm = metricas();
-  const pea = { n, g:gdhAgora(), ts:Date.now(), validoTs:horizonteValidade(mm),
+  const mm = metricas(), tsEmissao = agora();
+  const pea = { n, g:gdhAgora(), ts:tsEmissao, validoTs:horizonteValidade(mm, tsEmissao),
     base:baseVigor(), ctrl:[], ultVerd:"",
     /* Nasce proposta. O controlo de missões fica vazio porque ainda não há missões:
        chegam com a aprovação, junto com as ordens. */
@@ -59,7 +59,7 @@ async function emitirPEA(){
        logística, mas entra no instantâneo pelo mesmo nome. */
     pco:(()=>{ try{ return JSON.parse(JSON.stringify({ funcoes:pcoObj().funcoes, canais:canaisObj() })); }
                catch(e){ return {funcoes:[],canais:{}}; } })(),
-    nivelDECIR:(O.meta.nivel || nivelDECIR(parseGDH(O.meta.inicio) || new Date())) };
+    nivelDECIR:(O.meta.nivel || nivelDECIR(parseGDH(O.meta.inicio) || new Date(agora()))) };
   O.peas.push(pea);
   O.evolucao.push({g:pea.g, tipo:"posit",
     txt:"Proposta de PEA n.º "+n+" elaborada pela célula de planeamento, para apreciação e determinação do COS."});

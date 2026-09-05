@@ -45,7 +45,7 @@ function fecharLinha(){
   const d = defLinha(tipo);
   const larg = parseFloat(String(($("linha-larg")||{}).value || "").replace(",", "."));
   const l = {
-    id:"l"+Date.now().toString(36),
+    id:"l"+agora().toString(36),
     tipo:d.k,
     linha:traco,
     /* Vazia quando não foi indicada: uma linha sem largura declarada não é uma linha de

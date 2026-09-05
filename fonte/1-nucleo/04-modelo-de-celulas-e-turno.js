@@ -174,11 +174,6 @@ function migrarGravado(guardado){
   return e;
 }
 
-/** @type {Estado} */
-let O = novoEstado();
-let SERIE = [], ANALISE = null;
-
-/** @returns {Estado} */
 /* 10 -> 11. Dois campos que faltavam para se saber de onde vêm as coisas.
    `meta.coordFonte` guarda **como** a coordenada foi parar ali — escrita à mão, achada
    pela geocodificação, ou trazida da Gestão PCO. Estava na fita do tempo e mais lado
@@ -403,6 +398,44 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 26 -> 27 · Dois campos que se escreviam sem estar declarados.
+   `dados.relevo` era escrito por `analisarRelevo` e não existia em `novoEstado` nem em
+   `tipos/`: passava pelo `[outro: string]: any`, e um nome mal escrito nunca seria
+   apanhado. Fica declarado, nulo enquanto não se amostrar; o que já lá estiver com a forma
+   certa mantém-se, e o que não a tiver sai — repete-se a amostragem, que é um botão.
+   `meta.id` é o identificador interno da ocorrência, distinto do número: o número é
+   rótulo, escrito à mão, mudável e às vezes ausente, e era a chave do arquivo — uma
+   ocorrência sem número gravava em `sem-num`, com `peaapp:ultima` vazio, e nunca mais se
+   repunha. Ao que já existe dá-se um identificador agora; da chave antiga do arquivo
+   trata `persistir`, que a lembra e a apaga depois de gravar na nova. */
+MIGRACOES.push(e => {
+  if(e.meta && typeof e.meta === "object" && !(typeof e.meta.id === "string" && e.meta.id))
+    e.meta.id = novoIdOcorrencia();
+  if(e.dados && typeof e.dados === "object"){
+    const r = e.dados.relevo;
+    const boa = !!(r && typeof r === "object" && Number.isFinite(r.e0) && r.grad && typeof r.grad === "object"
+      && r.perfis && typeof r.perfis === "object" && Array.isArray(r.dist));
+    e.dados.relevo = boa? r : null;
+  }
+  return e;
+});
+
+/* `let O` só depois do último degrau. Estava a meio da escada, com sete degraus antes e
+   dezasseis depois: latente, porque `novoEstado` não corre a escada, mas é a classe de
+   defeito que o comentário da escada regista ter custado caro — um degrau declarado depois
+   de `O` nascer é o convite a pô-lo no sítio errado. Aqui, um degrau abaixo de `O` vê-se. */
+/** @type {Estado} */
+let O = novoEstado();
+let SERIE = [], ANALISE = null;
+
+/**
+ * Um identificador interno para uma ocorrência nova: o instante em base 36 e seis
+ * caracteres ao acaso. Não é o número da ocorrência — esse é o rótulo do SADO, escrito à
+ * mão — e não se mostra: é a chave do arquivo e do canal entre abas, e não muda quando o
+ * número é corrigido ou chega tarde.
+ */
+function novoIdOcorrencia(){ return "o"+agora().toString(36)+Math.random().toString(36).slice(2,8); }
+
 /**
  * O estado de uma ocorrência por começar.
  *
@@ -411,11 +444,13 @@ MIGRACOES.push(e => {
  * a matéria — ver `POSSE`, que é auditado contra isto.
  */
 function novoEstado(){
-  return { meta:{num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
+  return { meta:{id:novoIdOcorrencia(),num:"",local:"",pco:"",fase:"",faseG:"",fasePor:"",lat:"",lon:"",coordFonte:"",pasta:"",inicio:"",nivel:"",subregiao:"",distrito:"",concelho:"",distritoChave:""},
     avisos:null,
     dados:{area:"", perimNome:"", perim:null, sensDet:null, pontos:[], frentes:[], linhas:[], notas:[], focos:{itens:[], origem:"", g:"", por:"", nota:""}, fogo:{r:"", w:"", est:{modelo:"", altura:"", dias:"", hcm:"", hcmOrigem:"", u10:"", declive:"", tipoPin:"", rEst:"", wMin:"", wMax:"", g:"", por:"", avisos:[]}}, setores:"", sensiveis:"", anexos:[],
       perfil:null,
       topo:{orient:"", declive:"", obs:"", eps:""},
+      /* O relevo amostrado à volta do ponto; nulo até se carregar no botão da análise do relevo. */
+      relevo:null,
       est:{n:0, setores:[], aer:"", aerL:[], livre:false}},
     /* Célula de logística e finanças. A reserva e a zona de apoio são áreas da ZCR
        (art. 32.º, n.º 1, al. b)) e não fazem parte do dispositivo de Operações; o plano

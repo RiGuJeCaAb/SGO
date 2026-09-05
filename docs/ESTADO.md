@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0100**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0101**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 138, das anteriores à convenção de nomes até à r0100 |
+| Entregas em `app/` | 139, das anteriores à convenção de nomes até à r0101 |
 | Módulos em `fonte/` | 75, em sete zonas, mais o molde |
-| Testes | 979, todos a passar |
+| Testes | 1001, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -926,6 +926,72 @@ furar o ecrã quando estão dentro de uma faixa que desliza de propósito. A fer
 distinguir o que vive dentro de um antepassado com `overflow-x:auto` que cabe no ecrã, com a
 razão escrita; e o código de saída passa a ser lido antes de comitar. A correção é a `f982d42`
 mais um commit, e não uma remontagem da r0100: uma entrega que saiu não se apaga.
+
+O segundo erro veio logo a seguir, e é o mesmo: o commit da ferramenta corrigida saiu com um
+erro do `lint-ferramentas` impresso e não lido — `getComputedStyle` do lado da página não
+existe para o eslint do lado do Node —, e o `main` ficou vermelho um commit. Corrigido em
+`cc24106`. As duas cadeias passam a ler `RV=$?` e a parar nele.
+
+## Estado e tempo — r0101, a quarta do plano
+
+**A faixa da aba em leitura, que o dono apontou.** A captura mostrava o botão «Assumir a
+escrita» colado ao fim do texto, com o resto da faixa vazio, e a faixa vinte pixéis mais larga
+do que o cartão de baixo em cada lado. A causa do primeiro não era a folha de estilos, que
+declarava `display:flex`: era `entrarEmLeitura`, que mostrava a faixa com um `display:block`
+em linha, e o botão ficava em fluxo de bloco onde `margin-left:auto` não faz nada. Passa a
+`flex`, o botão vai para a ponta direita como o «Ir» da guia, e as duas faixas do topo — a
+das pinturas e a da leitura — alinham pela caixa dos cartões (1420 dentro dos 1460, 20 de
+cada lado; 12 abaixo de 640 px). Medido no Chromium: faixa de 20 a 1420, guia de 20 a 1420,
+botão e «Ir» a acabarem os dois a 1401. Provas em `docs/qa` (qa0036), nos dois temas.
+
+**O estado declara o que escreve.** `dados.relevo` era escrito pela amostragem do relevo e
+não existia em `novoEstado`, em `tipos/`, na `POSSE` nem em `CONTRIBUI`: passava pelo
+`[outro: string]: any`, e um nome mal escrito nunca seria apanhado. Fica declarado, nulo até
+se amostrar, com degrau 26 → 27 que mantém o que tem a forma certa e deita fora o que não
+tem — repete-se a amostragem, que é um botão. A auditoria de posse e a dos contributos
+apanharam-no como órfão logo na primeira montagem, que é o que existem para fazer.
+
+**`let O` no fim da escada.** Estava na linha 178, com sete degraus antes e dezasseis
+depois. Latente — `novoEstado` não corre a escada —, mas é a classe de defeito que o
+comentário da escada regista ter custado caro. Passa para depois do último `MIGRACOES.push`;
+um teste lê a fonte e recusa que volte para o meio.
+
+**A chave do arquivo é um identificador, e não o número.** O número é rótulo, escrito à mão,
+mudável e às vezes ausente. Uma ocorrência sem número gravava em `peaapp:occ:sem-num`,
+`peaapp:ultima` ficava vazio, e `carregar` tratava o vazio como ausência: ficava gravada e
+nunca mais se repunha. Corrigir o número criava uma segunda entrada no arquivo, com a antiga
+a apontar para o que já não era. Cada ocorrência nasce com `meta.id` (instante em base 36 e
+seis caracteres ao acaso), o arquivo, a marca da última e o canal entre abas falam por ele, e
+o número passa a rótulo: lê-se «sem número» quando falta. O que a r0100 e anteriores deixaram
+no dispositivo está na chave do número: `carregar` lembra a chave que leu — presa ao objeto
+num `WeakMap`, e não numa variável, porque «Nova» e a importação trocam o `O` e uma variável
+solta apagaria na gravação seguinte a ocorrência que se tinha acabado de deixar — e a
+gravação seguinte passa o registo para a chave nova e apaga a antiga. Uma ocorrência em
+branco não entra no arquivo, mas fica como última. Seis testes, incluindo o do arquivo
+deixado pela r0100. **Para o #001:** as cópias de recuperação e o diário continuam a usar o
+número como chave — foi pedido que os confiram contra o identificador, e ficou como está até
+haver resposta.
+
+**O veredicto regista-se onde se grava.** `renderVigor` escrevia `p.ultVerd` e empurrava
+para a fita, de 30 em 30 segundos pelo temporizador, sem gravar: a fita dizia «caducado» e o
+arquivo dizia «em vigor» até alguém carregar num botão, e uma aba fechada levava a mudança.
+Sai da pintura: `registarVeredicto` corre em `persistir`, antes de escrever; a reavaliação
+periódica pergunta a `veredictoPendente` e, se houver veredicto por registar, grava em vez de
+só pintar — e numa aba em leitura não regista nada. `pintarDON` deixa de copiar `o-inicio` e
+`o-fase` para o estado: os dois campos declaram `data-campo` e entram ao serem escritos.
+
+**O tempo entra por argumento.** Vinte e seis `Date.now()` diretos em treze módulos e três
+`new Date()` sem argumento, com `12-relogio.js` a existir para as regras serem exercitáveis
+com hora escolhida. Todos passam por `agora()`; `instanteDaHora`, `horizonteValidade` e
+`divergencia` recebem o instante; a emissão carimba `ts` e `validoTs` com o mesmo instante em
+vez de ler o relógio duas vezes. O teste da validade da r0095 deixa de substituir `Date.now`
+— o caso das 17h50 escreve-se com o instante em argumento, e um teste conta que o relógio
+não é lido nem uma vez. Um teste lê a fonte e recusa qualquer `Date.now()` ou `new Date()`
+fora do relógio. **Para o #006:** continua pedida a conferência, regra a regra, de que o
+instante que cada uma recebe é o que a DON manda contar.
+
+**Números.** 1001 testes, 22 novos; 573 funções de topo a 100 %; nove portões verdes;
+auditoria visual limpa nos dois temas.
 
 ## Decisões tomadas
 

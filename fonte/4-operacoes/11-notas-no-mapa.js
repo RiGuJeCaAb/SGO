@@ -55,7 +55,7 @@ function escreverNota(tipo, lat, lon, txt){
   if(!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok:false, motivo:"Coordenada inválida." };
   const d = defNota(tipo);
   const nota = {
-    id:"nt"+Date.now().toString(36),
+    id:"nt"+agora().toString(36),
     tipo:d.k,
     txt:t.slice(0, NOTA_MAX),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6),

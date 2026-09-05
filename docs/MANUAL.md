@@ -784,6 +784,21 @@ em silêncio. O trinco é por aplicação e não por ocorrência: o índice do a
 mesma. Num navegador sem este mecanismo — abaixo do mínimo declarado — a aba assume a escrita
 como sempre.
 
+**O arquivo guarda a ocorrência, e não o número.** Cada ocorrência recebe, ao nascer, um
+identificador interno que nunca se mostra; é por ele que fica no arquivo do dispositivo. O
+número da ocorrência é o rótulo: pode faltar e pode ser corrigido sem que isso crie uma
+segunda entrada. Uma ocorrência ainda sem número grava-se na mesma e lê-se no arquivo como
+«sem número»; «Carregar guardada» repõe-na como a qualquer outra. Uma ocorrência em branco —
+sem número, sem local, sem coordenadas, sem setores, sem registos — não aparece no arquivo,
+mas é a que volta ao abrir a aplicação. As ocorrências gravadas por revisões anteriores à
+r0101 abrem como sempre e passam para o novo esquema na primeira gravação.
+
+**O veredicto do plano em vigor fica gravado quando muda.** A aplicação reavalia de 30 em 30
+segundos se o plano aprovado continua em vigor, pede atenção, pede revisão ou caducou. Quando
+o veredicto muda, a linha entra na fita do tempo e a ocorrência é gravada nesse momento —
+antes, ficava só em memória até alguém carregar num botão. Uma aba em leitura mostra o
+veredicto atual mas não o regista: quem regista é a aba que escreve.
+
 ---
 
 ## Para quem usa o teclado ou um leitor de ecrã

@@ -101,7 +101,10 @@ function entrarEmLeitura(motivo){
   const f = $("leitura-faixa");
   if(f){
     const t = $("leitura-txt"); if(t) t.textContent = LEITURA.motivo + " Esta aba mostra e não grava: o que aqui se escrever perde-se.";
-    f.style.display = "block";
+    /* `flex`, e não `block`: a faixa é uma fila com o botão na ponta direita, como a guia. O
+       `block` em linha vencia o `display:flex` da folha de estilos e o botão caía colado ao
+       fim do texto, com o resto da faixa vazio — era a captura que o dono mandou na r0100. */
+    f.style.display = "flex";
   }
   try{ aplicarFechoDeEscrita(); }catch(e){}
   pintarGravacao();
@@ -167,8 +170,8 @@ async function assumirEscrita(){
 }
 
 /** Diz às outras abas que esta gravou, para a que está a ler se atualizar. */
-function avisarOutrasAbas(num){
-  try{ if(CANAL_ABAS) CANAL_ABAS.postMessage({ tipo:"gravado", num:String(num||"") }); }catch(e){}
+function avisarOutrasAbas(id){
+  try{ if(CANAL_ABAS) CANAL_ABAS.postMessage({ tipo:"gravado", id:String(id||"") }); }catch(e){}
 }
 
 /**
@@ -180,9 +183,9 @@ function avisarOutrasAbas(num){
  */
 async function receberDeOutraAba(m){
   if(!m || m.tipo !== "gravado" || !emLeitura()) return false;
-  const minha = String(O.meta.num || "");
-  if(minha && m.num && m.num !== minha) return false;
-  try{ await carregar(m.num || null); }catch(e){}
+  const minha = String(O.meta.id || "");
+  if(minha && m.id && m.id !== minha) return false;
+  try{ await carregar(m.id || null); }catch(e){}
   try{ aplicarFechoDeEscrita(); }catch(e){}
   return true;
 }

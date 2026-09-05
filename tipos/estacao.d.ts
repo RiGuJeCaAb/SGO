@@ -51,6 +51,11 @@ declare function addSensTodos(): void;
 /** Identificação da ocorrência. Sem tolerância a campo desconhecido: é aqui que
  *  um nome mal escrito custa caro. */
 interface MetaOcorrencia {
+  /**
+   * Identificador interno, dado na criação e nunca mostrado. É a chave do arquivo e do
+   * canal entre abas: o número é rótulo, escrito à mão, mudável e às vezes ausente.
+   */
+  id: string;
   num: string; local: string; pco: string; fase: string;
   /** Quando e por quem a fase foi declarada. Vazio: a fase foi escolhida, não declarada. */
   faseG: string; fasePor: string;
@@ -310,8 +315,21 @@ interface DadosOcorrencia {
   perfil: any;
   /** `eps` é a razão declive/vento de Viegas (2004); vazia quando não informada. */
   topo: { orient: string; declive: string; obs: string; eps: string };
+  /** O relevo amostrado à volta do ponto (art. 28.º). Nulo enquanto não se amostrar. */
+  relevo: RelevoAmostrado | null;
   est: Dispositivo;
   [outro: string]: any;
+}
+
+/**
+ * O que a amostragem do relevo guarda: a cota do ponto, o gradiente médio por rumo em
+ * percentagem, os perfis de cota por rumo às distâncias de `dist`, em metros.
+ */
+interface RelevoAmostrado {
+  e0: number;
+  grad: { [rumo: string]: number };
+  perfis: { [rumo: string]: number[] };
+  dist: number[];
 }
 
 /** Um aviso meteorológico do IPMA, reduzido ao que a Estação mostra e exporta. */

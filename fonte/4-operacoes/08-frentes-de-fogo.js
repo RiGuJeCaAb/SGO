@@ -98,7 +98,7 @@ function fecharFrente(){
   const rumoDado = posto === "" ? null : normalizarGraus(parseFloat(posto.replace(",", ".")));
   const sugerido = d.avanca ? rumoSugeridoDaLinha(linha) : null;
   const f = {
-    id:"f"+Date.now().toString(36),
+    id:"f"+agora().toString(36),
     tipo:d.k,
     linha,
     /* `rumo` é o que se mostra; `rumoFonte` diz de onde veio, e é o que impede uma

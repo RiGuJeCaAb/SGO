@@ -240,7 +240,8 @@ const CONTRIBUI = [
   { p:"dados.perim",      onde:null, q:"o perímetro é geometria: dá a área, e é a área que entra no plano" },
   { p:"dados.perimNome",  onde:null, q:"nome do ficheiro de origem do perímetro — proveniência, não matéria de plano" },
   { p:"dados.pontos",     onde:null, q:"pontos notáveis do mapa; entram no croqui e na carta, não no texto do PEA" },
-  { p:"dados.anexos",     onde:null, q:"anexos da ocorrência; viajam na exportação e não se citam no plano" }
+  { p:"dados.anexos",     onde:null, q:"anexos da ocorrência; viajam na exportação e não se citam no plano" },
+  { p:"dados.relevo",     onde:null, q:"a amostragem do relevo escreve a exposição e o declive em dados.topo, e é por lá que entra no plano; a cota e os perfis são leitura do quadro" }
 ];
 
 /**

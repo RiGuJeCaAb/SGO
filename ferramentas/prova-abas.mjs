@@ -43,7 +43,7 @@ for (const [tema, sufixo] of [['claro', 'TemaClaro'], ['escuro', 'TemaEscuro']])
   const eA = await A.evaluate(() => ({ leitura: emLeitura(), grav: $('grav').textContent }));
   const eB = await B.evaluate(() => ({ leitura: emLeitura(), grav: $('grav').textContent, faixa: $('leitura-faixa').style.display, campo: $('o-num').disabled }));
   exigir(eA.leitura === false, tema + ': a primeira aba devia escrever');
-  exigir(eB.leitura === true && eB.faixa === 'block' && eB.campo === true, tema + ': a segunda aba devia nascer em leitura, com faixa e campos inertes: ' + JSON.stringify(eB));
+  exigir(eB.leitura === true && eB.faixa === 'flex' && eB.campo === true, tema + ': a segunda aba devia nascer em leitura, com faixa e campos inertes: ' + JSON.stringify(eB));
 
   // 2. A grava; B recebe pelo canal e repõe.
   await A.evaluate(async () => { $('o-num').value = '2026-PROVA'; $('o-local').value = 'Sonda'; await persistir(false); });
@@ -63,7 +63,7 @@ for (const [tema, sufixo] of [['claro', 'TemaClaro'], ['escuro', 'TemaEscuro']])
   const dB = await B.evaluate(() => ({ leitura: emLeitura(), campo: $('o-num').disabled }));
   const dA = await A.evaluate(() => ({ leitura: emLeitura(), motivo: LEITURA.motivo, faixa: $('leitura-faixa').style.display }));
   exigir(dB.leitura === false && dB.campo === false, tema + ': B devia ter assumido a escrita: ' + JSON.stringify(dB));
-  exigir(dA.leitura === true && /assumiu/.test(dA.motivo) && dA.faixa === 'block', tema + ': A devia ter passado a leitura por roubo: ' + JSON.stringify(dA));
+  exigir(dA.leitura === true && /assumiu/.test(dA.motivo) && dA.faixa === 'flex', tema + ': A devia ter passado a leitura por roubo: ' + JSON.stringify(dA));
 
   if (qa) {
     await A.screenshot({ path: `docs/qa/CSREPCDouro_qa0033_${carimbo}_AbaQuePerdeuAEscrita${sufixo}_CLD.png`, clip: { x: 0, y: 0, width: 1440, height: 260 } });

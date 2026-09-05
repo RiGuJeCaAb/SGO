@@ -420,7 +420,7 @@ async function colocarFolha(){
   const g = $("fo-grelha").value;
   const recusa = recusaPorProjecao(g);
   if(recusa) return recusar(recusa);
-  const f = folhaCalibrada({ id:"f"+Date.now().toString(36), nome:nome || fi.files[0].name,
+  const f = folhaCalibrada({ id:"f"+agora().toString(36), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
   if(!f) return recusar("A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");

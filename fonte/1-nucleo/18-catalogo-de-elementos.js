@@ -74,7 +74,7 @@ async function guardarElemento(dados){
     ? ELEMENTOS.findIndex(y=>y.id === dados.id)
     : ELEMENTOS.findIndex(y=>chaveElemento(y) === chaveElemento(x));
   if(i < 0){
-    x.id = "e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    x.id = "e"+agora().toString(36)+Math.random().toString(36).slice(2,6);
     x.g = gdhAgora();
     ELEMENTOS.push(x);
   } else {

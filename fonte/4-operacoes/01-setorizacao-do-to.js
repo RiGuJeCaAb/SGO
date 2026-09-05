@@ -76,7 +76,7 @@ function medidorTempo(it, aereo, alvo){
   const ar = aereo || !!(it.ar || d.ar);
   const teto = ar? L.aer : L.lim;
   const avi  = ar? Math.max(1, L.aer-2) : L.av;
-  const h = (Date.now() - it.ts)/3600000;
+  const h = (agora() - it.ts)/3600000;
   const resta = teto - h;
   const nivel = h>=teto? "r" : (h>=avi? "a" : "v");
 
@@ -196,7 +196,7 @@ function renderSetores(){
     b.addEventListener("click", ()=>{
       const i=+b.dataset.add, t=$("ta-t-"+i).value, q=+$("ta-q-"+i).value||1, ou=+$("ta-o-"+i).value||0;
       const ent = ($("ta-e-"+i)? $("ta-e-"+i).value.trim() : "");
-      const d=catDef(t), ts=Date.now();
+      const d=catDef(t), ts=agora();
       /* A quantidade é comodidade de escrita, não forma do estado: cria n unidades
          independentes, cada uma com o seu relógio e a sua origem daí para a frente. */
       for(let k=0;k<Math.max(1,Math.round(q));k++){
@@ -224,7 +224,7 @@ function renderSetores(){
       if(dest===""){ return; }
       const it = e.setores[i].tip[j];
       if(dest==="D"){
-        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+((Date.now()-(it.ts||Date.now()))/3600000).toFixed(1)+" h de empenhamento)");
+        fita("Desmobilizado "+it.t+(it.ent? " ("+it.ent+")":"")+" (Setor "+NOMES_SETOR[i]+", "+((agora()-(it.ts||agora()))/3600000).toFixed(1)+" h de empenhamento)");
         e.setores[i].tip.splice(j,1);
       } else {
         const k=+dest;
@@ -300,7 +300,7 @@ $("aer-add").addEventListener("click", ()=>{
   const t = $("aer-t").value, ind = $("aer-i").value.trim();
   const q = gdhDoCampo("aer-g", "msg-occ");
   if(!q.ok) return;
-  aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : Date.now())});
+  aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : agora())});
   $("aer-i").value=""; $("aer-g").value="";
   fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")");
   renderAereos(); comporSetores(); pintarDON(); persistir(false);

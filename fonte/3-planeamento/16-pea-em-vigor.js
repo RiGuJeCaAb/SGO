@@ -15,11 +15,12 @@ const VERD_ROT = {
  * pensar nas 6h está a falar de amanhã, e interpretá-la como já passada daria uma
  * validade expirada à nascença.
  */
-function instanteDaHora(txt){
+function instanteDaHora(txt, ts){
   const h = parseInt(String(txt||"").replace(/\D/g,""),10);
   if(!isFinite(h) || h>23) return null;
-  const d = new Date(); d.setMinutes(0,0,0); d.setHours(h);
-  if(d.getTime() <= Date.now()) d.setDate(d.getDate()+1);
+  const ref = ts==null? agora() : ts;
+  const d = new Date(ref); d.setMinutes(0,0,0); d.setHours(h);
+  if(d.getTime() <= ref) d.setDate(d.getDate()+1);
   return d.getTime();
 }
 /**
@@ -34,13 +35,20 @@ function instanteDaHora(txt){
  * O que fica no lugar não é nada: é dizer a verdade. Quando o horizonte é curto, é curto, e
  * `validadeCurta` diz a quem lê que o plano nasce com pouco tempo e porquê — que é a
  * informação que a hora inventada escondia.
+ *
+ * **Recebe o instante.** Lia o relógio, e o teste da r0095 só o exercitava substituindo
+ * `Date.now` — sinal de que a API estava errada. Com o instante em argumento, o caso das
+ * 17h50 escreve-se como qualquer outro.
+ *
+ * @param {any} m as métricas da previsão, com a janela e as rotações
+ * @param {number} [ts] instante de referência; sem ele, o relógio
  */
-function horizonteValidade(m){
-  const agora = Date.now();
-  let ts = agora + 6*3600000;
-  if(m && m.janela){ const f = instanteDaHora(m.janela.fim); if(f && f>agora && f<ts) ts=f; }
-  if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h); if(t && t>agora && t<ts) ts=t; });
-  return ts;
+function horizonteValidade(m, ts){
+  const ref = ts==null? agora() : ts;
+  let fim = ref + 6*3600000;
+  if(m && m.janela){ const f = instanteDaHora(m.janela.fim, ref); if(f && f>ref && f<fim) fim=f; }
+  if(m && m.rotacoes) m.rotacoes.forEach(r=>{ const t=instanteDaHora(r.h, ref); if(t && t>ref && t<fim) fim=t; });
+  return fim;
 }
 
 /** Minutos de vigência com que um plano nasce, abaixo dos quais se avisa. */
@@ -275,9 +283,13 @@ function aprovarPEA(n, quem){
  * Cada item traz a norma que o torna relevante, porque a conclusão a tirar — rever o
  * plano, ou não — é do COS, e uma lista de diferenças sem fundamento não o ajuda a
  * decidir.
+ *
+ * @param {any} p o plano em vigor
+ * @param {number} [ts] instante de referência para a caducidade; sem ele, o relógio
  */
-function divergencia(p){
+function divergencia(p, ts){
   if(!p || !p.base) return null;
+  const ref = ts==null? agora() : ts;
   const b = p.base, r = retratoOperacional(), it = [];
   const add = (peso,t,sit,ref) => it.push({peso,t,s:sit,r:ref});
   if((O.meta.fase||"") !== b.fase)
@@ -313,25 +325,43 @@ function divergencia(p){
     add(10,"Plano de comunicações alterado","canais gerais do TO diferentes dos que constam do PEA","Despacho n.º 4067/2024, art. 32.º, al. d)");
   if((ptObj().des||"") !== b.pt) add(5,"Ponto de trânsito alterado", ptObj().des||"removido","DON n.º 2, ponto 7.d.(5)");
   const score = it.reduce((t,x)=>t+x.peso,0);
-  const restante = p.validoTs? p.validoTs - Date.now() : null;
+  const restante = p.validoTs? p.validoTs - ref : null;
   const expirado = restante !== null && restante <= 0;
   const verd = expirado? "caducado" : (score>=40? "rever" : (score>=20? "atencao":"vigor"));
   return {itens:it.sort((a,b2)=>b2.peso-a.peso), score, restante, expirado, verd,
     total: p.validoTs && p.ts? p.validoTs-p.ts : null};
 }
 const MS_EST = [{r:"por iniciar",c:""},{r:"em execução",c:"exec"},{r:"cumprida",c:"feita"}];
-/** Mostra o veredicto sobre o plano em vigor, e regista quando ele muda. */
+/**
+ * O veredicto do plano em vigor, registado se mudou. Devolve se mudou.
+ *
+ * Vivia dentro de `renderVigor`: a pintura escrevia `p.ultVerd` e empurrava para a fita, de
+ * 30 em 30 segundos pelo temporizador, **sem gravar** — a mudança ficava em memória até
+ * alguém carregar num botão, e uma aba fechada levava-a. Sai da pintura e entra em
+ * `persistir`, que é onde já se grava; a reavaliação periódica pergunta a `veredictoPendente`
+ * se há veredicto por registar e, se houver, grava em vez de só pintar.
+ */
+function registarVeredicto(){
+  const p = peaVigor(); if(!p) return false;
+  const D = divergencia(p); if(!D || p.ultVerd === D.verd) return false;
+  if(p.ultVerd) fita("PEA n.º "+p.n+" — "+VERD_ROT[D.verd].t.toLowerCase()+" (divergência "+D.score+")");
+  p.ultVerd = D.verd;
+  return true;
+}
+/** Há veredicto por registar? Pergunta sem escrever nada. */
+function veredictoPendente(){
+  const p = peaVigor(); if(!p) return false;
+  const D = divergencia(p);
+  return !!D && p.ultVerd !== D.verd;
+}
+/** Mostra o veredicto sobre o plano em vigor. Só mostra: registá-lo é de `registarVeredicto`. */
 function renderVigor(){
   const C = $("pea-vigor"); if(!C) return;
   const p = peaVigor();
   if(!p){ C.innerHTML = ""; return; }
   const D = divergencia(p);
   if(!D){ C.innerHTML = ""; return; }
-  if(p.ultVerd !== D.verd){
-    if(p.ultVerd) fita("PEA n.º "+p.n+" — "+VERD_ROT[D.verd].t.toLowerCase()+" (divergência "+D.score+")");
-    p.ultVerd = D.verd;
-  }
-  const emVigorH = p.ts? (Date.now()-p.ts)/3600000 : 0;
+  const emVigorH = p.ts? (agora()-p.ts)/3600000 : 0;
   const pct = (D.total && D.restante!==null)? Math.max(0, Math.min(100, 100*D.restante/D.total)) : 0;
   const ctrl = p.ctrl||[];
   const feitas = ctrl.filter(x=>x.estado===2).length;
