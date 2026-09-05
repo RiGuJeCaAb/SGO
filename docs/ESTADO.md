@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-09-04.
+Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0095**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0096**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,8 +15,8 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 133, das anteriores à convenção de nomes até à r0095 |
-| Módulos em `fonte/` | 72, em sete zonas, mais o molde |
+| Entregas em `app/` | 134, das anteriores à convenção de nomes até à r0096 |
+| Módulos em `fonte/` | 73, em sete zonas, mais o molde |
 | Testes | 911, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
@@ -733,6 +733,37 @@ teste, ou tolerar a ausência — caíram todas: a montagem passa a escrever `ho
 teste passa a conferir `home.html`, e o nome vive num sítio só, `SERVIDO` em
 `ferramentas/montar.mjs`. O `index.html` não volta: ressuscitar um ficheiro que o dono
 apagou de propósito seria desfazer-lhe a decisão em silêncio.
+
+## O estado da gravação, e uma aba a escrever de cada vez — r0096
+
+O único bloqueio que as duas auditorias de 4 de setembro nomeavam e que continuava: `persistir`
+nunca lançava e 70 das 81 chamadas não esperavam por ela, pelo que uma gravação falhada era
+indistinguível de uma boa; e duas abas na mesma ocorrência escreviam a mesma chave, a última a
+fechar ganhava, em silêncio.
+
+**Sondado antes de desenhar.** Num Chromium a partir de `file://`, com dois separadores: a
+origem é `file://` e é partilhada, o `BroadcastChannel` atravessa, o `navigator.locks`
+funciona, `ifAvailable` responde «ocupado», `steal` funciona e quem perde o trinco recebe
+`AbortError`. Sem isto medido, o desenho era uma suposição.
+
+**O que ficou.** `persistir` devolve `{ok, erro}` e alimenta `GRAVACAO`, um estado global que o
+cabeçalho pinta em permanência — não se foi às 70 chamadas, o resultado vê-se seja quem for que
+grave. Um trinco `peaapp:escrita` por aplicação: a segunda aba nasce em leitura, pelo mesmo
+`aplicarFechoDeEscrita` que o encerramento já usa, com faixa e botão «Assumir a escrita», que
+rouba o trinco; a aba que o perde passa a leitura e regista-o na fita. O canal avisa a que lê
+quando a outra grava, e ela repõe do arquivo. Sem `navigator.locks` a aba escreve como sempre.
+
+**Por aplicação e não por ocorrência**, e é deliberado: `peaapp:index` e `peaapp:ultima` são de
+todas, e duas escritoras em ocorrências diferentes pisavam-se lá na mesma.
+
+**Provado nas duas metades.** Doze testes em jsdom com um `navigator.locks` de mentira, e
+`ferramentas/prova-abas.mjs` num Chromium a sério, com as quatro imagens em `docs/qa/` (qa0033).
+O arnês do teste do roubo teve de ser corrigido: o `finally` apagava o trinco falso assim que a
+função devolvia a promessa, antes de ela correr.
+
+**O que a auditoria visual apanhou.** O indicador fez a fila do cabeçalho não caber a 768 px —
+36 px a mais no botão do tema. A partir de 900 px as ações passam para a linha seguinte, que é o
+que já acontecia a 640.
 
 ## Decisões tomadas
 

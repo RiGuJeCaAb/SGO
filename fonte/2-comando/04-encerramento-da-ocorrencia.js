@@ -163,10 +163,16 @@ const ENC_LIVRES = [
   { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" }
 ];
 
-/** Inerta tudo o que escreve nesta ocorrência, poupando o que está declarado acima. */
+/**
+ * Inerta tudo o que escreve nesta ocorrência, poupando o que está declarado acima.
+ *
+ * Fecha por duas razões, e é o mesmo fecho: o registo encerrado, e a aba em leitura porque
+ * outra está a escrever. Fazer um segundo mecanismo para a segunda razão era ter duas
+ * listas de exceções a desalinhar-se.
+ */
 function aplicarFechoDeEscrita(){
-  const fechada = encerrada();
-  document.documentElement.classList.toggle("encerrada", fechada);
+  const fechada = encerrada() || emLeitura();
+  document.documentElement.classList.toggle("encerrada", encerrada());
   const livres = ENC_LIVRES.map(x=>x.id);
   document.querySelectorAll(".card input,.card select,.card textarea,.card button")
     .forEach(el=>{

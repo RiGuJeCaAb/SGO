@@ -252,3 +252,24 @@ nenhum para preencher.
 Mostra também o alinhamento da coluna dos distintivos: o rótulo novo é o mais largo dos
 quatro e o mínimo da caixa subiu para o acompanhar. Sem isso a linha da pendência por
 verificar ficava com o texto uns pixels à direita das outras catorze.
+
+## qa0033 — duas abas em `file://`: uma escreve, a outra lê, e o trinco muda de mãos
+
+`CSREPCDouro_qa0033_202609050135_SegundaAbaEmLeituraTemaClaro_CLD.png`
+`CSREPCDouro_qa0033_202609050135_SegundaAbaEmLeituraTemaEscuro_CLD.png`
+`CSREPCDouro_qa0033_202609050135_AbaQuePerdeuAEscritaTemaClaro_CLD.png`
+`CSREPCDouro_qa0033_202609050135_AbaQuePerdeuAEscritaTemaEscuro_CLD.png`
+
+Tiradas por `ferramentas/prova-abas.mjs --qa`, num Chromium a sério, com dois separadores da
+mesma entrega abertos a partir de `file://` — que é como a aplicação se abre num posto.
+
+As duas primeiras mostram a segunda aba a nascer em leitura: "Só leitura" no cabeçalho, a
+faixa com o motivo e o botão «Assumir a escrita», e a ocorrência `2026-PROVA` já lá —
+gravada pela primeira aba e reposta nesta pelo canal entre abas, sem ninguém tocar. As duas
+últimas mostram a primeira aba depois de a segunda assumir a escrita: passou a leitura, e a
+faixa diz que foi outra aba que a assumiu.
+
+Antes da r0096 duas abas na mesma ocorrência escreviam a mesma chave e a última a fechar
+ganhava, em silêncio. A prova é o que `tests/escrita-por-uma-aba.test.mjs` não consegue
+provar com o `navigator.locks` de mentira do jsdom: que o Chromium partilha a origem entre
+abas `file://`, que o trinco atravessa, e que quem o perde fica a saber.

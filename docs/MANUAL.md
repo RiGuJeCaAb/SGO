@@ -725,6 +725,33 @@ o plano vale dez minutos é a informação útil; a hora inventada escondia-a.
 
 ---
 
+## Se gravou, e qual é a aba que grava
+
+No cabeçalho, ao lado da etiqueta da ocorrência, há um indicador permanente do estado da
+gravação: "Gravado" com a hora, "A gravar" enquanto há escritas em curso, **"NÃO GRAVADO"** com
+o motivo quando a última falhou, e "Só leitura" quando esta aba não escreve. A hora vai com o
+"Gravado" porque "gravado" sem hora não distingue há um segundo de há uma hora.
+
+Antes disto, uma gravação falhada era indistinguível de uma boa: a aplicação nunca parava por
+não conseguir gravar — e continua a não parar —, mas também não o dizia. Setenta chamadas em
+oitenta e uma não esperavam pelo resultado. Agora o resultado é global e vê-se sempre, seja
+quem for que grave.
+
+**Uma aba escreve; as outras leem.** Se a Estação já estiver aberta noutro separador ou
+noutra janela do mesmo computador, a segunda abre em leitura: os campos ficam inertes como no
+registo encerrado, o indicador diz "Só leitura", e uma faixa no topo explica porquê. A aba em
+leitura acompanha a outra — cada gravação da que escreve repõe a que lê — e pode a qualquer
+momento tomar o lugar dela com «Assumir a escrita». A que perde a escrita fica a saber pela
+mesma faixa, e a mudança fica na fita do tempo das duas.
+
+Antes disto, duas abas na mesma ocorrência escreviam a mesma chave e a última a fechar ganhava,
+em silêncio. O trinco é por aplicação e não por ocorrência: o índice do arquivo e a marca da
+última ocorrência aberta são de todas, e duas abas em ocorrências diferentes pisavam-se lá na
+mesma. Num navegador sem este mecanismo — abaixo do mínimo declarado — a aba assume a escrita
+como sempre.
+
+---
+
 ## Quando parte do ecrã não pinta
 
 No cimo da página pode aparecer uma faixa vermelha a dizer que parte do ecrã não foi

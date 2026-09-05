@@ -25,7 +25,7 @@ const navegador = {
   AbortController: 'readonly',
   localStorage: 'readonly',
   sessionStorage: 'readonly',
-  indexedDB: 'readonly',
+  BroadcastChannel: "readonly", indexedDB: 'readonly',
   setTimeout: 'readonly',
   clearTimeout: 'readonly',
   setInterval: 'readonly',
@@ -112,7 +112,7 @@ export default [
         // O código dentro de page.evaluate() corre no navegador, não em Node.
         window: 'readonly',
         document: 'readonly',
-        indexedDB: 'readonly',
+        BroadcastChannel: "readonly", indexedDB: 'readonly',
         structuredClone: 'readonly',
         Response: 'readonly',
       },

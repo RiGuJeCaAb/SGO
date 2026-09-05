@@ -831,6 +831,28 @@
     border-left:3px solid var(--fogo);border-radius:8px;background:rgba(224,104,92,.10);
     color:var(--fogo);font-size:12.5px;line-height:1.6}
   @media(max-width:1100px){.pint-q{margin:10px 12px 0}}
+  /* O indicador da gravação. Permanente, no cabeçalho, ao lado da etiqueta da ocorrência:
+     «gravado» sem hora não distingue há um segundo de há uma hora. Em largura reduzida
+     fica, ao contrário da etiqueta — saber se gravou pesa mais do que saber qual é. */
+  .grav{font-family:var(--mono);font-size:11.5px;letter-spacing:.3px;padding:7px 11px;border-radius:8px;
+    border:1px solid var(--line);background:var(--surf2);color:var(--tx2);white-space:nowrap;flex:none}
+  .grav.ok{color:var(--madeira);border-color:rgba(111,181,106,.55)}
+  .grav.ag{color:var(--tx2);border-style:dashed}
+  .grav.falhou{color:var(--fogo);border-color:var(--fogo);background:rgba(224,104,92,.12);font-weight:700;animation:pulsa 1.8s ease-in-out infinite}
+  .grav.leitura{color:var(--terra);border-color:var(--terra);background:rgba(224,184,79,.12);font-weight:700}
+  /* A faixa da aba em leitura. Fora do <main>, como a das pinturas, e pela mesma razão. */
+  .leitura-faixa{max-width:1460px;margin:10px auto 0;padding:9px 14px;border:1px solid var(--terra);
+    border-left:3px solid var(--terra);border-radius:8px;background:rgba(224,184,79,.10);
+    color:var(--tx);font-size:12.5px;line-height:1.6;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  @media(max-width:1100px){.leitura-faixa{margin:10px 12px 0}.grav{padding:5px 8px;font-size:10.5px;letter-spacing:0}}
+  /* Com o indicador da gravação, a fila do cabeçalho deixou de caber a 768 px: o botão do
+     tema saía 36 px para fora. A partir de 900 px as ações passam para a linha seguinte, que
+     é o que já acontecia a 640 — quebrar cedo é o que garante que nada transborda, e o
+     indicador é o que menos se pode esconder. */
+  @media(max-width:900px){
+    .hbar{flex-wrap:wrap}
+    .hacts{margin-left:0;width:100%;flex-wrap:wrap;justify-content:flex-start}
+  }
   footer{margin-top:36px;font-size:12px;color:var(--tx3);text-align:center;line-height:1.7}
   /* Sem color-mix, de propósito: é o carimbo que diz que o color-mix não está disponível. */
   .min-nav{margin-top:28px;border:1px solid var(--laranja);border-radius:10px;
@@ -1041,6 +1063,7 @@
     <h1 class="htit">Estação PEA<small>CSREPC Douro · SGO 4067/2024 · DON 2/2026</small></h1>
     <div class="hacts">
       <div class="occ-tag" id="occ-tag">sem ocorrência carregada</div>
+      <span class="grav" id="grav" role="status" aria-live="polite">Sem gravação ainda</span>
       <button class="sinal v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span>Avisos<span class="qt" id="sinal-qt">0</span></button>
       <button class="btn btn-b" id="b-save" title="Guardar todo o trabalho (Ctrl+S)">Guardar</button>
       <button class="btn btn-g" id="b-ajuda" aria-pressed="false" title="Mostrar a ajuda no ecrã">Ajuda</button>
@@ -1056,6 +1079,7 @@
   </nav>
 </header>
 <div class="pint-q" id="pint-q" style="display:none"></div>
+<div class="leitura-faixa" id="leitura-faixa" style="display:none"><span id="leitura-txt"></span> <button type="button" class="btn btn-o" id="leitura-assumir">Assumir a escrita</button></div>
 <div class="guia"><div class="guia-in" id="guia"><b>PRÓXIMO PASSO</b><span id="guia-txt">a carregar...</span><button class="btn btn-b" id="guia-ir" style="display:none">Ir</button></div></div>
 
 <main class="wrap">

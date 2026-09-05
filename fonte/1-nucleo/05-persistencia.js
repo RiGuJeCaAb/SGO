@@ -10,10 +10,25 @@ function chave(){ return "peaapp:occ:"+(O.meta.num||"sem-num"); }
  * num PCO, parar por não se conseguir gravar é pior do que continuar a saber-se que não
  * se gravou.
  *
+ * **Devolve se gravou**, e diz-o ao indicador do cabeçalho seja quem for que a chame. É a
+ * resposta às 70 chamadas que não esperam por ela: não se foi a cada uma — o estado da
+ * gravação é global e vê-se sempre, e quem quiser o resultado no sítio tem-no no retorno.
+ *
+ * Numa aba em leitura **não escreve nem lê o formulário**: os campos estão inertes, e o
+ * que lá estivesse por confirmar não é desta aba.
+ *
  * @param {boolean} [nota] mostrar a confirmação no ecrã
+ * @returns {Promise<{ok:boolean, erro:string}>}
  */
 async function persistir(nota){
+  if(emLeitura()){
+    const r = { ok:false, erro:"esta aba está em leitura" };
+    if(nota) aviso("msg-occ","err","Esta aba não grava: está em leitura. Assume a escrita na faixa do topo.");
+    return r;
+  }
   lerForm();
+  iniciarGravacao();
+  let resultado = { ok:false, erro:"" };
   try{
     /* Numa transação só. O estado ia numa chave e o índice noutra: uma falha entre as
        duas deixava o arquivo a apontar para uma ocorrência que não ficou gravada, ou uma
@@ -26,10 +41,17 @@ async function persistir(nota){
       pares.push(["peaapp:index", JSON.stringify(INDEX)]);
     }
     await ARMAZEM.setVarias(pares);
+    resultado = { ok:true, erro:"" };
     if(nota) aviso("msg-occ","ok","Ocorrência "+O.meta.num+" guardada.");
-  }catch(e){ if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+")."); }
+    avisarOutrasAbas(O.meta.num);
+  }catch(e){
+    resultado = { ok:false, erro:String((e && e.message) || e) };
+    if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+").");
+  }
+  registarGravacao(resultado);
   try{ await copiaSeDevida(); }catch(e){}
   pintarTudo();
+  return resultado;
 }
 /**
  * Repõe uma ocorrência do arquivo deste dispositivo.

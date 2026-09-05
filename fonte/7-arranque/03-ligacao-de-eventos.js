@@ -52,6 +52,10 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   /* Antes de ler o que quer que seja: passar ao IndexedDB, se este navegador o der, e
      trazer com ele o que estava guardado na camada anterior. */
   try{ await prepararArmazem(); }catch(e){}
+  /* Logo a seguir ao armazém e antes de tudo o que grava: se outra aba está a escrever,
+     esta nasce em leitura em vez de piscar de escrita para leitura — e nunca chega a
+     escrever por cima. */
+  try{ await arrancarEscritaPorUmaAba(); }catch(e){}
   try{ await diarioRetomar(); }catch(e){}
   try{ await carregarIndex(); }catch(e){} 
   try{ await carregarCanais(); }catch(e){}
