@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0105**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0106**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 143, das anteriores à convenção de nomes até à r0105 |
+| Entregas em `app/` | 144, das anteriores à convenção de nomes até à r0106 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
 | Testes | 1045, todos a passar |
 | Análise estática | sem problemas |

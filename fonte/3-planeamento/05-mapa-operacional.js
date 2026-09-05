@@ -1065,7 +1065,9 @@ function pintarAlvos(){
   const e = estObj();
   const antes = sel.value;
   sel.innerHTML = '<option value="">— clicar no mapa não marca nada —</option>'
-    + '<option value="occ">Ponto da ocorrência (PCO)</option>'
+    /* Sem «(PCO)»: PCO é o posto de comando operacional, e este alvo é o ponto da
+       ocorrência — a coordenada de `meta.lat`/`meta.lon`. Apontado pelo dono na r0105. */
+    + '<option value="occ">Ponto da ocorrência</option>'
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
