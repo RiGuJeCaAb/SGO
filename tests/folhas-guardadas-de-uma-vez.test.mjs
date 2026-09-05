@@ -8,8 +8,10 @@
 // tudo ou nada.
 //
 // O jsdom não tem IndexedDB: substitui-se `_idb` por um que conta transações e regista o
-// que cada uma faz à loja. O que se exige é uma transação, com o `clear` e os `put` lá
-// dentro, por esta ordem.
+// que cada uma faz à loja. O que se exige é uma transação, com o `getAll`, o `clear` e os
+// `put` lá dentro, por esta ordem — desde a r0103 a loja guarda as folhas de todas as
+// ocorrências, e a gravação lê as das outras para as escrever de volta (ramo #001: a
+// decisão «guardar e repor» estava tomada à entrada e desfeita à saída).
 
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,9 +26,16 @@ const av = (e) => avaliar(janela, e);
 test('guardarFolhas faz tudo numa transação: clear e depois os put, pela ordem das folhas', semAplicacao, async () => {
   av(`
     window.__idb = _idb; window.__tx = [];
+    /* O getAll de mentira responde no microtask seguinte, como o verdadeiro responde no
+       onsuccess, e traz o que a base tivesse: uma folha de outra ocorrência e uma velha desta. */
+    window.__naBase = [
+      { id:"fZ", nome:"de outra", ocorrencia:"oOUTRA", num:"" },
+      { id:"fVelha", nome:"desta, de antes", ocorrencia:O.meta.id, num:"" },
+    ];
     _idb = async (loja, modo, fn) => {
       const ops = [];
-      fn({ clear(){ ops.push("clear"); }, put(x){ ops.push("put:" + x.id); }, getAll(){ ops.push("getAll"); } });
+      fn({ clear(){ ops.push("clear"); }, put(x){ ops.push("put:" + x.id); },
+           getAll(){ ops.push("getAll"); const r = { result: window.__naBase }; queueMicrotask(()=>{ if(r.onsuccess) r.onsuccess(); }); return r; } });
       window.__tx.push({ loja, modo, ops });
     };
     FOLHAS.length = 0;
@@ -34,33 +43,40 @@ test('guardarFolhas faz tudo numa transação: clear e depois os put, pela ordem
     FOLHAS.push({ id:"f2", nome:"B", largura:10, altura:10, mundo:{A:1,B:0,C:0,D:0,E:-1,F:0}, grelha:"pttm06", proveniencia:"p", pontos:0, controlos:[] });
   `);
   await av('guardarFolhas()');
+  await new Promise((r) => setTimeout(r, 0));
   const tx = av('JSON.stringify(window.__tx)');
-  av('_idb = window.__idb; delete window.__idb; delete window.__tx; FOLHAS.length = 0;');
-  const T = JSON.parse(tx);
+  av('_idb = window.__idb; delete window.__idb; delete window.__tx; delete window.__naBase; FOLHAS.length = 0;');
+  /* Só as de escrita: o `carregarFolhas` do arranque, que é de leitura, pode calhar aqui. */
+  const T = JSON.parse(tx).filter((t) => t.modo === 'readwrite');
   assert.equal(T.length, 1, 'uma transação, e não uma por folha mais uma para limpar: ' + tx);
   assert.equal(T[0].loja, 'folhas');
   assert.equal(T[0].modo, 'readwrite');
-  assert.deepEqual(T[0].ops.join(','), 'clear,put:f1,put:f2', 'o clear primeiro e os put a seguir, na mesma transação');
+  assert.deepEqual(T[0].ops.join(','), 'getAll,clear,put:fZ,put:f1,put:f2',
+    'lê-se a loja, limpa-se, voltam as das outras ocorrências e entram as desta; a velha desta sai');
 });
 
 test('sem folhas, a transação limpa a loja e não escreve nada', semAplicacao, async () => {
   av(`window.__idb = _idb; window.__tx = [];
-      _idb = async (loja, modo, fn) => { const ops = []; fn({ clear(){ ops.push("clear"); }, put(x){ ops.push("put:" + x.id); } }); window.__tx.push(ops); };
+      _idb = async (loja, modo, fn) => { const ops = []; fn({ clear(){ ops.push("clear"); }, put(x){ ops.push("put:" + x.id); },
+        getAll(){ ops.push("getAll"); const r = { result: [] }; queueMicrotask(()=>{ if(r.onsuccess) r.onsuccess(); }); return r; } }); window.__tx.push(ops); };
       FOLHAS.length = 0;`);
   await av('guardarFolhas()');
+  await new Promise((r) => setTimeout(r, 0));
   const tx = av('JSON.stringify(window.__tx)');
   av('_idb = window.__idb; delete window.__idb; delete window.__tx;');
-  assert.equal(tx, '[["clear"]]');
+  assert.equal(tx, '[["getAll","clear"]]');
 });
 
 test('o que se grava é a colocação e não a imagem', semAplicacao, async () => {
   // Uma folha com `url` (a blob: da imagem) grava-se sem ela: a imagem pesa megabytes e não
   // cabe na loja, e volta a escolher-se ao abrir.
   av(`window.__idb = _idb; window.__gravado = null;
-      _idb = async (loja, modo, fn) => { fn({ clear(){}, put(x){ window.__gravado = x; } }); };
+      _idb = async (loja, modo, fn) => { fn({ clear(){}, put(x){ window.__gravado = x; },
+        getAll(){ const r = { result: [] }; queueMicrotask(()=>{ if(r.onsuccess) r.onsuccess(); }); return r; } }); };
       FOLHAS.length = 0;
       FOLHAS.push({ id:"f9", nome:"C", largura:5, altura:5, mundo:{A:1,B:0,C:0,D:0,E:-1,F:0}, grelha:"pttm06", proveniencia:"p", pontos:0, controlos:[], url:"blob:x", paraMundo(){}, dentro(){} });`);
   await av('guardarFolhas()');
+  await new Promise((r) => setTimeout(r, 0));
   const g = av('JSON.stringify(Object.keys(window.__gravado).sort())');
   av('_idb = window.__idb; delete window.__idb; delete window.__gravado; FOLHAS.length = 0;');
   assert.equal(JSON.parse(g).includes('url'), false, 'a blob: URL não pode ir para a loja');

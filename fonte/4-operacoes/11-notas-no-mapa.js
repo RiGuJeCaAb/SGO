@@ -23,12 +23,20 @@
  */
 const TIPOS_NOTA = [
   { k:"aviso",  n:"Aviso ou restrição", d:"Interdições, perigos, o que limita quem lá vai", cor:"#B00000", alerta:true },
+  /* O E e o S do LACES. Caíam em «manobra», sem alerta: uma zona de segurança no caminho
+     da frente passava em silêncio na leitura da evolução — e uma zona de segurança no
+     caminho da frente deixa de ser zona de segurança. O comandante de setor reconhece
+     percursos de fuga e zonas de segurança (art. 10.º, n.º 5, al. a) do SGO), e a lista das
+     situações de perigo do Anexo 3 da DON n.º 2 inclui, no ponto 17, o terreno tornar
+     difícil a fuga para elas. Achado do ramo #006 (d02); os três títulos de gravidade que
+     propõe esperam decisão do dono. */
+  { k:"seguranca", n:"Percurso de fuga ou zona de segurança", d:"O E e o S do LACES: entra na leitura quando a frente lá chega", cor:"#7A4E00", alerta:true },
   { k:"manobra", n:"Manobra",           d:"Entradas, saídas, itinerários, o que fazer ali",  cor:"#1F4E79", alerta:false },
   { k:"obs",    n:"Observação",         d:"O estado do terreno e o que já se fez",           cor:"#5A5A5A", alerta:false }
 ];
 
 /** A definição de uma espécie de nota. O que não se reconhece cai em «observação». */
-function defNota(k){ return TIPOS_NOTA.find(t=>t.k === k) || TIPOS_NOTA[2]; }
+function defNota(k){ return TIPOS_NOTA.find(t=>t.k === k) || TIPOS_NOTA.find(t=>t.k === "obs"); }
 
 /** A lista de notas do teatro, criada à primeira vez que faz falta. */
 function notasLista(){
@@ -55,7 +63,7 @@ function escreverNota(tipo, lat, lon, txt){
   if(!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok:false, motivo:"Coordenada inválida." };
   const d = defNota(tipo);
   const nota = {
-    id:"nt"+agora().toString(36),
+    id:novoIdentificador("nt"),
     tipo:d.k,
     txt:t.slice(0, NOTA_MAX),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6),

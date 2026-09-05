@@ -120,14 +120,23 @@ function analisarCSV(log=true){
     /* O CSV é editável antes de analisar, e isso é para se poder corrigir um erro de
        importação. Mas uma série alterada à mão não é a que a fonte deu, e a análise que
        sai dela também não: fica dito, aqui e na linha da proveniência. */
+    /* Este `catch` era vazio, e era o mais grave dos 103 que o #005 classificou: se a
+       conferência lançasse, `M.mexido` não ficava marcado, a linha não ia para a fita, e a
+       análise saía com a proveniência de uma série que já não era a que a fonte deu. Os
+       outros perdiam comodidade; este perdia uma afirmação de proveniência. Agora a falha
+       da conferência é ela própria dita — e a pintura da idade tem o seu `try`, para uma
+       repintura falhada não passar por conferência falhada. */
     try{
       const M = meteoObj();
       if(M.sha && !M.mexido && sha256(O.csv) !== M.sha){
         M.mexido = true;
         fita("Série meteorológica alterada à mão depois de obtida ("+M.fonte+", "+M.g+")");
       }
-      pintarMeteoIdade();
-    }catch(e){}
+    }catch(e){
+      fita("Não foi possível conferir se a série meteorológica foi alterada depois de obtida ("
+        + String((e && e.message) || e).slice(0, 60) + "): a proveniência desta análise não está conferida.");
+    }
+    try{ pintarMeteoIdade(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ }
     pintarAnalise(); $("msg-csv").style.display="none";
     if(log){ fita("Meteograma analisado ("+SERIE.length+" h; janela "+(ANALISE.jan?hh(ANALISE.jan.i.h)+"–"+hh(ANALISE.jan.f.h+1):"inexistente")+")"); persistir(false); }
   }catch(e){ $("msg-csv").className="msg err"; $("msg-csv").textContent="Não foi possível analisar: "+e; $("msg-csv").style.display="block"; }

@@ -429,12 +429,31 @@ let O = novoEstado();
 let SERIE = [], ANALISE = null;
 
 /**
- * Um identificador interno para uma ocorrência nova: o instante em base 36 e seis
- * caracteres ao acaso. Não é o número da ocorrência — esse é o rótulo do SADO, escrito à
- * mão — e não se mostra: é a chave do arquivo e do canal entre abas, e não muda quando o
- * número é corrigido ou chega tarde.
+ * Um identificador novo: um prefixo e doze caracteres ao acaso, de `crypto.getRandomValues`.
+ *
+ * **Não do relógio.** O ramo #001 mediu na r0093: cinquenta gerações de
+ * o identificador da folha a sair do instante em base 36, cinquenta vezes num ciclo, deu um só — e a loja das
+ * folhas tem `keyPath:"id"`, pelo que a segunda escrevia por cima da primeira e retirar uma
+ * retirava as duas. O instante já vive no GDH, que é onde deve estar; o identificador só
+ * tem de ser único. Não `crypto.randomUUID`: exige contexto seguro, e `file://` é onde esta
+ * aplicação vive — se conta como origem fidedigna é medição do #005, e isto não depende
+ * da resposta. Sem `crypto` — não há navegador do mínimo declarado sem ele — recua para
+ * `Math.random`, que chega para não colidir e não chega para mais nada.
  */
-function novoIdOcorrencia(){ return "o"+agora().toString(36)+Math.random().toString(36).slice(2,8); }
+function novoIdentificador(prefixo){
+  const alf = "0123456789abcdefghijklmnopqrstuvwxyz";
+  let bytes;
+  try{ bytes = new Uint8Array(12); crypto.getRandomValues(bytes); }
+  catch(e){ bytes = Array.from({ length:12 }, ()=>Math.floor(Math.random()*256)); }
+  let s = ""; for(const b of bytes) s += alf[b % 36];
+  return String(prefixo || "") + s;
+}
+/**
+ * O identificador interno de uma ocorrência nova. Não é o número da ocorrência — esse é o
+ * rótulo do SADO, escrito à mão — e não se mostra: é a chave do arquivo, do canal entre
+ * abas e das folhas de carta, e não muda quando o número é corrigido ou chega tarde.
+ */
+function novoIdOcorrencia(){ return novoIdentificador("o"); }
 
 /**
  * O estado de uma ocorrência por começar.

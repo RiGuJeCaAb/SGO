@@ -153,3 +153,47 @@ perigosa deste bloco e é silenciosa por natureza; e a confirmação de que a al
 O ramo registou também um erro seu, no mesmo espírito: a primeira versão do guarda de
 contrato engolia a despromoção — reportava-a como forma quebrada em vez de como o achado que
 o guião existe para apanhar. Estava a comer precisamente o caso que devia deixar passar.
+
+## `001_CSREPCDouro_202609042010_t0023_FolhaOcorrencia_CLD.js`
+
+O guião do ramo #001 contra a r0093: a folha de carta pertence a uma ocorrência, a
+colocação viaja no pacote e a imagem não, e o identificador da folha não sai do relógio.
+Onze vermelhos declarados no cabeçalho, e três verdes que o próprio ramo apanhou a não
+certificar nada — `undefined === undefined`. Integrado na r0103 com os nomes desta aplicação
+(`meta.id` e não `uid`; `ocorrencia` na folha), em `tests/folhas-por-ocorrencia.test.mjs`.
+O nome ganhou o número de série que o cabeçalho lhe dá, `t0023`, porque o ficheiro chegou
+sem ele.
+
+## `004_CSREPCDouro_202608312030_t0018_FolhaCalibrada_CLD.js`
+
+O t0018 do ramo #004, na quarta remessa, sem alterações: a folha calibrada, dos dois pontos
+de controlo à colocação. É o original de que o `t0018c` é a religação.
+
+## `004_CSREPCDouro_202609021900_t0018c_FolhaMercatorAfim_CLD.js`
+
+O t0018 religado à r0093: 26 verdes, 1 vermelho. O `mpp` do Web Mercator corrigido —
+10,005 onde o terreno vale 10,000, contra os 13,303 de antes —, com as asserções reescritas
+para defender a correção contra regressão, incluindo o `mppProj` guardado à parte e a
+latitude de referência declarada. O vermelho que ficou é a recusa silenciosa da folha em
+grelha incompatível, que a r0099 passou a anunciar na fita.
+
+## `004_CSREPCDouro_202609041930_t0021_ChaveMosaicos_CLD.js`
+
+A chave dos mosaicos leva a carta: demonstrado com bytes num Chromium — serviço A declarado,
+serviço B por cima, a carta declarada é a B e o mosaico servido é o do A. Corrigido na r0099
+para o serviço em uso e na r0103 para a pasta pré-descarregada, cuja chave passou a levar a
+grelha; as chaves antigas apagam-se no arranque, não se adotam. Depende de
+`@sparticuz/chromium` e `playwright-core`, que não estão nas dependências do projeto: não se
+correu aqui.
+
+## `005_CSREPCDouro_202609051034_q005_arranque_CLD.js`
+
+A sonda de arranque do ramo #005: Chromium limpo, `file://`, perfil vazio, sem opções de
+linha de comando. É a forma de `ferramentas/prova-arranque.mjs`, que a versão definitiva —
+com a lista de símbolos tirada de `fonte/` — substitui e que corre na CI desde a r0103.
+
+## `005_CSREPCDouro_202609051034_q005_catch_CLD.mjs`
+
+A contagem e a classificação dos 197 `catch` da r0093, 103 vazios: 3 de limpeza, 91 de
+isolamento de pintura, 9 de perda de facto — e o do meteograma, que perdia uma afirmação de
+proveniência, corrigido na r0103.

@@ -131,7 +131,7 @@ function retratoDoFogo(){
       /* As folhas de carta calibradas. Cada uma diz de onde veio e quantos pontos a
          fixaram: uma posição lida por cima de uma folha vale o que valer a colocação
          dessa folha, e quem lê o plano tem de o poder aferir. */
-      folhas: (typeof FOLHAS !== "undefined"? FOLHAS : []).map(f=>({
+      folhas: (typeof folhasDaOcorrencia === "function"? folhasDaOcorrencia() : []).map(f=>({
         nome:f.nome, grelha:f.grelha, proveniencia:f.proveniencia, pontos:f.pontos,
         fora: !!f.foraDoEnvelope }))
     },
@@ -159,7 +159,7 @@ function resumoDoFogo(f){
   if(f.lim && f.r && f.w) p.push("Comportamento: " + Math.round(f.r.v) + " m/h ("
     + f.r.origem + ") sobre " + f.w.v + " t/ha dão " + Math.round(f.lim.i).toLocaleString("pt-PT")
     + " kW/m de intensidade frontal e chama de " + fmtPT(f.lim.chama, 1)
-    + " m (Byram 1959). " + f.lim.classe.t);
+    + " m (Byram 1959, por Fernandes 2003). " + f.lim.classe.t);
   else p.push("Intensidade da frente por determinar: falta "
     + (!f.r? "a velocidade de propagação" : "") + (!f.r && !f.w? " e " : "")
     + (!f.w? "a carga consumida" : "") + ".");

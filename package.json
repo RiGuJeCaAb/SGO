@@ -20,7 +20,11 @@
     "documentar": "node ferramentas/documentar.mjs",
     "manual": "node ferramentas/manual.mjs",
     "arrumado": "node ferramentas/arrumado.mjs",
-    "lint-ferramentas": "eslint ferramentas tests eslint.config.mjs"
+    "lint-ferramentas": "eslint ferramentas tests eslint.config.mjs",
+    "prova-arranque": "node ferramentas/prova-arranque.mjs",
+    "prova-abas": "node ferramentas/prova-abas.mjs",
+    "prova-idb": "node ferramentas/prova-idb.mjs",
+    "navegador": "npm run prova-arranque && npm run prova-idb && npm run prova-abas && npm run visual"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

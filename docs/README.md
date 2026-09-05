@@ -108,3 +108,18 @@ procurar depois a fonte que o justifique é como nascem os números sem origem.
 de convenção ou que não esteja nomeado no documento que cataloga a pasta. O que a ferramenta
 não sabe é se a linha diz a verdade — só garante que existe uma, que é o mínimo para que
 alguém possa dar pela mentira.
+
+## Documentos dos ramos
+
+Os documentos que os ramos de conversação entregam, com o número do ramo à cabeça. São
+instantâneos contra a revisão que dizem; o que deles entrou na aplicação está no `ESTADO.md`.
+
+| Ficheiro | O que é |
+|---|---|
+| `006_CSREPCDouro_202609021424_d01_InventarioObrigacoesCodificaveis_CLD.md` | O inventário das obrigações codificáveis do #006 |
+| `003_CSREPCDouro_202609050900_d0007_DistanciasEByram_r0093_CLD.md` | Qual distância para cada uso, e a citação de Byram: a constante escondida no `/2`, a altura contra o comprimento da chama, o que está por confirmar na fonte. Integrado na r0103 |
+| `004_CSREPCDouro_202609041930_d_ChaveMosaicos_CLD.md` | A chave dos mosaicos sem a carta, demonstrada com bytes, e as três consequências da correção. Integrado na r0099 e na r0103 |
+| `005_CSREPCDouro_202609051034_d_MedicoesCatchCI_CLD.md` | As cinco medições de memória das folhas, os 103 `catch` vazios classificados por consequência, e o trabalho de CI com navegador. Integrado na r0103 |
+| `006_CSREPCDouro_202609051107_d02_GravidadesDoSinalEInstantesDePrazo_CLD.md` | As palavras da norma para as gravidades do sinal, e os seis instantes de prazo com o seu t=0. Cinco decisões para o dono no fim |
+| `CSREPCDouro_202609051745_RelacaoDeMeiosPrePreenchida_CLD.png` | Uma captura do dono com uma ideia por pensar: uma relação de meios pré-preenchida. Não é pedido ainda; fica para se voltar a olhar |
+| `CSREPCDouro_202609051745_PrevisualizacaoDoRepositorio_CLD.png` | O modelo da imagem de pré-visualização do repositório no GitHub, tal como chegou à entrada |

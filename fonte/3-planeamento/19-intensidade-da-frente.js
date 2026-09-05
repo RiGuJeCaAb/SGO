@@ -17,11 +17,24 @@
    decisão que já se tinha tomado para a razão declive/vento, e pela mesma razão. */
 
 /**
+ * O poder calorífico do combustível, em kJ/kg, que a intensidade de Byram consome.
+ *
+ * **É escolha de Fernandes (2003), não de Byram (1959).** Byram define `I = H·w·R` e não
+ * fixa `H`; a forma reduzida `I = R·w/2` que Fernandes publica é essa definição com
+ * H = 18 000 kJ/kg e as unidades convertidas — `18 000 / 36 000 = 1/2`. Até à r0102 o `2`
+ * era o único sítio onde o número existia: sem nome, sem ficha, sem aparecer no PEA, e
+ * atribuído a Byram por arrasto. O valor clássico para combustíveis florestais é
+ * 18 700 kJ/kg, que daria mais 3,9 %. Fica o de Fernandes, porque é a fonte que se leu, e
+ * fica com nome para poder ser substituído e impresso. Achado do ramo #003 (d0007).
+ */
+const H_COMBUSTAO = 18000;
+
+/**
  * Intensidade da frente de chamas, em kW/m — a intensidade de Byram.
  *
- * `I = R·w / 2`, com R em metros por hora e w em toneladas por hectare. A forma reduzida é
- * a que Fernandes (2003) publica; sai da definição de Byram (1959), `I = h·w·R`, com poder
- * calorífico de 18 000 kJ/kg e as unidades convertidas.
+ * `I = H·w·R`, definição de Byram (1959) lida em Fernandes (2003), com `H` em kJ/kg, `w`
+ * convertido de t/ha para kg/m² (÷10) e `R` de m/h para m/s (÷3600): `I = H·w·R / 36 000`.
+ * Com `H_COMBUSTAO` a 18 000 dá o `R·w/2` de Fernandes, e agora vê-se porquê.
  *
  * @param {number} rMh velocidade de propagação, m/h
  * @param {number} wTha carga de combustível consumida na frente, t/ha
@@ -32,15 +45,18 @@ function intensidadeByram(rMh, wTha){
      era `NaN` — a aplicação dizia-lhe que faltava o que ele tinha acabado de escrever. */
   const r = numPT(rMh), w = numPT(wTha);
   if(r === null || w === null || r <= 0 || w <= 0) return null;
-  return r * w / 2;
+  return H_COMBUSTAO * w * r / 36000;
 }
 
 /**
  * Comprimento da chama, em metros, a partir da intensidade.
  *
  * `I = 300·L²`, aproximação geral publicada por Fernandes (2003). Confere com a outra
- * formulação corrente, `I = 258·L^2,17`, dentro de poucos por cento na gama que interessa —
- * as duas dão cerca de 3,6 m para os 4 000 kW/m do limite de ataque direto.
+ * formulação corrente, `I = 258·L^2,17`, na gama do limite de ataque direto — as duas dão
+ * cerca de 3,6 m para os 4 000 kW/m (3,65 contra 3,54). **Não em toda a gama:** cruzam-se
+ * por volta dos 1 700 kW/m e divergem para os dois lados, 7 % aos 350 kW/m onde acaba a
+ * classe 1, 12 % aos 100 kW/m. É na gama baixa que se decide se o ataque manual é viável,
+ * e aí esta aproximação dá a chama mais curta do que a outra. Conferido pelo #003 (d0007).
  */
 function comprimentoDaChama(kWm){
   const i = numPT(kWm);
@@ -73,30 +89,54 @@ function classeDaIntensidade(kWm){
 /**
  * O que a intensidade decide na manobra.
  *
- * Cada número sai com a sua fonte primária, e todas vêm por Fernandes (2003):
- * a distância de segurança de Butler e Cohen (1998), a largura de contenção de Byram (1959)
+ * Cada número sai com a sua fonte primária, e todas vêm por Fernandes (2003): a distância
+ * de segurança de Butler e Cohen (1998), a largura de contenção atribuída por Fernandes a Byram (1959),
  * e o limite de ataque direto de Alexander (2000).
  *
- * @returns {null|{i:number, chama:number, classe:any, seguranca:number, contencao:number, direto:boolean}}
+ * **As duas distâncias não consomem a mesma grandeza** (ramo #003, d0007). A largura de
+ * contenção pede o comprimento da chama, e é isso que recebe. A distância de segurança pede
+ * a **altura**, e a aplicação só tem o comprimento: toma a altura igual ao comprimento, que
+ * é a chama vertical, e diz-o em cada saída. Com vento ou declive a chama inclina e a
+ * altura é menor — a substituição ganha margem —, mas o fator 4 de Butler e Cohen vem de um
+ * modelo de radiação apenas, e a revisão de Butler (2014), que não se tem, trata das
+ * condições em que esse fator é insuficiente: vento, declive, convecção. Duas incertezas
+ * que se cruzam não são uma margem de segurança, e por isso a margem não se declara
+ * disponível. A grandeza sai com nome, `alturaChama`, para que ninguém a confunda.
+ *
+ * @returns {null|{i:number, chama:number, alturaChama:number, classe:any, seguranca:number, contencao:number, direto:boolean}}
  */
 function limitesDeManobra(rMh, wTha){
   const i = intensidadeByram(rMh, wTha);
   if(i === null) return null;
   const chama = comprimentoDaChama(i);
+  /* A altura tomada igual ao comprimento: chama vertical, que é o que se assume sem a
+     inclinação. É uma escolha declarada, e é a que a distância de segurança consome. */
+  const alturaChama = chama;
   return {
-    i, chama,
+    i, chama, alturaChama,
     classe: classeDaIntensidade(i),
-    /* Quatro vezes a **altura** da chama. Em terreno plano e sem vento a altura é o
-       comprimento; com vento a chama inclina-se e a altura é menor, pelo que usar o
-       comprimento é o lado seguro do erro. */
-    seguranca: Math.ceil(4 * chama),
+    /* Quatro vezes a altura da chama — Butler e Cohen (1998), por Fernandes (2003). Ao
+       metro superior, sempre. */
+    seguranca: Math.ceil(4 * alturaChama),
     /* Uma vez e meia o comprimento da chama, assumindo que não há projeção de faúlhas com
-       capacidade de ignição — condição que Byram (1959) põe e que se repete aqui porque é
-       ela que falha primeiro num incêndio de verão no Douro. */
+       capacidade de ignição. A regra e a condição são atribuídas a Byram (1959) por Fernandes
+       (2003); **estão por confirmar na fonte**, que não se leu — uma regra de largura de linha é o
+       tipo de número que entra pela literatura operacional e é retroatribuído à fonte
+       teórica. Repete-se aqui porque é a condição que falha primeiro num incêndio de verão
+       no Douro. */
     contencao: Math.ceil(1.5 * chama * 10) / 10,
     direto: i < LIMITE_ATAQUE_DIRETO
   };
 }
+
+/**
+ * A frase que acompanha toda a distância de segurança impressa: é um valor teórico de
+ * referência e não substitui o reconhecimento no local. A DON n.º 2, Anexo 3, situação n.º 3,
+ * identifica como situação de perigo a ausência de zonas de segurança e caminhos de fuga
+ * identificados; nenhum número deste módulo dispensa isso, e o impresso tem de o dizer
+ * (regra SEG-3 do ramo #003).
+ */
+const AVISO_SEGURANCA = "Valor teórico de referência: não substitui o reconhecimento no local nem a identificação de zonas de segurança e caminhos de fuga (DON n.º 2, Anexo 3, situação n.º 3).";
 
 /**
  * A leitura escrita da intensidade, ou o que falta para a haver.
@@ -125,14 +165,15 @@ function leituraDaIntensidade(){
   const p = [];
   p.push("Com " + f.r + " m/h e " + f.w + " t/ha, a intensidade da frente é de "
     + Math.round(L.i).toLocaleString("pt-PT") + " kW/m e a chama mede cerca de "
-    + fmtPT(L.chama, 1) + " m (Byram 1959, via Fernandes 2003).");
+    + fmtPT(L.chama, 1) + " m (Byram 1959, por Fernandes 2003; poder calorífico de " + H_COMBUSTAO.toLocaleString("pt-PT") + " kJ/kg, escolha de Fernandes).");
   p.push(L.classe.t);
   p.push(L.direto
     ? "Abaixo dos 4 000 kW/m: o ataque direto à cabeça é admissível (Alexander 2000)."
     : "**Acima dos 4 000 kW/m: atacar diretamente a cabeça é perigoso e inconsequente** (Alexander 2000). O ataque à cabeça faz-se por meios aéreos ou indiretamente.");
-  p.push("Ninguém a menos de " + L.seguranca + " m da frente — quatro vezes a altura da chama, para uma tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998). "
-    + "Uma linha de contenção precisa de pelo menos " + String(L.contencao).replace(".", ",")
-    + " m de largura, e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).");
+  p.push("Ninguém a menos de " + L.seguranca + " m da frente — quatro vezes a altura da chama, tomada igual ao comprimento por se desconhecer a inclinação, para uma tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998, por Fernandes 2003). "
+    + AVISO_SEGURANCA + " "
+    + "Uma linha de contenção precisa de pelo menos " + fmtPT(L.contencao, 1)
+    + " m de largura, e só se não houver projeção de faúlhas com capacidade de ignição (regra atribuída a Byram 1959 por Fernandes 2003, por confirmar na fonte).");
   return p.join(" ");
 }
 

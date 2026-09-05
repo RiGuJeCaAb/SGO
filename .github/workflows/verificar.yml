@@ -27,6 +27,34 @@ jobs:
       - name: Verificação completa (npm run tudo)
         run: npm run tudo
 
+  # O que o jsdom não vê por construção: a ordem de execução dos módulos no artefacto
+  # montado, o IndexedDB a sério, a partilha de origem entre abas em `file://`, e o
+  # transbordo nos dois temas. Nenhum dos nove portões abre um navegador, e o `npm ci` não
+  # instala o binário do Chromium — só o pacote. Achado do ramo #005 (q005): as três provas
+  # existiam e estavam todas fora do fluxo. Corre depois dos nove, sobre a entrega que está
+  # no repositório — não se remonta aqui, porque `montagem.test` já prova que ela é a fonte.
+  navegador:
+    needs: verificar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Sem este passo as provas falham por ausência de Chromium, e não pelo que iam provar.
+      - name: Instalar o Chromium do playwright
+        run: npx playwright install --with-deps chromium
+
+      # Arranque a partir de `file://` com perfil vazio, a base num Chromium a sério, as
+      # duas abas, e a auditoria visual nos dois temas e em quatro larguras.
+      - name: Provas com navegador (npm run navegador)
+        run: npm run navegador
+
   # A cópia servida. Corre só em push ao `main` e só depois dos nove portões: o que se
   # serve nunca é uma revisão que a verificação recusou. Leva o `home.html` e mais nada —
   # as entregas de `app/` e os PDF de `docs/fontes/` pesam centenas de megabytes e não são

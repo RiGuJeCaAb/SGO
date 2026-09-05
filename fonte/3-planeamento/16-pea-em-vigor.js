@@ -475,7 +475,7 @@ function detDecisao(novas, anterior){
         fundamento:`Passar de ${F.perfil.salto.deRef} % para ${F.perfil.salto.para} % multiplica a componente de declive por cerca de ${String(F.perfil.salto.k).replace(".", ",")}. A razão entre declives é independente do modelo de combustível, pelo que o salto é afirmável mesmo sem ele.`},
       (F.lim && F.linhas.some(l=>l.estreita))&&{id:"PL", ch:"LINHA-ESTREITA",
         texto:`Alargar as linhas de contenção com menos de ${String(F.lim.contencao).replace(".", ",")} m de largura útil antes de as considerar ancoragem: ${F.linhas.filter(l=>l.estreita).map(l=>(l.setor? "setor "+l.setor+", ":"")+String(l.larguraM).replace(".", ",")+" m").join("; ")}.`,
-        fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${fmtPT(F.lim.chama, 1)} m), e só se não houver projeção de faúlhas com capacidade de ignição (Byram 1959).`},
+        fundamento:`Uma linha de contenção precisa de pelo menos uma vez e meia o comprimento da chama (${fmtPT(F.lim.chama, 1)} m), e só se não houver projeção de faúlhas com capacidade de ignição (regra atribuída a Byram 1959 por Fernandes 2003, por confirmar na fonte).`},
       (F.linhas.some(l=>l.semLargura))&&{id:"PW", ch:"LINHA-SEM-LARGURA",
         texto:`Declarar a largura útil das linhas já traçadas sem dimensão indicada${F.linhas.filter(l=>l.semLargura).some(l=>l.setor)? " ("+F.linhas.filter(l=>l.semLargura&&l.setor).map(l=>"setor "+l.setor).join(", ")+")":""}: sem largura não é possível aferir se servem de ancoragem.`,
         fundamento:"Linhas traçadas no teatro sem largura útil registada; a largura decide se a linha suporta a frente ou se apenas a atrasa."},
@@ -551,7 +551,7 @@ function detDecisao(novas, anterior){
     seguranca:["Protocolo LACES e EPI florestal obrigatórios em todos os setores.",
       /* A distância deixa de ser princípio e passa a ser número. É a diferença entre uma
          medida que se lê e uma que se cumpre. */
-      ...(F.lim? [`Distância mínima à frente de chamas: ${F.lim.seguranca} m — quatro vezes a altura da chama, para a tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998).`] : []),
+      ...(F.lim? [`Distância mínima à frente de chamas: ${F.lim.seguranca} m — quatro vezes a altura da chama, tomada igual ao comprimento por se desconhecer a inclinação, para a tolerância de 7 kW/m² de radiação incidente (Butler e Cohen 1998, por Fernandes 2003). ${AVISO_SEGURANCA}`] : []),
       ...(F.lim && !F.lim.direto? [`Intensidade frontal acima dos 4 000 kW/m: nenhuma equipa à frente da cabeça, em nenhuma circunstância. Reavaliar se a intensidade descer.`] : []),
       ...(F.lim && F.lim.i >= 2000? [`Projeção de faúlhas expectável acima dos 2 000 kW/m: vigia dedicado a sotavento e reconhecimento periódico da retaguarda.`] : []),
       "Proibição de ataque direto descendente em encosta com catabático estabelecido sem rota de fuga confirmada.",

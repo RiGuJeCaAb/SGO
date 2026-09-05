@@ -813,6 +813,23 @@ aparece como travessão, e não como "NaN".
 aceitam "41,1633" e "41.1633". Uma latitude fora de −90 a 90, ou uma longitude fora de −180 a
 180, é tratada como coordenada em falta, e não como número.
 
+**As folhas de carta acompanham a ocorrência.** Cada folha calibrada fica presa à ocorrência
+em que foi colocada: ao abrir outra, as dela saem do ecrã e do plano e ficam guardadas para
+quando voltar. A colocação — os coeficientes, os pontos de controlo, o nome, a proveniência —
+vai no ficheiro exportado e volta com a importação; a imagem não vai, e escolhe-se outra vez
+ao abrir, como já acontece entre sessões. As folhas colocadas antes da r0099, que não dizem de
+que ocorrência são, ficam guardadas e contadas no quadro, sem se atribuírem a nenhuma.
+
+**No mapa há um tipo de nota para percursos de fuga e zonas de segurança.** Ao contrário das
+notas de manobra, alerta quando a frente lá chega — uma zona de segurança no caminho da
+frente deixa de ser zona de segurança, e a leitura da evolução di-lo.
+
+**A distância de segurança é valor teórico.** Onde a aplicação a escreve, escreve também que
+não substitui o reconhecimento no local nem a identificação de zonas de segurança e caminhos
+de fuga, e que a altura da chama foi tomada igual ao comprimento por se desconhecer a
+inclinação. A largura de contenção diz sempre que só vale sem projeção de faúlhas, e que a
+regra está atribuída a Byram por Fernandes e por confirmar na fonte.
+
 **A amostragem do relevo e o perfil de elevação tentam duas vezes.** Se o pedido ao serviço de
 altimetria cair por um corte momentâneo da ligação ou por prazo esgotado, a aplicação espera
 um instante e repete uma vez, sozinha. Se o serviço recusar o pedido, não insiste: a resposta

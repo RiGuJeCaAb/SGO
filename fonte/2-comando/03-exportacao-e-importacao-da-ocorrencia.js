@@ -18,8 +18,12 @@ function nomeExportacao(){
  */
 function pacoteOcorrencia(){
   lerForm();
+  /* As folhas de carta vão ao lado do estado e fora do carimbo: não são estado — vivem
+     fora de `O` pelo peso da imagem, que não viaja —, e `folhaCalibrada` recusa à entrada
+     tudo o que não for número, grelha conhecida e proveniência declarada. Ver `adotarFolhasDoPacote`. */
   return {tipo:"peaapp:ocorrencia", versao:VERSAO_ESTADO, app:REVISAO_APP,
-    ficheiro:FICHEIRO_APP, g:gdhAgora(), sha:resumoEstado(O), estado:O};
+    ficheiro:FICHEIRO_APP, g:gdhAgora(), sha:resumoEstado(O), estado:O,
+    folhas:(typeof FOLHAS !== "undefined"? FOLHAS : []).map(colocacaoDaFolha)};
 }
 
 /**
@@ -117,9 +121,15 @@ async function importarOcorrencia(texto){
     app: String(pacote.app || ""),
     ficheiro: String(pacote.ficheiro || ""),
   };
+  /* As folhas do pacote, ou as da base para esta ocorrência; nunca as da ocorrência que
+     estava aberta. Antes disto `FOLHAS` ficava como estava, e o retrato da importada
+     declarava a folha da anterior. */
+  let folhasAdotadas = 0;
+  try{ folhasAdotadas = await adotarFolhasDoPacote(pacote); }catch(e){ /* sem base não há folhas a repor */ }
   escreverForm(); pintarTudo();
   if(O.csv){ $("f-csv").value=O.csv; try{ analisarCSV(false); }catch(e){} }
-  fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":""));
+  fita("Ocorrência importada de ficheiro"+(O.meta.num? " (n.º "+O.meta.num+")":"")
+    + (folhasAdotadas? ", com "+folhasAdotadas+(folhasAdotadas===1? " folha de carta" : " folhas de carta")+" — a imagem volta a escolher-se" : ""));
   await persistir(false);
   if(q.bate === true) fita("Carimbo de integridade confere: "+resumoCurto(pacote.sha));
   else if(q.bate === false) fita("ATENÇÃO: o carimbo de integridade do ficheiro importado não confere");

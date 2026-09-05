@@ -45,7 +45,7 @@ function fecharLinha(){
   const d = defLinha(tipo);
   const larg = parseFloat(String(($("linha-larg")||{}).value || "").replace(",", "."));
   const l = {
-    id:"l"+agora().toString(36),
+    id:novoIdentificador("l"),
     tipo:d.k,
     linha:traco,
     /* Vazia quando não foi indicada: uma linha sem largura declarada não é uma linha de
@@ -96,8 +96,8 @@ function abrirLinha(id, aberta){
 /**
  * Esta linha aguenta o fogo que ali chega?
  *
- * Compara a largura declarada com a que Byram (1959) exige para a intensidade corrente —
- * uma vez e meia o comprimento da chama. Devolve `null` quando falta um dos dois lados da
+ * Compara a largura declarada com a que a regra atribuída a Byram (1959) por Fernandes
+ * (2003) exige para a intensidade corrente — uma vez e meia o comprimento da chama, e só sem projeção de faúlhas. Devolve `null` quando falta um dos dois lados da
  * comparação, e é isso que a leitura diz: não se responde a uma pergunta que não se pode
  * pôr.
  *
@@ -134,18 +134,19 @@ function leituraDasLinhas(){
         : "Sem a largura útil indicada não há com que dizer se aguenta.");
     } else if(b.basta){
       p.push("Aguenta: " + String(b.tem).replace(".", ",") + " m para os "
-        + String(b.precisa).replace(".", ",") + " m que a intensidade exige (Byram 1959).");
+        + fmtPT(b.precisa, 1) + " m que a intensidade exige (Byram 1959, por Fernandes 2003).");
     } else {
       p.push("**Não aguenta: " + String(b.tem).replace(".", ",") + " m para os "
-        + String(b.precisa).replace(".", ",") + " m que a intensidade exige** (Byram 1959).");
+        + fmtPT(b.precisa, 1) + " m que a intensidade exige** (Byram 1959, por Fernandes 2003).");
     }
     return p.join(" ");
   });
 
-  /* O aviso que Byram põe e que se repete aqui porque é o que falha primeiro num incêndio
-     de verão no Douro: a regra da largura pressupõe que não há projeção de faúlhas com
-     capacidade de ignição. Com projeção, nenhuma largura destas garante o que promete. */
+  /* O aviso que Fernandes (2003) atribui a Byram (1959) e que se repete aqui porque é o
+     que falha primeiro num incêndio de verão no Douro: a regra da largura pressupõe que não
+     há projeção de faúlhas com capacidade de ignição. Com projeção, nenhuma largura destas
+     garante o que promete. */
   if(L.some(l=>linhaBasta(l)))
-    partes.push("A regra da largura pressupõe que não há projeção de faúlhas com capacidade de ignição (Byram 1959). Com projeção, nenhuma destas larguras garante o que promete.");
+    partes.push("A regra da largura pressupõe que não há projeção de faúlhas com capacidade de ignição (atribuída a Byram 1959 por Fernandes 2003, por confirmar na fonte). Com projeção, nenhuma destas larguras garante o que promete.");
   return partes.join(" ");
 }

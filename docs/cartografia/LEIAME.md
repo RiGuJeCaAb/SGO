@@ -49,3 +49,9 @@ cada número e com o que não pode afirmar declarado a seguir.
 O que a carta continua a ter e a aplicação não: a carta de fundo. Falta a decisão
 institucional sobre que serviço o posto tem direito a usar.
 
+## A geometria da mesma ocorrência
+
+`CSREPCDouro_ref01_CabecaBoa_Perimetro_CLD.geojson` — o perímetro de Cabeça Boa, Torre de
+Moncorvo, em GeoJSON, tal como chegou à entrada a 5 de setembro. É a geometria a que as três
+cartas anotadas dizem respeito, e o que se carrega como perímetro para pôr a Estação a falar
+da mesma ocorrência que a carta.

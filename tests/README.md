@@ -18,6 +18,10 @@ HTML continua a abrir sozinho, sem servidor e sem instalação.
 | `npm run manual` | Confere que todo o rótulo que `docs/MANUAL.md` cita entre «aspas angulares» existe mesmo na entrega |
 | `npm run tudo` | Sintaxe, testes, análise estática, tipos, código morto, cobertura de documentação e manual, por esta ordem |
 | `npm run visual` | Abre a revisão num Chromium e procura transbordo horizontal e exceções, em todos os separadores, a 380, 480, 768 e 1440 px, nos dois temas |
+| `npm run prova-arranque` | Abre a entrega de `file://` num Chromium com perfil vazio e afirma que a consola está limpa, que todos os símbolos de topo de `fonte/` existem no artefacto montado, e que o armazém e a base abriram. É o portão da ordem de montagem |
+| `npm run prova-idb` | Num Chromium a sério, a abertura da base pela versão que ela tiver, e o `VersionError` que isso evita |
+| `npm run prova-abas` | Num Chromium a sério e de `file://`, duas abas: uma escreve, a outra lê, o trinco rouba-se, o canal avisa |
+| `npm run navegador` | As três provas e a auditoria visual, por esta ordem. É o segundo trabalho da CI, depois dos nove portões |
 
 Todos aceitam um caminho explícito: `npm run verificar -- app/CSREPCDouro_r0012_....html`.
 Sem argumento, escolhem a revisão de numeração mais alta em `app/`.

@@ -31,7 +31,8 @@ test('as espécies de nota não se apresentam como doutrina', semAplicacao, () =
      que alguém escreve na margem de uma carta, e a aplicação não finge que sim: nenhuma
      destas espécies cita artigo nenhum. */
   const T = avaliar(janela, 'TIPOS_NOTA');
-  assert.equal(T.length, 3);
+  /* Quatro desde a r0103: o percurso de fuga ou zona de segurança, que alerta (ramo #006). */
+  assert.equal(T.length, 4);
   T.forEach((t) => {
     assert.ok(t.n && t.d, t.k);
     assert.ok(!/art\.|n\.º|DON|Despacho/i.test(t.n + ' ' + t.d),
@@ -39,6 +40,7 @@ test('as espécies de nota não se apresentam como doutrina', semAplicacao, () =
   });
   /* Só o aviso tem consequência para quem lá vai, e é por isso que se distingue. */
   assert.equal(T.find((t) => t.k === 'aviso').alerta, true);
+  assert.equal(T.find((t) => t.k === 'seguranca').alerta, true, 'o E e o S do LACES no caminho da frente não passam em silêncio');
   assert.equal(T.find((t) => t.k === 'obs').alerta, false);
   assert.equal(T.find((t) => t.k === 'manobra').alerta, false);
 });

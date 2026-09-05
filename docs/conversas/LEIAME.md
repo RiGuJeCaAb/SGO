@@ -81,3 +81,10 @@ O documento `d0001_MCF_Especificacao` referido no registo do módulo de comporta
 especificação *«está parcialmente obsoleta à nascença»* — vários coeficientes que dava por
 pendentes já estavam fechados na `r0077`, e por via tabular portuguesa em vez do FFMC
 canadiano que propunha.
+
+## A fusão das linhagens e a publicação, 5 de setembro
+
+`CSREPCDouro_202609050020_ConversaFusaoPagesEArrumacao_CLD.md` — a conversa do outro lado
+que fundiu as duas linhagens, pôs a entrega a publicar-se no GitHub Pages a partir do
+`home.html` e arrumou o repositório. Lida nesta linhagem a 5 de setembro para tirar as
+dúvidas sobre o que tinha sido decidido lá; o que dela se seguiu está no `ESTADO.md`.

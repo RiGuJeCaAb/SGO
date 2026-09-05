@@ -145,11 +145,12 @@ async function adotarCartaWMTS(carta){
   return { ok:true, carta:CARTA };
 }
 
-/** Retira o serviço configurado, e com ele os mosaicos que dele vieram. */
+/** Retira o serviço configurado, e com ele os mosaicos que dele vieram — só esses. */
 async function retirarCarta(){
+  const prefixo = CARTA? prefixoMosaicos(false) : null;
   CARTA = null;
   try{ await ARMAZEM.del(CARTA_CHAVE); }catch(e){}
-  await esquecerMosaicos();
+  if(prefixo) await esquecerMosaicos(prefixo);
   return { ok:true };
 }
 
@@ -429,9 +430,13 @@ function cartaZMax(){ return (CARTA && isFinite(CARTA.zMax))? CARTA.zMax : grelh
  */
 function impressaoDaCarta(){
   if(!CARTA) return "";
+  /* E sempre a grelha, porque é ela que decide a aritmética (ramo #004): num WMTS o
+     conjunto de matrizes já a implica, num xyz é sempre Web Mercator, mas escrevê-la é o
+     que garante que duas cartas em grelhas diferentes nunca partilham um quadrado. */
+  const g = grelhaAtual().crs || "";
   const partes = CARTA.tipo === "wmts"
-    ? ["wmts", CARTA.base || CARTA.u || "", CARTA.camada || "", CARTA.matrizes || CARTA.tms || "", CARTA.tempo || CARTA.time || ""]
-    : ["xyz", CARTA.u || ""];
+    ? ["wmts", g, CARTA.base || CARTA.u || "", CARTA.camada || "", CARTA.matrizes || CARTA.tms || "", CARTA.tempo || CARTA.time || ""]
+    : ["xyz", g, CARTA.u || ""];
   /* FNV-1a sobre o texto, como `impressaoMosaico` faz sobre os bytes: só se pergunta se é
      a mesma carta, e um endereço inteiro numa chave de base é peso sem préstimo. */
   const t = partes.join("|"); let h = 0x811c9dc5;
@@ -445,9 +450,37 @@ function chaveMosaico(z, x, y){
   return "m/"+(imp? imp+"/" : "")+z+"/"+x+"/"+y;
 }
 
-/** A chave de um mosaico da carta pré-descarregada: sem impressão, porque não tem serviço,
-    e é a forma de sempre — o que já está no arquivo continua a ser encontrado. */
-function chaveMosaicoLocal(z, x, y){ return "m/"+z+"/"+x+"/"+y; }
+/**
+ * A chave de um mosaico da carta pré-descarregada: leva a grelha, porque é ela que decide
+ * a aritmética. Era `m/z/x/y`, sem grelha — `declararCartaLocal("pttm06", …)` registava a
+ * grelha e a chave ignorava-a, e uma pasta em PT-TM06 e outra em Web Mercator partilhavam
+ * os quadrados (ramo #004, t0021). As chaves antigas **apagam-se** no arranque, não se
+ * adotam: atribuí-las à carta corrente seria inventar a proveniência que a chave existe
+ * para registar. A pasta volta a carregar-se, que é barato.
+ */
+function chaveMosaicoLocal(z, x, y){
+  const g = (CARTA_LOCAL && CARTA_LOCAL.grelha) || "";
+  return "m/local/"+g+"/"+z+"/"+x+"/"+y;
+}
+/** O prefixo das chaves da carta em uso, ou da pasta local: o que `esquecerMosaicos` apaga. */
+function prefixoMosaicos(local){
+  return local ? "m/local/" : "m/"+impressaoDaCarta()+"/";
+}
+/** É uma chave de antes da r0103 — `m/z/x/y`, sem impressão nem grelha? */
+function chaveMosaicoAntiga(k){ return /^m\/\d+\/\d+\/\d+$/.test(String(k)); }
+/**
+ * Apaga do arquivo as chaves de antes da r0103. Corre uma vez no arranque, depois de a base
+ * abrir; devolve quantas saíram. Sem base, ou sem chaves antigas, não faz nada.
+ */
+async function apagarMosaicosAntigos(){
+  if(!IDB) return 0;
+  try{
+    const chaves = (await _idb("mosaicos","readonly", st=>st.getAllKeys())) || [];
+    const antigas = chaves.filter(chaveMosaicoAntiga);
+    if(antigas.length) await _idb("mosaicos","readwrite", st=>{ antigas.forEach(k=>st.delete(k)); });
+    return antigas.length;
+  }catch(e){ return 0; }
+}
 
 /**
  * Uma impressão digital dos bytes de um mosaico, para reconhecer o que se repete.
@@ -568,12 +601,24 @@ async function mosaicosGuardados(){
   }catch(e){ return { n:0, desde:0 }; }
 }
 
-/** Esquece os mosaicos guardados. */
-async function esquecerMosaicos(){
+/**
+ * Esquece os mosaicos guardados: os de um prefixo, ou todos.
+ *
+ * Com a impressão da carta na chave, trocar de serviço deixou de destruir o arquivo do
+ * anterior — e por isso apagar passou a ter de saber de quem apaga (ramo #004): retirar
+ * uma carta apaga a dela, esquecer a pasta local apaga a da pasta, e só o botão de esquecer
+ * tudo limpa a loja inteira. Devolve quantos saíram.
+ *
+ * @param {string} [prefixo] o início das chaves a apagar; sem ele, apaga tudo
+ */
+async function esquecerMosaicos(prefixo){
   if(!IDB) return 0;
-  const antes = (await mosaicosGuardados()).n;
-  try{ await _idb("mosaicos","readwrite", st=>st.clear()); }catch(e){}
-  return antes;
+  try{
+    if(!prefixo){ const antes = (await mosaicosGuardados()).n; await _idb("mosaicos","readwrite", st=>st.clear()); return antes; }
+    const chaves = ((await _idb("mosaicos","readonly", st=>st.getAllKeys())) || []).filter(k=>String(k).indexOf(prefixo) === 0);
+    if(chaves.length) await _idb("mosaicos","readwrite", st=>{ chaves.forEach(k=>st.delete(k)); });
+    return chaves.length;
+  }catch(e){ return 0; }
 }
 
 /* ---- os pontos notáveis ---- */
@@ -619,7 +664,7 @@ function marcarPonto(tipo, lat, lon, nome){
   if(!podeFazer("escrever")) return { ok:false, motivo:motivoPerfil("escrever") };
   if(!isFinite(lat) || !isFinite(lon)) return { ok:false, motivo:"Coordenada fora do mapa." };
   const d = defPonto(tipo);
-  const p = { id:"p"+agora().toString(36), tipo:d.k, nome:String(nome||d.n),
+  const p = { id:novoIdentificador("p"), tipo:d.k, nome:String(nome||d.n),
     lat:+lat.toFixed(6), lon:+lon.toFixed(6), g:gdhAgora(), por:quemRegista(), nota:"" };
   pontosLista().push(p);
   /* Se houver limites traçados, diz-se em que setor o ponto caiu. É a pergunta que se faz
@@ -1563,8 +1608,10 @@ $("wm-dim-b").addEventListener("click", async ()=>{
   const r = mudarDimensaoDaCarta($("wm-dim-v").value);
   if(!r.ok){ aviso("wm-msg","err",r.motivo); pintarDimensaoDaCarta(); return; }
   await adotarCartaWMTS(CARTA);
-  /* Os mosaicos guardados são de outra data: pedir de novo é o que faz o mapa mudar. */
-  await esquecerMosaicos();
+  /* Os mosaicos guardados são de outra data: pedir de novo é o que faz o mapa mudar. A data
+     entra na impressão da carta, por isso os da data anterior já não se servem; apagam-se
+     os dela e mais nenhuns. */
+  await esquecerMosaicos(prefixoMosaicos(false));
   aviso("wm-msg","ok","Carta em "+r.valor+"."
     + (r.incerto? " O serviço declara este intervalo com um passo que não é de dias inteiros: não se pôde confirmar que esta data exista." : "")
     + " Carregar a carta para a ver.");

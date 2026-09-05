@@ -69,6 +69,9 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   /* O serviço de mosaicos é definição do posto, guardada no dispositivo como o tema:
      lê-se ao arranque, para o mapa saber a quem pode pedir carta. */
   try{ await carregarCarta(); pintarCarta(); await pintarArquivoMapa(); }catch(e){}
+  /* As chaves de mosaico de antes da r0103, sem impressão nem grelha, saem — ver
+     `chaveMosaicoLocal`. Uma vez por arranque, e diz-se quantas foram. */
+  try{ const n = await apagarMosaicosAntigos(); if(n) fita("Arquivo da carta: "+n+" quadrado(s) de antes da r0103 apagados por não declararem a carta a que pertenciam."); }catch(e){}
   /* A carta pré-descarregada também é definição do posto: sem esta leitura, a grelha da
      árvore guardada perdia-se ao fechar a página e o mapa voltava a desenhá-la errada. */
   try{ await carregarFocosURL(); }catch(e){}

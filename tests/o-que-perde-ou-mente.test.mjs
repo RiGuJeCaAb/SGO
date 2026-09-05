@@ -55,7 +55,8 @@ test('a chave de um mosaico muda com a carta, e sem carta é a de sempre', semAp
   const b = av('chaveMosaico(10, 500, 380)');
   assert.notEqual(a, sem); assert.notEqual(a, b, 'duas cartas nunca partilham chave');
   assert.match(a, /^m\/[0-9a-f]+\/10\/500\/380$/);
-  assert.equal(av('chaveMosaicoLocal(10, 500, 380)'), 'm/10/500/380', 'a chave local não leva impressão');
+  /* Desde a r0103 a chave local leva a grelha e não a impressão: sem pasta declarada fica vazia (ramo #004). */
+  assert.match(av('chaveMosaicoLocal(10, 500, 380)'), /^m\/local\/[a-z0-9]*\/10\/500\/380$/, 'a chave local leva a grelha, não a impressão');
 });
 
 test('duas camadas do mesmo WMTS dão chaves diferentes, e a data também', semAplicacao, () => {
@@ -105,8 +106,11 @@ test('carregarFolhas só traz as folhas desta ocorrência', semAplicacao, async 
     assert.equal(av('FOLHAS.map(f=>f.id).join(",")'), 'fA');
     av('O.meta.num = "OC-B"'); await av('carregarFolhas()');
     assert.equal(av('FOLHAS.map(f=>f.id).join(",")'), 'fB');
+    /* Desde a r0103 a folha sem número nem identificador é órfã: fica na base, conta-se, e
+       não se atribui a ninguém — nem à ocorrência sem número (ramo #001). */
     av('O.meta.num = ""'); await av('carregarFolhas()');
-    assert.equal(av('FOLHAS.map(f=>f.id).join(",")'), 'f0', 'sem ocorrência aberta só as de antes da r0099, que não têm número');
+    assert.equal(av('FOLHAS.map(f=>f.id).join(",")'), '', 'a folha de antes da r0099 não se atribui à ocorrência aberta');
+    assert.equal(av('FOLHAS_ORFAS'), 1, 'mas conta-se, para o quadro a dizer');
   } finally {
     av('_idb = window.__idb; IDB = window.IDB_antes; delete window.__idb; delete window.IDB_antes;');
   }

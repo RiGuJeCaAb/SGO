@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0102**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0103**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 140, das anteriores à convenção de nomes até à r0102 |
+| Entregas em `app/` | 141, das anteriores à convenção de nomes até à r0103 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1021, todos a passar |
+| Testes | 1041, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1054,6 +1054,97 @@ saíram: não estão no F5, e são uma revisão só deles.
 
 **Números.** 1021 testes, 20 novos; 582 funções de topo a 100 %; nove portões verdes;
 auditoria visual limpa nos dois temas; entrega com 1,15 MB, dentro do teto.
+
+## As respostas dos seis ramos — r0103
+
+Chegaram a 5 de setembro, todas contra a r0093, e entraram nesta revisão. Os ficheiros
+saíram da entrada para `ferramentas/historico/` (guiões) e `docs/` (documentos), com as
+linhas nos catálogos; a entrada está vazia. O que cada um trouxe, o que se fez com ele, e a
+cor com que o guião de cada um sai contra a r0103:
+
+**#001 — folhas por ocorrência e identificador interno (t0023).** A ocorrência já tinha
+`meta.id` desde a r0101; a folha passa a nascer presa a ele (`ocorrencia`), e não ao número.
+`novoIdentificador` no núcleo, de `crypto.getRandomValues` e não do relógio — o #001 mediu
+cinquenta gerações num ciclo a dar um só identificador —, e serve as folhas, as frentes,
+as linhas, as notas, os pontos e a ocorrência. A colocação viaja no pacote da ocorrência, ao
+lado do estado e fora do carimbo, e a imagem não; a importação adota-a e diz quantas vieram.
+`guardarFolhas` fazia `clear()` e escrevia só as folhas em memória: as das outras ocorrências,
+que a r0099 filtrava à entrada, saíam da base à primeira gravação — a decisão «guardar e
+repor», que o #001 deixou em aberto, estava tomada de um lado e desfeita do outro. Agora
+lê, tira as desta, escreve as outras e as desta, numa transação. As folhas de antes da r0099,
+sem número nem identificador, ficam na base, contam-se e dizem-se no quadro; não se atribuem
+a ninguém. **Guião contra a r0103: 8 verdes, 3 vermelhos.** K4 a K6 substituem `O` à mão,
+que não é caminho de ninguém; pelos caminhos reais — «Nova», a importação — o teste desta
+linhagem (`folhas-por-ocorrencia`) está verde, e o retrato do PEA filtra por ocorrência
+mesmo nesse caso. A decisão de comando que o #001 pede: **guardar e repor**, que é o que a
+r0099 já fazia à entrada e a r0103 faz também à saída. Fica tomada, salvo indicação.
+
+**#002 — método.** Sem código. Três regras que ficam adotadas: todo o `t` diz a revisão
+contra que correu e a cor nessa revisão; o pacote adversário tem três peças — relatório,
+`t` vermelho pela razão declarada, e a superfície pública que o `t` pressupõe num bloco só;
+e os alicerces vão em coluna própria. A costura que o #002 aponta é real e está fechada
+nesta revisão pelo outro lado: o que o jsdom não corre — base, canvas, ficheiros — corre
+agora na CI num Chromium, ver #005.
+
+**#003 — distâncias e Byram (d0007).** `H_COMBUSTAO = 18 000 kJ/kg` com nome, ficha e
+impressão: o `/2` de `intensidadeByram` era essa constante, escolha de Fernandes (2003) e
+não de Byram (1959), que define `I = H·w·R` e não fixa H. Treze citações de Byram, onze sem
+o intermediário: todas dizem agora «por Fernandes 2003», e um teste lê a fonte e recusa a
+que não disser. A regra do 1,5× e a condição das faúlhas ficam «atribuídas a Byram 1959 por
+Fernandes 2003, por confirmar na fonte», na aplicação e em `FONTES.md`, com a referência
+completa de Byram e a nota de que não se leu. A distância de segurança consome a altura da
+chama e a aplicação só tem o comprimento: `limitesDeManobra` devolve `alturaChama`, tomada
+igual ao comprimento, e diz-o em cada saída; a margem da chama inclinada não se declara
+disponível, porque Butler (2014) não se tem. Toda a distância de segurança impressa leva
+`AVISO_SEGURANCA`: valor teórico, não substitui o reconhecimento no local (DON n.º 2, Anexo
+3, situação n.º 3). O comentário das duas formulações do comprimento da chama passou a
+dizer onde concordam e onde divergem 12 %. A largura de contenção não se apresenta sem a
+condição em sítio nenhum, e um teste confere-o.
+
+**#004 — a chave dos mosaicos (t0021, d).** A r0099 já tinha posto a impressão da carta na
+chave do serviço em uso; faltava a pasta pré-descarregada, cuja chave ignorava a grelha que
+`declararCartaLocal` regista: passa a `m/local/<grelha>/z/x/y`, e a impressão do serviço
+leva também a grelha por extenso. As chaves de antes da r0103, `m/z/x/y`, **apagam-se no
+arranque e não se adotam** — atribuí-las à carta corrente seria inventar a proveniência que
+a chave existe para registar; a fita diz quantas saíram. `esquecerMosaicos` ganha
+granularidade por carta: retirar uma carta apaga só os dela, mudar a data do WMTS apaga só
+os da data anterior, e o botão do arquivo continua a limpar tudo. **Guião contra a r0103: 2
+verdes, 3 vermelhos** — mas o guião depende de `@sparticuz/chromium` e de `playwright-core`
+e lê `chaveMosaico` sem carta declarada, onde esta linhagem responde `m/z/x/y` por desenho;
+os três vermelhos são de contrato e o teste desta linhagem cobre a matéria. O t0018c — 26
+verdes, 1 vermelho na r0093 — tem o vermelho fechado desde a r0099: a folha em grelha
+incompatível anuncia-se na fita.
+
+**#005 — medições, `catch` e CI (q005, d).** Os 103 `catch` vazios classificados por
+consequência: 3 de limpeza ficam, 91 de isolamento de pintura já têm desde a r0100 o
+contador e a faixa (`PINTURAS_QUEBRADAS`, `#pint-q`), e dos 9 de perda o mais grave — o da
+conferência de que o CSV meteorológico não foi alterado à mão, que perdia uma afirmação de
+proveniência — passa a dizer na fita que a conferência falhou e que a proveniência não está
+conferida. Os outros oito ficam para a revisão seguinte, com a lista do #005. A CI ganha o
+trabalho `navegador`, depois dos nove portões: instala o Chromium do playwright, que o
+`npm ci` não instala, e corre `prova-arranque`, `prova-idb`, `prova-abas` e `visual`.
+`prova-arranque` é nova: abre a entrega de `file://` com perfil vazio e afirma consola
+limpa, armazém e base abertos, e **todos os 765 símbolos de topo de `fonte/` presentes no
+artefacto** — a lista sai da fonte, e é este o portão da ordem de montagem que nenhum teste
+de disco dá. Provou-se a si própria na primeira corrida: apanhou três funções novas que a
+montagem intermédia ainda não tinha. A preocupação da deriva entre fonte e entrega o próprio
+#005 retirou: `montagem.test` já a fecha.
+
+**#006 — gravidades do sinal e instantes de prazo (d02).** O achado de comportamento entra:
+percursos de fuga e zonas de segurança caíam em «manobra», sem alerta, e uma zona de
+segurança no caminho da frente passava em silêncio na leitura da evolução. Há um tipo de
+nota novo, «Percurso de fuga ou zona de segurança», com alerta — o E e o S do LACES, o que
+o comandante de setor reconhece pelo art. 10.º, n.º 5, al. a) do SGO, e o ponto 17 do Anexo
+3 da DON n.º 2, por leitura do #006. Os três títulos de gravidade que propõe, a fronteira
+entre acessos e percursos de fuga, «interdição» e «condicionamento» como um ou dois valores,
+qual dos dois momentos de 9.d.(6) se grava, e o instante de origem de P6 são **as cinco
+decisões do dono** que o documento lista, e não se tomaram aqui. O achado maior — a hora de
+alerta não consta do registo obrigatório da DON e é o t=0 de P1 e P2 — fica com uma
+pergunta: o campo «Início da ocorrência» é a hora de alerta? Se for, muda o rótulo; se não
+for, é campo novo com degrau de estado.
+
+**Números.** 1041 testes, 20 novos; nove portões e o trabalho de navegador verdes;
+auditoria visual limpa nos dois temas; a entrada vazia.
 
 ## Decisões tomadas
 

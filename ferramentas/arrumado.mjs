@@ -44,7 +44,10 @@ const PASTAS = [
        data — `CSREPCDouro_p0016_…`. A dos ramos, a partir de 2 de setembro, põe o número do
        ramo à cabeça e a série depois da data — `006_CSREPCDouro_202609021523_t01_…`, que é
        o que os identifica sem se abrir o ficheiro. */
-    forma: /^(CSREPCDouro_[pqt]\d{4}_\d{12}|\d{3}_CSREPCDouro_\d{12}_[pqt]\d{2,4})_[A-Za-z0-9]+_CLD\.(py|js)$/,
+    /* A letra a seguir ao número da série — `t0018c` — é a religação do mesmo guião a uma
+       revisão posterior, como o `r0058a` das entregas; e `.mjs` é o que um guião escrito em
+       módulo ES traz. */
+    forma: /^(CSREPCDouro_[pqt]\d{4}_\d{12}|\d{3}_CSREPCDouro_\d{12}_[pqt]\d{2,4}[a-z]?)_[A-Za-z0-9]+_CLD\.(py|js|mjs)$/,
     diz: 'CSREPCDouro_pNNNN_AAAAMMDDHHMM_Nome_CLD.py, ou 00N_CSREPCDouro_AAAAMMDDHHMM_tNN_Nome_CLD.js vindo de um ramo',
     ignora: ['README.md'],
     /* Anteriores à convenção, e o README diz o que são. */
@@ -53,8 +56,8 @@ const PASTAS = [
   {
     pasta: 'docs/cartografia',
     catalogo: 'docs/cartografia/LEIAME.md',
-    forma: /^CSREPCDouro_ref\d{2}_[A-Za-z0-9]+_[A-Za-z0-9]+_CLD\.(png|pdf|jpg)$/,
-    diz: 'CSREPCDouro_refNN_Local_Assunto_CLD.png',
+    forma: /^CSREPCDouro_ref\d{2}_[A-Za-z0-9]+_[A-Za-z0-9]+_CLD\.(png|pdf|jpg|geojson)$/,
+    diz: 'CSREPCDouro_refNN_Local_Assunto_CLD.png, ou .geojson para a geometria da mesma ocorrência',
     ignora: ['LEIAME.md'],
     excecoes: [],
   },

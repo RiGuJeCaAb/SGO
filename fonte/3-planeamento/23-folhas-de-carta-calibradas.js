@@ -107,6 +107,10 @@ function folhaCalibrada(desc){
     largura: larg, altura: alt,
     mundo: {A, D, B, E, C, F},
     grelha: desc.grelha,
+    /* A folha nasce presa à ocorrência aberta, e não só ao gravar: o guião do #001 lê
+       `FOLHAS[i].ocorrencia` logo depois de a colocar, e tem razão — uma folha em memória
+       sem dono é uma folha que qualquer troca de `O` faz passar por sua. */
+    ocorrencia: String(desc.ocorrencia || (O && O.meta && O.meta.id) || ""),
     num: String(desc.num || ""),
     proveniencia: String(desc.proveniencia),
     /* Zero é o ficheiro de referenciação, dois é a calibração manual. Não é enfeite: a
@@ -226,7 +230,17 @@ function folhaAfericao(f){
  * Fixar a projeção na primeira e **recusar as seguintes na colocação** resolve as três de
  * uma vez, e recusa em voz alta em vez de aceitar em silêncio.
  */
-function grelhaDasFolhas(){ return FOLHAS.length? FOLHAS[0].grelha : null; }
+function grelhaDasFolhas(){ const F = folhasDaOcorrencia(); return F.length? F[0].grelha : null; }
+/**
+ * As folhas em memória que são desta ocorrência. `FOLHAS` esvazia-se pelos caminhos reais
+ * de troca — «Nova», a importação, o arquivo —, mas o que se mostra, o que decide a
+ * projeção e o que vai para o retrato do PEA filtra-se aqui na mesma: uma folha de outra
+ * ocorrência que sobreviva a um caminho que ninguém previu não chega ao plano.
+ */
+function folhasDaOcorrencia(){
+  const id = String((O && O.meta && O.meta.id) || "");
+  return FOLHAS.filter(f=>f && (!f.ocorrencia || f.ocorrencia === id));
+}
 
 /**
  * A razão por que esta folha não pode ser colocada, ou nada quando pode.
@@ -252,14 +266,27 @@ let FOLHAS = [];
 
 /** A colocação de uma folha, sem a imagem — é isto que se grava e que se lê de volta. */
 function colocacaoDaFolha(f){
-  /* `num`: a ocorrência a que a folha pertence. Sem isto `carregarFolhas` trazia todas as
-     folhas da base e a do TO da ocorrência A ficava desenhada sobre a B — e podia até
-     decidir a projeção do mapa dela. Uma folha colocada antes de a ocorrência ter número
-     fica com o número na próxima gravação, porque é aqui que ele se carimba. */
+  /* `ocorrencia`: o identificador interno da ocorrência a que a folha pertence — e não o
+     número, que é texto livre, pode faltar e pode ser corrigido (ramo #001). Sem isto
+     `carregarFolhas` trazia todas as folhas da base e a do TO da ocorrência A ficava
+     desenhada sobre a B, e o retrato do PEA da B declarava a folha da A. O número fica
+     como rótulo, e é por ele que as folhas de entre a r0099 e a r0102 ainda se reconhecem. */
   return { id:f.id, nome:f.nome, largura:f.largura, altura:f.altura,
            mundo:f.mundo, grelha:f.grelha, proveniencia:f.proveniencia,
-           pontos:f.pontos, controlos:f.controlos, num:String((O && O.meta && O.meta.num) || "") };
+           pontos:f.pontos, controlos:f.controlos,
+           ocorrencia:String((O && O.meta && O.meta.id) || ""), num:String((O && O.meta && O.meta.num) || "") };
 }
+/** O identificador de uma folha nova: ao acaso, e não do relógio — ver `novoIdentificador`. */
+function novoIdFolha(){ return novoIdentificador("f"); }
+/** A folha gravada é desta ocorrência? Pelo identificador; pelo número só nas de antes da r0103. */
+function folhaDestaOcorrencia(x){
+  if(!x) return false;
+  const id = String((O && O.meta && O.meta.id) || ""), num = String((O && O.meta && O.meta.num) || "");
+  if(x.ocorrencia) return x.ocorrencia === id;
+  return !!x.num && x.num === num;
+}
+/** Quantas folhas há na base sem ocorrência atribuída, para o quadro o dizer. */
+let FOLHAS_ORFAS = 0;
 
 /**
  * Guarda a colocação das folhas, para que uma folha calibrada não se perca ao fechar.
@@ -274,7 +301,21 @@ function colocacaoDaFolha(f){
 async function guardarFolhas(){
   try{
     const colocacoes = FOLHAS.map(colocacaoDaFolha);
-    await _idb("folhas", "readwrite", st=>{ st.clear(); colocacoes.forEach(c=>st.put(c)); });
+    /* Só as desta ocorrência saem e entram. Fazia `clear()` e escrevia `FOLHAS`: as folhas
+       das outras ocorrências, que `carregarFolhas` filtra à entrada desde a r0099, saíam da
+       base à primeira gravação — a decisão «guardar e repor», que o #001 deixou em aberto,
+       estava tomada de um lado e desfeita do outro. Tudo na mesma transação: lê-se o que lá
+       está, tira-se o que é desta ocorrência, e escreve-se o resto mais o que há agora. */
+    await _idb("folhas", "readwrite", st=>{
+      const r = st.getAll();
+      r.onsuccess = ()=>{
+        const outras = (r.result || []).filter(x=>!folhaDestaOcorrencia(x));
+        st.clear();
+        outras.forEach(c=>st.put(c));
+        colocacoes.forEach(c=>st.put(c));
+      };
+      return null;
+    });
   }catch(e){}
 }
 
@@ -289,10 +330,11 @@ async function carregarFolhas(){
   let guardadas = null;
   try{ guardadas = await _idb("folhas", "readonly", st=>st.getAll()); }catch(e){ return; }
   if(!Array.isArray(guardadas)) return;
-  /* Só as desta ocorrência. As de antes da r0099 não têm número e contam como de nenhuma:
-     aparecem enquanto não houver ocorrência aberta e ganham o número na próxima gravação. */
-  const minha = String((O && O.meta && O.meta.num) || "");
-  const lidas = guardadas.filter(x=>String((x && x.num) || "") === minha).map(x=>folhaCalibrada(x));
+  /* Só as desta ocorrência, pelo identificador. As de antes da r0099 não têm número nem
+     identificador: **ficam na base e contam-se**, e não se atribuem à ocorrência que estiver
+     aberta — atribuir seria inventar uma ligação que ninguém declarou (ramo #001). */
+  FOLHAS_ORFAS = guardadas.filter(x=>x && !x.ocorrencia && !x.num).length;
+  const lidas = guardadas.filter(folhaDestaOcorrencia).map(x=>folhaCalibrada(x));
   /* **O que se perde anuncia-se.** Uma folha gravada que deixe de passar a validação — por
      a revisão ter apertado uma recusa, ou por a base ter uma colocação de antes da regra da
      projeção única — desaparecia sem uma palavra. É a mesma classe do `null` silencioso da
@@ -420,7 +462,7 @@ async function colocarFolha(){
   const g = $("fo-grelha").value;
   const recusa = recusaPorProjecao(g);
   if(recusa) return recusar(recusa);
-  const f = folhaCalibrada({ id:"f"+agora().toString(36), nome:nome || fi.files[0].name,
+  const f = folhaCalibrada({ id:novoIdFolha(), nome:nome || fi.files[0].name,
     largura:im.largura, altura:im.altura, mundo, grelha:g,
     proveniencia:prov, pontos, controlos });
   if(!f) return recusar("A colocação não é utilizável: os seis coeficientes descrevem uma folha sem área ou sem inversa.");
@@ -463,8 +505,13 @@ async function retirarFolha(id){
 /** A lista das folhas colocadas, com o que permite duvidar de cada uma. */
 function pintarFolhas(){
   const el = $("fo-lista"); if(!el) return;
-  if(!FOLHAS.length){ el.innerHTML = '<p class="hint" style="margin:0">Nenhuma folha colocada.</p>'; return; }
-  el.innerHTML = FOLHAS.map(f=>{
+  const orfas = FOLHAS_ORFAS
+    ? '<p class="hint" style="margin:8px 0 0 0">' + FOLHAS_ORFAS + (FOLHAS_ORFAS === 1? " folha" : " folhas")
+      + " na base sem ocorrência atribuída, de antes da r0099: ficam guardadas, e não se atribuem a esta.</p>"
+    : "";
+  const minhas = folhasDaOcorrencia();
+  if(!minhas.length){ el.innerHTML = '<p class="hint" style="margin:0">Nenhuma folha colocada.</p>' + orfas; return; }
+  el.innerHTML = minhas.map(f=>{
     const g = GRELHAS[f.grelha];
     /* Metros por pixel: sai do determinante, que é a área que um pixel cobre no terreno.
        É o número por que se percebe, de relance, se a colocação faz sentido — uma folha a
@@ -486,8 +533,33 @@ function pintarFolhas(){
       + (af && af.suspeita? ' <span class="pend">os dois modelos de distância divergem '+fmtPT(af.desvio*100, 1)+' %</span>' : "")
       + (f.img? "" : ' <span class="pend">sem imagem nesta sessão — volta a escolhê-la para a desenhar</span>')
       + ' <button class="lk" type="button" data-fo-rem="'+esc(f.id)+'">Retirar</button></span></div>';
-  }).join("");
+  }).join("") + orfas;
   el.querySelectorAll("[data-fo-rem]").forEach(b=>b.addEventListener("click", ()=>retirarFolha(b.dataset.foRem)));
 }
 
 $("fo-colocar").addEventListener("click", colocarFolha);
+
+/**
+ * As folhas que vieram no pacote da ocorrência: adotam-se, gravam-se e pintam-se.
+ *
+ * A colocação viaja no pacote — seis coeficientes, dois pontos de controlo, um nome, uma
+ * proveniência, duas dimensões — e a imagem não: a razão de `FOLHAS` viver fora de `O` é o
+ * peso da imagem, e desde que a r0092 guarda só a colocação essa razão deixou de valer
+ * para ela. Numa rendição é a diferença entre repor a folha por um ficheiro e calibrá-la
+ * de novo com dois pontos de controlo, às três da manhã, sobre terreno que não se conhece
+ * (ramo #001). Um pacote sem folhas repõe as que a base tiver desta ocorrência.
+ *
+ * @returns {Promise<number>} quantas folhas vieram no pacote e foram adotadas
+ */
+async function adotarFolhasDoPacote(pacote){
+  const lista = (pacote && Array.isArray(pacote.folhas))? pacote.folhas : null;
+  FOLHAS.forEach(f=>{ if(f.img){ try{ URL.revokeObjectURL(f.img); }catch(e){ /* ignorado: URL já revogada */ } } });
+  if(!lista){ FOLHAS = []; try{ await carregarFolhas(); }catch(e){ /* sem base não há folhas a repor */ } pintarFolhas(); return 0; }
+  const id = String((O && O.meta && O.meta.id) || "");
+  FOLHAS = lista.map(x=>folhaCalibrada(Object.assign({}, x, { ocorrencia:id, img:undefined }))).filter(Boolean);
+  const g = grelhaDasFolhas();
+  if(g) FOLHAS = FOLHAS.filter(f=>f.grelha === g);
+  try{ await guardarFolhas(); }catch(e){ /* sem base a folha vale nesta sessão */ }
+  pintarFolhas();
+  return FOLHAS.length;
+}

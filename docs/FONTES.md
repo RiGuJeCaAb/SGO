@@ -9,6 +9,14 @@ verificável por comparação, e não por leitura.
 
 ## Documentos citados pelo motor de conformidade
 
+**Uma citação que entrou pela leitura do ramo #006 e não pela do motor:** o art. 10.º, n.º 5,
+al. a) do Despacho n.º 4067/2024 — o que o comandante de setor reconhece: limites, acessos,
+caminhos penetrantes, percursos de fuga, zonas de segurança, ameaças e pontos sensíveis — e
+o ponto 17 do Anexo 3 da DON n.º 2, que inclui nas situações de perigo o terreno tornar
+difícil a fuga para as zonas de segurança. Sustentam o tipo de nota «Percurso de fuga ou zona
+de segurança» desde a r0103. O #006 diz ter conferido as citações contra o texto integral;
+esta linhagem não as releu, e é por isso que ficam aqui com o nome de quem as leu.
+
 ### `SGO4067`
 **Despacho n.º 4067/2024, de 15 de abril** — regulamentação do Sistema de Gestão de
 Operações.
@@ -136,10 +144,10 @@ combustível — que é a razão de serem aproveitáveis aqui:
 
 | Relação | O que dá | Fonte primária citada |
 |---|---|---|
-| `I = R·w / 2`, com R em m/h e w em t/ha | Intensidade da frente, em kW/m | Byram (1959) |
+| `I = R·w / 2`, com R em m/h e w em t/ha | Intensidade da frente, em kW/m. É `I = H·w·R` de Byram com **H = 18 000 kJ/kg, escolha de Fernandes** — Byram define a intensidade e não fixa o poder calorífico; na aplicação é `H_COMBUSTAO`, com nome | Byram (1959), definição; Fernandes (2003), a constante |
 | `I = 300·L²` | Comprimento da chama, por aproximação geral | — |
 | Distância de segurança **≥ 4 × altura da chama** | Tolerância de 7 kW/m² de radiação incidente | Butler e Cohen (1998) |
-| Largura de corta-fogo **≥ 1,5 × comprimento da chama** | Para suster, sem projeção de faúlhas | Byram (1959) |
+| Largura de corta-fogo **≥ 1,5 × comprimento da chama** | Para suster, sem projeção de faúlhas | Atribuída a Byram (1959) por Fernandes; **por confirmar na fonte**, que não se leu — ver abaixo |
 | **4 000 kW/m** (chamas > 3,6 m) | Acima disto, atacar a cabeça diretamente é *"perigoso e inconsequente"* | Alexander (2000) |
 | Expansão perimetral ≈ **2,5 × R** | Crescimento do perímetro, m/h | Alexander (2000) |
 | Perímetro ≈ 2,5 × (R × tempo desde a ignição) | Extensão do perímetro, m | Alexander (2000) |
@@ -147,6 +155,29 @@ combustível — que é a razão de serem aproveitáveis aqui:
 
 Diz ainda que um fogo de propagação dominada pelo vento **toma a forma de uma elipse**, com
 intensidade máxima na cabeça, decrescente ao longo dos flancos e mínima na retaguarda.
+
+**A citação de Byram, intacta.** A aplicação não leu Byram; leu Fernandes (2003), que o cita.
+Toda a citação de Byram na aplicação diz-o desde a r0103 — havia treze, e onze omitiam o
+intermediário (ramo #003, d0007). A referência completa, não consultada:
+
+> Byram, G. M. (1959). Combustion of forest fuels. In: Davis, K. P. (ed.), *Forest Fire:
+> Control and Use*. McGraw-Hill, New York, pp. 61–89.
+
+O que é de Byram e o que está por confirmar: `I = H·w·R` é a definição dele, confirmada; o
+poder calorífico de 18 000 kJ/kg é escolha de Fernandes; a largura de linha de 1,5 × o
+comprimento da chama e a condição de ausência de projeção de faúlhas são atribuídas a Byram
+por Fernandes e **estão por confirmar na fonte** — o capítulo de Byram é sobre combustão, e
+uma regra operacional de largura é o tipo de número que entra pela literatura operacional e é
+retroatribuído à fonte teórica. A aplicação diz «atribuída a Byram 1959 por Fernandes 2003,
+por confirmar na fonte» onde a usa.
+
+**A distância de segurança consome a altura da chama, e a aplicação só tem o comprimento.**
+Butler e Cohen (1998) pedem a altura; a aplicação toma-a igual ao comprimento — chama
+vertical — e diz-o em cada saída. A margem que a substituição cria com a chama inclinada
+não se declara disponível: o fator 4 vem de um modelo de radiação apenas, e Butler (2014),
+que trata do vento, do declive e da convecção, **não se tem**. É a fonte que falta antes de
+junho. Toda a distância de segurança impressa leva a frase de que é valor teórico e não
+substitui o reconhecimento no local (DON n.º 2, Anexo 3, situação n.º 3).
 
 E um aviso que interessa registar: **Portugal adotou o sistema canadiano de indexação de
 perigo** — FFMC, DMC, DC, ISI, BUI, FWI —, mas *"os limites das classes de perigo do índice
