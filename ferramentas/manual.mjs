@@ -83,6 +83,13 @@ const RENDIDOS = [
   /* O rótulo de uma ocorrência sem número no arquivo, escrito por `pintarArquivo` no lugar
      do número. O arquivo nasce vazio, e o molde não o tem. */
   { rotulo: 'sem número', ficheiro: 'fonte/1-nucleo/05-persistencia.js' },
+  /* As três gravidades das notas e os dois graus da circulação: os alvos do mapa compõem-se
+     em tempo de execução a partir de `TIPOS_NOTA` e `GRAUS_NOTA`. */
+  { rotulo: 'Ameaça, ponto crítico ou segurança', ficheiro: 'fonte/4-operacoes/11-notas-no-mapa.js' },
+  { rotulo: 'Acesso e circulação', ficheiro: 'fonte/4-operacoes/11-notas-no-mapa.js' },
+  { rotulo: 'Reconhecimento', ficheiro: 'fonte/4-operacoes/11-notas-no-mapa.js' },
+  { rotulo: 'Interdição à circulação', ficheiro: 'fonte/4-operacoes/11-notas-no-mapa.js' },
+  { rotulo: 'Condicionamento à circulação', ficheiro: 'fonte/4-operacoes/11-notas-no-mapa.js' },
 ];
 
 /** Confere que cada rótulo declarado está mesmo escrito no módulo que se disse. */

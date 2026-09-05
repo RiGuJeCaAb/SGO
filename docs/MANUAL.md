@@ -820,9 +820,24 @@ vai no ficheiro exportado e volta com a importação; a imagem não vai, e escol
 ao abrir, como já acontece entre sessões. As folhas colocadas antes da r0099, que não dizem de
 que ocorrência são, ficam guardadas e contadas no quadro, sem se atribuírem a nenhuma.
 
-**No mapa há um tipo de nota para percursos de fuga e zonas de segurança.** Ao contrário das
-notas de manobra, alerta quando a frente lá chega — uma zona de segurança no caminho da
-frente deixa de ser zona de segurança, e a leitura da evolução di-lo.
+**As notas do mapa têm três gravidades.** «Ameaça, ponto crítico ou segurança» é a que
+alerta quando a frente lá chega: interdições e condicionamentos à circulação, perigos, pontos
+críticos para reação imediata, percursos de fuga e zonas de segurança — uma zona de segurança
+no caminho da frente deixa de ser zona de segurança, e a leitura da evolução di-lo. «Acesso e
+circulação» são os acessos, os caminhos penetrantes, as entradas e saídas de meios.
+«Reconhecimento» é o estado do terreno e o que já se fez. Uma nota da primeira gravidade sobre
+uma via pode dizer qual dos dois graus da norma é, «Interdição à circulação» ou
+«Condicionamento à circulação», e o grau vai à cabeça do texto no mapa e no plano. As notas
+escritas antes da r0105 passam para a gravidade que lhes corresponde ao abrir.
+
+**O campo «Hora de alerta (GDH)» é o início da ocorrência.** É a partir dele que contam os
+90 minutos do ataque inicial e o que mais conta desde o início; o valor é o mesmo que estava
+no campo, só o nome diz agora o que ele é.
+
+**A aplicação diz o que não conseguiu guardar.** Uma colocação de folha que não fica na base
+acende o indicador da gravação; uma cópia de segurança automática ou uma poda que falhem
+ficam na fita do tempo; um pacote de canais guardado que não se consiga repor também; e a
+linha de estado do mapa conta os quadrados de carta que não ficaram no arquivo nesta sessão.
 
 **A distância de segurança é valor teórico.** Onde a aplicação a escreve, escreve também que
 não substitui o reconhecimento no local nem a identificação de zonas de segurança e caminhos

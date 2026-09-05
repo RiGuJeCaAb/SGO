@@ -522,7 +522,7 @@ async function mosaicoBlob(z, x, y){
       }
       const l = await _idb("mosaicos", "readonly", st=>st.get(chaveMosaicoLocal(z, x, y)));
       if(l && l.b && l.local) return l.b;
-    }catch(e){}
+    }catch(e){ ARQUIVO_MAPA.leituras++; }
   }
   if(!CARTA) return null;
   try{
@@ -540,7 +540,20 @@ async function mosaicoBlob(z, x, y){
 /** Guarda um mosaico vindo do serviço, depois de reconhecido como carta. */
 async function guardarMosaico(z, x, y, b){
   if(!IDB) return;
-  try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:agora()}, chaveMosaico(z, x, y))); }catch(e){}
+  try{ await _idb("mosaicos","readwrite", st=>st.put({b, ts:agora()}, chaveMosaico(z, x, y))); }catch(e){ ARQUIVO_MAPA.escritas++; }
+}
+/**
+ * O que o arquivo da carta não conseguiu ler ou guardar nesta sessão. Eram três `catch`
+ * vazios num ciclo por quadrado (#005): um aviso por quadrado seria ruído, nenhum era
+ * silêncio. Conta-se, e a linha de estado do mapa diz-o.
+ */
+const ARQUIVO_MAPA = { leituras:0, escritas:0 };
+/** A frase da linha de estado sobre o arquivo, ou vazia quando nada falhou. */
+function estadoDoArquivoMapa(){
+  const l = ARQUIVO_MAPA.leituras, w = ARQUIVO_MAPA.escritas;
+  if(!l && !w) return "";
+  return "Arquivo da carta: " + (w? w + " quadrado(s) por guardar" : "") + (w && l? ", " : "")
+    + (l? l + " leitura(s) falhada(s)" : "") + " nesta sessão — sem rede, esses quadrados não se servem.";
 }
 
 /**
@@ -885,7 +898,7 @@ function camadaMapa(){
     const q = pxy(nt.lat, nt.lon), x0 = n(q.x), y0 = n(q.y);
     g += '<circle cx="'+x0+'" cy="'+y0+'" r="3.2" fill="'+d.cor+'" stroke="#fff" stroke-width="1.4"/>';
     g += '<path d="M'+x0+','+y0+' L'+n(x0+10)+','+n(y0-10)+'" stroke="'+d.cor+'" stroke-width="1.2"/>';
-    g += rotulo(x0 + 13, y0 - 8, nt.txt, 10, d.alerta);
+    g += rotulo(x0 + 13, y0 - 8, textoDaNota(nt), 10, d.alerta);
   });
 
   /* Os meios posicionados. Quadrado com a tipologia dentro, que é como aparecem na carta
@@ -1028,6 +1041,7 @@ function pintarEstadoMapa(vieram, total){
     const total = P0 ? areaGeoJSON({ type:"Polygon", coordinates:P0.aneis }) : 0;
     partes.push("Setorizado: "+haSet+" ha"+(total > 0 ? " de "+total+" ha da ZI" : "")+".");
   }
+  if(estadoDoArquivoMapa()) partes.push(estadoDoArquivoMapa());
   partes.push("Ampliação "+MAPA.z+" · "+fmtPT(gEscala(gDe(MAPA.cx, MAPA.cy, MAPA.z).lat, MAPA.z), 2)+" m por pixel."
     + " Mapa de apoio à decisão: não substitui a carta militar nem serve para navegação.");
   el.innerHTML = partes.map(t=>'<div>'+esc(t)+'</div>').join("");
@@ -1057,7 +1071,9 @@ function pintarAlvos(){
         +(limiteSetor(i)? " (traçado — recomeça)":"")+'</option>').join("")
     + meiosDoDispositivo().map(m=>'<option value="M:'+esc(m.it.id)+'">Posicionar '+esc(m.nome)
         +' — Setor '+esc(NOMES_SETOR[m.setor])+(Number.isFinite(m.it.lat)? " (já posicionado)":"")+'</option>').join("")
-    + TIPOS_NOTA.map(t=>'<option value="N:'+t.k+'">Nota — '+esc(t.n)+': '+esc(t.d)+'</option>').join("")
+    + TIPOS_NOTA.map(t=>'<option value="N:'+t.k+'">Nota — '+esc(t.n)+': '+esc(t.d)+'</option>'
+        /* Os dois graus da circulação, da gravidade 1: são dois valores e não um. */
+        + (t.k === "ameaca" ? GRAUS_NOTA.map(g=>'<option value="N:'+t.k+':'+g.k+'">Nota — '+esc(t.n)+' · '+esc(g.alvo)+'</option>').join("") : "")).join("")
     + '<option value="F">Frente de fogo (traçar linha)</option>'
     + TIPOS_LINHA.map(t=>'<option value="C:'+t.k+'">'+esc(t.n)+' — '+esc(t.d)+'</option>').join("")
     + TIPOS_PONTO.map(t=>'<option value="t:'+t.k+'">'+esc(t.n)+' — '+esc(t.r)+'</option>').join("");
@@ -1122,7 +1138,7 @@ function pintarPontos(){
     return;
   }
   el.innerHTML = NT.map(nt=>
-      '<div class="mp-li"><b>'+esc(nt.txt)+'</b>'
+      '<div class="mp-li"><b>'+esc(textoDaNota(nt))+'</b>'
       + '<span class="hint">'+esc(defNota(nt.tipo).n)+(nt.setor? " · setor "+esc(nt.setor):"")+'</span>'
       + '<span class="mono">'+esc(fmtDec(nt.lat, nt.lon))+'</span>'
       + '<span class="hint">'+esc(nt.g)+(nt.por? " · "+esc(nt.por):"")+'</span>'
@@ -1240,7 +1256,8 @@ function cliqueNoMapa(px, py){
     aviso("mapa-msg","ok","Setor "+NOMES_SETOR[+alvo.slice(2)]+" em "+fmtDec(lat, lon)+".");
   } else if(alvo.startsWith("N:")){
     const txt = String(($("mapa-nome")||{}).value || "").trim();
-    const r = escreverNota(alvo.slice(2), lat, lon, txt);
+    const [tipo, grau] = alvo.slice(2).split(":");
+    const r = escreverNota(tipo, lat, lon, txt, grau);
     if(!r.ok){ aviso("mapa-msg","err",r.motivo); return; }
     if($("mapa-nome")) $("mapa-nome").value = "";
     aviso("mapa-msg","ok",defNota(r.nota.tipo).n+" escrita em "+fmtDec(lat, lon)+".");

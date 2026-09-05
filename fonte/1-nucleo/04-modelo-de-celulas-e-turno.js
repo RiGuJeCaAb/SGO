@@ -420,6 +420,22 @@ MIGRACOES.push(e => {
   return e;
 });
 
+/* 27 -> 28 · As notas do mapa passam a três gravidades — ameaça, acesso, reconhecimento —
+   e as quatro espécies de antes convertem-se: aviso e percurso de fuga eram a gravidade 1,
+   manobra é acesso, observação é reconhecimento. `grau` nasce vazio: o que estava gravado
+   não dizia se era interdição ou condicionamento, e não se adivinha. */
+MIGRACOES.push(e => {
+  const MAPA = { aviso:"ameaca", seguranca:"ameaca", manobra:"acesso", obs:"reconhecimento" };
+  if(e.dados && Array.isArray(e.dados.notas)){
+    e.dados.notas.forEach(n => {
+      if(!n || typeof n !== "object") return;
+      if(MAPA[n.tipo]) n.tipo = MAPA[n.tipo];
+      if(typeof n.grau !== "string") n.grau = "";
+    });
+  }
+  return e;
+});
+
 /* `let O` só depois do último degrau. Estava a meio da escada, com sete degraus antes e
    dezasseis depois: latente, porque `novoEstado` não corre a escada, mas é a classe de
    defeito que o comentário da escada regista ter custado caro — um degrau declarado depois

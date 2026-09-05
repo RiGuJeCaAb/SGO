@@ -79,7 +79,12 @@ async function carregarCanais(){
         if(n) fita("Pacote de canais atualizado: "+n+" canais acrescentados pela revisão");
       }
     }
-  }catch(e){}
+  }catch(e){
+    /* Sem pacote guardado é o caso normal do primeiro arranque: não é falha. Um pacote que
+       existe e não se lê é — ficava o de origem no lugar do que o oficial tinha
+       acrescentado, sem uma palavra (#005). */
+    if(String(e) !== "sem chave") fita("Pacote de canais guardado não pôde ser reposto ("+String((e && e.message) || e).slice(0, 60)+"): está em uso o pacote de origem.");
+  }
 }
 /** Grava o catálogo. Falhar não interrompe: o canal em uso já está no estado. */
 async function guardarCanais(){ try{ await ARMAZEM.set("peaapp:canais", JSON.stringify(CANAIS)); }catch(e){} }

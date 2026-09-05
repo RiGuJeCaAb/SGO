@@ -231,8 +231,10 @@ interface LinhaDeContencao {
  */
 interface NotaNoMapa {
   id: string;
-  /** `aviso`, `manobra` ou `obs`. Ver TIPOS_NOTA. */
+  /** `ameaca`, `acesso` ou `reconhecimento`, as três gravidades. Ver TIPOS_NOTA. */
   tipo: string;
+  /** `interdicao`, `condicionamento` ou vazio; só na gravidade 1. Ver GRAUS_NOTA. */
+  grau?: string;
   txt: string;
   lat: number; lon: number;
   /** O setor em que a nota caiu, pelo nome. Vazio se não houver limites traçados. */

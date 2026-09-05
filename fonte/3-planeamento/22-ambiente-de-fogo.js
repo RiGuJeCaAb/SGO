@@ -88,7 +88,7 @@ function retratoDoFogo(){
     /* O campo é `txt` e não `texto` — escrevi `texto` e o verificador de tipos apanhou-o.
        Sem ele, o aviso chegava ao plano como cadeia vazia: uma linha de média tensão sobre
        o caminho apareceria no PEA como «Avisos escritos no mapa: .» */
-    tipo:x.tipo, texto:x.txt||"", setor:x.setor||"",
+    tipo:x.tipo, texto:(typeof textoDaNota === "function"? textoDaNota(x) : (x.txt||"")), setor:x.setor||"",
     /* Um aviso não é uma observação. A distinção já está declarada em `TIPOS_NOTA` e é
        operacional: o que restringe ou avisa tem consequência para quem lá vai. */
     alerta: !!(typeof defNota === "function" && defNota(x.tipo).alerta) }));

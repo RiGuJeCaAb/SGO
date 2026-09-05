@@ -316,7 +316,12 @@ async function guardarFolhas(){
       };
       return null;
     });
-  }catch(e){}
+  }catch(e){
+    /* Era `catch(e){}`: as colocações não persistiam e descobria-se na sessão seguinte, com
+       a folha por calibrar outra vez (#005). Acende o indicador da gravação, que é onde
+       o que não ficou no disco se diz. */
+    registarGravacao({ ok:false, erro:"colocação das folhas não gravada: "+String((e && e.message) || e).slice(0, 60) });
+  }
 }
 
 /**

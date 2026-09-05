@@ -73,7 +73,9 @@ async function persistir(nota){
     if(nota) aviso("msg-occ","err","Não foi possível guardar ("+e+").");
   }
   registarGravacao(resultado);
-  try{ await copiaSeDevida(); }catch(e){}
+  /* A cópia automática que não se faz continuava a não se fazer, em silêncio (#005). Vai
+     para a fita, que é o registo; a gravação boa não se marca falhada por causa dela. */
+  try{ await copiaSeDevida(); }catch(e){ fita("Cópia de segurança automática não feita ("+String((e && e.message) || e).slice(0, 60)+")."); }
   pintarTudo();
   return resultado;
 }

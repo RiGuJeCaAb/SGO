@@ -14,8 +14,14 @@ al. a) do Despacho n.º 4067/2024 — o que o comandante de setor reconhece: lim
 caminhos penetrantes, percursos de fuga, zonas de segurança, ameaças e pontos sensíveis — e
 o ponto 17 do Anexo 3 da DON n.º 2, que inclui nas situações de perigo o terreno tornar
 difícil a fuga para as zonas de segurança. Sustentam o tipo de nota «Percurso de fuga ou zona
-de segurança» desde a r0103. O #006 diz ter conferido as citações contra o texto integral;
-esta linhagem não as releu, e é por isso que ficam aqui com o nome de quem as leu.
+de segurança» desde a r0103, e as três gravidades das notas desde a r0105. Conferidas nesta
+linhagem a 5 de setembro contra o texto extraído dos PDF desta pasta, junto com o art. 46.º,
+n.º 1 («pontos críticos para reação imediata»), o art. 23.º, n.º 1, al. a) («ações de
+interdição ou de condicionamento à circulação de vias de tráfego»), a situação 3 do mesmo
+Anexo («não foram identificadas zonas de segurança nem caminhos de fuga»), o ponto 7.d.(30)
+da DON n.º 2 («rotatividade de funções a cada 12 horas»), o 7.e.(4) («até aos 90 minutos após
+o alerta»), e as duas definições da hora de entrada na Entidade, 7.d.(14)(d) e 9.d.(6), que
+não coincidem para o meio reencaminhado a meio da marcha — ver `ESTADO.md`, r0105.
 
 ### `SGO4067`
 **Despacho n.º 4067/2024, de 15 de abril** — regulamentação do Sistema de Gestão de
@@ -33,7 +39,7 @@ Designação usada nas citações: `DON n.º 2 / DECIR 2026`, ou `DON n.º 2` qu
 seguir a outra referência na mesma linha.
 
 Pontos invocados: 7.d.(5), 7.d.(7), 7.d.(8), 7.d.(14), 7.d.(17), 7.d.(18), 7.d.(19),
-7.d.(20), 7.d.(22), 7.d.(23), 7.d.(25)(d), 7.d.(27), 7.d.(30); 7.e.(4)(o), 7.e.(4)(t),
+7.d.(20), 7.d.(22), 7.d.(23), 7.d.(25)(d), 7.d.(27), 7.d.(30); 7.e.(4), 7.e.(4)(o), 7.e.(4)(t),
 7.e.(5), 7.e.(5)(a), 7.e.(5)(r), 7.e.(5)(t); 7.k.(1), 7.k.(2); 7.l.(1), 7.l.(2);
 10(1), 10(2), 10(3), 10(5).
 
@@ -617,6 +623,7 @@ Operações (TO)` e `7.e — Desenvolvimento das Ações Operacionais`; dentro d
 | `7.d.(29)` | Constituição das EPCO |
 | `7.d.(30)` | A EPCO assegura continuidade de trabalho |
 | `7.e.(4)(o)` | «O COS deve assegurar informação permanente ao CSREPC, comunicando o ponto de situação (POSIT) atualizado, com periodicidade máxima de 1 (uma) hora» |
+| `7.e.(4)` | Ataque Inicial: o despacho e as ações de combate «até aos 90 minutos após o alerta» — o t=0 é a hora de alerta. Conferido a 5 de setembro |
 | `7.e.(5)` | Ataque Ampliado: ocorrência acima dos 90 minutos |
 | `7.e.(5)(r)` | Pelo controlo dos tempos de trabalho, assegurar a rendição de meios através do CSREPC |
 | `7.d.(17)` | O emprego de meios aéreos integra-se no PEA |

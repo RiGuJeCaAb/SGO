@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0104**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0105**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 142, das anteriores à convenção de nomes até à r0104 |
+| Entregas em `app/` | 143, das anteriores à convenção de nomes até à r0105 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1041, todos a passar |
+| Testes | 1045, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1152,6 +1152,75 @@ daqui `npm run navegador` corre aqui antes de qualquer push, e não só na CI.
 
 **Números.** 1041 testes, 20 novos; nove portões e o trabalho de navegador verdes;
 auditoria visual limpa nos dois temas; a entrada vazia.
+
+## As decisões do dono — r0105
+
+Chegaram a 5 de setembro, em resposta às cinco do #006 e às duas desta linhagem. Três vinham
+com um texto de apoio a validar; validaram-se contra o texto dos diplomas em `docs/fontes/`,
+extraído com `pdftotext`, e não contra a memória de ninguém.
+
+**1. As três gravidades do sinal — impostas.** As notas do mapa passam a «Ameaça, ponto
+crítico ou segurança» (alerta), «Acesso e circulação» e «Reconhecimento», que são os títulos
+do #006. As quatro espécies de antes convertem-se no degrau 27 → 28: aviso e percurso de
+fuga para a gravidade 1, manobra para acesso, observação para reconhecimento. As espécies
+antigas continuam a ler-se pelo nome, para um pacote por migrar. O léxico é o do art. 10.º,
+n.º 5, al. a) do SGO, do art. 46.º, n.º 1, e do art. 23.º, n.º 1, al. a) — os três conferidos
+no despacho: «limites, acessos, caminhos penetrantes, percursos de fuga, zonas de segurança,
+ameaças e pontos sensíveis»; «pontos críticos para reação imediata»; «ações de interdição ou
+de condicionamento à circulação de vias de tráfego». E as situações 3 e 17 do Anexo 3 da
+DON n.º 2, também conferidas: «não foram identificadas zonas de segurança nem caminhos de
+fuga»; «o terreno e combustíveis tornam difícil a fuga para as zonas de segurança».
+
+**2. Acessos na gravidade 2, percursos de fuga na 1 — confirmado.** O texto de apoio
+confere no essencial: o art. 10.º, n.º 5, al. a) enumera os dois lado a lado, e a distinção
+entre a rede que entra e a que sai é a do LACES. O que o texto acrescenta — faixas de dez
+metros em estradas particulares, caminhos «nunca sem saída» — não está no despacho nem na
+DON e não entrou em lado nenhum; os dez metros são do regime das faixas de gestão de
+combustível, que é outra lei e não a do SGO. O Despacho n.º 3317-A/2018 que cita é o
+regulamento anterior, revogado pelo de 2024.
+
+**3. Interdição e condicionamento — dois valores.** `grau` na nota de gravidade 1, com os
+dois valores da norma e vazio quando não se sabe; o mapa oferece «Interdição à circulação» e
+«Condicionamento à circulação» como alvos próprios, e o grau vai à cabeça do texto no mapa,
+na lista, na fita e no plano. Fora da gravidade 1, ou escrito de outra maneira, fica vazio em
+vez de se inventar.
+
+**4. O momento de 9.d.(6) — o texto de apoio não responde à pergunta.** A pergunta do #006
+era qual das duas definições da hora de entrada na Entidade se grava: a do ponto 7.d.(14)(d),
+«a hora a que o mesmo chega ao seu destino final», ou a do ponto 9.d.(6), «hora em que o
+veículo chega ao seu local de estacionamento/quartel ou encerra a sua participação na
+ocorrência» — que diferem para o meio reencaminhado a meio da marcha. O texto colado fala de
+«ordem dada» contra «ação concluída», que não é nenhuma das duas. **Fica proposto, e por
+confirmar:** gravar a de 9.d.(6), porque é o registo que a DON manda ao CSREPC e é o CSREPC
+quem usa isto. A aplicação ainda não grava a chegada à entidade — as rendições registam a
+saída do TO —, pelo que a decisão é uma definição para quando o campo entrar.
+
+**5. O instante de origem de P6 — o texto de apoio responde a outra pergunta.** No quadro do
+#006, P6 é a rotatividade de funções da EPCO a cada 12 horas, ponto 7.d.(30) da DON n.º 2,
+conferido: «garantindo a rotatividade de funções a cada 12 horas». O texto colado define P6
+como «incêndio concluído», que não existe no quadro. O instante de origem que a aplicação já
+usa, na regra `turno`, é o GDH de início do turno declarado na passagem de turno; fica
+registado como decisão, e é o que o #006 pedia que se assinasse.
+
+**6. A hora de alerta é o campo do início.** O rótulo passa a «Hora de alerta (GDH) — início
+da ocorrência», sem campo novo nem degrau: o valor é o mesmo, e é o t=0 dos 90 minutos —
+«até aos 90 minutos após o alerta», DON n.º 2, 7.e.(4), conferido. O comentário de
+`contextoDON` diz-o.
+
+**7. Guardar e repor as folhas — confirmado.** Já era o que a r0103 fazia dos dois lados;
+fica como decisão do dono, com a razão dele: a aplicação não descarta informação, para que
+mais tarde se possam estudar as decisões e melhorar a própria aplicação.
+
+**Os oito `catch` do #005.** `guardarFolhas` acende o indicador da gravação; a cópia
+automática e a poda das cópias que falham vão para a fita; o pacote de canais guardado que
+existe e não se lê vai para a fita, e a ausência de pacote no primeiro arranque não é falha;
+os três do arquivo da carta — leitura, escrita e a pasta local — contam-se numa sessão em
+vez de avisar por quadrado, a pasta já contava, e a linha de estado do mapa diz quantos
+quadrados ficaram por guardar. A sonda do `localStorage` fica como está: é deteção de
+capacidade, como o #005 reclassificou.
+
+**Números.** 1045 testes; nove portões e o trabalho de navegador verdes; auditoria visual
+limpa nos dois temas.
 
 ## Decisões tomadas
 

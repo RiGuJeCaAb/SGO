@@ -21,6 +21,9 @@ const semAplicacao = { skip: janela ? false : 'sem revisão em app/' };
 after(() => janela?.close());
 
 const av = (e) => avaliar(janela, e);
+/** A entrega mais recente, para os testes síncronos que a leem. */
+const revisaoSync = await revisaoMaisRecente();
+const await_revisao = () => revisaoSync;
 
 /** As linhas de todos os módulos da fonte, com o caminho e o número. */
 function linhasDaFonte() {
@@ -132,16 +135,92 @@ test('a conferência da série meteorológica que falha é dita, e não engolida
 /* ---- #006 ---- */
 
 test('um percurso de fuga ou uma zona de segurança alerta quando a frente lá chega', semAplicacao, () => {
-  assert.equal(av('defNota("seguranca").alerta'), true);
-  assert.equal(av('defNota("manobra").alerta'), false, 'os acessos continuam em manobra, sem alerta');
-  assert.match(av('defNota("seguranca").n'), /Percurso de fuga ou zona de segurança/);
-  av('O.dados.notas = [{ id:"nt1", tipo:"seguranca", txt:"ZS na eira", lat:41.1, lon:-7.7 }, { id:"nt2", tipo:"manobra", txt:"entrada pela EN", lat:41.1, lon:-7.7 }];');
+  assert.equal(av('defNota("ameaca").alerta'), true);
+  assert.equal(av('defNota("acesso").alerta'), false, 'os acessos ficam na gravidade 2, sem alerta');
+  assert.match(av('defNota("ameaca").d'), /percurso de fuga, zona de segurança/);
+  av('O.dados.notas = [{ id:"nt1", tipo:"ameaca", txt:"ZS na eira", lat:41.1, lon:-7.7 }, { id:"nt2", tipo:"acesso", txt:"entrada pela EN", lat:41.1, lon:-7.7 }];');
   assert.equal(av('avisosNoMapa().length'), 1);
   assert.equal(av('avisosNoMapa()[0].txt'), 'ZS na eira');
   av('O.dados.notas = [];');
 });
 
-test('a entrega oferece o tipo novo de nota no mapa', async () => {
+/* ---- as decisões do dono, 5 de setembro ---- */
+
+test('as três gravidades do #006 são as da entrega, e a migração 27 -> 28 converte as espécies de antes', semAplicacao, () => {
+  const entrega = readFileSync(await_revisao(), 'utf8');
+  for (const n of ['Ameaça, ponto crítico ou segurança', 'Acesso e circulação', 'Reconhecimento']) assert.match(entrega, new RegExp(n));
+  const r = JSON.parse(av(`(()=>{
+    const e = novoEstado(); e.versao = 27;
+    e.dados.notas = [
+      { id:"a", tipo:"aviso", txt:"x", lat:41, lon:-7.7, setor:"", g:"", por:"" },
+      { id:"b", tipo:"seguranca", txt:"x", lat:41, lon:-7.7, setor:"", g:"", por:"" },
+      { id:"c", tipo:"manobra", txt:"x", lat:41, lon:-7.7, setor:"", g:"", por:"" },
+      { id:"d", tipo:"obs", txt:"x", lat:41, lon:-7.7, setor:"", g:"", por:"" } ];
+    const m = migrarGravado(e);
+    return JSON.stringify(m.dados.notas.map(n=>[n.tipo, n.grau]));
+  })()`));
+  assert.deepEqual(r, [['ameaca', ''], ['ameaca', ''], ['acesso', ''], ['reconhecimento', '']], 'o grau nasce vazio: o que estava gravado não dizia qual era, e não se adivinha');
+});
+
+test('interdição e condicionamento são dois graus da gravidade 1, e só dela', semAplicacao, () => {
+  av('O = novoEstado(); escreverForm();');
+  const a = av('escreverNota("ameaca", 41.09, -7.81, "EN 226 ao km 12", "interdicao")');
+  assert.equal(a.ok, true);
+  assert.equal(a.nota.grau, 'interdicao');
+  assert.equal(av('textoDaNota(O.dados.notas[0])'), 'Interdição: EN 226 ao km 12', 'o grau vai à cabeça do texto, no mapa e no plano');
+  assert.match(av('O.fita[O.fita.length-1].e'), /Interdição: EN 226/);
+  const b = av('escreverNota("ameaca", 41.09, -7.81, "EM 502", "condicionamento")');
+  assert.equal(b.nota.grau, 'condicionamento');
+  const c = av('escreverNota("acesso", 41.09, -7.81, "entrada pela EN", "interdicao")');
+  assert.equal(c.nota.grau, '', 'fora da gravidade 1 não há grau');
+  const d = av('escreverNota("ameaca", 41.09, -7.81, "linha de MT", "outro")');
+  assert.equal(d.nota.grau, '', 'um grau que não é da norma não se inventa');
+  av('pintarAlvos();');
+  assert.equal(av('[...$("mapa-alvo").options].filter(o=>/Interdição à circulação|Condicionamento à circulação/.test(o.textContent)).length'), 2, 'o mapa oferece os dois graus');
+  av('O.dados.notas = [];');
+});
+
+test('o campo do início da ocorrência diz que é a hora de alerta', async () => {
   const entrega = readFileSync(await revisaoMaisRecente(), 'utf8');
-  assert.match(entrega, /Percurso de fuga ou zona de segurança/);
+  assert.match(entrega, /<label for="o-inicio">Hora de alerta \(GDH\)/);
+  const t = readFileSync('fonte/2-comando/02-registo-de-regras-de-conformidade.js', 'utf8');
+  assert.match(t, /após o alerta/, 'a regra dos 90 minutos diz de onde conta');
+});
+
+/* ---- os oito catch de perda do #005 ---- */
+
+test('a colocação das folhas que não fica gravada acende o indicador da gravação', semAplicacao, async () => {
+  av('window.__idb = _idb; _idb = async () => { throw new Error("disco cheio"); }; GRAVACAO.estado = "nada"; GRAVACAO.erro = "";');
+  try {
+    await av('guardarFolhas()');
+    assert.match(av('GRAVACAO.erro'), /colocação das folhas não gravada/);
+  } finally { av('_idb = window.__idb; delete window.__idb; GRAVACAO.estado = "nada"; GRAVACAO.erro = "";'); }
+});
+
+test('um pacote de canais que existe e não se lê é dito; a ausência do pacote não é falha', semAplicacao, async () => {
+  av('O = novoEstado(); window.__get = ARMAZEM.get;');
+  try {
+    av('ARMAZEM.get = async () => { throw "sem chave"; };');
+    const antes = av('O.fita.length');
+    await av('carregarCanais()');
+    assert.equal(av('O.fita.length'), antes, 'o primeiro arranque não tem pacote, e isso não se anuncia');
+    av('ARMAZEM.get = async () => ({ key:"peaapp:canais", value:"{isto não é JSON" });');
+    await av('carregarCanais()');
+    assert.match(av('O.fita[O.fita.length-1].e'), /Pacote de canais guardado não pôde ser reposto/);
+  } finally { av('ARMAZEM.get = window.__get; delete window.__get;'); }
+});
+
+test('o arquivo da carta conta o que não leu nem guardou, e a linha de estado diz-o', semAplicacao, () => {
+  av('ARQUIVO_MAPA.leituras = 0; ARQUIVO_MAPA.escritas = 0;');
+  assert.equal(av('estadoDoArquivoMapa()'), '');
+  av('ARQUIVO_MAPA.escritas = 3; ARQUIVO_MAPA.leituras = 1;');
+  assert.match(av('estadoDoArquivoMapa()'), /3 quadrado\(s\) por guardar, 1 leitura\(s\) falhada\(s\)/);
+  av('ARQUIVO_MAPA.leituras = 0; ARQUIVO_MAPA.escritas = 0;');
+});
+
+test('a cópia automática e a poda que falham vão para a fita', () => {
+  const p = readFileSync('fonte/1-nucleo/05-persistencia.js', 'utf8');
+  assert.match(p, /catch\(e\)\{ fita\("Cópia de segurança automática não feita/);
+  const d = readFileSync('fonte/1-nucleo/22-diario-e-copias.js', 'utf8');
+  assert.match(d, /Poda das cópias de segurança não feita/);
 });

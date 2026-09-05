@@ -31,22 +31,23 @@ test('as espécies de nota não se apresentam como doutrina', semAplicacao, () =
      que alguém escreve na margem de uma carta, e a aplicação não finge que sim: nenhuma
      destas espécies cita artigo nenhum. */
   const T = avaliar(janela, 'TIPOS_NOTA');
-  /* Quatro desde a r0103: o percurso de fuga ou zona de segurança, que alerta (ramo #006). */
-  assert.equal(T.length, 4);
+  /* Três desde a r0105: ameaça, acesso, reconhecimento — os títulos do #006, por decisão do dono. */
+  assert.equal(T.length, 3);
   T.forEach((t) => {
     assert.ok(t.n && t.d, t.k);
     assert.ok(!/art\.|n\.º|DON|Despacho/i.test(t.n + ' ' + t.d),
       'a espécie «' + t.k + '» está a citar doutrina que não existe para isto');
   });
   /* Só o aviso tem consequência para quem lá vai, e é por isso que se distingue. */
-  assert.equal(T.find((t) => t.k === 'aviso').alerta, true);
-  assert.equal(T.find((t) => t.k === 'seguranca').alerta, true, 'o E e o S do LACES no caminho da frente não passam em silêncio');
-  assert.equal(T.find((t) => t.k === 'obs').alerta, false);
-  assert.equal(T.find((t) => t.k === 'manobra').alerta, false);
+  assert.equal(T.find((t) => t.k === 'ameaca').alerta, true, 'o E e o S do LACES no caminho da frente não passam em silêncio');
+  assert.equal(T.find((t) => t.k === 'reconhecimento').alerta, false);
+  assert.equal(T.find((t) => t.k === 'acesso').alerta, false, 'os acessos ficam na gravidade 2: é doutrina, e o dono confirmou-a');
 });
 
 test('uma espécie desconhecida cai em observação', semAplicacao, () => {
-  assert.equal(janela.defNota('inventada').k, 'obs');
+  assert.equal(janela.defNota('inventada').k, 'reconhecimento');
+  assert.equal(janela.defNota('aviso').k, 'ameaca', 'as espécies de antes da r0105 continuam a ler-se');
+  assert.equal(janela.defNota('manobra').k, 'acesso');
 });
 
 /* ---- escrever ---- */
@@ -55,7 +56,7 @@ test('uma nota sem texto não se escreve', semAplicacao, () => {
   /* Uma nota vazia é um ponto sem informação, e o mapa já tem tipos de ponto para marcar
      sítios. */
   comTeatro();
-  const r = janela.escreverNota('aviso', 41.09, -7.81, '   ');
+  const r = janela.escreverNota('ameaca', 41.09, -7.81, '   ');
   assert.equal(r.ok, false);
   assert.match(r.motivo, /sem texto/);
   assert.equal(janela.notasLista().length, 0);
@@ -63,7 +64,7 @@ test('uma nota sem texto não se escreve', semAplicacao, () => {
 
 test('escrever uma nota grava o texto, o sítio, o GDH e quem', semAplicacao, () => {
   const O = comTeatro();
-  const r = janela.escreverNota('aviso', 41.09, -7.81, 'interdito a VFCI');
+  const r = janela.escreverNota('ameaca', 41.09, -7.81, 'interdito a VFCI');
   assert.ok(r.ok, r.motivo);
   assert.equal(r.nota.txt, 'interdito a VFCI');
   assert.equal(r.nota.lat, 41.09);
@@ -74,15 +75,15 @@ test('escrever uma nota grava o texto, o sítio, o GDH e quem', semAplicacao, ()
 test('o texto normaliza-se e trunca-se, porque tem de caber sobre a carta', semAplicacao, () => {
   /* Uma nota que precise de três linhas é um registo de evolução e não uma anotação. */
   comTeatro();
-  const r = janela.escreverNota('obs', 41.09, -7.81, '  não   ardido\n  a norte  ');
+  const r = janela.escreverNota('reconhecimento', 41.09, -7.81, '  não   ardido\n  a norte  ');
   assert.equal(r.nota.txt, 'não ardido a norte');
-  const longa = janela.escreverNota('obs', 41.09, -7.81, 'x'.repeat(300));
+  const longa = janela.escreverNota('reconhecimento', 41.09, -7.81, 'x'.repeat(300));
   assert.equal(longa.nota.txt.length, avaliar(janela, 'NOTA_MAX'));
 });
 
 test('uma coordenada que não é número é recusada', semAplicacao, () => {
   comTeatro();
-  assert.equal(janela.escreverNota('aviso', NaN, -7.81, 'x').ok, false);
+  assert.equal(janela.escreverNota('ameaca', NaN, -7.81, 'x').ok, false);
 });
 
 test('a nota sabe em que setor caiu, quando há limites', semAplicacao, () => {
@@ -90,13 +91,13 @@ test('a nota sabe em que setor caiu, quando há limites', semAplicacao, () => {
   janela.iniciarTraco(0, 'limite');
   [[41.08, -7.84], [41.08, -7.79], [41.10, -7.79], [41.10, -7.84]].forEach(([la, lo]) => janela.pontoDoTraco(la, lo));
   janela.fecharTraco();
-  assert.equal(janela.escreverNota('manobra', 41.09, -7.81, 'inversão de marcha').nota.setor, 'Alfa');
-  assert.equal(janela.escreverNota('manobra', 41.30, -7.50, 'longe').nota.setor, '');
+  assert.equal(janela.escreverNota('acesso', 41.09, -7.81, 'inversão de marcha').nota.setor, 'Alfa');
+  assert.equal(janela.escreverNota('acesso', 41.30, -7.50, 'longe').nota.setor, '');
 });
 
 test('uma nota que deixou de ser verdade sai da carta', semAplicacao, () => {
   const O = comTeatro();
-  const r = janela.escreverNota('obs', 41.09, -7.81, 'não ardido');
+  const r = janela.escreverNota('reconhecimento', 41.09, -7.81, 'não ardido');
   assert.ok(janela.apagarNota(r.nota.id).ok);
   assert.equal(janela.notasLista().length, 0);
   assert.ok(O.evolucao.some((x) => /Retirada a nota/.test(x.txt)));
@@ -105,10 +106,10 @@ test('uma nota que deixou de ser verdade sai da carta', semAplicacao, () => {
 
 test('com o registo encerrado não se anota nem se apaga', semAplicacao, () => {
   comTeatro();
-  const r = janela.escreverNota('aviso', 41.09, -7.81, 'incêndio subterrâneo');
+  const r = janela.escreverNota('ameaca', 41.09, -7.81, 'incêndio subterrâneo');
   const O = avaliar(janela, 'O');
   O.encerramento.g = '311200AGO26'; O.encerramento.por = 'Cmdt A';
-  assert.equal(janela.escreverNota('aviso', 41.09, -7.81, 'outra').ok, false);
+  assert.equal(janela.escreverNota('ameaca', 41.09, -7.81, 'outra').ok, false);
   assert.equal(janela.apagarNota(r.nota.id).ok, false);
   O.encerramento.g = ''; O.encerramento.por = '';
 });
@@ -118,9 +119,9 @@ test('com o registo encerrado não se anota nem se apaga', semAplicacao, () => {
 test('só os avisos entram na leitura da evolução', semAplicacao, () => {
   /* «Não ardido» à frente do fogo não é notícia; «incêndio subterrâneo» é decisão. */
   comTeatro();
-  janela.escreverNota('aviso', 41.085, -7.812, 'incêndio subterrâneo');
-  janela.escreverNota('obs', 41.084, -7.813, 'não ardido');
-  janela.escreverNota('manobra', 41.083, -7.814, 'estrada para entrada de meios');
+  janela.escreverNota('ameaca', 41.085, -7.812, 'incêndio subterrâneo');
+  janela.escreverNota('reconhecimento', 41.084, -7.813, 'não ardido');
+  janela.escreverNota('acesso', 41.083, -7.814, 'estrada para entrada de meios');
   assert.equal(janela.avisosNoMapa().length, 1);
 
   janela.iniciarTraco(-1, 'frente');
@@ -148,7 +149,7 @@ test('nenhum veneno entra pela nota, que é texto livre dentro de um SVG', semAp
   const VENENOS = ['" onfocus="window.__mau=1" autofocus zz="',
     "' onfocus='window.__mau=1' autofocus zz='",
     '<img src=x onerror="window.__mau=1">'];
-  VENENOS.forEach((v, i) => janela.escreverNota('aviso', 41.09 + i / 1000, -7.81, v));
+  VENENOS.forEach((v, i) => janela.escreverNota('ameaca', 41.09 + i / 1000, -7.81, v));
   janela.enquadrarMapa(640, 620);
   const caixa = janela.document.createElement('div');
   caixa.innerHTML = janela.camadaMapa();
@@ -177,11 +178,11 @@ test('uma ocorrência da versão 22 abre sem notas, e não as deduz', semAplicac
 
 test('as notas viajam na exportação', semAplicacao, () => {
   comTeatro();
-  janela.escreverNota('aviso', 41.09, -7.81, 'interdito a VFCI');
+  janela.escreverNota('ameaca', 41.09, -7.81, 'interdito a VFCI');
   const txt = janela.exportarOcorrencia();
   const v = JSON.parse(typeof txt === 'string' ? txt : JSON.stringify(txt));
   const N = (v.estado || v).dados.notas;
   assert.equal(N.length, 1);
   assert.equal(N[0].txt, 'interdito a VFCI');
-  assert.equal(N[0].tipo, 'aviso');
+  assert.equal(N[0].tipo, 'ameaca');
 });

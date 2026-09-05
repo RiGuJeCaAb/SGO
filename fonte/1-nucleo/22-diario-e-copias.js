@@ -166,7 +166,10 @@ async function copiasPodar(){
   try{
     const L = await copiasListar();
     for(const c of L.slice(COPIAS_MAX)) await _idb("copias","readwrite", st=>st.delete(c.id));
-  }catch(e){}
+  }catch(e){
+    /* Sem isto as cópias acumulavam sem limite e ninguém sabia (#005). */
+    fita("Poda das cópias de segurança não feita ("+String((e && e.message) || e).slice(0, 60)+"): acumulam até à próxima gravação.");
+  }
 }
 
 /**

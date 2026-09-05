@@ -41,7 +41,7 @@ function pendencias(){
     {c:"Área ardida (ha)", ok:!!v("d-area"), p:"p-fontes", ob:true, el:"d-area"},
     {c:"Setores e meios", ok:!!v("d-setores"), p:"p-fontes", ob:true, el:"d-setores"},
     {c:"Pontos sensíveis", ok:!!v("d-sensiveis"), p:"p-fontes", ob:false, el:"d-sensiveis"},
-    {c:"Início da ocorrência (GDH)", ok:!!v("o-inicio"), p:"p-occ", ob:false, el:"o-inicio"},
+    {c:"Hora de alerta (GDH)", ok:!!v("o-inicio"), p:"p-occ", ob:false, el:"o-inicio"},
     q("Estrutura do PCO — funções exigíveis nomeadas", "p-pco", true, "pc-f",
       ()=>funcoesExigiveis().every(x=>x.preenchida)),
     q("Plano de comunicações — canal de comando", "p-pco", true, "br-gerar",
