@@ -137,7 +137,12 @@ function ligarIr(el){
 }
 /** Desenha as verificações de conformidade: o que falta, o que se antecipa, o que está. */
 function pintarDON(){
-  try{ if(typeof renderVigor==="function" && !window.__emVigor){ window.__emVigor=1; renderVigor(); window.__emVigor=0; } }catch(e){ window.__emVigor=0; }
+  /* Não se reconstrói o cartão do PEA em vigor com o foco lá dentro: a reavaliação de 30
+     em 30 segundos reescrevia os botões do controlo de execução e quem estivesse num
+     deles perdia o foco. Repinta-se na passagem seguinte, com o foco noutro sítio. */
+  const vg = $("pea-vigor");
+  const focoLa = !!(vg && document.activeElement && vg.contains(document.activeElement));
+  try{ if(typeof renderVigor==="function" && !window.__emVigor && !focoLa){ window.__emVigor=1; renderVigor(); window.__emVigor=0; } }catch(e){ window.__emVigor=0; }
   try{ O.meta.inicio = $("o-inicio").value.trim(); O.meta.fase = $("o-fase").value.trim(); }catch(err){}
   let v = [];
   try{ v = verificacoesDON(); }catch(err){ v = []; }
@@ -149,6 +154,11 @@ function pintarDON(){
   if(b){
     b.className = "sinal " + (ob? "r" : (av? "a" : "v"));
     const q = $("sinal-qt"); if(q) q.textContent = ativos.length? String(ativos.length) : "0";
+    /* A gravidade por extenso, e não só na cor da lâmpada: um daltónico via «Avisos 3» nos
+       dois casos, e o `title` não existe em toque. As palavras são as que a aplicação já
+       usa nas caixas — obrigação em incumprimento, antecipação —, a conferir pelo #006. */
+    const rot = $("sinal-rot"); if(rot) rot.textContent = ob? "Em incumprimento" : (av? "A antecipar" : "Avisos");
+    b.setAttribute("aria-label", ob? (ob+" obrigação"+(ob>1?"ões":"")+" em incumprimento") : (av? (av+" aviso"+(av>1?"s":"")+" de antecipação") : "Sem avisos ativos"));
     b.title = ob? (ob+" obrigação"+(ob>1?"ões":"")+" em incumprimento — abrir a secção de avisos")
       : (av? (av+" aviso"+(av>1?"s":"")+" de antecipação — abrir a secção de avisos") : "Sem avisos ativos — abrir a secção de avisos");
   }

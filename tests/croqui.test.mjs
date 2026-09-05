@@ -176,7 +176,7 @@ test('os dois nascem fechados, com o corpo lá dentro', semAplicacao, () => {
     const c = cartao(h);
     assert.ok(c.classList.contains('dobravel'), h + ' não dobrou');
     assert.ok(!c.classList.contains('aberto'), h + ' nasceu aberto');
-    assert.equal(c.querySelector('h2').getAttribute('aria-expanded'), 'false', h);
+    assert.equal(c.querySelector('h2 > .cd-btn').getAttribute('aria-expanded'), 'false', h);
     const corpo = c.querySelector(':scope > .cd-corpo');
     assert.ok(corpo && corpo.children.length >= 1, h + ' com corpo vazio');
   });
@@ -229,13 +229,18 @@ test('cada cabeçalho tem uma contagem só, e um estado só', semAplicacao, () =
 
 test('o cabeçalho abre e fecha, ao rato e ao teclado', semAplicacao, () => {
   const c = cartao('Fita do tempo'), h2 = c.querySelector('h2');
-  assert.equal(h2.getAttribute('role'), 'button');
-  assert.equal(h2.getAttribute('tabindex'), '0');
+  assert.equal(h2.getAttribute('role'), null, 'o h2 fica cabeçalho; o botão está lá dentro');
+  assert.equal(h2.querySelector('.cd-btn').tagName, 'BUTTON');
+  // O teclado é o do <button> nativo: Enter e Espaço disparam um clique sem ouvinte
+  // nosso. O h2 deixa de precisar de tabindex — quem recebe o foco é o botão.
+  const btn = h2.querySelector('.cd-btn');
+  assert.equal(h2.getAttribute('tabindex'), null);
+  assert.equal(btn.tabIndex, 0, 'o botão é alcançável pelo teclado');
   h2.dispatchEvent(new janela.MouseEvent('click', { bubbles: true }));
   assert.ok(c.classList.contains('aberto'), 'o clique não abriu');
-  h2.dispatchEvent(new janela.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-  assert.ok(!c.classList.contains('aberto'), 'o Enter não fechou');
-  assert.equal(h2.getAttribute('aria-expanded'), 'false');
+  btn.click();
+  assert.ok(!c.classList.contains('aberto'), 'o clique no botão não fechou');
+  assert.equal(btn.getAttribute('aria-expanded'), 'false');
 });
 
 test('abrir um não fecha o outro', semAplicacao, () => {

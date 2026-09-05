@@ -290,3 +290,14 @@ e o campo de ficheiro na forma única da r0098 — «Escolher ficheiro» como bo
 e o nome do que foi escolhido ao lado. As duas últimas mostram o cabeçalho com as alturas em
 tokens e, no tema claro, os tokens de texto recalculados para 4,5:1 — o texto de ajuda dava
 2,69 e as etiquetas dos cartões 1,9 a 0,62 de opacidade.
+
+## qa0035 — o quadro de setores a 768 px, com os rótulos por campo, nos dois temas
+
+`CSREPCDouro_qa0035_202609051215_SetoresComRotulosA768TemaClaro_CLD.png`
+`CSREPCDouro_qa0035_202609051215_SetoresComRotulosA768TemaEscuro_CLD.png`
+
+Dois setores, a 768 px de largura. Abaixo de 820 px o cabeçalho de colunas do quadro
+desaparece e, até à r0100, ficavam seis caixas por setor sem dizer qual era o comandante e
+qual era o contacto — os campos gerados não tinham rótulo nenhum, nem para ver nem para
+ouvir. Cada campo vive agora dentro de um `<label>` com o nome da coluna, que se mostra
+quando o cabeçalho some e que o leitor de ecrã lê sempre.

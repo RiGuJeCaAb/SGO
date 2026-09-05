@@ -786,6 +786,27 @@ como sempre.
 
 ---
 
+## Para quem usa o teclado ou um leitor de ecrã
+
+Cada cartão tem um título que é um cabeçalho — um leitor de ecrã salta de cartão em cartão
+por eles — e, dentro do título, um botão que o abre e fecha com Enter ou Espaço. Todos os
+campos têm nome, incluindo os que nascem de uma repintura: os seis campos de cada setor, o
+canal de cada nível do plano de comunicações, os do quadro de tipologias. A nota de ajuda
+que está por baixo de um campo é lida com ele. Um erro é anunciado na hora; uma confirmação
+espera a sua vez. As duas faixas do topo — "parte do ecrã não foi atualizada" e "esta aba
+está em leitura" — são anunciadas quando aparecem.
+
+O botão dos avisos, no cabeçalho, diz a gravidade por extenso e não só pela cor: "Em
+incumprimento" quando há obrigações legais por cumprir, "A antecipar" quando há avisos de
+antecipação, "Avisos" quando não há nenhum, com a contagem ao lado.
+
+Em ecrã estreito, abaixo de 820 px, cada campo do quadro de setores mostra o seu rótulo por
+cima — Estado, Comandante, Adjunto, Contacto, Meios, Op. — porque o cabeçalho de colunas
+deixa de caber. E abaixo de 640 px a barra de separadores desliza para o lado em vez de
+embrulhar em três linhas dentro do cabeçalho fixo.
+
+---
+
 ## Quando parte do ecrã não pinta
 
 No cimo da página pode aparecer uma faixa vermelha a dizer que parte do ecrã não foi

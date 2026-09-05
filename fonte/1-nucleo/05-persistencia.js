@@ -151,6 +151,8 @@ function escreverForm(){
 function aviso(id,cls,txt){
   const e=$(id); if(!e) return;
   e.classList.remove("err","ok","av"); e.classList.add("msg", cls);
+  /* Um erro é anunciado ao leitor de ecrã na hora; uma confirmação espera a sua vez. */
+  e.setAttribute("role", cls === "err"? "alert" : "status");
   e.textContent=txt; e.style.display="block";
   cancelarAviso(e);
   if(cls !== "err") AVISO_TEMPOS.set(e, setTimeout(()=>{ e.style.display="none"; AVISO_TEMPOS.delete(e); }, 5500));

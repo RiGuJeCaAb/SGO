@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0099**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0100**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 137, das anteriores à convenção de nomes até à r0099 |
+| Entregas em `app/` | 138, das anteriores à convenção de nomes até à r0100 |
 | Módulos em `fonte/` | 75, em sete zonas, mais o molde |
-| Testes | 962, todos a passar |
+| Testes | 979, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -877,6 +877,47 @@ também. A passagem do arquivo antigo para a base que fique a meio diz-o no ecr�
 
 **O que fica para o #005:** a regra `no-empty` estrita, com razão obrigatória nos `catch` que
 ficam. A classificação está pedida a quem fez a auditoria de portabilidade.
+
+## Acessibilidade e pintura — r0100, a terceira do plano
+
+**Os títulos voltam a ser títulos.** `dobrarCartao` punha `role="button"` nos 31 `<h2>` e a
+aplicação ficava com um só cabeçalho para um leitor de ecrã. O botão vai para dentro do
+`<h2>`, com o título lá dentro, `aria-expanded` e `aria-controls` para o corpo — o que a
+ajuda já fazia com o `.hb`. O teclado é o do `<button>` nativo. `tituloCartao` passou a ler o
+primeiro nó de texto de dentro do botão: dezoito testes de posse, arrumação e dobra caíram
+em cascata quando passou a ler a etiqueta legal junta ao título, e foi assim que se viu.
+
+**Nenhum controlo sem nome.** Dezasseis do molde ganham `aria-label`; os seis campos de cada
+setor passam a viver dentro de um `<label>` com o nome da coluna — que é também o que se vê
+abaixo de 820 px, onde o cabeçalho de colunas some e ficavam seis caixas mudas; o quadro de
+tipologias ganha `<label for>`; o canal por nível do plano de comunicações, que o teste
+apanhou a meio, ganha nome. O teste confere a lista inteira no DOM real, e é vermelho ao
+primeiro que faltar.
+
+**As notas de ajuda ligam-se aos campos** por `ligarNotasAosCampos`, no arranque, de uma vez:
+144 `.hint` e zero `aria-describedby`. **Os erros anunciam-se** — `role="alert"` nos erros,
+`status` nas confirmações, `aria-live="assertive"` nas duas faixas do topo. **A gravidade dos
+avisos vai por extenso** no botão do cabeçalho — «Em incumprimento», «A antecipar»,
+«Avisos» — e não só na cor da lâmpada. Os catorze botões de uma letra dizem a frase inteira.
+`:focus-visible` global, e `outline` em contraste forçado, onde o anel por `box-shadow`
+desaparece.
+
+**Pintura.** `pintarDON` a cada tecla passa a um atraso de 250 ms: o GDH de início eram onze
+reconstruções por preenchimento. A fita do tempo e a linha de evolução passam a
+`listaPorAcrescento`: se a lista só cresceu — o último item de então é o mesmo objeto —, o
+novo entra por cima e os antigos ficam como estão; qualquer outra mudança repinta tudo. A
+tabela precisou de um cuidado: as linhas vivem num `<tbody>` implícito, e o primeiro
+acrescento caía fora dele. A reavaliação de 30 em 30 segundos chamava `renderVigor` duas
+vezes por passagem e destruía o foco de quem estivesse no controlo de execução: passa a uma
+e não repinta com o foco lá dentro. O catálogo de elementos passa a um ouvinte por
+delegação, ligado uma vez.
+
+**O que o relatório dizia e não era.** Os 160 botões de frases na ordem de tabulação: os
+grupos inativos já ficavam `hidden`. Fica um teste a prová-lo em vez de uma correção.
+
+**Responsividade.** A barra de separadores desliza abaixo de 640 px em vez de embrulhar em
+três linhas dentro do cabeçalho fixo; `.g4` passa a duas colunas abaixo de 1000; as larguras
+inline saem para `.larg-p`/`.larg-m`, que encolhem com o ecrã.
 
 ## Decisões tomadas
 

@@ -608,7 +608,9 @@
   .card.dobravel > h2.cd-cab{cursor:pointer;user-select:none;display:flex;align-items:center;
     gap:10px;flex-wrap:wrap;margin-bottom:0;padding-right:26px;position:relative}
   .card.dobravel > h2.cd-cab:hover{color:var(--agua)}
-  .card.dobravel > h2.cd-cab:focus-visible{outline:2px solid var(--agua);outline-offset:3px;border-radius:6px}
+  /* O botão dentro do título: sem forma própria, herda a do <h2>, e é ele que tem o foco. */
+  .cd-btn{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer;display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;flex:1 1 auto}
+  .cd-btn:focus-visible{outline:2px solid var(--agua);outline-offset:3px;border-radius:6px}
   .card.dobravel > h2.cd-cab::after{content:"";position:absolute;right:4px;top:50%;
     width:8px;height:8px;border-right:2px solid var(--tx3);border-bottom:2px solid var(--tx3);
     transform:translateY(-70%) rotate(45deg);transition:transform .14s}
@@ -898,6 +900,28 @@
     .hbar{flex-wrap:wrap}
     .hacts{margin-left:0;width:100%;flex-wrap:wrap;justify-content:flex-start}
   }
+  /* Foco visível em todo o lado, e não só onde alguém se lembrou: .ms-b, .avd-go, .pf-x,
+     .cat-r .x, .chk .ir, .lk, .av-atual e .tchip button chegavam pelo teclado sem anel. Em
+     contraste forçado o anel de box-shadow desaparece, e por isso volta o outline. */
+  :where(button,a,[tabindex],input,select,textarea,summary):focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+  @media(forced-colors:active){input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid CanvasText}}
+  /* Larguras que eram inline: encolhem com o ecrã em vez de o furar. */
+  .larg-p{flex:1 1 130px;min-width:0;max-width:100%;width:auto}
+  .larg-m{flex:1 1 160px;min-width:0;max-width:100%;width:auto}
+  /* Os rótulos dos campos de cada setor: só se veem quando o cabeçalho de colunas some. */
+  .set-c{display:flex;flex-direction:column;min-width:0}
+  .set-l{display:none;font-size:11px;color:var(--tx2);margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+  @media(max-width:820px){.set-l{display:block}}
+  @media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){
+    /* Cinco separadores em 340 px embrulhavam em três ou quatro linhas de 42 px dentro
+       de um cabeçalho fixo, que passava dos 300 px num ecrã de 667. Deslizam. */
+    nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+    nav button{flex:0 0 auto}
+    .ms-r{grid-template-columns:1fr}
+  }
+  .pco-falta .pf b{min-width:min(280px,100%)}
+  .cfmt .lab{min-width:min(170px,40%)}
   footer{margin-top:36px;font-size:12px;color:var(--tx3);text-align:center;line-height:1.7}
   /* Sem color-mix, de propósito: é o carimbo que diz que o color-mix não está disponível. */
   .min-nav{margin-top:28px;border:1px solid var(--laranja);border-radius:10px;
@@ -1109,7 +1133,7 @@
     <div class="hacts">
       <div class="occ-tag" id="occ-tag">sem ocorrência carregada</div>
       <span class="grav" id="grav" role="status" aria-live="polite">Sem gravação ainda</span>
-      <button class="sinal v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span>Avisos<span class="qt" id="sinal-qt">0</span></button>
+      <button class="sinal v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span><span id="sinal-rot">Avisos</span><span class="qt" id="sinal-qt">0</span></button>
       <button class="btn btn-b" id="b-save" title="Guardar todo o trabalho (Ctrl+S)">Guardar</button>
       <button class="btn btn-g" id="b-ajuda" aria-pressed="false" title="Mostrar a ajuda no ecrã">Ajuda</button>
       <button class="btn btn-g" id="b-tema" title="Alternar entre tema claro e escuro" aria-label="Alternar tema claro ou escuro">Escuro</button>
@@ -1123,8 +1147,8 @@
     <button data-p="p-turno" data-cel="turno" title="Continuidade em espelho e rotatividade de funções — DON n.º 2, ponto 7.d.(30)"><span class="rot">Passagem de turno</span></button>
   </nav>
 </header>
-<div class="pint-q" id="pint-q" style="display:none"></div>
-<div class="leitura-faixa" id="leitura-faixa" style="display:none"><span id="leitura-txt"></span> <button type="button" class="btn btn-o" id="leitura-assumir">Assumir a escrita</button></div>
+<div class="pint-q" id="pint-q" role="alert" aria-live="assertive" style="display:none"></div>
+<div class="leitura-faixa" id="leitura-faixa" role="alert" aria-live="assertive" style="display:none"><span id="leitura-txt"></span> <button type="button" class="btn btn-o" id="leitura-assumir">Assumir a escrita</button></div>
 <div class="guia"><div class="guia-in" id="guia"><b>PRÓXIMO PASSO</b><span id="guia-txt">a carregar...</span><button class="btn btn-b" id="guia-ir" style="display:none">Ir</button></div></div>
 
 <main class="wrap">
@@ -1414,7 +1438,7 @@
           <div id="wm-dim" style="margin-top:10px;display:none">
             <label for="wm-dim-v">Data da carta em uso</label>
             <div class="row" style="margin-top:4px">
-              <input id="wm-dim-v" style="max-width:200px" placeholder="AAAA-MM-DD">
+              <input id="wm-dim-v" class="larg-m" placeholder="AAAA-MM-DD">
               <button class="btn btn-b" type="button" id="wm-dim-b">Mudar a data</button>
               <span class="hint" style="margin:0" id="wm-dim-h"></span>
             </div>
@@ -1522,7 +1546,7 @@
           <label class="chkbx"><input type="checkbox" id="gp-colar"> Colar o conteúdo</label>
         </div>
         <div id="gp-colar-x" style="display:none">
-          <textarea id="gp-txt" rows="5" style="margin-top:8px" placeholder="colar aqui o JSON exportado pela Gestão PCO"></textarea>
+          <textarea id="gp-txt" aria-label="Conteúdo exportado pela Gestão PCO" rows="5" style="margin-top:8px" placeholder="colar aqui o JSON exportado pela Gestão PCO"></textarea>
           <div class="row" style="margin-top:8px"><button class="btn btn-o" type="button" id="gp-ler">Ler o conteúdo colado</button></div>
         </div>
         <div class="msg" id="gp-msg" style="display:none"></div>
@@ -1536,9 +1560,9 @@
       <div class="sub"><span class="stit">Setorização do TO e quadro de meios (arts. 5.º e 32.º — tipologias do Anexo 1 da DON n.º 2 / DECIR 2026)</span>
         <div class="row" style="margin-bottom:12px">
           <span class="xtr"><span class="hint" style="margin:0">N.º de setores</span>
-            <select id="s-n" style="width:74px"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></span>
-          <label class="chkbx"><input type="checkbox" id="s-res"> Reserva</label><span class="xtr" id="s-res-x" style="display:none"><input type="number" id="s-res-m" min="0" placeholder="meios"><input type="number" id="s-res-o" min="0" placeholder="op."></span>
-          <label class="chkbx"><input type="checkbox" id="s-za"> ZA</label><span class="xtr" id="s-za-x" style="display:none"><input type="number" id="s-za-m" min="0" placeholder="meios"><input type="number" id="s-za-o" min="0" placeholder="op."></span>
+            <select id="s-n" aria-label="Número de setores" style="width:74px"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></span>
+          <label class="chkbx"><input type="checkbox" id="s-res"> Reserva</label><span class="xtr" id="s-res-x" style="display:none"><input type="number" id="s-res-m" aria-label="Meios da reserva" min="0" placeholder="meios"><input type="number" id="s-res-o" aria-label="Operacionais da reserva" min="0" placeholder="op."></span>
+          <label class="chkbx"><input type="checkbox" id="s-za"> ZA</label><span class="xtr" id="s-za-x" style="display:none"><input type="number" id="s-za-m" aria-label="Meios da zona de apoio" min="0" placeholder="meios"><input type="number" id="s-za-o" aria-label="Operacionais da zona de apoio" min="0" placeholder="op."></span>
           <label class="chkbx"><input type="checkbox" id="s-livre"> Colar texto livre (alternativa)</label>
         </div>
         <div id="s-lista"></div>
@@ -1546,16 +1570,16 @@
         <div class="set-box" id="s-aer-box" style="display:none">
           <span class="stit" style="display:block;font-size:11px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--tx2);margin-bottom:10px">Meios aéreos no TO — indicativo e hora de entrada</span>
           <div class="tip-add">
-            <select id="aer-t"></select>
-            <span class="lbl">INDICATIVO</span><input id="aer-i" placeholder="indicativo e numeral" style="width:130px">
-            <span class="lbl">ENTRADA</span><input id="aer-g" placeholder="GDH (vazio = agora)" style="width:160px">
+            <select id="aer-t" aria-label="Tipo de meio aéreo"></select>
+            <span class="lbl">INDICATIVO</span><input id="aer-i" aria-label="Indicativo do meio aéreo" class="larg-p" placeholder="indicativo e numeral">
+            <span class="lbl">ENTRADA</span><input id="aer-g" aria-label="GDH de entrada do meio aéreo" class="larg-m" placeholder="GDH (vazio = agora)">
             <button class="btn btn-g" type="button" id="aer-add">Registar</button>
           </div>
           <div class="tip-chips" id="aer-chips"></div>
           <p class="hint" style="margin-top:8px">O indicativo de chamada sai do catálogo (HOTEL, KILO, FIRE, ALFA, BRAVO, OSCAR, CELCA) e pode ser completado com o numeral. A hora de entrada alimenta o quadro de rendições e a contagem que aciona o COPAR-T e o COPAR-Ar.</p>
         </div>
         <div class="hint" id="s-tot"></div>
-        <textarea id="d-setores" rows="4" style="display:none;margin-top:8px" placeholder="colar da app Gestão PCO"></textarea>
+        <textarea id="d-setores" aria-label="Setores e meios em texto livre" rows="4" style="display:none;margin-top:8px" placeholder="colar da app Gestão PCO"></textarea>
       </div>
 
     </div>
@@ -1610,7 +1634,7 @@
           <div><label for="pr-hr">Humidade relativa (%) e dias sem chuva</label>
             <div class="row" style="gap:6px">
               <input id="pr-hr" inputmode="decimal" placeholder="HR %" style="flex:1 1 80px">
-              <input id="pr-dias" data-campo="dados.fogo.est.dias" inputmode="numeric" placeholder="dias" style="flex:1 1 60px">
+              <input id="pr-dias" aria-label="Dias sem chuva" data-campo="dados.fogo.est.dias" inputmode="numeric" placeholder="dias" style="flex:1 1 60px">
               <button class="btn btn-b" type="button" id="pr-hcm-calc">Estimar HCM</button>
             </div>
             <div class="hint" style="margin-top:4px">Quadro 3.2.1, válido só até 25 °C.</div></div>
@@ -1698,10 +1722,10 @@
             <label for="ps-nome">Aglomerados / pontos sensíveis — adição rápida</label>
             <div class="row" style="margin-bottom:8px">
               <input id="ps-nome" placeholder="nome do aglomerado" style="flex:1;min-width:130px">
-              <select id="ps-pri" style="width:150px"><option value="prioridade">prioridade</option><option value="vigilância">vigilância</option></select>
+              <select id="ps-pri" aria-label="Prioridade do ponto sensível" class="larg-p"><option value="prioridade">prioridade</option><option value="vigilância">vigilância</option></select>
               <button class="btn btn-g" id="ps-add" type="button">Adicionar</button>
             </div>
-            <input id="d-sensiveis" data-campo="dados.sensiveis" placeholder="lista construída automaticamente — editável">
+            <input id="d-sensiveis" aria-label="Pontos sensíveis" data-campo="dados.sensiveis" placeholder="lista construída automaticamente — editável">
             <div class="row" style="margin-top:10px">
               <button class="btn btn-b" id="b-sens" type="button">Detetar aglomerados e sensíveis (OSM, raio 3 km)</button>
               <span class="hint" style="margin:0" id="sens-info"></span>
@@ -1780,7 +1804,7 @@
         <button class="btn btn-o" type="button" id="el-add">Guardar no catálogo</button>
         <button class="btn btn-b" type="button" id="el-recolher">Recolher desta ocorrência</button>
         <button class="btn btn-g" type="button" id="el-cancelar" style="display:none">Cancelar correção</button>
-        <span class="xtr" style="margin-left:auto"><input id="el-proc" placeholder="procurar" style="width:200px"></span>
+        <span class="xtr" style="margin-left:auto"><input id="el-proc" aria-label="Procurar no catálogo de elementos" placeholder="procurar" style="width:200px"></span>
       </div>
       <div class="msg" id="el-msg" style="display:none"></div>
       <div id="el-lista" style="margin-top:12px"></div>
@@ -1961,14 +1985,14 @@
         </div>
         <div class="fr-g"><span class="fr-l">Propagação</span>
           <span class="hint" style="margin:0">propagação para</span>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para N">N</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NE">NE</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para E">E</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para SE">SE</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para S">S</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para SO">SO</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para O">O</button>
-          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NO">NO</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para N" aria-label="propagação para N">N</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NE" aria-label="propagação para NE">NE</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para E" aria-label="propagação para E">E</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para SE" aria-label="propagação para SE">SE</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para S" aria-label="propagação para S">S</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para SO" aria-label="propagação para SO">SO</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para O" aria-label="propagação para O">O</button>
+          <button class="fr mini" type="button" data-tp="agravamento" data-fr="propagação para NO" aria-label="propagação para NO">NO</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="progressão rápida por encosta acima">encosta acima</button>
           <button class="fr" type="button" data-tp="posit" data-fr="progressão lenta por encosta abaixo">encosta abaixo</button>
           <button class="fr" type="button" data-tp="posit" data-fr="progressão condicionada pelo relevo">condicionada pelo relevo</button>
@@ -1983,14 +2007,14 @@
           <button class="fr" type="button" data-tp="melhoria" data-fr="velocidade de propagação a diminuir">a abrandar</button>
         </div>
         <div class="fr-g"><span class="fr-l">Perímetro</span>
-          <button class="fr mini" type="button" data-tp="posit" data-fr="10 % do perímetro em consolidação">10 %</button>
-          <button class="fr mini" type="button" data-tp="posit" data-fr="25 % do perímetro em consolidação">25 %</button>
-          <button class="fr mini" type="button" data-tp="posit" data-fr="50 % do perímetro em consolidação">50 %</button>
-          <button class="fr mini" type="button" data-tp="melhoria" data-fr="75 % do perímetro em consolidação">75 %</button>
-          <button class="fr mini" type="button" data-tp="melhoria" data-fr="90 % do perímetro em consolidação">90 %</button>
+          <button class="fr mini" type="button" data-tp="posit" data-fr="10 % do perímetro em consolidação" aria-label="10 % do perímetro em consolidação">10 %</button>
+          <button class="fr mini" type="button" data-tp="posit" data-fr="25 % do perímetro em consolidação" aria-label="25 % do perímetro em consolidação">25 %</button>
+          <button class="fr mini" type="button" data-tp="posit" data-fr="50 % do perímetro em consolidação" aria-label="50 % do perímetro em consolidação">50 %</button>
+          <button class="fr mini" type="button" data-tp="melhoria" data-fr="75 % do perímetro em consolidação" aria-label="75 % do perímetro em consolidação">75 %</button>
+          <button class="fr mini" type="button" data-tp="melhoria" data-fr="90 % do perímetro em consolidação" aria-label="90 % do perímetro em consolidação">90 %</button>
           <button class="fr" type="button" data-tp="melhoria" data-fr="perímetro fechado">perímetro fechado</button>
           <button class="fr" type="button" data-tp="agravamento" data-fr="perímetro reaberto">perímetro reaberto</button>
-          <button class="fr mini" type="button" data-tp="melhoria" data-fr="100 % do perímetro em consolidação">100 %</button>
+          <button class="fr mini" type="button" data-tp="melhoria" data-fr="100 % do perímetro em consolidação" aria-label="100 % do perímetro em consolidação">100 %</button>
           <button class="fr" type="button" data-tp="posit" data-fr="perímetro por fechar no flanco esquerdo">por fechar a esq.</button>
           <button class="fr" type="button" data-tp="posit" data-fr="perímetro por fechar no flanco direito">por fechar a dto.</button>
           <button class="fr" type="button" data-tp="posit" data-fr="reconhecimento do perímetro concluído">reconhecimento concluído</button>
@@ -2147,7 +2171,7 @@
       <h2>Previsão meteorológica <span class="tag">apoio à célula de planeamento — CSV SpotWX (Prometheus) ou data;hora;T;HR;WD;WS;precip</span></h2>
       <div class="row" style="margin-bottom:12px">
         <span class="xtr"><span class="hint" style="margin:0">Horizonte de análise</span>
-          <select id="m-horas" style="width:110px">
+          <select id="m-horas" aria-label="Horizonte de análise" style="width:110px">
             <option value="3">3 h</option><option value="6">6 h</option><option value="12" selected>12 h</option>
             <option value="24">24 h</option><option value="36">36 h</option>
           </select></span>
@@ -2157,7 +2181,7 @@
       <div class="mono-sm" id="meteo-idade" style="margin-bottom:8px"></div>
       <div class="hint" id="meteo-info" style="margin-bottom:10px">Automática: Open-Meteo (síntese dos modelos ECMWF/ICON/GFS) no ponto exato da ocorrência, 36 horas. O CSV fica visível abaixo — editável antes de analisar. Avisos IPMA: consultar em paralelo (integração prevista).</div>
       <div id="avisos-ipma" style="margin-bottom:12px"></div>
-      <textarea id="f-csv" rows="7" placeholder="Colar aqui o CSV do SpotWX (cabeçalho HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP) ou uma série no formato data;hora;T;HR;WD;WS;precip"></textarea>
+      <textarea id="f-csv" aria-label="Meteograma em CSV" rows="7" placeholder="Colar aqui o CSV do SpotWX (cabeçalho HOURLY,HOUR,TEMP,RH,WD,WS,PRECIP) ou uma série no formato data;hora;T;HR;WD;WS;precip"></textarea>
       <div class="row" style="margin-top:12px">
         <button class="btn btn-o" id="b-analisar">Analisar</button>
       </div>

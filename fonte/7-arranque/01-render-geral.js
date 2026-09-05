@@ -47,6 +47,45 @@ function relatarPinturas(quebradas){
   PINTURAS_QUEBRADAS = quebradas;
 }
 
+/** O que cada lista já tem pintado: quantos itens e qual era o último, por elemento. */
+const LISTAS_PINTADAS = new WeakMap();
+
+/**
+ * Pinta uma lista do mais recente para o mais antigo, acrescentando só o que é novo.
+ *
+ * `pintarTudo` corre a cada tecla e regenerava a fita do tempo inteira de cada vez — e a
+ * fita cresce a cada registo, a cada mudança de estado de setor, a cada linha de diário.
+ * Se a lista só cresceu desde a última pintura — o último item de então é o mesmo objeto
+ * e está no mesmo sítio —, os itens novos entram por cima e os antigos ficam como estão.
+ * Qualquer outra mudança repinta tudo: repor uma ocorrência, apagar, reordenar. A
+ * identidade do objeto é o que decide, e é por isso que a memória é por elemento.
+ *
+ * @param {HTMLElement|null} el o contentor
+ * @param {any[]} itens do mais antigo para o mais recente, como vivem no estado
+ * @param {(x:any)=>string} render o HTML de um item
+ * @param {string} vazio o que se escreve sem itens
+ * @param {string} [cabeca] HTML fixo que fica antes de tudo — o cabeçalho de uma tabela
+ */
+function listaPorAcrescento(el, itens, render, vazio, cabeca){
+  if(!el) return;
+  const m = LISTAS_PINTADAS.get(el);
+  const n = itens.length;
+  /* Numa <table> as linhas vivem num <tbody> implícito: é lá que se acrescenta, ou a linha
+     nova caía fora do corpo, a seguir a ele. */
+  const raiz = (el instanceof HTMLTableElement && el.tBodies.length)? el.tBodies[0] : el;
+  const soCresceu = m && m.n > 0 && n >= m.n && itens[m.n-1] === m.ultimo && raiz.childElementCount > 0;
+  if(soCresceu){
+    if(n > m.n){
+      const novos = itens.slice(m.n).reverse().map(render).join("");
+      const ancora = cabeca? raiz.firstElementChild : null;
+      if(ancora) ancora.insertAdjacentHTML("afterend", novos); else raiz.insertAdjacentHTML("afterbegin", novos);
+    }
+  } else {
+    el.innerHTML = (cabeca || "") + (n? itens.slice().reverse().map(render).join("") : vazio);
+  }
+  LISTAS_PINTADAS.set(el, { n: n, ultimo: n? itens[n-1] : null });
+}
+
 /**
  * Repinta o ecrã inteiro, uma vista de cada vez.
  *
@@ -80,17 +119,17 @@ function pintarTudo(){
   /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
   $("evo-count").textContent = O.evolucao.length? (O.evolucao.length===1? "1 registo" : O.evolucao.length+" registos") : "sem registos";
-  $("evo-list").innerHTML = O.evolucao.length? O.evolucao.slice().reverse().map(e=>
-    `<div class="evo-i tipo-${esc(e.tipo)}"><div class="g">${esc(e.g)}</div><div class="tp">${esc(e.tipo)}</div><div class="t">${esc(e.txt)}</div></div>`).join("")
-    : '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>';
+  listaPorAcrescento($("evo-list"), O.evolucao, e=>
+    `<div class="evo-i tipo-${esc(e.tipo)}"><div class="g">${esc(e.g)}</div><div class="tp">${esc(e.tipo)}</div><div class="t">${esc(e.txt)}</div></div>`,
+    '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>');
   $("prox-n").textContent = "n.º "+(O.peas.length+1);
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;
   $("pea-count").textContent = O.peas.length+" elaboradas · "+apr+" aprovadas";
   $("pea-list").innerHTML = O.peas.length? O.peas.slice().reverse().map(p=>
     `<button type="button" class="pea-li" data-pea="${esc(p.n)}"><div class="nn">${p.n}</div><div class="info"><b>PEA n.º ${p.n}</b><p>${esc(p.g)} · janela ${p.met.janela? p.met.janela.inicio+"–"+p.met.janela.fim : "—"} · ${p.n>1? "substitui o n.º "+(p.n-1):"inicial"}</p></div><div class="modo">${esc(PEA_ROT[estadoPEA(p)])}</div></button>`).join("")
     : '<p class="hint">Nenhuma proposta elaborada nesta ocorrência.</p>';
-  $("fita").innerHTML = "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>"+
-    O.fita.slice().reverse().map(f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`).join("");
+  listaPorAcrescento($("fita"), O.fita, f=>`<tr><td>${esc(f.g)}</td><td>${esc(f.e)}</td></tr>`, "",
+    "<tr><th style='text-align:left;color:var(--tx2);font-size:11px;padding:6px 10px'>GDH</th><th style='text-align:left;color:var(--tx2);font-size:11px'>Evento</th></tr>");
   pintura("encerramento", pintarEncerramento, qb);
   pintura("proveniência do ficheiro", pintarProveniencia, qb);
   pintura("idade da previsão", pintarMeteoIdade, qb);

@@ -72,7 +72,13 @@ const ATALHOS_PANE = {
  * É por ele que os registos encontram os cartões. Um título que mude sem o registo
  * acompanhar parte a auditoria — de propósito.
  */
-function tituloCartao(c){ const h = c.querySelector("h2"); return h? h.childNodes[0].textContent.trim() : ""; }
+function tituloCartao(c){
+  const h = c.querySelector("h2"); if(!h) return "";
+  /* Num cartão já dobrado o título vive dentro do botão, e o botão é o primeiro filho do
+     <h2>: o texto lê-se de dentro dele, ou o título passava a trazer a etiqueta legal. */
+  const raiz = h.querySelector(":scope > .cd-btn") || h;
+  return raiz.childNodes[0]? raiz.childNodes[0].textContent.trim() : "";
+}
 /** O cartão com este título, ou nada. */
 function cartaoPorTitulo(h){
   return [...document.querySelectorAll(".card")].find(c=>tituloCartao(c) === h) || null;
@@ -260,15 +266,24 @@ function dobrarCartao(c){
   const d = CARTOES_DOBRAVEIS.find(x=>x.h === tituloCartao(c));
   c.classList.add("dobravel");
 
-  /* O conteúdo vai para um contentor próprio; o cabeçalho fica de fora e vira botão. */
+  /* O conteúdo vai para um contentor próprio; o cabeçalho fica de fora, **e fica
+     cabeçalho**. Até à r0099 o `<h2>` recebia `role="button"`, e isso apagava-lhe o papel:
+     os 31 títulos de cartão desapareciam da árvore de acessibilidade e a aplicação ficava
+     com um só cabeçalho, o `<h1>`. O botão vai agora para dentro do `<h2>`, com o título lá
+     dentro — é o que a ajuda já fazia com o `.hb`. O `<button>` traz o foco, a tecla e o
+     papel de graça, e o `<h2>` continua a ser o que um leitor de ecrã salta para. */
   const corpo = document.createElement("div");
   corpo.className = "cd-corpo";
+  corpo.id = "cd-corpo-" + (++DOBRA_N);
   while(h2.nextSibling) corpo.appendChild(h2.nextSibling);
   c.appendChild(corpo);
   h2.classList.add("cd-cab");
-  h2.setAttribute("role", "button");
-  h2.setAttribute("tabindex", "0");
-  h2.setAttribute("aria-expanded", "false");
+  const btn = document.createElement("button");
+  btn.type = "button"; btn.className = "cd-btn";
+  btn.setAttribute("aria-expanded", "false");
+  btn.setAttribute("aria-controls", corpo.id);
+  while(h2.firstChild) btn.appendChild(h2.firstChild);
+  h2.appendChild(btn);
 
   /* Procura-se dentro do próprio cartão e não pelo documento: a arrumação por células
      move os cartões, e um `getElementById` no momento errado apanha o elemento antes de
@@ -286,19 +301,22 @@ function dobrarCartao(c){
     abrirCartao(c, on);
     if(!estadoDoCartao(c).pendente) guardarDobra(tituloCartao(c), on);
   };
+  /* Um só ouvinte, no `<h2>`: o clique no botão sobe até aqui, e a tecla no botão é um
+     clique nativo — não há segundo ouvinte de teclado a disparar duas vezes. Clicar na
+     contagem, fora do botão, também alterna, como antes. */
   h2.addEventListener("click", alternar);
-  h2.addEventListener("keydown", ev=>{
-    if(ev.key===" " || ev.key==="Enter"){ ev.preventDefault(); alternar(); }
-  });
 }
+
+/** Contador dos corpos dobráveis, para cada `aria-controls` apontar para um `id` seu. */
+let DOBRA_N = 0;
 
 /* Abrir um não fecha os outros: não é acordeão exclusivo, que obrigaria a fechar a
    fita para ver a evolução, e num PCO isso é trabalho a mais. */
 function abrirCartao(c, on){
   if(!c) return;
   c.classList.toggle("aberto", !!on);
-  const h2 = c.querySelector(":scope > h2");
-  if(h2) h2.setAttribute("aria-expanded", on? "true":"false");
+  const btn = c.querySelector(":scope > h2 > .cd-btn");
+  if(btn) btn.setAttribute("aria-expanded", on? "true":"false");
 }
 
 /* A contagem no cabeçalho tem de acompanhar o que está lá dentro, aberto ou fechado:
@@ -462,10 +480,36 @@ $("b-ajuda").addEventListener("click", ()=>alternarAjuda(!document.documentEleme
 (async()=>{ let on=true; try{ const r=await ARMAZEM.get("peaapp:ajuda"); on = r.value!=="0"; }catch(e){}
   alternarAjuda(on); })();
 ["o-inicio","o-fase","o-nivel"].forEach(id=>{
-  const el=$(id); if(el){ el.addEventListener("change", ()=>{ try{ autoNivelDECIR(); pintarDON(); }catch(e){} }); el.addEventListener("input", ()=>{ try{ autoNivelDECIR(); pintarDON(); }catch(e){} }); }
+  const el=$(id); if(el){ el.addEventListener("change", ()=>{ try{ autoNivelDECIR(); pintarDON(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ } }); el.addEventListener("input", agendarPintarDON); }
 });
 /* a banda de conformidade depende do relógio: reavaliação a cada 30 segundos */
-setInterval(()=>{ try{ pintarDON(); renderVigor(); }catch(e){} }, 30000);
+setInterval(reavaliarPeriodicamente, 30000);
+
+/** O temporizador da repintura adiada, para uma tecla cancelar a anterior. */
+let PINTAR_DON_T = null;
+
+/**
+ * Repinta a conformidade daqui a um quarto de segundo, e não a cada tecla.
+ *
+ * `pintarDON` reconstrói o PEA em vigor, todas as caixas DON e as ampulhetas. O GDH de
+ * início tem onze caracteres: eram onze reconstruções completas por preenchimento. Com o
+ * atraso, quem escreve seguido só paga uma, no fim.
+ */
+function agendarPintarDON(){
+  if(PINTAR_DON_T) clearTimeout(PINTAR_DON_T);
+  PINTAR_DON_T = setTimeout(()=>{ PINTAR_DON_T = null; try{ autoNivelDECIR(); pintarDON(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ } }, 250);
+}
+
+/**
+ * A reavaliação periódica da conformidade, que depende do relógio.
+ *
+ * Só `pintarDON`: era `pintarDON(); renderVigor();`, e `pintarDON` já repinta o PEA em
+ * vigor por si — a segunda chamada reconstruía o cartão duas vezes por passagem. E é
+ * `pintarDON` que sabe não repintar o cartão quando o foco está lá dentro.
+ */
+function reavaliarPeriodicamente(){
+  try{ pintarDON(); }catch(e){ /* ignorado: a repintura falhada relata-se em pintarTudo */ }
+}
 ["o-num","o-local","o-pco","o-fase","o-pasta","o-lat","o-lon","o-inicio","o-nivel","d-area","d-sensiveis"].forEach(id=>{
   const el=$(id); if(el) el.addEventListener("change", ()=>{ try{ pintarGuia(); renderCheck(); }catch(e){} });
 });

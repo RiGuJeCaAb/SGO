@@ -146,20 +146,25 @@ function renderSetores(){
       /* Sem tipologias atribuídas, `mVal` e `oVal` são o que o oficial escreveu à mão:
          são dados de campo como qualquer outro, e passam pelo escape. */
       const mVal = auto? t.m : (x.m||""), oVal = auto? t.o : (x.o||"");
+      /* Cada campo dentro de um <label> com o nome da coluna: é o rótulo que o leitor de
+         ecrã lê — até aqui os sete campos por setor não tinham nenhum — e é o que se vê
+         abaixo de 820 px, onde o cabeçalho de colunas desaparece e ficavam seis caixas sem
+         dizer qual era o comandante. */
+      const c = (rot, html) => `<label class="set-c"><span class="set-l">${rot}</span>${html}</label>`;
       return `<div class="set-box"><div class="set-row">
         <span class="nm">${NOMES_SETOR[i]}</span>
-        <select data-i="${i}" data-f="estado">${ESTADOS_SETOR.map(o=>`<option${o===x.estado?" selected":""}>${o}</option>`).join("")}</select>
-        <input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">
-        <input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">
-        <input data-i="${i}" data-f="ct" value="${esc(x.ct)}" placeholder="9........." inputmode="tel">
-        <input data-i="${i}" data-f="m" value="${esc(mVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
-        <input data-i="${i}" data-f="o" value="${esc(oVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>
+        ${c("Estado", `<select data-i="${i}" data-f="estado" aria-label="Estado do setor ${NOMES_SETOR[i]}">${ESTADOS_SETOR.map(o=>`<option${o===x.estado?" selected":""}>${o}</option>`).join("")}</select>`)}
+        ${c("Comandante", `<input data-i="${i}" data-f="cmd" value="${esc(x.cmd)}" placeholder="ex.: Cmdt CB ...">`)}
+        ${c("Adjunto", `<input data-i="${i}" data-f="adj" value="${esc(x.adj||"")}" placeholder="adjunto (opcional)">`)}
+        ${c("Contacto", `<input data-i="${i}" data-f="ct" value="${esc(x.ct)}" placeholder="9........." inputmode="tel">`)}
+        ${c("Meios", `<input data-i="${i}" data-f="m" value="${esc(mVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>`)}
+        ${c("Op.", `<input data-i="${i}" data-f="o" value="${esc(oVal)}" placeholder="0" inputmode="numeric"${auto?" readonly title=\"calculado das tipologias\"":""}>`)}
       </div>
       <div class="tip-add">
-        <select id="ta-t-${i}">${catOptions()}</select>
-        <span class="lbl">QTD</span><input id="ta-q-${i}" type="number" min="1" value="1">
-        <span class="lbl">OP/UNID</span><input id="ta-o-${i}" type="number" min="0" value="5">
-        <span class="lbl">ORIGEM</span><input id="ta-e-${i}" placeholder="corpo de bombeiros ou entidade" style="width:180px">
+        <select id="ta-t-${i}" aria-label="Tipologia a atribuir ao setor ${NOMES_SETOR[i]}">${catOptions()}</select>
+        <label class="lbl" for="ta-q-${i}">QTD</label><input id="ta-q-${i}" type="number" min="1" value="1">
+        <label class="lbl" for="ta-o-${i}">OP/UNID</label><input id="ta-o-${i}" type="number" min="0" value="5">
+        <label class="lbl" for="ta-e-${i}">ORIGEM</label><input id="ta-e-${i}" placeholder="corpo de bombeiros ou entidade" class="larg-m">
         <button class="btn btn-g" type="button" data-add="${i}">Atribuir</button>
       </div>
       <div class="tip-chips" id="tc-${i}">${(x.tip||[]).map((it,j)=>{

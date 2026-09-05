@@ -96,7 +96,9 @@ function renderComs(){
   renderNiveis(); renderAtrib();
 
   const D = $("cm-dist");
-  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}"></select><input class="cwo" hidden placeholder="designação do canal"></span>`;
+  /* Com nome: era o único controlo gerado sem rótulo que sobrava — o canal por nível,
+     que um leitor de ecrã anunciava como «caixa de combinação» e mais nada. */
+  const sel = (attrs, rede, niv) => `<span class="cw"><select class="cs" ${attrs} data-rede="${esc(rede)}" data-niv="${niv||""}" aria-label="Canal ${esc(String(rede).toUpperCase())}${niv? " do nível "+esc((typeof NIVEIS!=="undefined" && NIVEIS[niv])||niv) : ""}"></select><input class="cwo" hidden placeholder="designação do canal" aria-label="Designação do canal"></span>`;
   const cls = duplo => "cm-f"+((duplo && N.ba)? "" : " nb");
   const cab = duplo => `<div class="${cls(duplo)} cm-fh"><span class="atr-t">Interlocutor</span><span class="atr-t">SIRESP</span>${(duplo&&N.ba)? '<span class="atr-t">Banda alta</span>':""}</div>`;
   const linha = (nome, det, s1, s2) => `<div class="${cls(!!s2)}">

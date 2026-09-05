@@ -181,8 +181,24 @@ function pintarElementos(termo){
      corrigir o primeiro, porque a gravação procura por nome e entidade. Corrigir um
      contacto obrigava a apagar e reescrever, e apagar é destrutivo onde bastava
      corrigir. */
-  el.querySelectorAll("[data-el-editar]").forEach(b=>b.addEventListener("click", ()=>{
-    const x = ELEMENTOS.find(y=>y.id === b.getAttribute("data-el-editar")); if(!x) return;
+  /* Um ouvinte por contentor, ligado uma vez, em vez de três por elemento religados a
+     cada pintura — é o que impedia repintar sem reconstruir tudo, e é o padrão que a
+     r0095 introduziu nas listas repintadas. */
+  if(el.dataset.ligado) return;
+  el.dataset.ligado = "1";
+  el.addEventListener("click", async ev=>{
+    const b = ev.target instanceof Element? ev.target.closest("[data-el-editar],[data-el-usar],[data-el-apagar]") : null;
+    if(!b || !el.contains(b)) return;
+    if(b.hasAttribute("data-el-editar")) return editarElemento(b.getAttribute("data-el-editar"));
+    if(b.hasAttribute("data-el-usar")) return nomearElemento(b.getAttribute("data-el-usar"));
+    return apagarElementoDoCatalogo(b.getAttribute("data-el-apagar"));
+  });
+}
+
+/** «Editar»: traz o registo ao formulário e fixa o `id` que se corrige. */
+function editarElemento(id){
+  {
+    const x = ELEMENTOS.find(y=>y.id === id); if(!x) return;
     const campos = {"el-nome":x.nome, "el-ent":x.entidade, "el-ct":x.ct, "el-fn":x.funcao, "el-nota":x.nota};
     Object.keys(campos).forEach(id=>{ const c = $(id); if(c) c.value = campos[id] || ""; });
     EL_EDICAO = x.id;
@@ -190,25 +206,28 @@ function pintarElementos(termo){
     if(g) g.textContent = "Guardar alterações";
     const cx = $("el-cancelar"); if(cx) cx.style.display = "";
     aviso("el-msg","ok","A corrigir «"+x.nome+"». Guardar substitui este registo; cancelar deixa-o como está.");
-    const c = $("el-nome"); if(c){ c.focus(); try{ c.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){} }
-  }));
+    const c = $("el-nome"); if(c){ c.focus(); try{ c.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){ /* ignorado: sem scrollIntoView no ambiente de teste */ } }
+  }
+}
 
-  /* «Nomear» leva o elemento ao formulário da estrutura do PCO. Não nomeia sozinho:
-     a função e o GDH são decisão de quem comanda. */
-  el.querySelectorAll("[data-el-usar]").forEach(b=>b.addEventListener("click", ()=>{
-    const x = ELEMENTOS.find(y=>y.id === b.getAttribute("data-el-usar")); if(!x) return;
+/** «Nomear» leva o elemento ao formulário da estrutura do PCO. Não nomeia sozinho: a
+    função e o GDH são decisão de quem comanda. */
+function nomearElemento(id){
+  {
+    const x = ELEMENTOS.find(y=>y.id === id); if(!x) return;
     if($("pc-n")) $("pc-n").value = x.nome;
     if($("pc-e")) $("pc-e").value = x.entidade;
     if($("pc-c")) $("pc-c").value = x.ct;
     irPara("p-comando");
     const alvo = $("pc-f"); if(alvo) alvo.focus();
-  }));
-  el.querySelectorAll("[data-el-apagar]").forEach(b=>b.addEventListener("click", async ()=>{
-    const id = b.getAttribute("data-el-apagar");
-    const x = ELEMENTOS.find(y=>y.id === id); if(!x) return;
-    if(!window.confirm("Apagar "+x.nome+" do catálogo? A ocorrência não é tocada.")) return;
-    await apagarElemento(id); pintarElementos($("el-proc")? $("el-proc").value : "");
-  }));
+  }
+}
+
+/** «Apagar» tira o elemento do catálogo, depois de confirmar. A ocorrência não é tocada. */
+async function apagarElementoDoCatalogo(id){
+  const x = ELEMENTOS.find(y=>y.id === id); if(!x) return;
+  if(!window.confirm("Apagar "+x.nome+" do catálogo? A ocorrência não é tocada.")) return;
+  await apagarElemento(id); pintarElementos($("el-proc")? $("el-proc").value : "");
 }
 
 (function(){
@@ -391,3 +410,27 @@ function ligarNomesDosFicheiros(){
   });
 }
 ligarNomesDosFicheiros();
+
+/**
+ * Liga cada nota de ajuda ao campo a que se refere, para o leitor de ecrã a ler com ele.
+ *
+ * Havia 144 notas `.hint` e nenhum `aria-describedby`: a nota que explica o formato e o
+ * domínio de um campo ficava invisível a quem entra nele pelo teclado. A regra é a do
+ * molde — a nota vem logo a seguir ao campo, no mesmo pai — e por isso liga-se aqui, de
+ * uma vez, em vez de se escrever à mão em cem sítios. Só as notas com `id`; as outras
+ * ganham um, para poderem ser apontadas.
+ */
+function ligarNotasAosCampos(){
+  let n = 0;
+  document.querySelectorAll(".hint").forEach(h=>{
+    const prev = h.previousElementSibling;
+    if(!prev) return;
+    const campo = /^(INPUT|SELECT|TEXTAREA)$/.test(prev.tagName)? prev : prev.querySelector("input,select,textarea");
+    if(!campo || campo.getAttribute("aria-describedby")) return;
+    if(!h.id) h.id = "nota-" + (campo.id || ("c" + (++n)));
+    campo.setAttribute("aria-describedby", h.id);
+    n++;
+  });
+  return n;
+}
+ligarNotasAosCampos();

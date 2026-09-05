@@ -38,12 +38,15 @@ test('nenhum cartão fica sem célula, e nenhum registo aponta para cartão inex
 test('um título que mude sem o registo acompanhar é apanhado', semAplicacao, () => {
   // A chave é o texto do título. Renomear um cartão sem tocar no registo deixá-lo-ia
   // sem célula — e um cartão que ninguém encontra é o defeito que isto impede.
+  // O título vive no primeiro nó de texto — dentro do botão, desde que o cabeçalho ficou
+  // cabeçalho na r0100 — e é esse nó que se renomeia, não o botão inteiro.
   const h = doc().querySelector('#p-logistica .card h2');
-  const antes = h.firstChild.textContent;
-  h.firstChild.textContent = 'Título que ninguém declarou';
+  const no = (h.querySelector('.cd-btn') || h).firstChild;
+  const antes = no.textContent;
+  no.textContent = 'Título que ninguém declarou';
   const a = daqui(janela.auditarArrumacao());
   assert.ok(a.semCartao.length > 0, 'o registo continuou a encontrar o cartão renomeado');
-  h.firstChild.textContent = antes;
+  no.textContent = antes;
   assert.deepEqual(daqui(janela.auditarArrumacao()).semCartao, []);
 });
 
@@ -55,13 +58,14 @@ test('a auditoria da arrumação acende o mesmo aviso que a posse', semAplicacao
   assert.equal(av.style.display, 'none');
 
   const h = doc().querySelector('#p-operacoes .card h2');
-  const antes = h.firstChild.textContent;
-  h.firstChild.textContent = 'Cartão sem registo';
+  const no = (h.querySelector('.cd-btn') || h).firstChild;
+  const antes = no.textContent;
+  no.textContent = 'Cartão sem registo';
   janela.renderQuadroTurno();
   assert.equal(av.style.display, 'block', 'a arrumação partida não acendeu o aviso');
   assert.match(av.textContent, /cartão/i);
 
-  h.firstChild.textContent = antes;
+  no.textContent = antes;
   janela.renderQuadroTurno();
   assert.equal(av.style.display, 'none');
 });
