@@ -21,7 +21,10 @@ interdição ou de condicionamento à circulação de vias de tráfego»), a sit
 Anexo («não foram identificadas zonas de segurança nem caminhos de fuga»), o ponto 7.d.(30)
 da DON n.º 2 («rotatividade de funções a cada 12 horas»), o 7.e.(4) («até aos 90 minutos após
 o alerta»), e as duas definições da hora de entrada na Entidade, 7.d.(14)(d) e 9.d.(6), que
-não coincidem para o meio reencaminhado a meio da marcha — ver `ESTADO.md`, r0105.
+não coincidem para o meio reencaminhado a meio da marcha. **Grava-se a de 9.d.(6)** — «hora em
+que o veículo chega ao seu local de estacionamento/quartel ou encerra a sua participação na
+ocorrência» —, por decisão do dono a 5 de setembro: é o registo que a DON manda ao CSREPC.
+Ver `ESTADO.md`, r0105.
 
 ### `SGO4067`
 **Despacho n.º 4067/2024, de 15 de abril** — regulamentação do Sistema de Gestão de

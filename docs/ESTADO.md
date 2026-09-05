@@ -17,7 +17,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 |---|---|
 | Entregas em `app/` | 144, das anteriores à convenção de nomes até à r0106 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1045, todos a passar |
+| Testes | 1047, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1190,9 +1190,9 @@ era qual das duas definições da hora de entrada na Entidade se grava: a do pon
 «a hora a que o mesmo chega ao seu destino final», ou a do ponto 9.d.(6), «hora em que o
 veículo chega ao seu local de estacionamento/quartel ou encerra a sua participação na
 ocorrência» — que diferem para o meio reencaminhado a meio da marcha. O texto colado fala de
-«ordem dada» contra «ação concluída», que não é nenhuma das duas. **Fica proposto, e por
-confirmar:** gravar a de 9.d.(6), porque é o registo que a DON manda ao CSREPC e é o CSREPC
-quem usa isto. A aplicação ainda não grava a chegada à entidade — as rendições registam a
+«ordem dada» contra «ação concluída», que não é nenhuma das duas. **Decidido pelo dono a 5 de
+setembro, depois de lhe ser posta a pergunta certa:** grava-se a de 9.d.(6), porque é o
+registo que a DON manda ao CSREPC e é o CSREPC quem usa isto. A aplicação ainda não grava a chegada à entidade — as rendições registam a
 saída do TO —, pelo que a decisão é uma definição para quando o campo entrar.
 
 **5. O instante de origem de P6 — o texto de apoio responde a outra pergunta.** No quadro do
@@ -1219,8 +1219,13 @@ vez de avisar por quadrado, a pasta já contava, e a linha de estado do mapa diz
 quadrados ficaram por guardar. A sonda do `localStorage` fica como está: é deteção de
 capacidade, como o #005 reclassificou.
 
-**Números.** 1045 testes; nove portões e o trabalho de navegador verdes; auditoria visual
-limpa nos dois temas.
+**PCO é o posto de comando.** O alvo do mapa que marca a coordenada da ocorrência dizia
+«Ponto da ocorrência (PCO)», e PCO é o posto de comando operacional, não o ponto. Apontado
+pelo dono; a sigla sai do alvo na r0106, junto com a decisão do 9.d.(6).
+
+**Números.** 1047 testes — o número que aqui estava, 1045, era o de uma corrida a meio, e
+ficou por um erro meu de guião; nove portões e o trabalho de navegador verdes; auditoria
+visual limpa nos dois temas.
 
 ## Decisões tomadas
 
