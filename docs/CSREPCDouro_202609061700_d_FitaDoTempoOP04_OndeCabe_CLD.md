@@ -204,10 +204,15 @@ Três revisões, cada uma com os seus testes e a sua nota no manual, por ordem d
 2. **A taxonomia: «calma, tenho de validar e ainda não fiz».** Nada entra até a folha de
    verificação estar validada. A revisão 1 fica só com os nomes; os campos e os códigos
    esperam.
-3. **O SG14: pediu-se o contexto.** Está na secção 4: é o único código que não tem base em
-   nenhum dos dois documentos, acrescentado na conversa de origem por convicção de que o
-   quase-acidente é a única fonte de aprendizagem que não custa um ferido. Entra ou não por
-   decisão, e a decisão ainda não está tomada.
+3. **O SG14: entra.** Decidido a 6 de setembro, depois de dado o contexto — é o único
+   código sem base em nenhum dos dois documentos, acrescentado na conversa de origem por
+   convicção de que o quase-acidente é a única fonte de aprendizagem que não custa um
+   ferido. A razão da decisão fixa um princípio que vale para toda a taxonomia: **em termos
+   operacionais, no combate, não há norma que determine a terminologia**; há normas que
+   regulam procedimentos, e essas citam-se, mas os termos com que se organiza a informação
+   da fita do tempo, e até do PEA, podem ser os que forem de identificação mais fácil. Os
+   códigos são, por isso, construção declarada: onde um procedimento tem base, a base vai ao
+   lado; onde não tem, o código diz que é nosso, e não precisa de mais para existir.
 4. **As siglas: «nada de CDOS, só o que legalmente foi instituído».** Os comandos
    sub-regionais de emergência e proteção civil existem pelo DL n.º 45/2019, art. 23.º, e o
    DL n.º 90-A/2022, Anexo I, nomeia o do Douro no Comando Regional do Norte. O exemplo do

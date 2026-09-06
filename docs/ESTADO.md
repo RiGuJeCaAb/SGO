@@ -1580,8 +1580,11 @@ troca: não há cartão com «evolução» no nome em Operações, a fita é a l
 o diário é a tabela de `O.fita`, e só a fita cita o art. 2.º.
 
 As outras quatro, no mesmo dia: a taxonomia dos códigos espera a validação da folha de
-verificação, que ainda não foi feita; o SG14 pediu explicação, e foi dada — é o único código
-sem base em nenhum dos dois documentos, acrescentado na conversa por convicção; «CDOS» não
+verificação, que ainda não foi feita; o SG14 pediu explicação, foi dada, e entra — é o único código
+sem base em nenhum dos dois documentos, e a razão para entrar fixa um princípio: no
+combate não há norma que determine a terminologia operacional, só normas que regulam
+procedimentos, pelo que os códigos da fita, e até do PEA, podem ser os de identificação
+mais fácil, ditos como construção nossa e com a base ao lado onde a há; «CDOS» não
 entra em lado nenhum, porque já não está em uso, e só se usa o que está legalmente
 instituído — o DL n.º 45/2019, art. 23.º, cria os comandos sub-regionais de emergência e
 proteção civil, e o DL n.º 90-A/2022, Anexo I, nomeia o do Douro; a designação em rádio não
