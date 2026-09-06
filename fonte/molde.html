@@ -1232,7 +1232,7 @@
     <div class="help" data-ajuda="operacoes"><span class="help-ht">Operações — dispositivo e fita do tempo</span>
       <p class="help-hd">O que está no teatro de operações e o que lá vai acontecendo — arts. 16.º a 25.º. É daqui que saem os números do PEA e o relógio das rendições.</p>
       <ul>
-        <li><b>Setores</b> — escolhe quantos são e a estrutura nasce com os nomes doutrinários (Alfa, Bravo...); em cada setor: estado no menu, comandante, e meios por tipologia (tipologia + quantidade + Atribuir). Totais e horas de empenhamento calculam-se sozinhos.</li>
+        <li><b>Setores</b> — escolhe quantos são e a estrutura nasce com os nomes doutrinários (Alfa, Bravo...); em cada setor: estado no menu, comandante, e meios por tipologia (tipologia + quantidade + Atribuir). A origem escolhe-se de uma lista — o que já se escreveu nesta ocorrência e o que a DON n.º 2 nomeia por localização em todo o país, a sub-região do TO primeiro — ou escreve-se. Totais e horas de empenhamento calculam-se sozinhos.</li>
         <li><b>Estados</b> — a nomenclatura é a do ponto 7.f da DON n.º 2: em curso (ativo), em resolução (dominado), em conclusão (extinto), vigilância ativa e consolidação de rescaldo, e reativação. Cada mudança fica registada sozinha na evolução.</li>
         <li><b>Tipologias</b> — as 54 tipologias do Anexo 1 da DON n.º 2 / DECIR 2026, agrupadas por entidade, com a composição oficial em cada opção. O campo OP/UNID pré-enche-se do catálogo e pode ser corrigido para o efetivo real da força que chegou ao TO.</li>
         <li><b>Meios aéreos</b> — registados um a um, com tipologia, indicativo de chamada e hora de entrada no TO. O indicativo escolhe-se da lista do Anexo 6 da DON n.º 2 / DECIR 2026, com o CMA onde o meio está sediado e a distância à ocorrência, ou escreve-se à mão quando o meio não consta; escolher da lista acerta a tipologia. É desta lista que sai a contagem que aciona o COPAR-T e o COPAR-Ar, e o relógio de cada aeronave no quadro de rendições.</li>
@@ -1599,6 +1599,7 @@
           <label class="chkbx"><input type="checkbox" id="s-livre"> Colar texto livre (alternativa)</label>
         </div>
         <div id="s-lista"></div>
+        <datalist id="origem-lista"></datalist>
       <div id="rend-painel" style="display:none"></div>
         <div class="set-box" id="s-aer-box" style="display:none">
           <span class="stit stit--menor">Meios aéreos no TO — indicativo e hora de entrada</span>

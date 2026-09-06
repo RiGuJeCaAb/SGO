@@ -127,6 +127,7 @@ function resumoTip(tip){ return agruparTip(tip).map(g=>g.n+"× "+g.t).join(", ")
  * números para a mesma coisa.
  */
 function renderSetores(){
+  pintarOrigens();
   const e = estObj();
   $("s-n").value = String(e.n||0);
   renderAereos();
@@ -165,7 +166,7 @@ function renderSetores(){
         <select id="ta-t-${i}" aria-label="Tipologia a atribuir ao setor ${NOMES_SETOR[i]}">${catOptions()}</select>
         <label class="lbl" for="ta-q-${i}">QTD</label><input id="ta-q-${i}" type="number" min="1" value="1">
         <label class="lbl" for="ta-o-${i}">OP/UNID</label><input id="ta-o-${i}" type="number" min="0" value="5">
-        <label class="lbl" for="ta-e-${i}">ORIGEM</label><input id="ta-e-${i}" placeholder="corpo de bombeiros ou entidade" class="larg-m">
+        <label class="lbl" for="ta-e-${i}">ORIGEM</label><input id="ta-e-${i}" list="origem-lista" placeholder="corpo de bombeiros ou entidade" class="larg-m">
         <button class="btn btn-g" type="button" data-add="${i}">Atribuir</button>
       </div>
       <div class="tip-chips" id="tc-${i}">${(x.tip||[]).map((it,j)=>{

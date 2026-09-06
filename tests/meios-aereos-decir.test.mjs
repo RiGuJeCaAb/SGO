@@ -119,6 +119,30 @@ test('o campo do indicativo tem a lista, a linha diz de onde vem, e escolher ace
   janela.eval('O = novoEstado()');
 });
 
+test('um HEBL a mais de 40 km do CMA é aviso; dentro é conformidade; sem coordenadas cala-se', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.inicio = '151200JUL26';
+  const e = janela.estObj();
+  e.aerL = [{ t: 'HEBL', ind: 'H15', g: '', ts: 0 }, { t: 'HEBL', ind: 'H1', g: '', ts: 0 }, { t: 'HEBL', ind: 'AFOCELCA 3', g: '', ts: 0 }];
+  const itens = () => janela.verificacoesDON().filter((x) => x.id === 'hebl40');
+  assert.equal(itens().length, 0, 'sem coordenadas da ocorrência não há o que medir');
+  O.meta.lat = '41,095'; O.meta.lon = '-7,815';   // Lamego
+  const v = itens();
+  const av = v.filter((x) => x.n === 'av'), ok = v.filter((x) => x.n === 'ok');
+  assert.equal(av.length, 1); assert.match(av[0].t, /^H1 a \d+ km do CMA de Arcos de Valdevez/);
+  assert.match(av[0].r, /7\.j\.\(3\)/);
+  assert.equal(ok.length, 1); assert.match(ok[0].s, /H15 \(\d+ km, Vila Real\)/);
+  assert.ok(!v.some((x) => /AFOCELCA/.test(x.t + x.s)), 'o que não é da rede não se mede');
+  /* A lista já o dizia ao escolher. */
+  janela.pintarIndicativosAereos();
+  const ops = [...janela.document.querySelectorAll('#aer-lista option')];
+  assert.match(ops.find((o) => o.value === 'H1').textContent, /além dos 40 km do ponto 7\.j\.\(3\)/);
+  assert.doesNotMatch(ops.find((o) => o.value === 'H15').textContent, /além dos 40 km/);
+  assert.doesNotMatch(ops.find((o) => o.value === 'A1').textContent, /além dos 40 km/, 'a norma dos 40 km é dos helicópteros ligeiros');
+  janela.eval('O = novoEstado()');
+});
+
 test('registar um meio da rede leva o CMA de origem para o diário', semAplicacao, () => {
   janela.eval('O = novoEstado()');
   const O = avaliar(janela, 'O');

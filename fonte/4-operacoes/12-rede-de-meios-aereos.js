@@ -10,7 +10,8 @@
    67, 22 e 9 meios — que o teste repete. O Anexo 6 não tem coluna HEBM: os «H» são HEBL.
    Ovar (BA8) recebe dois HEBP no verão e não consta do Anexo 18, pelo que fica sem
    coordenadas; e a linha de Évora diz «Alto Central», gralha que se corrige para Alentejo
-   Central, como no Anexo 6 e no DL n.º 90-A/2022. Os meios da AFOCELCA, da Força Aérea fora deste quadro e os estrangeiros não
+   Central, como no Anexo 6 e no DL n.º 90-A/2022; e os dois anexos escrevem «Figueiró do
+   Vinhos», que se corrige para Figueiró dos Vinhos, o nome do concelho. Os meios da AFOCELCA, da Força Aérea fora deste quadro e os estrangeiros não
    estão aqui, e por isso o campo continua a aceitar o que se escreve à mão. O «2*» de
    Santarém são AVBM terrestres, nota da própria tabela; contam como AVBM. */
 /** @typedef {{n:string, t:string, r:string, s:string, lat:number|null, lon:number|null}} CentroMeiosAereos */
@@ -35,7 +36,7 @@ const CMA_DECIR = [
   { n:"Lousã", t:"Pista", r:"Centro", s:"Região de Coimbra", lat:40.14351, lon:-8.2442 },
   { n:"Pampilhosa da Serra", t:"Pista", r:"Centro", s:"Região de Coimbra", lat:40.02733, lon:-7.94909 },
   { n:"Alcaria", t:"Heliporto", r:"Centro", s:"Região de Leiria", lat:39.57778, lon:-8.78448 },
-  { n:"Figueiró do Vinhos", t:"Heliporto", r:"Centro", s:"Região de Leiria", lat:39.91268, lon:-8.27433 },
+  { n:"Figueiró dos Vinhos", t:"Heliporto", r:"Centro", s:"Região de Leiria", lat:39.91268, lon:-8.27433 },
   { n:"Monte Real (BA5)", t:"Pista", r:"Centro", s:"Região de Leiria", lat:39.83046, lon:-8.88446 },
   { n:"Pombal", t:"Pista", r:"Centro", s:"Região de Leiria", lat:39.88682, lon:-8.64941 },
   { n:"Aguiar da Beira", t:"Heliporto", r:"Centro", s:"Viseu Dão e Lafões", lat:40.81748, lon:-7.53646 },
@@ -170,7 +171,7 @@ const AEREOS_DECIR = {
       ["H26", "HEBL", "Pampilhosa da Serra"],
       ["H27", "HEBL", "Pombal"],
       ["K3", "HEBP", "Pombal"],
-      ["H28", "HEBL", "Figueiró do Vinhos"],
+      ["H28", "HEBL", "Figueiró dos Vinhos"],
       ["H29", "HEBL", "Alcaria"],
       ["H30", "HEBL", "Castelo Branco"],
       ["A9", "AVBM", "Castelo Branco"],
@@ -246,7 +247,7 @@ const AEREOS_DECIR = {
       ["FIRE2", "HERAC", "Lousã"],
       ["H26", "HEBL", "Pampilhosa da Serra"],
       ["K3", "HEBP", "Pombal"],
-      ["H28", "HEBL", "Figueiró do Vinhos"],
+      ["H28", "HEBL", "Figueiró dos Vinhos"],
       ["H29", "HEBL", "Alcaria"],
       ["H30", "HEBL", "Castelo Branco"],
       ["A9", "AVBM", "Castelo Branco"],
@@ -387,7 +388,10 @@ function pintarIndicativosAereos(){
   const p = periodoAereoDECIR(d);
   dl.innerHTML = L.map(o=>{
     const onde = o.cma? o.cma.n+" ("+o.cma.s+")" : "";
-    const km = o.km==null? (o.cma && o.cma.lat==null? "sem coordenadas no Anexo 18" : "") : fmtPT(o.km, 0)+" km";
+    /* Os HEBL empenham-se por norma até 40 km do CMA — ponto 7.j.(3). O rótulo di-lo ao escolher,
+       e a verificação de conformidade repete-o depois de registado. */
+    const km = o.km==null? (o.cma && o.cma.lat==null? "sem coordenadas no Anexo 18" : "")
+      : fmtPT(o.km, 0)+" km"+((o.t==="HEBL" && o.km>40)? ", além dos 40 km do ponto 7.j.(3)" : "");
     return '<option value="'+esc(o.ind)+'">'+esc([o.t, onde, km].filter(Boolean).join(" · "))+'</option>';
   }).join("");
   if(!p){

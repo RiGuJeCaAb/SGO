@@ -117,6 +117,8 @@ const PONTOS_DON2 = [
   '7.k.(1)', '7.k.(2)', '7.l.(1)', '7.l.(2)',
   /* As duas definições da hora de entrada na Entidade, conferidas na r0105; grava-se a de 9.d.(6). */
   '7.d.(14)(d)', '9.d.(6)',
+  /* Os 40 km dos HEBL e HEBM a partir do CMA, conferido na r0120. */
+  '7.j.(3)',
 ];
 
 test('nenhuma citação da DON n.º 2 entra sem estar conferida contra o PDF', semAplicacao, () => {

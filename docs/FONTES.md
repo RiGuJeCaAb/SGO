@@ -52,12 +52,22 @@ empenhamento operacional — os seis períodos, cada CMA com os indicativos dos 
 sediados; a transcrição, em `fonte/4-operacoes/12-rede-de-meios-aereos.js`, foi conferida
 contra os subtotais de cada período, 11, 37, 78, 67, 22 e 9, que o teste repete) e **Anexo 18**
 (rede de centros de meios aéreos, 49, com as coordenadas). Ovar (BA8) aparece no Anexo 6 e não
-no 18, e fica sem coordenadas. Ponto 7.j.(3): os HEBL e HEBM empenham-se por norma até 40 km
-do CMA onde estão sediados.
+no 18, e fica sem coordenadas; os dois anexos escrevem «Figueiró do Vinhos», corrigido para o
+nome do concelho. Ponto 7.j.(3): os HEBL e HEBM empenham-se por norma até 40 km do CMA onde
+estão sediados — é a regra `hebl40` do registo de conformidade.
+
+Para a lista de origens dos meios terrestres, em `fonte/4-operacoes/13-origens-do-dispositivo-terrestre.js`:
+**Anexo 10** (equipas de ataque inicial da UEPS da GNR por CMA, 42 CMA e 43 equipas, conferido
+pelos totais), **Anexo 9** (bases da FEPC), **Anexo 12** (equipas de máquinas de rasto da UNM do
+ICNF; o resto do anexo são cartas em imagem), **Anexo 22** (corpos de bombeiros com máquina
+de rasto) e **Anexo 23** (corpos de bombeiros com transporte coletivo para rendição: as 24
+linhas somam 25 veículos e o total impresso diz 30, diferença que é da diretiva). A diretiva
+não traz a lista dos corpos de bombeiros por sub-região: os Anexos 5 e 7 dão contagens, não
+nomes.
 
 Pontos invocados: 7.d.(5), 7.d.(7), 7.d.(8), 7.d.(14), 7.d.(17), 7.d.(18), 7.d.(19),
 7.d.(20), 7.d.(22), 7.d.(23), 7.d.(25)(d), 7.d.(27), 7.d.(30); 7.e.(4), 7.e.(4)(o), 7.e.(4)(t),
-7.e.(5), 7.e.(5)(a), 7.e.(5)(r), 7.e.(5)(t); 7.k.(1), 7.k.(2); 7.l.(1), 7.l.(2);
+7.e.(5), 7.e.(5)(a), 7.e.(5)(r), 7.e.(5)(t); 7.j.(3); 7.k.(1), 7.k.(2); 7.l.(1), 7.l.(2);
 10(1), 10(2), 10(3), 10(5).
 
 ### `PTTM06`

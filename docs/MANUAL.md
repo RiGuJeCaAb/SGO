@@ -547,6 +547,13 @@ falta.
 Operações → **Setorização do TO e quadro de meios**. Declare quantos setores há e o que está
 atribuído a cada um, por tipologia do Anexo 1 da DON n.º 2.
 
+A origem de cada meio escolhe-se de uma lista, ou escreve-se. Primeiro vem o que já se
+escreveu nesta ocorrência, para o mesmo corpo de bombeiros ficar sempre com o mesmo nome;
+depois o que a DON n.º 2 nomeia por localização, em todo o país — as equipas de ataque inicial
+da GNR em cada CMA, as bases da FEPC, as máquinas de rasto do ICNF e dos corpos de bombeiros,
+os transportes para rendição —, com a sub-região do TO primeiro. A diretiva não traz a lista
+dos corpos de bombeiros, por isso a maior parte escreve-se à mão da primeira vez.
+
 Operações → **Meios aéreos no TO**: indicativo e hora de entrada, com «Registar».
 
 O indicativo escolhe-se de uma lista, ou escreve-se. A lista é a do Anexo 6 da DON n.º 2 /
@@ -557,6 +564,10 @@ sozinho. Uma linha por baixo diz de que nível e período é a lista. O que não
 AFOCELCA, da Força Aérea fora do quadro, estrangeiros — escreve-se à mão no mesmo campo, e o
 tipo escolhe-se no menu. Fora de 2026 não há tabela em fonte, a lista fica vazia e a linha
 di-lo.
+
+Os helicópteros ligeiros empenham-se por norma até 40 km do CMA onde estão sediados, ponto
+7.j.(3) da DON n.º 2. A lista di-lo no próprio indicativo quando o CMA está mais longe, e a
+verificação de conformidade avisa depois de registado, com a distância e o CMA.
 
 ### Pedir a rendição, e registar a saída e a chegada
 

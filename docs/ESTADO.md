@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0119**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0120**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,14 +15,14 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 157, das anteriores à convenção de nomes até à r0119 |
-| Módulos em `fonte/` | 78, em sete zonas, mais o molde |
-| Testes | 1091, todos a passar |
+| Entregas em `app/` | 158, das anteriores à convenção de nomes até à r0120 |
+| Módulos em `fonte/` | 79, em sete zonas, mais o molde |
+| Testes | 1094, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
 | Versão do estado gravado | 29 |
-| Regras de conformidade | 15, com as fontes declaradas |
+| Regras de conformidade | 16, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
 também.** A documentação está arrumada por natureza — ver `docs/README.md`.
@@ -1615,6 +1615,37 @@ sozinho — K2 é HEBP e o menu dizia HEBL. Uma linha por baixo diz de que níve
 lista, e fora de 2026, sem diretiva em fonte, diz que não há tabela em vez de mostrar a de
 2026 como se fosse eterna. O CMA de origem vai para o diário ao registar o meio. Sete testes
 novos; o manual e o `FONTES.md` acompanham. 1091 testes.
+
+## Os 40 km dos helicópteros ligeiros, e a origem dos meios terrestres também de lista — r0120
+
+As duas coisas que a r0119 deixou apontadas, pedidas a 6 de setembro: «entram já a seguir».
+
+**Os 40 km.** O ponto 7.j.(3) da DON n.º 2 diz que os HEBL e HEBM se empenham por norma até
+40 km do CMA onde estão sediados. Com a rede da r0119 a distância mede-se: entra a regra
+`hebl40` no registo de conformidade — aviso por cada helicóptero ligeiro da rede a mais de
+40 km em linha reta do ponto da ocorrência, com o CMA e a distância, e conformidade para os
+que estão dentro. Cala-se sem coordenadas da ocorrência e para o que se escreveu à mão —
+AFOCELCA, Força Aérea —, que não tem CMA que se meça; e lê `aerL` sem passar por
+`aerLista`, que escreve no estado, porque verificar não pode alterar o que verifica. A lista
+de escolha já o diz no próprio indicativo antes de se registar. O ponto está conferido no PDF
+e entra na lista do teste das citações.
+
+**A origem dos meios terrestres.** A diretiva não dá indicativos aos meios terrestres e não
+traz a lista dos corpos de bombeiros: por sub-região há contagens, Anexos 5 e 7, e não nomes.
+O que nomeia por localização ficou transcrito, para o país inteiro — dito a 6 de setembro:
+o posto de comando pode estar em qualquer ponto do território, e os meios atuam em todo
+ele —: as equipas de ataque inicial da UEPS da GNR em cada CMA (Anexo 10, 42 CMA e 43
+equipas, conferido pelos totais), as bases da FEPC (Anexo 9), as equipas de máquinas de rasto
+da UNM do ICNF (Anexo 12), os corpos de bombeiros com máquina de rasto (Anexo 22) e os que
+têm transporte coletivo para rendição (Anexo 23, cujas linhas somam 25 e cujo total impresso
+diz 30 — transcreve-se o que as linhas dizem e anota-se a diferença). O campo «ORIGEM» de cada
+setor ganhou a lista: primeiro o que já se escreveu nesta ocorrência, para o mesmo corpo de
+bombeiros ficar sempre com o mesmo nome; depois a sub-região do TO; depois o resto. Continua
+a escrever-se à mão, e a maior parte escreve-se à mão da primeira vez, porque a lista não
+finge ter o que a diretiva não tem. Também de 6 de setembro, para mais tarde: esta informação
+— bases de apoio logístico do Anexo 19, reabastecimento de aeronaves do Anexo 20, transportes
+para rendição — pode ajudar a desenvolver a célula de Logística e Finanças. Nove testes
+novos. 1094 testes, 16 regras.
 
 ## Decisões tomadas
 

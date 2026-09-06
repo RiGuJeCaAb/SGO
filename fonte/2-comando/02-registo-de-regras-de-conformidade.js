@@ -532,6 +532,33 @@ const REGRAS_DON = [
         r:"DON n.º 2 / DECIR 2026, ponto 7.e.(5)(r)"});
 
       return v; } },
+  /* Empenhamento dos HEBL e HEBM até 40 km do CMA — DON n.º 2 / DECIR 2026, ponto 7.j.(3) */
+  { id:"hebl40", ids:["hebl40"], t:"Distância dos helicópteros ligeiros ao CMA de origem", fontes:["DON2"],
+    avaliar(){ const v = [];
+      /* Só se pronuncia quando tem os dois lados: a coordenada da ocorrência e um helicóptero
+         cujo indicativo está na rede da diretiva, com CMA de coordenadas conhecidas. Um
+         indicativo escrito à mão — AFOCELCA, Força Aérea — não tem CMA que se meça, e
+         calar-se é o certo. Lê `aerL` sem passar por `aerLista`, que escreve no estado. */
+      const c0 = parCoordenadas(O.meta.lat, O.meta.lon); if(!c0) return v;
+      const d = dataDoDispositivoAereo(), dentro = [];
+      (estObj().aerL||[]).forEach(a=>{
+        if(a.t!=="HEBL" && a.t!=="HEBM") return;
+        const m = meioAereoDECIR(a.ind, d); if(!m || !m.cma || m.cma.lat==null) return;
+        const km = distanciaPlanaM(c0.lat, c0.lon, m.cma.lat, m.cma.lon)/1000;
+        if(km > 40){
+          v.push({n:"av", id:"hebl40", t:a.ind+" a "+fmtPT(km,0)+" km do CMA de "+m.cma.n,
+            s:"O "+a.t+" "+a.ind+" está sediado no CMA de "+m.cma.n+" ("+m.cma.s+"), a "+fmtPT(km,0)+" km em linha reta do ponto da ocorrência.",
+            f:"Os HEBL e HEBM são, por norma, empenhados imediata e prioritariamente em incêndios nascentes, para distâncias até 40 km a partir do CMA onde estão sedeados.",
+            a:"Confirmar com o CSREPC que o empenhamento além dos 40 km foi decidido, e prever o reabastecimento e a rendição do meio com a distância em conta.",
+            r:"DON n.º 2 / DECIR 2026, ponto 7.j.(3)"});
+        } else dentro.push(a.ind+" ("+fmtPT(km,0)+" km, "+m.cma.n+")");
+      });
+      if(dentro.length) v.push({n:"ok", id:"hebl40", t:"Helicópteros ligeiros dentro dos 40 km do CMA",
+        s:"Dentro da distância de norma: "+dentro.join("; ")+".",
+        f:"Os HEBL e HEBM são, por norma, empenhados para distâncias até 40 km a partir do CMA onde estão sedeados.",
+        a:"Nada a fazer; a distância volta a conferir-se se a coordenada da ocorrência mudar.",
+        r:"DON n.º 2 / DECIR 2026, ponto 7.j.(3)"});
+      return v; } }
 ];
 
 /* Contexto comum às regras: calculado uma vez, passado a todas. */
