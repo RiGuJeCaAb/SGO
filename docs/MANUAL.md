@@ -448,6 +448,13 @@ não para sustentar sozinho uma decisão de ataque direto.
 
 ## Focos de calor detetados por satélite
 
+**Quando a resposta vem sem focos**, a aplicação diz que o serviço respondeu e que não há
+deteções na área e no período pedidos, com o endereço pedido sem a chave. Não é erro: é a
+resposta de um teatro sem fogo ativo à hora da passagem do satélite. Para experimentar a
+ligação, alargue o período no fim do endereço, `/3` em vez de `/1`. Se o serviço responder
+com uma frase em vez de um CSV, a aplicação cita-a: se falar de MAP_KEY, a chave não foi
+aceite.
+
 Planeamento → **Focos de calor detetados por satélite**.
 
 Uma lista de focos em CSV, como o FIRMS da NASA a escreve. Lê-se **pelo nome das colunas** —

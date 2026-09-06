@@ -47,7 +47,8 @@ test('sem latitude ou longitude recusa-se, e diz-se que colunas o ficheiro trazi
      teclado a adivinhar. */
   assert.throws(() => janela.lerFocosCSV('data,hora,potencia\n2026-08-31,1412,18'),
     /Falta a coluna latitude e a longitude[\s\S]*data, hora, potencia/);
-  assert.throws(() => janela.lerFocosCSV('latitude,longitude'), /não tem linhas de dados/);
+  /* Desde a r0115 o cabeçalho sozinho não é erro: é o serviço a dizer que não há focos. */
+  assert.equal(janela.lerFocosCSV('latitude,longitude').vazio, true);
 });
 
 test('a hora vem como HHMM e escreve-se como hora', semAplicacao, () => {
@@ -198,4 +199,26 @@ test('uma ocorrência da versão 23 abre sem focos', semAplicacao, () => {
   });
   assert.equal(m.versao, avaliar(janela, 'VERSAO_ESTADO'));
   assert.deepEqual(daqui(m.dados.focos.itens), []);
+});
+
+/* ---- uma linha só: nenhum foco, ou o serviço a falar — r0115 ---- */
+
+test('o cabeçalho sozinho é «nenhum foco», e não erro; uma frase do serviço cita-se', semAplicacao, () => {
+  const so = janela.lerFocosCSV('latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight\n');
+  assert.equal(so.vazio, true);
+  assert.deepEqual(daqui(so.focos), []);
+  assert.throws(() => janela.lerFocosCSV('Invalid MAP_KEY.'), /não é um CSV de focos: «Invalid MAP_KEY\.»[\s\S]*a chave não foi aceite/);
+  assert.throws(() => janela.lerFocosCSV('   '), /veio vazia/);
+});
+
+test('usarFocosCSV com o cabeçalho sozinho avisa sem erro, com o endereço sem a chave', semAplicacao, () => {
+  comTeatro();
+  const r = janela.usarFocosCSV('latitude,longitude,acq_date,acq_time\n', janela.semChaveFocos('https://firms.exemplo/api/area/csv/CHAVE-SECRETA/VIIRS_SNPP_NRT/-8,40,-7,41/1'));
+  assert.equal(r, false);
+  const m = janela.document.getElementById('foc-msg');
+  assert.match(m.textContent, /nenhum foco: não há deteções na área e no período pedidos/);
+  assert.match(m.textContent, /\/api\/area\/csv\/…\/VIIRS_SNPP_NRT\/-8,40,-7,41\/1/);
+  assert.doesNotMatch(m.textContent, /CHAVE-SECRETA/);
+  assert.equal(m.classList.contains('msg--err'), false, 'não é erro');
+  assert.match(m.textContent, /\/3 em vez de \/1/);
 });

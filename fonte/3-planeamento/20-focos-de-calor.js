@@ -68,14 +68,25 @@ function confiancaDoFoco(v){
  * que chega é o que a NASA escreveu, e não um formato nosso.
  *
  * @param {string} txt o CSV, tal como veio
- * @returns {{focos:any[], colunas:string[], lidas:number, semCoordenada:number}}
- * @throws quando falta a latitude ou a longitude, dizendo que colunas encontrou
+ * @returns {{focos:any[], colunas:string[], lidas:number, semCoordenada:number, vazio?:boolean}}
+ * @throws quando falta a latitude ou a longitude, dizendo que colunas encontrou; ou quando o
+ *   que veio é uma linha só que não é cabeçalho, citando-a — é assim que o FIRMS diz
+ *   «Invalid MAP_KEY», em texto simples com HTTP 200
  */
 function lerFocosCSV(txt){
   const L = String(txt||"").trim().split(/\r?\n/).filter(l=>l.trim());
-  if(L.length < 2) throw new Error("O ficheiro não tem linhas de dados — só cabeçalho, ou nem isso.");
+  if(!L.length) throw new Error("A resposta veio vazia: nem cabeçalho nem dados.");
   const sep = L[0].includes(";") ? ";" : (L[0].includes("\t") ? "\t" : ",");
   const H = L[0].split(sep).map(h=>h.trim().toLowerCase().replace(/^"|"$/g, ""));
+  /* Uma linha só. Se é o cabeçalho de focos, o serviço respondeu e **não há deteções** na
+     área e no período pedidos — que não é erro, e dizia-se como se fosse: «só cabeçalho, ou
+     nem isso», ao dono, a 6 de setembro, com a chave acabada de declarar. Se não é
+     cabeçalho, é o serviço a falar em texto simples, e a frase dele vale mais do que a nossa. */
+  if(L.length === 1){
+    const temLat = H.some(h=>FIRMS_COLUNAS[0].nomes.includes(h) || /latitude/.test(h));
+    if(temLat) return { focos:[], colunas:H, lidas:0, semCoordenada:0, vazio:true };
+    throw new Error("O serviço respondeu com uma linha que não é um CSV de focos: «" + L[0].slice(0, 160) + "». Se fala de MAP_KEY, a chave não foi aceite.");
+  }
 
   const ix = {};
   FIRMS_COLUNAS.forEach(c=>{
@@ -237,6 +248,11 @@ function focosEndereco(base){
     .replace(/\{data\}|\{date\}/gi, hoje);
 }
 
+/** O endereço sem a chave, para o dizer no ecrã e na fita: o troço a seguir a `csv/` fica «…». */
+function semChaveFocos(u){
+  return String(u||"").replace(/(\/api\/area\/csv\/)[^/]+/i, "$1…").replace(/([?&](?:key|chave|api_key|token)=)[^&]+/gi, "$1…");
+}
+
 /* ---- ao ecrã ---- */
 
 /** Pinta a leitura dos focos e repõe o endereço guardado. */
@@ -254,6 +270,11 @@ function usarFocosCSV(txt, origem){
   let r;
   try{ r = lerFocosCSV(txt); }
   catch(e){ aviso("foc-msg","err", String(e.message||e)); return false; }
+  if(r.vazio){
+    aviso("foc-msg","av","O serviço respondeu com o cabeçalho e nenhum foco: não há deteções na área e no período pedidos"
+      + (origem? " ("+origem+")" : "") + ". Não é erro — é a resposta de um teatro sem fogo ativo à hora da passagem do satélite. Para experimentar a ligação, alargar o período no fim do endereço: /3 em vez de /1.");
+    return false;
+  }
   if(!r.focos.length){
     aviso("foc-msg","err","O ficheiro tem "+r.lidas+" linhas e nenhuma com coordenada utilizável.");
     return false;
@@ -283,8 +304,9 @@ $("foc-ler").addEventListener("click", async ()=>{
     if(!r.ok){ aviso("foc-msg","err","O serviço respondeu HTTP "+r.status+"."); return; }
     const txt = await r.text();
     /* O FIRMS responde erro em texto simples com 200, como tantos outros. Se não vier
-       cabeçalho com latitude, o leitor di-lo — e a mensagem dele é melhor do que uma nossa. */
-    if(usarFocosCSV(txt, "serviço declarado")){ persistir(false); pintarFocos(); pintarPontos(); pintarMapa(); pintarEvolucao(); }
+       cabeçalho com latitude, o leitor di-lo — e a mensagem dele é melhor do que uma nossa.
+       A origem leva o endereço pedido sem a chave, para se ver a caixa e o período. */
+    if(usarFocosCSV(txt, semChaveFocos(u))){ persistir(false); pintarFocos(); pintarPontos(); pintarMapa(); pintarEvolucao(); }
   }catch(e){
     /* Em `file://` há serviços que recusam o pedido de outra origem, e não há como
        contornar isso do lado da aplicação. O ficheiro é o caminho que resta. */

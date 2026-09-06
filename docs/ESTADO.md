@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0114**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0115**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 152, das anteriores à convenção de nomes até à r0114 |
+| Entregas em `app/` | 153, das anteriores à convenção de nomes até à r0115 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1079, todos a passar |
+| Testes | 1081, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1478,6 +1478,26 @@ novo «Posto de comando operacional», a cor do comando e a fonte ao lado. Os do
 passam a recusar «PCO» no triângulo; o manual diz a diferença.
 
 **Números.** 1079 testes, 1 novo; nove portões e o trabalho de navegador verdes.
+
+## O FIRMS respondeu, e a aplicação disse-o como erro — r0115
+
+O dono obteve a chave do FIRMS a 6 de setembro e declarou-a na aplicação, de `file://`, com
+o endereço da área — `…/api/area/csv/CHAVE/VIIRS_SNPP_NRT/{bbox}/1` — e «Obter do serviço»
+respondeu «O ficheiro não tem linhas de dados — só cabeçalho, ou nem isso». **A tarefa 14
+deu um passo que só o posto podia dar:** o pedido chegou, o serviço respondeu com HTTP 200 e
+CORS aberto a uma página local, e a resposta tinha uma linha. O leitor não distinguia as
+duas coisas que uma linha pode ser: o cabeçalho de focos, que é o serviço a dizer que não
+há deteções na caixa e no período — um teatro sem fogo ativo, em setembro —, ou uma frase
+em texto simples como «Invalid MAP_KEY», que o FIRMS devolve com 200. Passa a distinguir:
+o cabeçalho sozinho é «nenhum foco», dito como aviso e não como erro, com o endereço pedido
+sem a chave e a sugestão de alargar o período; uma linha que não é cabeçalho cita-se, e se
+fala de MAP_KEY diz-se que a chave não foi aceite. **A chave não está em lado nenhum do
+repositório**, e o endereço que a fita e o ecrã mostram leva-a substituída por «…».
+
+O que fica por confirmar da tarefa 14, e depende de haver fogo: um CSV com focos a chegar
+por esse endereço. A forma do endereço está confirmada pelo ecrã do dono.
+
+**Números.** 1081 testes, 2 novos; nove portões e o trabalho de navegador verdes.
 
 ## Decisões tomadas
 
