@@ -303,7 +303,9 @@ $("aer-add").addEventListener("click", ()=>{
   if(!q.ok) return;
   aerLista().push({t, ind, g:q.g, ts:(q.d? q.d.getTime() : agora())});
   $("aer-i").value=""; $("aer-g").value="";
-  fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")");
+  /* O CMA de origem vai para o diário: é dele que se conta a distância e o reabastecimento. */
+  const rede = meioAereoDECIR(ind, dataDoDispositivoAereo());
+  fita("Meio aéreo registado no TO: "+(ind||t)+" ("+t+")"+(rede && rede.cma? ", sediado no CMA "+rede.cma.n : ""));
   renderAereos(); comporSetores(); pintarDON(); persistir(false);
 });
 $("s-res").addEventListener("change", ()=>{ const R=reservaObj(); if(!$("s-res").checked){ R.m=""; R.o=""; } else R.m=R.m||"0"; renderSetores(); persistir(false); });

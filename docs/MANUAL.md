@@ -549,6 +549,15 @@ atribuído a cada um, por tipologia do Anexo 1 da DON n.º 2.
 
 Operações → **Meios aéreos no TO**: indicativo e hora de entrada, com «Registar».
 
+O indicativo escolhe-se de uma lista, ou escreve-se. A lista é a do Anexo 6 da DON n.º 2 /
+DECIR 2026: os meios do nível em vigor na data de início da ocorrência, cada um com o tipo, o
+centro de meios aéreos onde está sediado e, havendo coordenadas da ocorrência, a distância em
+quilómetros, do mais perto para o mais longe. Escolher um indicativo da lista acerta o tipo
+sozinho. Uma linha por baixo diz de que nível e período é a lista. O que não consta — meios da
+AFOCELCA, da Força Aérea fora do quadro, estrangeiros — escreve-se à mão no mesmo campo, e o
+tipo escolhe-se no menu. Fora de 2026 não há tabela em fonte, a lista fica vazia e a linha
+di-lo.
+
 ### Pedir a rendição, e registar a saída e a chegada
 
 O medidor de tempo de cada unidade é um botão. Abre o painel da rendição, com o texto do

@@ -25,6 +25,7 @@ function renderAereos(){
     sel.innerHTML = CATALOGO.filter(c=>c.ar)
       .map(c=>'<option value="'+c.t+'"'+(c.c? ' title="'+esc(c.c)+'"':'')+'>'+c.t+(c.ind? " · "+c.ind:"")+'</option>').join("");
   }
+  pintarIndicativosAereos();
   const ch = $("aer-chips"); if(!ch) return;
   ch.innerHTML = L.length? L.map((a,j)=>{
     const d = catDef(a.t);
@@ -41,4 +42,10 @@ function renderAereos(){
     L.splice(j,1); aerLista(); renderAereos(); comporSetores(); pintarDON(); persistir(false);
   }));
 }
-
+/* Escolher um indicativo da lista acerta o tipo sozinho: K2 é HEBP e o menu dizia HEBL, e
+   ninguém repara no menu quando já escreveu o indicativo. Só mexe quando o indicativo é da
+   rede; o que se escreve à mão fica com o tipo que estiver escolhido. */
+if($("aer-i")) $("aer-i").addEventListener("input", ()=>{
+  const m = meioAereoDECIR($("aer-i").value, dataDoDispositivoAereo());
+  if(m && $("aer-t")) $("aer-t").value = m.t;
+});

@@ -47,6 +47,14 @@ células); art. 34.º; art. 46.º; Anexo I.
 Designação usada nas citações: `DON n.º 2 / DECIR 2026`, ou `DON n.º 2` quando aparece a
 seguir a outra referência na mesma linha.
 
+Anexos transcritos para a aplicação: **Anexo 6** (meios aéreos nos diferentes níveis de
+empenhamento operacional — os seis períodos, cada CMA com os indicativos dos meios lá
+sediados; a transcrição, em `fonte/4-operacoes/12-rede-de-meios-aereos.js`, foi conferida
+contra os subtotais de cada período, 11, 37, 78, 67, 22 e 9, que o teste repete) e **Anexo 18**
+(rede de centros de meios aéreos, 49, com as coordenadas). Ovar (BA8) aparece no Anexo 6 e não
+no 18, e fica sem coordenadas. Ponto 7.j.(3): os HEBL e HEBM empenham-se por norma até 40 km
+do CMA onde estão sediados.
+
 Pontos invocados: 7.d.(5), 7.d.(7), 7.d.(8), 7.d.(14), 7.d.(17), 7.d.(18), 7.d.(19),
 7.d.(20), 7.d.(22), 7.d.(23), 7.d.(25)(d), 7.d.(27), 7.d.(30); 7.e.(4), 7.e.(4)(o), 7.e.(4)(t),
 7.e.(5), 7.e.(5)(a), 7.e.(5)(r), 7.e.(5)(t); 7.k.(1), 7.k.(2); 7.l.(1), 7.l.(2);
