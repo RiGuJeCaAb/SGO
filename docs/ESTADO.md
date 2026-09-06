@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0115**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0116**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 153, das anteriores à convenção de nomes até à r0115 |
+| Entregas em `app/` | 154, das anteriores à convenção de nomes até à r0116 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1081, todos a passar |
+| Testes | 1083, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1498,6 +1498,25 @@ O que fica por confirmar da tarefa 14, e depende de haver fogo: um CSV com focos
 por esse endereço. A forma do endereço está confirmada pelo ecrã do dono.
 
 **Números.** 1081 testes, 2 novos; nove portões e o trabalho de navegador verdes.
+
+## Quem regista, à vista — r0116
+
+O dono: a caixa de quem regista «aparece no fundo da aba» e «é de grande importância para
+toda a informação». É de onde sai o nome de cada ato — a aprovação do PEA, o encerramento,
+a passagem de turno —, e um registo sem nome é rascunho. Duas coisas:
+
+- **«Quem regista» passa a primeiro cartão de Comando.** A ordem no ecrã é a do registo
+  `ARRUMACAO`, não a do HTML; o cartão estava em último. O molde acompanha, para quem o lê.
+- **O cabeçalho diz sempre quem está ao teclado**, em qualquer separador: «Ninguém ao
+  teclado», em cor de aviso, enquanto não houver ninguém; o nome e o perfil depois, em
+  verde. É botão: carregar leva a Comando, abre o cartão e põe o cursor no posto. Fica
+  declarado em `ENC_LIVRES` — ver quem está ao teclado é leitura.
+
+O dono enviou também uma conversa partilhada do Claude para se ver o que dela cabe na
+aplicação; o endereço não se lê daqui — a página é uma aplicação que só desenha no
+navegador — e ficou pedido que o texto entre por `entrada/`, como os documentos dos ramos.
+
+**Números.** 1083 testes, 2 novos; nove portões e o trabalho de navegador verdes.
 
 ## Decisões tomadas
 

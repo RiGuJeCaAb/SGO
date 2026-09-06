@@ -57,10 +57,15 @@ Três coisas que convém saber:
 
 ## Antes de tudo: dizer quem está ao teclado
 
-Comando → **Quem regista**. Escreva o nome e carregue em «Assumir o teclado».
+Comando → **Quem regista**, o primeiro cartão. Escreva o nome e carregue em «Assumir o
+teclado».
 
 Não é formalidade. Tudo o que registar fica com o seu nome e com o GDH, e é isso que faz do
 registo um documento e não um rascunho. Ao sair, «Deixar o teclado».
+
+O cabeçalho diz sempre quem está ao teclado, em qualquer separador: «Ninguém ao teclado»
+em cor de aviso enquanto não houver ninguém, e o nome e o perfil depois. Carregar nessa
+etiqueta leva ao cartão.
 
 ---
 

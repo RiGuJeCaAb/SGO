@@ -336,3 +336,15 @@ grau; uma de «Acesso e circulação» a azul; uma de «Reconhecimento» a cinze
 «Clicar no mapa marca» está em «Nota — Ameaça, ponto crítico ou segurança · Interdição à
 circulação», que é um dos dois alvos próprios dos graus, decisão do dono na r0105. Ficou por
 capturar na r0105 e na r0106; entra na r0107.
+
+## qa0039 — «Quem regista» no topo de Comando, e quem está ao teclado no cabeçalho, nos dois temas
+
+`CSREPCDouro_qa0039_202609061600_QuemRegistaNoTopoSemNinguemTemaClaro_CLD.png`
+`CSREPCDouro_qa0039_202609061600_QuemRegistaNoTopoSemNinguemTemaEscuro_CLD.png`
+`CSREPCDouro_qa0039_202609061600_QuemRegistaNoTopoDeclaradoTemaClaro_CLD.png`
+`CSREPCDouro_qa0039_202609061600_QuemRegistaNoTopoDeclaradoTemaEscuro_CLD.png`
+
+A 1440 px. Antes de alguém se declarar, o cabeçalho diz «Ninguém ao teclado» em cor de
+aviso e o primeiro cartão de Comando é «Quem regista»; depois de «Assumir o teclado», a
+etiqueta passa a verde com o nome e o perfil. O dono apontou na r0115 que a caixa estava no
+fundo do separador.

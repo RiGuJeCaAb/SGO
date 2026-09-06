@@ -166,7 +166,8 @@ const ENC_LIVRES = [
   { id:"mapa-enquadrar", porque:"idem" },
   { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" },
   { id:"b-limpar-carta", porque:"a carta é do dispositivo, não da ocorrência" },
-  { id:"b-repor",        porque:"repor o dispositivo é quando mais faz falta com tudo fechado" }
+  { id:"b-repor",        porque:"repor o dispositivo é quando mais faz falta com tudo fechado" },
+  { id:"quem-tag",       porque:"ver quem está ao teclado é leitura, e declarar-se é ato do posto" }
 ];
 
 /**

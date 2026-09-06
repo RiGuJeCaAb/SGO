@@ -109,3 +109,27 @@ test('a identidade vive fora da ocorrência', semAplicacao, async () => {
   assert.equal(pacote.includes('Cmdt Silva'), false,
     'a sessão não pode viajar dentro da ocorrência — só viaja o nome que ficou num ato');
 });
+
+/* ---- quem regista, à vista — r0116 ---- */
+
+test('o cabeçalho diz quem está ao teclado em qualquer separador, e leva ao cartão', semAplicacao, async () => {
+  janela.pintarSessao();
+  const q = doc().getElementById('quem-tag');
+  assert.match(q.textContent, /Ninguém ao teclado/);
+  assert.ok(q.classList.contains('quem-tag--ninguem'), 'sem ninguém, a etiqueta é de aviso');
+  await janela.assumirTeclado('Silva', 'Cmdt', 'cos');
+  janela.pintarSessao();
+  assert.match(q.textContent, /Ao teclado: Cmdt Silva · /);
+  assert.ok(q.classList.contains('quem-tag--declarado') && !q.classList.contains('quem-tag--ninguem'));
+  /* carregar leva a Comando, abre o cartão e põe o cursor no posto */
+  janela.irPara('p-planeamento');
+  q.click();
+  assert.ok(doc().querySelector('nav button.ativo').dataset.p === 'p-comando');
+  assert.equal(doc().activeElement && doc().activeElement.id, 'id-posto');
+});
+
+test('«Quem regista» é o primeiro cartão de Comando', semAplicacao, () => {
+  /* A arrumação por célula é que ordena os cartões no separador, pelo registo ARRUMACAO. */
+  const primeiro = doc().querySelector('#p-comando .card h2');
+  assert.match(primeiro.textContent.trim(), /^Quem regista/);
+});

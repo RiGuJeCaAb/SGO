@@ -6,6 +6,9 @@
    registo acompanhar deixaria o cartão para trás em silêncio. */
 const ARRUMACAO = [
   /* --- Comando: arts. 14.º e 15.º; aprovação do PEA, art. 8.º, n.º 2, al. e) --- */
+  /* Primeiro quem regista: era o último e o dono apontou-o — é de onde sai o nome de cada
+     ato, e um registo sem nome é rascunho. A ordem aqui é a ordem no ecrã. */
+  { h:"Quem regista",                             cel:"comando",     r:"art. 2.º, al. c) — o registo é atribuído a quem o faz" },
   { h:"Identificação da ocorrência",              cel:"comando",     r:"art. 14.º" },
   { h:"Estrutura do posto de comando",            cel:"comando",     r:"art. 14.º, n.os 1 a 5" },
   { h:"Avisos ativos",                            cel:"comando",     r:"art. 8.º, n.º 2 — determinações do COS" },
@@ -15,7 +18,6 @@ const ARRUMACAO = [
   { h:"Estado das integrações",                   cel:"comando",     r:"—" },
   { h:"Encerramento da ocorrência",               cel:"comando",     r:"art. 8.º, n.º 2; art. 2.º, al. c)" },
   { h:"Catálogo de elementos",                    cel:"comando",     r:"art. 14.º — quem ocupa as funções do PCO" },
-  { h:"Quem regista",                             cel:"comando",     r:"art. 2.º, al. c) — o registo é atribuído a quem o faz" },
   /* --- Planeamento: arts. 26.º a 30.º --- */
   { h:"Dados operacionais da ocorrência",         cel:"planeamento", r:"art. 28.º — análise da zona de intervenção" },
   { h:"Leitura do terreno",                       cel:"planeamento", r:"art. 28.º" },

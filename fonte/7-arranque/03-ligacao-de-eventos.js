@@ -289,7 +289,31 @@ function pintarSessao(){
   }
   const bL = $("id-largar"); if(bL) bL.style.display = haSessao()? "" : "none";
   const bA = $("id-assumir"); if(bA) bA.textContent = haSessao()? "Atualizar" : "Assumir o teclado";
+  /* O cabeçalho diz quem está ao teclado, em qualquer separador. O dono, a 6 de setembro:
+     a caixa «de quem regista» estava no fundo do separador, e é de onde sai o nome de cada
+     ato. Passou para o topo de Comando, e para aqui, que se vê sempre. */
+  const q = $("quem-tag");
+  if(q){
+    q.innerHTML = haSessao()
+      ? "Ao teclado: <b>" + esc(quemRegista()) + "</b> · " + esc(perfilDe(SESSAO.perfil).n)
+      : "Ninguém ao teclado";
+    q.classList.toggle("quem-tag--ninguem", !haSessao());
+    q.classList.toggle("quem-tag--declarado", haSessao());
+    q.title = haSessao()
+      ? "Ao teclado desde " + SESSAO.desde + " — carregar para atualizar ou deixar o teclado"
+      : "Ninguém declarado ao teclado: os atos ficam sem nome. Carregar para se declarar em Comando.";
+  }
 }
+/** O chip do cabeçalho leva ao cartão «Quem regista», aberto e com o cursor no primeiro campo. */
+function irAQuemRegista(){
+  irPara("p-comando");
+  const campo = $("id-posto"); if(!campo) return;
+  const cartao = campo.closest(".card");
+  if(cartao) abrirCartao(cartao, true);
+  cartao?.scrollIntoView?.({ block:"start", behavior:"smooth" });
+  campo.focus();
+}
+(()=>{ const q = $("quem-tag"); if(q) q.addEventListener("click", irAQuemRegista); })();
 (()=>{
   const bA = $("id-assumir");
   if(bA) bA.addEventListener("click", async ()=>{
