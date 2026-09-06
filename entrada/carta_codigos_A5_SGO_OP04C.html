@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<title>Carta de Códigos A5 — Fita do Tempo SGO OP 04-C</title>
+<style>
+@page { size: A5 portrait; margin: 0; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+:root{
+  --cmd:#8C1010;      /* comando */
+  --ops:#C1121C;      /* célula de operações */
+  --plan:#1B6B3A;     /* célula de planeamento */
+  --log:#14458C;      /* célula de logística e finanças */
+  --lig:#5B2A86;      /* ligação */
+  --adm:#2b2b2b;      /* administrativo */
+  --met:#0E7C9B;      /* meteorologia */
+}
+body{
+  font-family:"Segoe UI",Calibri,Arial,Helvetica,sans-serif;
+  background:#8a8a8a; color:#111;
+}
+.pag{
+  width:148mm; height:210mm; background:#fff;
+  margin:0 auto 6mm; padding:0;
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+  page-break-after:always;
+}
+.pag:last-child{ page-break-after:auto; }
+
+/* cabeçalho */
+.top{ color:#fff; padding:4mm 6mm 3mm 6mm; }
+.top .kicker{ font-size:7pt; letter-spacing:1.2px; opacity:.85; text-transform:uppercase; }
+.top h1{ font-size:17pt; line-height:1.05; margin-top:.5mm; }
+.top .sub{ font-size:8pt; margin-top:1mm; opacity:.9; }
+.stripe{ height:2.5mm; background:currentColor; }
+
+/* separador lateral */
+.tab{
+  position:absolute; right:0; top:34mm;
+  width:7mm; padding:3mm 0; color:#fff;
+  writing-mode:vertical-rl; text-orientation:mixed;
+  font-size:8.5pt; font-weight:bold; letter-spacing:1.5px;
+  text-align:center;
+}
+
+/* corpo */
+.corpo{ flex:1; padding:3.5mm 10mm 2mm 6mm; }
+.nota{
+  font-size:7.6pt; line-height:1.35; color:#444;
+  background:#f2f2f2; border-left:1.6mm solid #bbb;
+  padding:1.8mm 2.5mm; margin-bottom:2.5mm;
+}
+.linha{
+  display:flex; align-items:baseline;
+  font-size:9pt; line-height:1.3;
+  padding:1.05mm 1.5mm; border-bottom:.15mm solid #e3e3e3;
+}
+.linha .c{ flex:0 0 15mm; font-weight:bold; font-family:Consolas,monospace; font-size:8.8pt; }
+.linha .d{ flex:1; }
+.linha .d em{ font-style:normal; color:#666; font-size:7.8pt; }
+.linha.star{ background:#fff6d9; }
+.linha.crit{ background:#fdecec; }
+.linha .mk{ flex:0 0 6mm; text-align:right; font-size:8pt; }
+
+.sub-h{
+  font-size:8.5pt; font-weight:bold; letter-spacing:.6px;
+  color:#fff; padding:1.2mm 2mm; margin:3mm 0 1.5mm;
+}
+
+/* rodapé */
+.rod{
+  border-top:.3mm solid #000; margin:0 6mm; padding:1.8mm 0 3mm;
+  display:flex; justify-content:space-between; font-size:7.2pt; color:#555;
+}
+.k{ display:inline-block; width:3.5mm; height:2.4mm; border:.15mm solid #999; vertical-align:middle; }
+.k.s{ background:#fff6d9; } .k.c{ background:#fdecec; }
+
+/* capa */
+.capa .corpo{ padding:6mm 8mm; }
+.capa h2{ font-size:10pt; margin:4mm 0 2mm; color:#C1121C; }
+.capa p{ font-size:9pt; line-height:1.45; margin-bottom:2.5mm; }
+.capa ul{ margin-left:5mm; font-size:9pt; line-height:1.4; }
+.capa li{ margin-bottom:1.2mm; }
+.idx{ display:flex; font-size:8.6pt; padding:.9mm 0; border-bottom:.15mm solid #e3e3e3; }
+.idx b{ flex:0 0 9mm; }
+.idx span{ flex:1; }
+.idx i{ font-style:normal; color:#666; }
+
+@media print{ body{ background:#fff; } .pag{ margin:0; } }
+</style>
+<style id="pdf-fix">
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @media print { html, body { background:#fff !important; } }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA / ÍNDICE ============ -->
+<div class="pag capa">
+  <div class="top" style="background:#C1121C">
+    <div class="kicker">Modelo SGO OP 04-C · v3</div>
+    <h1>CARTA DE CÓDIGOS<br>Fita do Tempo</h1>
+    <div class="sub">Célula de Operações · Despacho n.º 4067/2024, de 15 de abril</div>
+  </div>
+  <div class="stripe" style="color:#C1121C"></div>
+
+  <div class="corpo">
+    <h2>Como usar</h2>
+    <ul>
+      <li>Um acontecimento = <b>um registo</b> = <b>um código</b>. Se parecem dois códigos, são dois registos.</li>
+      <li><span class="k s"></span> <b>Marco (★)</b> — assinalar a coluna <b>M</b> e transcrever a hora para o bloco MARCOS do cabeçalho.</li>
+      <li><span class="k c"></span> <b>Crítico (●)</b> — assinalar a coluna <b>!</b> e comunicar de imediato ao COS e ao adjunto de segurança.</li>
+      <li><b>Nada se apaga.</b> Erro corrige-se com novo registo <b>AD1</b> a referenciar o n.º do registo errado.</li>
+      <li><b>GDH do facto ≠ GDH do registo.</b> Preencher sempre as duas colunas.</li>
+      <li>O que se decide dentro do PCO regista-se com canal <b>PRES</b>.</li>
+    </ul>
+
+    <h2>Índice</h2>
+    <div class="idx"><b>CM</b><span>Comando e controlo</span><i>p. 2</i></div>
+    <div class="idx"><b>PL</b><span>Planeamento</span><i>p. 3</i></div>
+    <div class="idx"><b>OP</b><span>Operações</span><i>p. 4</i></div>
+    <div class="idx"><b>MV·MA·ME</b><span>Meios terrestres, aéreos e especiais</span><i>p. 5</i></div>
+    <div class="idx"><b>SG</b><span>Segurança</span><i>p. 6</i></div>
+    <div class="idx"><b>VT</b><span>Vítimas</span><i>p. 7</i></div>
+    <div class="idx"><b>PP</b><span>População e pontos sensíveis</span><i>p. 8</i></div>
+    <div class="idx"><b>LF</b><span>Logística e finanças</span><i>p. 9</i></div>
+    <div class="idx"><b>LE</b><span>Ligação externa</span><i>p. 10</i></div>
+    <div class="idx"><b>CS·MT</b><span>Comunicação social · Meteorologia</span><i>p. 11</i></div>
+    <div class="idx"><b>AD·FC</b><span>Administrativo do registo · Fecho</span><i>p. 12</i></div>
+    <div class="idx"><b>—</b><span>Referência rápida: fases, canais, setores</span><i>p. 13</i></div>
+  </div>
+  <div class="rod"><span>Carta de Códigos · Fita do Tempo</span><span>1</span></div>
+</div>
+
+<!-- ============ CM ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--cmd)"><div class="kicker">Família CM</div><h1>Comando e Controlo</h1><div class="sub">18 códigos</div></div>
+  <div class="stripe" style="color:var(--cmd)"></div>
+  <div class="tab" style="background:var(--cmd)">CM</div>
+  <div class="corpo">
+    <div class="linha star"><span class="c">CM1</span><span class="d">Assunção de COS <em>(1.ª intervenção)</em></span><span class="mk">★</span></div>
+    <div class="linha star"><span class="c">CM2</span><span class="d">Passagem de comando <em>· art. 9.º</em></span><span class="mk">★</span></div>
+    <div class="linha star"><span class="c">CM3</span><span class="d">Instalação do PCO</span><span class="mk">★</span></div>
+    <div class="linha"><span class="c">CM4</span><span class="d">Nomeação de coordenador do PCO</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM5</span><span class="d">Nomeação de oficial de célula</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM6</span><span class="d">Nomeação de adjunto <em>(segurança / ligação / rel. públicas)</em></span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM7</span><span class="d">Nomeação de comandante de setor, frente ou área</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM8</span><span class="d">Criação de setor</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM9</span><span class="d">Alteração ou extinção de setor</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM10</span><span class="d">Ativação de frente</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM11</span><span class="d">Ativação de área de intervenção municipal</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM12</span><span class="d">Instalação de posto de comando de frente ou de área</span><span class="mk"></span></div>
+    <div class="linha star"><span class="c">CM13</span><span class="d">Mudança de fase do SGO</span><span class="mk">★</span></div>
+    <div class="linha"><span class="c">CM14</span><span class="d">Ativação de núcleo</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM15</span><span class="d">Desativação de núcleo ou célula</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM16</span><span class="d">Ordem ou diretiva do COS</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM17</span><span class="d">Ativação de plano de emergência de proteção civil</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">CM18</span><span class="d">Proposta de organização distinta <em>· art. 39.º n.º 4</em></span><span class="mk"></span></div>
+  </div>
+  <div class="rod"><span><span class="k s"></span> ★ marco</span><span>2</span></div>
+</div>
+
+<!-- ============ PL ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--plan)"><div class="kicker">Família PL</div><h1>Planeamento</h1><div class="sub">15 códigos · Célula de Planeamento</div></div>
+  <div class="stripe" style="color:var(--plan)"></div>
+  <div class="tab" style="background:var(--plan)">PL</div>
+  <div class="corpo">
+    <div class="linha"><span class="c">PL1</span><span class="d">PEA elaborado</span><span class="mk"></span></div>
+    <div class="linha star"><span class="c">PL2</span><span class="d">PEA aprovado pelo COS</span><span class="mk">★</span></div>
+    <div class="linha"><span class="c">PL3</span><span class="d">PEA substituído</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL4</span><span class="d">PEA — validade expirada</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL5</span><span class="d">Plano tático de setor recebido <em>(Mod. CS 01)</em></span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL6</span><span class="d">Plano logístico aprovado</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL7</span><span class="d">Plano de comunicações aprovado</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL8</span><span class="d">Cenário de evolução / antecipação</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL9</span><span class="d">Análise de risco da operação</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL10</span><span class="d">Ativação de ERAS <em>(equipa de reconhecimento e avaliação de situação)</em></span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL11</span><span class="d">Relatório de ERAS recebido</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL12</span><span class="d">Parecer de especialista</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL13</span><span class="d">Avaliação de necessidade de evacuação</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL14</span><span class="d">Quadro de informações atualizado <em>(Mod. P1)</em></span><span class="mk"></span></div>
+    <div class="linha"><span class="c">PL15</span><span class="d">Previsão meteorológica recebida</span><span class="mk"></span></div>
+    <div class="nota" style="margin-top:4mm"><b>Apenas um PEA pode estar em vigor em cada momento</b> — art. 46.º, n.º 2. Ao registar <b>PL2</b> ou <b>PL3</b>, atualizar o campo «PEA vigente» no cabeçalho da folha.</div>
+  </div>
+  <div class="rod"><span><span class="k s"></span> ★ marco</span><span>3</span></div>
+</div>
+
+<!-- ============ OP ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--ops)"><div class="kicker">Família OP</div><h1>Operações</h1><div class="sub">23 códigos · Célula de Operações</div></div>
+  <div class="stripe" style="color:var(--ops)"></div>
+  <div class="tab" style="background:var(--ops)">OP</div>
+  <div class="corpo">
+    <div class="linha"><span class="c">OP1</span><span class="d">Missão atribuída</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP2</span><span class="d">Missão cumprida</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP3</span><span class="d">Missão não cumprida / abortada</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP4</span><span class="d">Alteração de missão</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP5</span><span class="d">POSIT geral <em>(Mod. OP 3)</em></span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP6</span><span class="d">POSIT de setor</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP7</span><span class="d">Briefing operacional</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP8</span><span class="d">Reconhecimento efetuado</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP9</span><span class="d">Alteração de dispositivo</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP10</span><span class="d">Manobra — ataque à cabeça</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP11</span><span class="d">Manobra — ataque de flanco</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP12</span><span class="d">Manobra — defesa de ponto sensível</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP13</span><span class="d">Manobra — defesa linear / perimétrica</span><span class="mk"></span></div>
+    <div class="linha"><span class="c">OP14</span><span class="d">Manobra — confinamento / flanqueamento</span><span class="mk"></span></div>
+    <div class="linha crit"><span class="c">OP15</span><span class="d">Fogo de supressão / contrafogo</span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">OP16</span><span class="d">Local de reforço tático estabelecido</span><span class="mk"></span></div>
+    <div class="linha star"><span class="c">OP17</span><span class="d">Incêndio dominado</span><span class="mk">★</span></div>
+    <div class="linha star"><span class="c">OP18</span><span class="d">Início de rescaldo</span><span class="mk">★</span></div>
+    <div class="linha"><span class="c">OP19</span><span class="d">Vigilância ativa</span><span class="mk"></span></div>
+    <div class="linha star"><span class="c">OP20</span><span class="d">Ocorrência extinta</span><span class="mk">★</span></div>
+    <div class="linha star crit" style="background:#fdecec"><span class="c">OP21</span><span class="d">Reativação / reacendimento</span><span class="mk">★●</span></div>
+    <div class="linha star"><span class="c">OP22</span><span class="d">Ocorrência encerrada</span><span class="mk">★</span></div>
+    <div class="linha"><span class="c">OP23</span><span class="d">Ocorrência conexa / interação</span><span class="mk"></span></div>
+  </div>
+  <div class="rod"><span><span class="k s"></span> ★ marco &nbsp; <span class="k c"></span> ● crítico</span><span>4</span></div>
+</div>
+
+<!-- ============ MEIOS ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--ops)"><div class="kicker">Famílias MV · MA · ME</div><h1>Meios</h1><div class="sub">Terrestres · Aéreos · Especiais</div></div>
+  <div class="stripe" style="color:var(--ops)"></div>
+  <div class="tab" style="background:var(--ops)">MEIOS</div>
+  <div class="corpo">
+    <div class="nota">
+      <b>MV</b> terrestres &nbsp;·&nbsp; <b>MA</b> aéreos &nbsp;·&nbsp; <b>ME</b> especiais <em>(maquinaria, NRBQ, cinotecnia, GIPS, drones)</em><br>
+      Sufixos <b>1 a 12 comuns aos três</b>. Exemplo: <b>MV5</b>, <b>MA5</b>, <b>ME5</b>.<br>
+      <b>Registar sempre o n.º de operacionais</b> na Síntese em MV1, MV3, MV5 e equivalentes — é o que alimenta a contagem de efetivos.
+    </div>
+    <div class="linha"><span class="c">·1</span><span class="d">Solicitado</span></div>
+    <div class="linha"><span class="c">·2</span><span class="d">Acionado / atribuído</span></div>
+    <div class="linha"><span class="c">·3</span><span class="d">Chegada ao ponto de trânsito</span></div>
+    <div class="linha"><span class="c">·4</span><span class="d">Entrada no TO / missão atribuída</span></div>
+    <div class="linha"><span class="c">·5</span><span class="d">Entrada no setor</span></div>
+    <div class="linha"><span class="c">·6</span><span class="d">Transferência entre setores</span></div>
+    <div class="linha"><span class="c">·7</span><span class="d">Local estratégico de reserva</span></div>
+    <div class="linha"><span class="c">·8</span><span class="d">Rendição</span></div>
+    <div class="linha"><span class="c">·9</span><span class="d">Reabastecimento <em>(combustível / água / agente)</em></span></div>
+    <div class="linha"><span class="c">·10</span><span class="d">Indisponível / avaria</span></div>
+    <div class="linha"><span class="c">·11</span><span class="d">Desmobilização</span></div>
+    <div class="linha"><span class="c">·12</span><span class="d">Saída do TO</span></div>
+
+    <div class="sub-h" style="background:var(--ops)">MA — ESPECÍFICOS DE MEIOS AÉREOS</div>
+    <div class="linha"><span class="c">MA13</span><span class="d">Descolagem</span></div>
+    <div class="linha"><span class="c">MA14</span><span class="d">Sobre o TO / primeira descarga</span></div>
+    <div class="linha"><span class="c">MA15</span><span class="d">Limite de tempo de operação <em>(ocaso)</em></span></div>
+    <div class="linha"><span class="c">MA16</span><span class="d">Ativação de COPAR-T <em>(&gt; 2 aeronaves)</em></span></div>
+    <div class="linha"><span class="c">MA17</span><span class="d">Ativação de COPAR-A <em>(≥ 4 aeronaves)</em></span></div>
+    <div class="linha crit"><span class="c">MA18</span><span class="d">Suspensão de operação aérea</span><span class="mk">●</span></div>
+
+    <div class="sub-h" style="background:var(--ops)">ME — ESPECÍFICOS DE MEIOS ESPECIAIS</div>
+    <div class="linha"><span class="c">ME13</span><span class="d">Ativação de OPESP / COPESP</span></div>
+    <div class="linha"><span class="c">ME14</span><span class="d">Maquinaria — abertura de faixa</span></div>
+    <div class="linha"><span class="c">ME15</span><span class="d">Coordenador de maquinaria nomeado</span></div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> ● crítico</span><span>5</span></div>
+</div>
+
+<!-- ============ SG ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--ops)"><div class="kicker">Família SG</div><h1>Segurança</h1><div class="sub">16 códigos · <b>todos críticos</b> — assinalar sempre a coluna !</div></div>
+  <div class="stripe" style="color:var(--ops)"></div>
+  <div class="tab" style="background:var(--ops)">SG</div>
+  <div class="corpo">
+    <div class="linha crit"><span class="c">SG1</span><span class="d">Comportamento extremo do fogo</span></div>
+    <div class="linha crit"><span class="c">SG2</span><span class="d">Alerta meteorológico crítico <em>(vento / inversão)</em></span></div>
+    <div class="linha crit"><span class="c">SG3</span><span class="d">Ordem de retirada</span></div>
+    <div class="linha crit"><span class="c">SG4</span><span class="d">Zona de segurança / refúgio estabelecida</span></div>
+    <div class="linha crit"><span class="c">SG5</span><span class="d">LACES / percursos de fuga comunicados</span></div>
+    <div class="linha crit"><span class="c">SG6</span><span class="d">Cessação de trabalhos ordenada <em>· art. 36.º n.º 2</em></span></div>
+    <div class="linha crit"><span class="c">SG7</span><span class="d">Retoma de trabalhos autorizada</span></div>
+    <div class="linha crit"><span class="c">SG8</span><span class="d">Acidente com operacional</span></div>
+    <div class="linha crit"><span class="c">SG9</span><span class="d">Meio operacional atingido</span></div>
+    <div class="linha crit"><span class="c">SG10</span><span class="d">Encarceramento / operacional desaparecido</span></div>
+    <div class="linha crit"><span class="c">SG11</span><span class="d">Contagem de efetivos iniciada</span></div>
+    <div class="linha crit"><span class="c">SG12</span><span class="d">Contagem concluída — todos presentes</span></div>
+    <div class="linha crit"><span class="c">SG13</span><span class="d">Perímetro de segurança estabelecido</span></div>
+    <div class="linha crit"><span class="c">SG14</span><span class="d">Quase-acidente <em>(near miss)</em></span></div>
+    <div class="linha crit"><span class="c">SG15</span><span class="d">Alerta face a atividade aérea</span></div>
+    <div class="linha crit"><span class="c">SG16</span><span class="d">Rotação por exaustão / stress térmico</span></div>
+    <div class="nota" style="margin-top:3.5mm;border-left-color:var(--ops)">
+      Depois de <b>SG3</b> (retirada) verificar <b>sempre</b> se existe <b>SG11</b> e <b>SG12</b> a seguir. Uma retirada sem contagem de efetivos é a lacuna mais grave que uma fita pode ter.
+    </div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> todos ● críticos</span><span>6</span></div>
+</div>
+
+<!-- ============ VT ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--ops)"><div class="kicker">Família VT</div><h1>Vítimas</h1><div class="sub">10 códigos · <b>todos críticos</b> — assinalar sempre a coluna !</div></div>
+  <div class="stripe" style="color:var(--ops)"></div>
+  <div class="tab" style="background:var(--ops)">VT</div>
+  <div class="corpo">
+    <div class="linha crit"><span class="c">VT1</span><span class="d">Vítima civil</span></div>
+    <div class="linha crit"><span class="c">VT2</span><span class="d">Vítima operacional</span></div>
+    <div class="linha crit"><span class="c">VT3</span><span class="d">Triagem efetuada</span></div>
+    <div class="linha crit"><span class="c">VT4</span><span class="d">Evacuação sanitária iniciada</span></div>
+    <div class="linha crit"><span class="c">VT5</span><span class="d">Transporte para unidade hospitalar</span></div>
+    <div class="linha crit"><span class="c">VT6</span><span class="d">Óbito</span></div>
+    <div class="linha crit"><span class="c">VT7</span><span class="d">Desaparecido</span></div>
+    <div class="linha crit"><span class="c">VT8</span><span class="d">Desaparecido localizado</span></div>
+    <div class="linha crit"><span class="c">VT9</span><span class="d">Posto médico avançado ativado</span></div>
+    <div class="linha crit"><span class="c">VT10</span><span class="d">Apoio psicológico / social ativado</span></div>
+    <div class="nota" style="margin-top:3.5mm;border-left-color:var(--ops)">
+      Dados pessoais de vítimas <b>não vão para a fita</b> — vão para o <b>Quadro de Vítimas (Mod. OP 05)</b>. Na fita regista-se o acontecimento e a referência, não a identificação.
+    </div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> todos ● críticos</span><span>7</span></div>
+</div>
+
+<!-- ============ PP ============ -->
+<div class="pag">
+  <div class="top" style="background:#B5551F"><div class="kicker">Família PP</div><h1>População e<br>Pontos Sensíveis</h1><div class="sub">12 códigos</div></div>
+  <div class="stripe" style="color:#B5551F"></div>
+  <div class="tab" style="background:#B5551F">PP</div>
+  <div class="corpo">
+    <div class="linha"><span class="c">PP1</span><span class="d">Ponto sensível ameaçado</span></div>
+    <div class="linha crit"><span class="c">PP2</span><span class="d">Ordem de evacuação <em>· art. 8.º n.º 2 m)</em></span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">PP3</span><span class="d">Evacuação concluída</span></div>
+    <div class="linha crit"><span class="c">PP4</span><span class="d">Confinamento ordenado</span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">PP5</span><span class="d">Regresso autorizado</span></div>
+    <div class="linha"><span class="c">PP6</span><span class="d">Zona de concentração e apoio à população ativada</span></div>
+    <div class="linha"><span class="c">PP7</span><span class="d">Corte de via</span></div>
+    <div class="linha"><span class="c">PP8</span><span class="d">Reabertura de via</span></div>
+    <div class="linha"><span class="c">PP9</span><span class="d">Infraestrutura crítica afetada</span></div>
+    <div class="linha"><span class="c">PP10</span><span class="d">Danos em edificado</span></div>
+    <div class="linha"><span class="c">PP11</span><span class="d">Animais — evacuação / perdas</span></div>
+    <div class="linha"><span class="c">PP12</span><span class="d">Aviso à população difundido</span></div>
+    <div class="nota" style="margin-top:3.5mm;border-left-color:#B5551F">
+      A evacuação e o confinamento são ordenados pelo COS <b>em coordenação com as forças de segurança</b>. Registar sempre com quem foi coordenado.
+    </div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> ● crítico</span><span>8</span></div>
+</div>
+
+<!-- ============ LF ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--log)"><div class="kicker">Família LF</div><h1>Logística e Finanças</h1><div class="sub">24 códigos · Célula de Logística e Finanças</div></div>
+  <div class="stripe" style="color:var(--log)"></div>
+  <div class="tab" style="background:var(--log)">LF</div>
+  <div class="corpo">
+    <div class="linha"><span class="c">LF1</span><span class="d">Pedido de reforço ao CSREPC</span></div>
+    <div class="linha"><span class="c">LF2</span><span class="d">Reforço concedido / negado</span></div>
+    <div class="linha"><span class="c">LF3</span><span class="d">Ativação de ponto de trânsito</span></div>
+    <div class="linha"><span class="c">LF4</span><span class="d">Alteração da linha de reporte do PT <em>· art. 7.º n.º 3</em></span></div>
+    <div class="linha"><span class="c">LF5</span><span class="d">Ativação de ZCR</span></div>
+    <div class="linha"><span class="c">LF6</span><span class="d">Área de alimentação</span></div>
+    <div class="linha"><span class="c">LF7</span><span class="d">Área de apoio médico-sanitário</span></div>
+    <div class="linha"><span class="c">LF8</span><span class="d">Área de higiene e descanso</span></div>
+    <div class="linha"><span class="c">LF9</span><span class="d">Área de manutenção</span></div>
+    <div class="linha"><span class="c">LF10</span><span class="d">Área de reabastecimento</span></div>
+    <div class="linha"><span class="c">LF11</span><span class="d">Local estratégico de reserva</span></div>
+    <div class="linha"><span class="c">LF12</span><span class="d">Ativação da ZRR</span></div>
+    <div class="linha"><span class="c">LF13</span><span class="d">Desativação de área da ZCR</span></div>
+    <div class="linha"><span class="c">LF14</span><span class="d">Alimentação distribuída</span></div>
+    <div class="linha"><span class="c">LF15</span><span class="d">Combustível</span></div>
+    <div class="linha"><span class="c">LF16</span><span class="d">Ponto de água / abastecimento</span></div>
+    <div class="linha"><span class="c">LF17</span><span class="d">Material / equipamento solicitado</span></div>
+    <div class="linha crit"><span class="c">LF18</span><span class="d">Requisição de bens móveis ou imóveis <em>· art. 8.º n.º 2 n)</em></span><span class="mk">●</span></div>
+    <div class="linha crit"><span class="c">LF19</span><span class="d">Requisição de serviços</span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">LF20</span><span class="d">Uso de águas públicas <em>· art. 8.º n.º 2 o)</em></span></div>
+    <div class="linha crit"><span class="c">LF21</span><span class="d">Uso de águas particulares <em>(estado de necessidade)</em></span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">LF22</span><span class="d">Plano de comunicações emitido / revisto</span></div>
+    <div class="linha crit"><span class="c">LF23</span><span class="d">Falha de comunicações / SIRESP</span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">LF24</span><span class="d">Encargo previsível registado <em>· art. 35.º</em></span></div>
+  </div>
+  <div class="rod"><span><b>LF18 · LF19 · LF21</b> têm consequências patrimoniais. Registar quem ordenou, a hora e quem foi notificado.</span><span>9</span></div>
+</div>
+
+<!-- ============ LE ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--lig)"><div class="kicker">Família LE</div><h1>Ligação Externa</h1><div class="sub">19 códigos</div></div>
+  <div class="stripe" style="color:var(--lig)"></div>
+  <div class="tab" style="background:var(--lig)">LE</div>
+  <div class="corpo">
+    <div class="linha"><span class="c">LE1</span><span class="d">GNR</span></div>
+    <div class="linha"><span class="c">LE2</span><span class="d">PSP</span></div>
+    <div class="linha"><span class="c">LE3</span><span class="d">INEM</span></div>
+    <div class="linha"><span class="c">LE4</span><span class="d">SMPC / serviços municipais</span></div>
+    <div class="linha"><span class="c">LE5</span><span class="d">Autoridade municipal de PC / Presidente de Câmara</span></div>
+    <div class="linha"><span class="c">LE6</span><span class="d">CSREPC <em>(comando sub-regional)</em></span></div>
+    <div class="linha"><span class="c">LE7</span><span class="d">CROEPC / CNEPC</span></div>
+    <div class="linha"><span class="c">LE8</span><span class="d">ICNF</span></div>
+    <div class="linha"><span class="c">LE9</span><span class="d">AFOCELCA / sapadores florestais</span></div>
+    <div class="linha"><span class="c">LE10</span><span class="d">Forças Armadas</span></div>
+    <div class="linha"><span class="c">LE11</span><span class="d">EDP / E-Redes</span></div>
+    <div class="linha"><span class="c">LE12</span><span class="d">IP / ferrovia / concessionárias</span></div>
+    <div class="linha"><span class="c">LE13</span><span class="d">Águas e saneamento</span></div>
+    <div class="linha"><span class="c">LE14</span><span class="d">Gás / combustíveis</span></div>
+    <div class="linha"><span class="c">LE15</span><span class="d">Cruz Vermelha Portuguesa</span></div>
+    <div class="linha"><span class="c">LE16</span><span class="d">Autoridade de saúde / delegado de saúde</span></div>
+    <div class="linha"><span class="c">LE17</span><span class="d">Ministério Público / PJ / autoridade judiciária</span></div>
+    <div class="linha"><span class="c">LE18</span><span class="d">Oficial de ligação recebido no PCO</span></div>
+    <div class="linha"><span class="c">LE19</span><span class="d">Entidade privada / proprietário</span></div>
+  </div>
+  <div class="rod"><span>Contactos e funções vão para o Mod. OP 1A. Na fita regista-se o acontecimento.</span><span>10</span></div>
+</div>
+
+<!-- ============ CS + MT ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--adm)"><div class="kicker">Famílias CS · MT</div><h1>Comunicação Social<br>Meteorologia</h1><div class="sub">12 códigos</div></div>
+  <div class="stripe" style="color:var(--adm)"></div>
+  <div class="tab" style="background:var(--adm)">CS·MT</div>
+  <div class="corpo">
+    <div class="sub-h" style="background:var(--adm)">CS — COMUNICAÇÃO SOCIAL</div>
+    <div class="linha"><span class="c">CS1</span><span class="d">Pedido de OCS recebido</span></div>
+    <div class="linha"><span class="c">CS2</span><span class="d">Declaração do COS</span></div>
+    <div class="linha"><span class="c">CS3</span><span class="d">Conferência de imprensa</span></div>
+    <div class="linha"><span class="c">CS4</span><span class="d">Nota informativa difundida</span></div>
+    <div class="linha"><span class="c">CS5</span><span class="d">Notícia incorreta — retificação emitida</span></div>
+    <div class="linha"><span class="c">CS6</span><span class="d">OCS no TO — acompanhamento</span></div>
+
+    <div class="sub-h" style="background:var(--met)">MT — METEOROLOGIA</div>
+    <div class="linha"><span class="c">MT1</span><span class="d">Registo meteorológico de rotina</span></div>
+    <div class="linha"><span class="c">MT2</span><span class="d">Alteração de vento <em>(direção / intensidade)</em></span></div>
+    <div class="linha"><span class="c">MT3</span><span class="d">Alteração de temperatura / humidade relativa</span></div>
+    <div class="linha"><span class="c">MT4</span><span class="d">Precipitação</span></div>
+    <div class="linha"><span class="c">MT5</span><span class="d">Aviso IPMA</span></div>
+    <div class="linha crit"><span class="c">MT6</span><span class="d">Trovoada / descarga elétrica</span><span class="mk">●</span></div>
+
+    <div class="nota" style="margin-top:4mm">
+      <b>MT1 de rotina:</b> registar de hora a hora com valores concretos — direção e velocidade do vento, temperatura, HR. É o que permite, mais tarde, explicar o comportamento do fogo.
+    </div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> ● crítico</span><span>11</span></div>
+</div>
+
+<!-- ============ AD + FC ============ -->
+<div class="pag">
+  <div class="top" style="background:var(--adm)"><div class="kicker">Famílias AD · FC</div><h1>Administrativo<br>e Fecho</h1><div class="sub">12 códigos</div></div>
+  <div class="stripe" style="color:var(--adm)"></div>
+  <div class="tab" style="background:var(--adm)">AD·FC</div>
+  <div class="corpo">
+    <div class="sub-h" style="background:var(--adm)">AD — ADMINISTRATIVO DO REGISTO</div>
+    <div class="linha"><span class="c">AD1</span><span class="d">Retificação de registo anterior</span></div>
+    <div class="linha"><span class="c">AD2</span><span class="d">Anexo junto <em>(foto / croqui / documento)</em></span></div>
+    <div class="linha"><span class="c">AD3</span><span class="d">Abertura de folha</span></div>
+    <div class="linha"><span class="c">AD4</span><span class="d">Encerramento e entrega de folha</span></div>
+    <div class="linha"><span class="c">AD5</span><span class="d">Rendição do registador</span></div>
+    <div class="linha crit"><span class="c">AD6</span><span class="d">Falha de energia ou equipamento — passagem a papel</span><span class="mk">●</span></div>
+    <div class="linha"><span class="c">AD7</span><span class="d">Retoma do registo digital</span></div>
+    <div class="linha"><span class="c">AD8</span><span class="d">Registo reconstituído a posteriori</span></div>
+
+    <div class="sub-h" style="background:var(--adm)">FC — FECHO E PÓS-AÇÃO</div>
+    <div class="linha"><span class="c">FC1</span><span class="d">Debriefing realizado <em>· art. 8.º n.º 2 v)</em></span></div>
+    <div class="linha"><span class="c">FC2</span><span class="d">Relatório da ocorrência elaborado <em>· al. w)</em></span></div>
+    <div class="linha"><span class="c">FC3</span><span class="d">Documentação entregue / arquivada</span></div>
+    <div class="linha"><span class="c">FC4</span><span class="d">Lição aprendida registada</span></div>
+
+    <div class="nota" style="margin-top:4mm;border-left-color:var(--ops)">
+      <b>AD8 é o código mais importante desta carta.</b> Sempre que um registo for escrito com atraso significativo ou reconstituído de memória, marcar AD8 indicando os registos abrangidos e a fonte usada. <b>Um vazio assumido vale mais do que uma cronologia falsamente precisa.</b>
+    </div>
+  </div>
+  <div class="rod"><span><span class="k c"></span> ● crítico</span><span>12</span></div>
+</div>
+
+<!-- ============ REFERÊNCIA RÁPIDA ============ -->
+<div class="pag">
+  <div class="top" style="background:#000"><div class="kicker">Verso</div><h1>Referência Rápida</h1><div class="sub">Fases · canais · setores</div></div>
+  <div class="stripe" style="color:#000"></div>
+  <div class="tab" style="background:#000">REF</div>
+  <div class="corpo">
+    <div class="sub-h" style="background:#000">FASES DO SGO — LIMIARES DE EFETIVO</div>
+    <div class="linha"><span class="c">I</span><span class="d">≤ 36 &nbsp;·&nbsp; só COS, sem PCO</span></div>
+    <div class="linha"><span class="c">II</span><span class="d"><b>36</b> <em>(32–40)</em> · PCO + célula de operações + adj. segurança · ≤ 3 setores</span></div>
+    <div class="linha"><span class="c">III</span><span class="d"><b>108</b> <em>(97–119)</em> · + planeamento + logística e finanças + adj. ligação · ≤ 6 setores</span></div>
+    <div class="linha"><span class="c">IV</span><span class="d"><b>324</b> <em>(292–356)</em> · + adj. rel. públicas + coordenador do PCO · ≤ 2 frentes</span></div>
+    <div class="linha"><span class="c">V</span><span class="d"><b>648</b> <em>(583–713)</em> · ≤ 4 frentes</span></div>
+    <div class="linha"><span class="c">VI</span><span class="d">Áreas de intervenção municipal, 1 por concelho</span></div>
+    <div class="nota" style="margin-top:2mm">Contagem oficial: <b>Quadro de Meios e Logística (L00)</b>, Célula de Logística e Finanças. A fita regista a mudança com <b>CM13</b>.</div>
+
+    <div class="sub-h" style="background:#000">CANAIS</div>
+    <div class="linha"><span class="c">COM</span><span class="d">Comando</span></div>
+    <div class="linha"><span class="c">TAT</span><span class="d">Tático</span></div>
+    <div class="linha"><span class="c">MAN n</span><span class="d">Manobra, com número</span></div>
+    <div class="linha"><span class="c">PRES</span><span class="d"><b>Presencial</b> — tudo o que se decide dentro do PCO</span></div>
+    <div class="linha"><span class="c">TLM</span><span class="d">Telefone</span></div>
+    <div class="linha"><span class="c">SADO</span><span class="d">Ligação ao CDOS / CSREPC</span></div>
+    <div class="linha"><span class="c">BA</span><span class="d">Banda alta</span></div>
+
+    <div class="sub-h" style="background:#000">SETORES — REGRAS DE REFERENCIAÇÃO</div>
+    <div class="linha"><span class="c">A–Z</span><span class="d">Geográficos, letras sem repetir, mesmo agregados em frentes</span></div>
+    <div class="linha"><span class="c">n.º</span><span class="d">Em edifícios multipisos, o número do piso</span></div>
+    <div class="linha"><span class="c">Nome</span><span class="d">Setores funcionais, pela designação da função</span></div>
+    <div class="linha"><span class="c">F1/A</span><span class="d">Fase IV+ — prefixar com o número da frente</span></div>
+    <div class="linha"><span class="c">CONC/A</span><span class="d">Fase VI — prefixar com a área de intervenção municipal</span></div>
+  </div>
+  <div class="rod"><span>Modelo SGO OP 04-C · v3 · Despacho n.º 4067/2024</span><span>13</span></div>
+</div>
+
+</body>
+</html>

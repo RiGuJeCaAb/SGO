@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<title>Fita do Tempo — Modelo SGO OP 04</title>
+<style>
+@page { size: A3 landscape; margin: 7mm; }
+
+:root{
+  --red:#C1121C;
+  --ink:#000;
+  --rule:#000;
+  --grey:#6b6b6b;
+  --tint:#f2f2f2;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  font-family:"Arial Narrow","Liberation Sans Narrow",Arial,Helvetica,sans-serif;
+  color:var(--ink);
+  background:#8a8a8a;
+  font-size:7pt;
+}
+
+.folha{
+  width:406mm; height:283mm;
+  background:#fff;
+  margin:0 auto 8mm;
+  padding:0;
+  display:flex;
+  gap:2.5mm;
+  page-break-after:always;
+  overflow:hidden;
+}
+.folha:last-child{ page-break-after:auto; }
+
+/* ---------- FAIXA LATERAL / CODIFICADOR ---------- */
+.codificador{
+  width:50mm; flex:0 0 50mm;
+  border:0.5mm solid var(--ink);
+  display:flex; flex-direction:column;
+}
+.cod-topo{
+  background:var(--red); color:#fff;
+  font-size:7.5pt; font-weight:bold; letter-spacing:.4px;
+  text-align:center; padding:1mm 0;
+}
+.cod-corpo{ padding:1mm 1.2mm; font-size:5.4pt; line-height:1.28; flex:1; }
+.fam{ margin-bottom:1.1mm; }
+.fam-t{
+  font-weight:bold; font-size:5.9pt; letter-spacing:.3px;
+  border-bottom:0.25mm solid var(--ink); margin-bottom:.4mm;
+  display:flex; justify-content:space-between;
+}
+.fam-t .dot{ color:var(--red); }
+.cod{ display:flex; }
+.cod b{ width:5mm; flex:0 0 5mm; font-weight:bold; }
+.nota{ font-size:5pt; color:var(--grey); }
+.cod-rodape{
+  border-top:0.4mm solid var(--ink);
+  padding:1mm 1.2mm; font-size:5.2pt; line-height:1.3;
+}
+.cod-rodape b{ font-size:5.6pt; }
+
+/* ---------- CORPO ---------- */
+.corpo{ flex:1; display:flex; flex-direction:column; min-width:0; }
+
+.tarja{
+  background:var(--red); color:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.2mm 2mm;
+}
+.tarja h1{ font-size:14pt; letter-spacing:1.5px; font-weight:bold; }
+.tarja .sub{ font-size:6pt; text-align:right; line-height:1.3; }
+
+.hazard{
+  height:2.6mm;
+  background:var(--red);
+  border-bottom:0.3mm solid var(--ink);
+}
+
+/* cabeçalho */
+table{ border-collapse:collapse; width:100%; }
+.cab td, .cab th{ border:0.25mm solid var(--rule); padding:0.6mm 1mm; }
+.cab .lbl{
+  background:var(--tint); font-size:5.4pt; font-weight:bold;
+  letter-spacing:.2px; white-space:nowrap; text-transform:uppercase;
+}
+.cab .val{ height:5.2mm; }
+
+.marcos{ margin-top:1mm; }
+.marcos .cap{
+  background:#000; color:#fff; font-size:5.6pt; font-weight:bold;
+  padding:.5mm 1mm; letter-spacing:.4px;
+}
+.marcos td{ border:0.25mm solid var(--rule); font-size:5.2pt; }
+.marcos .m-l{ background:var(--tint); font-weight:bold; padding:.5mm 1mm; text-align:center; }
+.marcos .m-v{ height:4.6mm; }
+
+/* fita */
+.fita{ flex:1; margin-top:1mm; }
+.fita th{
+  background:#000; color:#fff; font-size:5.3pt; font-weight:bold;
+  border:0.25mm solid #000; padding:.7mm .3mm; letter-spacing:.2px;
+}
+.fita td{ border:0.25mm solid var(--rule); height:7.4mm; }
+.fita tbody tr:nth-child(even) td{ background:#fafafa; }
+.c-crit{ background:#fdecec !important; }
+
+.rodape{
+  display:flex; justify-content:space-between;
+  font-size:5.4pt; padding-top:.8mm; border-top:0.3mm solid var(--ink); margin-top:.8mm;
+}
+
+/* ---------- VERSO ---------- */
+.verso-grid{ display:flex; gap:2.5mm; flex:1; margin-top:1mm; min-height:0; }
+.bloco{ border:0.4mm solid var(--ink); display:flex; flex-direction:column; }
+.bloco > .h{
+  background:#000; color:#fff; font-size:6.4pt; font-weight:bold;
+  padding:.8mm 1.5mm; letter-spacing:.4px;
+}
+.bloco > .h.vermelho{ background:var(--red); }
+.bloco .in{ padding:1.2mm; flex:1; }
+
+.pc{ flex:0 0 132mm; }
+.pc table td{ border:0.25mm solid var(--rule); font-size:5.6pt; padding:.5mm 1mm; }
+.pc .num{ width:5mm; text-align:center; font-weight:bold; background:var(--tint); }
+.pc .item{ }
+.pc .ck{ width:9mm; text-align:center; }
+.assin td{ height:9mm; vertical-align:bottom; font-size:5.2pt; }
+
+.croqui{ flex:1; }
+.croqui .in{ background:
+  repeating-linear-gradient(0deg,#e8e8e8 0 .2mm,transparent .2mm 5mm),
+  repeating-linear-gradient(90deg,#e8e8e8 0 .2mm,transparent .2mm 5mm); }
+
+.obs{ flex:0 0 88mm; }
+.obs .linhas{ height:100%; background:repeating-linear-gradient(0deg,transparent 0 5.4mm,#bbb 5.4mm 5.6mm); }
+
+@media print{ body{ background:#fff; } .folha{ margin:0; box-shadow:none; } }
+</style>
+<style id="pdf-fix">
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @media print { html, body { background:#fff !important; } }
+</style>
+</head>
+<body>
+
+<!-- ================= FRENTE ================= -->
+<div class="folha">
+
+  <aside class="codificador">
+    <div class="cod-topo">CODIFICADOR DE EVENTOS</div>
+    <div class="cod-corpo">
+
+      <div class="fam"><div class="fam-t"><span>CM · COMANDO</span></div>
+        <div class="cod"><b>1</b>Assunção de COS ★</div>
+        <div class="cod"><b>2</b>Passagem de comando ★</div>
+        <div class="cod"><b>3</b>Instalação do PCO ★</div>
+        <div class="cod"><b>7</b>Nomeação cmdt. setor/frente</div>
+        <div class="cod"><b>8</b>Criação de setor</div>
+        <div class="cod"><b>13</b>Mudança de fase SGO ★</div>
+        <div class="cod"><b>16</b>Ordem / diretiva do COS</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>PL · PLANEAMENTO</span></div>
+        <div class="cod"><b>2</b>PEA aprovado pelo COS ★</div>
+        <div class="cod"><b>3</b>PEA substituído</div>
+        <div class="cod"><b>5</b>Plano tático de setor (CS 01)</div>
+        <div class="cod"><b>8</b>Cenário / antecipação</div>
+        <div class="cod"><b>10</b>Ativação de ERAS</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>OP · OPERAÇÕES</span></div>
+        <div class="cod"><b>1</b>Missão atribuída</div>
+        <div class="cod"><b>2</b>Missão cumprida</div>
+        <div class="cod"><b>3</b>Missão não cumprida</div>
+        <div class="cod"><b>5</b>POSIT geral &nbsp; <b style="width:auto">6</b>POSIT setor</div>
+        <div class="cod"><b>9</b>Alteração de dispositivo</div>
+        <div class="cod"><b>10</b>Ataque à cabeça</div>
+        <div class="cod"><b>11</b>Ataque de flanco</div>
+        <div class="cod"><b>12</b>Defesa de ponto sensível</div>
+        <div class="cod"><b>15</b>Fogo de supressão ●</div>
+        <div class="cod"><b>17</b>Dominado ★</div>
+        <div class="cod"><b>18</b>Rescaldo ★</div>
+        <div class="cod"><b>19</b>Vigilância</div>
+        <div class="cod"><b>20</b>Extinta ★</div>
+        <div class="cod"><b>21</b>Reativação ★●</div>
+        <div class="cod"><b>22</b>Encerrada ★</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>MEIOS · MV / MA / ME</span></div>
+        <div class="nota">MV terrestres · MA aéreos · ME especiais. Registar sempre N.º Op.</div>
+        <div class="cod"><b>·1</b>Solicitado &nbsp; <b style="width:auto">·2</b>Acionado</div>
+        <div class="cod"><b>·3</b>No ponto de trânsito</div>
+        <div class="cod"><b>·4</b>Entrada no TO</div>
+        <div class="cod"><b>·5</b>Entrada no setor</div>
+        <div class="cod"><b>·6</b>Transferência de setor</div>
+        <div class="cod"><b>·8</b>Rendição &nbsp; <b style="width:auto">·9</b>Reabastec.</div>
+        <div class="cod"><b>·10</b>Avaria &nbsp; <b style="width:auto">·11</b>Desmobiliz.</div>
+        <div class="cod"><b>·12</b>Saída do TO</div>
+        <div class="cod"><b>MA14</b>Sobre o TO / 1.ª descarga</div>
+        <div class="cod"><b>MA15</b>Limite de operação (ocaso)</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>SG · SEGURANÇA</span><span class="dot">● todos</span></div>
+        <div class="cod"><b>1</b>Comportamento extremo</div>
+        <div class="cod"><b>2</b>Alerta meteo crítico</div>
+        <div class="cod"><b>3</b>Ordem de retirada</div>
+        <div class="cod"><b>4</b>Zona segurança / refúgio</div>
+        <div class="cod"><b>5</b>LACES / percursos de fuga</div>
+        <div class="cod"><b>6</b>Cessação de trabalhos</div>
+        <div class="cod"><b>7</b>Retoma autorizada</div>
+        <div class="cod"><b>8</b>Acidente c/ operacional</div>
+        <div class="cod"><b>9</b>Meio atingido</div>
+        <div class="cod"><b>11</b>Contagem de efetivos</div>
+        <div class="cod"><b>12</b>Contagem OK</div>
+        <div class="cod"><b>14</b>Quase-acidente</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>VT · VÍTIMAS</span><span class="dot">● todos</span></div>
+        <div class="cod"><b>1</b>Civil &nbsp; <b style="width:auto">2</b>Operacional</div>
+        <div class="cod"><b>4</b>Evac. sanitária &nbsp; <b style="width:auto">6</b>Óbito</div>
+        <div class="cod"><b>7</b>Desaparecido &nbsp; <b style="width:auto">8</b>Localizado</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>PP · POPULAÇÃO</span></div>
+        <div class="cod"><b>1</b>Ponto sensível ameaçado</div>
+        <div class="cod"><b>2</b>Ordem de evacuação ●</div>
+        <div class="cod"><b>4</b>Confinamento ●</div>
+        <div class="cod"><b>7</b>Corte de via &nbsp; <b style="width:auto">8</b>Reabertura</div>
+        <div class="cod"><b>9</b>Infraestrutura crítica</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>LF · LOGÍSTICA E FINANÇAS</span></div>
+        <div class="cod"><b>1</b>Pedido de reforço</div>
+        <div class="cod"><b>3</b>Ativação ponto de trânsito</div>
+        <div class="cod"><b>5</b>Ativação da ZCR</div>
+        <div class="cod"><b>12</b>Ativação da ZRR</div>
+        <div class="cod"><b>14</b>Alimentação &nbsp; <b style="width:auto">15</b>Combust.</div>
+        <div class="cod"><b>16</b>Ponto de água</div>
+        <div class="cod"><b>18</b>Requisição de bens ●</div>
+        <div class="cod"><b>19</b>Requisição de serviços ●</div>
+        <div class="cod"><b>20</b>Uso de águas públicas</div>
+        <div class="cod"><b>21</b>Uso de águas particulares ●</div>
+        <div class="cod"><b>23</b>Falha SIRESP ●</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>LE · LIGAÇÃO EXTERNA</span></div>
+        <div class="cod"><b>1/2</b>GNR / PSP &nbsp; <b style="width:auto">3</b>INEM</div>
+        <div class="cod"><b>4/5</b>SMPC / autoridade municipal</div>
+        <div class="cod"><b>6</b>CSREPC &nbsp; <b style="width:auto">8</b>ICNF</div>
+        <div class="cod"><b>9</b>AFOCELCA / SF</div>
+        <div class="cod"><b>11</b>EDP &nbsp; <b style="width:auto">12</b>IP / ferrovia</div>
+        <div class="cod"><b>18</b>Of. ligação no PCO</div>
+      </div>
+
+      <div class="fam"><div class="fam-t"><span>CS · MT · AD · FC</span></div>
+        <div class="cod"><b>CS2</b>Declaração do COS</div>
+        <div class="cod"><b>MT2</b>Alteração de vento</div>
+        <div class="cod"><b>MT5</b>Aviso IPMA</div>
+        <div class="cod"><b>AD1</b>Retificação</div>
+        <div class="cod"><b>AD2</b>Anexo &nbsp; <b style="width:auto">AD5</b>Rendição reg.</div>
+        <div class="cod"><b>AD6</b>Falha equip. → papel ●</div>
+        <div class="cod"><b>AD8</b>Registo reconstituído</div>
+        <div class="cod"><b>FC1</b>Debriefing &nbsp; <b style="width:auto">FC2</b>Relatório</div>
+      </div>
+
+    </div>
+    <div class="cod-rodape">
+      <b>CANAL:</b> COM / TAT / MAN n.º · PRES (presencial) · TLM · SADO · BA<br><b>Taxonomia completa:</b> Carta de Códigos SGO OP 04-C.<br>
+      <b>★</b> marco — assinalar coluna <b>M</b> e transcrever no bloco MARCOS.<br>
+      <b>●</b> assinalar coluna <b>!</b> — registo crítico.<br>
+      <b>Nunca apagar.</b> Corrigir só com novo registo AD1 indicando o n.º corrigido.
+    </div>
+  </aside>
+
+  <main class="corpo">
+    <div class="tarja">
+      <h1>FITA DO TEMPO</h1>
+      <div class="sub">
+        <b>Modelo SGO OP 04</b> · Responsável: Célula de Operações<br>
+        Despacho n.º 4067/2024, art. 2.º n.º 1 al. c) e art. 17.º n.º 1 al. g)
+      </div>
+    </div>
+    <div class="hazard"></div>
+
+    <table class="cab">
+      <tr>
+        <td class="lbl">N.º Ocorrência</td><td class="val" style="width:34mm"></td>
+        <td class="lbl">Data</td><td class="val" style="width:24mm"></td>
+        <td class="lbl">Natureza / Classificação</td><td class="val"></td>
+        <td class="lbl">Fase SGO</td><td class="val" style="width:18mm"></td>
+        <td class="lbl">PEA vigente n.º</td><td class="val" style="width:18mm"></td>
+        <td class="lbl">Folha</td><td class="val" style="width:20mm">___ de ___</td>
+      </tr>
+      <tr>
+        <td class="lbl">Local</td><td class="val" colspan="3"></td>
+        <td class="lbl">Freguesia</td><td class="val"></td>
+        <td class="lbl">Concelho</td><td class="val" colspan="3"></td>
+        <td class="lbl">Coord. PCO</td><td class="val">N _____ W _____</td>
+      </tr>
+      <tr>
+        <td class="lbl">COS</td><td class="val" colspan="3"></td>
+        <td class="lbl">Of. Operações</td><td class="val"></td>
+        <td class="lbl">Canal de comando</td><td class="val" colspan="3"></td>
+        <td class="lbl">Registado por</td><td class="val"></td>
+      </tr>
+    </table>
+
+    <table class="cab marcos">
+      <tr><td class="cap" colspan="10">MARCOS TEMPORAIS — transcrever da fita à medida que ocorrem (base de cálculo do relatório)</td></tr>
+      <tr>
+        <td class="m-l">T0 Alerta</td><td class="m-l">1.º meio no local</td><td class="m-l">Assunção COS</td>
+        <td class="m-l">PCO instalado</td><td class="m-l">Fase II</td><td class="m-l">Fase III+</td>
+        <td class="m-l">PEA n.º 1</td><td class="m-l">Dominado</td><td class="m-l">Rescaldo</td><td class="m-l">Extinta / Encerrada</td>
+      </tr>
+      <tr>
+        <td class="m-v"></td><td class="m-v"></td><td class="m-v"></td><td class="m-v"></td><td class="m-v"></td>
+        <td class="m-v"></td><td class="m-v"></td><td class="m-v"></td><td class="m-v"></td><td class="m-v"></td>
+      </tr>
+    </table>
+
+    <table class="fita">
+      <thead>
+        <tr>
+          <th style="width:8mm">N.º</th>
+          <th style="width:14mm">GDH<br>FACTO</th>
+          <th style="width:12mm">GDH<br>REG.</th>
+          <th style="width:6mm">M</th>
+          <th style="width:6mm">!</th>
+          <th style="width:14mm">CÓD.</th>
+          <th style="width:16mm">CANAL</th>
+          <th style="width:22mm">ORIGEM</th>
+          <th style="width:22mm">DESTINO</th>
+          <th style="width:14mm">SETOR</th>
+          <th>SÍNTESE</th>
+          <th style="width:74mm">DESPACHO / DECISÃO</th>
+          <th style="width:11mm">REG.</th>
+          <th style="width:7mm">ACK</th>
+          <th style="width:10mm">REF.</th>
+        </tr>
+      </thead>
+      <tbody id="linhas"></tbody>
+    </table>
+
+    <div class="rodape">
+      <span><b>Registo cumulativo e inalterável.</b> Folha encerrada às ____:____ — rubrica ____________</span>
+      <span>Entregue à Célula de Operações às ____:____</span>
+      <span>Este documento tem carácter: <b>RESERVADO</b></span>
+    </div>
+  </main>
+</div>
+
+<!-- ================= VERSO ================= -->
+<div class="folha">
+  <main class="corpo" style="width:100%">
+    <div class="tarja">
+      <h1>FITA DO TEMPO · VERSO</h1>
+      <div class="sub"><b>Modelo SGO OP 04-V</b> · Passagem de comando, croqui e observações<br>
+      Despacho n.º 4067/2024, art. 9.º n.º 2</div>
+    </div>
+    <div class="hazard"></div>
+
+    <table class="cab" style="margin-top:1mm">
+      <tr>
+        <td class="lbl">N.º Ocorrência</td><td class="val" style="width:40mm"></td>
+        <td class="lbl">Data</td><td class="val" style="width:26mm"></td>
+        <td class="lbl">Folha</td><td class="val" style="width:24mm">___ de ___</td>
+        <td class="lbl">Registado por</td><td class="val"></td>
+      </tr>
+    </table>
+
+    <div class="verso-grid">
+
+      <section class="bloco pc">
+        <div class="h vermelho">PASSAGEM DE COMANDO — presencial, obrigatória (art. 9.º)</div>
+        <div class="in">
+          <table style="width:100%">
+            <tr>
+              <td class="lbl" style="background:#f2f2f2;font-size:5.4pt;font-weight:bold">GDH</td><td style="width:22mm"></td>
+              <td class="lbl" style="background:#f2f2f2;font-size:5.4pt;font-weight:bold">Registo n.º</td><td style="width:16mm"></td>
+              <td class="lbl" style="background:#f2f2f2;font-size:5.4pt;font-weight:bold">Fase SGO</td><td></td>
+            </tr>
+          </table>
+          <table style="width:100%;margin-top:1.2mm">
+            <tr><td class="num">a</td><td class="item">Historial da ocorrência</td><td class="ck">□</td></tr>
+            <tr><td class="num">b</td><td class="item">PEA em execução, missões e objetivos operacionais</td><td class="ck">□</td></tr>
+            <tr><td class="num">c</td><td class="item">Prioridades das intervenções em curso</td><td class="ck">□</td></tr>
+            <tr><td class="num">d</td><td class="item">Plano de comunicações em vigor</td><td class="ck">□</td></tr>
+            <tr><td class="num">e</td><td class="item">Meios e recursos empenhados e solicitados</td><td class="ck">□</td></tr>
+            <tr><td class="num">f</td><td class="item">Organização do teatro de operações implementada</td><td class="ck">□</td></tr>
+            <tr><td class="num">g</td><td class="item">Constrangimentos e limitações identificados</td><td class="ck">□</td></tr>
+            <tr><td class="num">h</td><td class="item">Cenários previsíveis de desenvolvimento</td><td class="ck">□</td></tr>
+            <tr><td class="num">i</td><td class="item">Situações críticas e oportunidades identificadas</td><td class="ck">□</td></tr>
+          </table>
+          <table style="width:100%;margin-top:1.5mm" class="assin">
+            <tr>
+              <td style="width:50%;border-bottom:0.25mm solid #000">COS cessante — nome, categoria e assinatura</td>
+              <td style="width:50%;border-bottom:0.25mm solid #000">COS entrante — nome, categoria e assinatura</td>
+            </tr>
+            <tr><td style="height:2mm"></td><td></td></tr>
+            <tr>
+              <td style="border-bottom:0.25mm solid #000">Comunicada ao CSREPC às ____:____ · por ____________</td>
+              <td style="border-bottom:0.25mm solid #000">Divulgada às forças presentes às ____:____</td>
+            </tr>
+          </table>
+          <div style="margin-top:1.5mm;font-size:5.2pt;color:#6b6b6b">
+            Registar sempre na fita com o código <b>CM2</b> e assinalar como marco. Repetir este bloco em folha nova a cada nova passagem.
+          </div>
+        </div>
+      </section>
+
+      <section class="bloco croqui">
+        <div class="h">CROQUI / ESQUEMA</div>
+        <div class="in"></div>
+      </section>
+
+      <section class="bloco obs">
+        <div class="h">OBSERVAÇÕES E ANEXOS</div>
+        <div class="in"><div class="linhas"></div></div>
+      </section>
+
+    </div>
+
+    <div class="rodape">
+      <span>Anexos entregues à Célula de Planeamento: ____ documentos · ____ fotografias</span>
+      <span>Este documento tem carácter: <b>RESERVADO</b></span>
+    </div>
+  </main>
+</div>
+
+<script>
+const tb = document.getElementById('linhas');
+for (let i = 0; i < 26; i++) {
+  const tr = document.createElement('tr');
+  for (let c = 0; c < 15; c++) {
+    const td = document.createElement('td');
+    if (c === 4) td.className = 'c-crit';
+    tr.appendChild(td);
+  }
+  tb.appendChild(tr);
+}
+</script>
+</body>
+</html>

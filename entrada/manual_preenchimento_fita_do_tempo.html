@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<title>Manual de Preenchimento — Fita do Tempo SGO OP 04</title>
+<style>
+@page { size: A4 portrait; margin: 14mm 13mm 13mm 13mm; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+:root{ --red:#C1121C; --ink:#111; --grey:#5a5a5a; --tint:#f2f2f2; --line:#000; }
+
+body{
+  font-family:"Segoe UI",Calibri,Arial,Helvetica,sans-serif;
+  color:var(--ink); font-size:9.2pt; line-height:1.45;
+  background:#8a8a8a;
+}
+.doc{ width:190mm; margin:0 auto; background:#fff; padding:12mm 12mm 14mm; }
+
+/* capa / cabeçalho */
+.tarja{ background:var(--red); color:#fff; padding:4mm 5mm; }
+.tarja h1{ font-size:19pt; letter-spacing:.5px; line-height:1.1; }
+.tarja p{ font-size:9pt; margin-top:1.5mm; opacity:.95; }
+.hazard{ height:3mm; background:var(--red); margin-bottom:6mm; }
+
+h2{
+  font-size:11.5pt; letter-spacing:.3px; margin:7mm 0 2.5mm;
+  padding:1.5mm 2.5mm; background:#000; color:#fff;
+  page-break-after:avoid;
+}
+h2 .n{ opacity:.55; margin-right:2.5mm; font-weight:normal; }
+h3{ font-size:10pt; margin:4.5mm 0 1.5mm; color:var(--red); page-break-after:avoid; }
+p{ margin-bottom:2.2mm; }
+ul,ol{ margin:0 0 2.5mm 5mm; }
+li{ margin-bottom:1.2mm; }
+code,.cod{ font-family:Consolas,monospace; background:var(--tint); padding:0 1mm; font-size:8.6pt; }
+
+table{ border-collapse:collapse; width:100%; margin:2mm 0 3.5mm; font-size:8.4pt; page-break-inside:avoid; }
+th{ background:#000; color:#fff; text-align:left; padding:1.2mm 1.8mm; font-size:8.2pt; }
+td{ border:.2mm solid #999; padding:1.2mm 1.8mm; vertical-align:top; }
+tr:nth-child(even) td{ background:#fafafa; }
+th.r,td.r{ text-align:center; }
+
+.regra{ border-left:2.2mm solid var(--red); background:#fdf3f3; padding:2.5mm 3mm; margin:3mm 0; page-break-inside:avoid; }
+.regra b{ color:var(--red); }
+.nota{ border-left:2.2mm solid #999; background:var(--tint); padding:2.5mm 3mm; margin:3mm 0; font-size:8.8pt; }
+
+.ex{ font-size:6.6pt; }
+.ex th{ padding:.8mm .6mm; font-size:6.2pt; }
+.ex td{ padding:.8mm .6mm; }
+.ex .crit{ background:#fdecec !important; }
+.ex .star{ background:#fff6d9 !important; }
+.ex .mono{ font-family:Consolas,monospace; }
+
+.bom{ color:#0a6b28; font-weight:bold; }
+.mau{ color:var(--red); font-weight:bold; }
+
+.quebra{ page-break-before:always; }
+footer{ margin-top:8mm; border-top:.3mm solid #000; padding-top:2mm; font-size:7.5pt; color:var(--grey); display:flex; justify-content:space-between; }
+@media print{ body{ background:#fff; } .doc{ width:auto; padding:0; } }
+</style>
+<style id="pdf-fix">
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @media print { html, body { background:#fff !important; } }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<div class="tarja">
+  <h1>FITA DO TEMPO<br>Manual de Preenchimento e Leitura</h1>
+  <p>Modelo SGO OP 04 · Célula de Operações · Versão 3 — para uso em VCOC / Posto de Comando Operacional</p>
+</div>
+<div class="hazard"></div>
+
+<!-- ===================== 1 ===================== -->
+<h2><span class="n">1</span>O que é isto e porque existe</h2>
+
+<p>A fita do tempo é, na definição do Despacho n.º 4067/2024 (art. 2.º, n.º 1, al. c), <b>o registo temporal explícito e completo das decisões, ações e informações operacionais associadas a uma ocorrência e com relevância para a compreensão da mesma.</b></p>
+
+<p>Três palavras a reter dessa definição:</p>
+<ul>
+  <li><b>Decisões, ações e informações</b> — três categorias. Não é só o que passa no rádio. O que o COS decide dentro do PCO conta tanto ou mais.</li>
+  <li><b>Explícito e completo</b> — não se resume nem se interpreta.</li>
+  <li><b>Com relevância para a compreensão</b> — existe filtro. Registamos o que torna a ocorrência compreensível a quem a ler daqui a um ano.</li>
+</ul>
+
+<p>Quem é responsável: a <b>Célula de Operações</b> — art. 17.º, n.º 1, al. g) obriga-a a garantir o registo e a permanente atualização da fita. Na prática, quem escreve é o operador de comunicações ou quem o Oficial de Operações designar. Quem <i>responde</i> pelo documento é o Oficial de Operações.</p>
+
+<p>Para que serve, por ordem de importância real:</p>
+<ol>
+  <li><b>Sustentar a decisão</b> durante a ocorrência — o COS que chegou às 18:00 sabe o que aconteceu às 14:00.</li>
+  <li><b>Suportar a passagem de comando</b> (art. 9.º, n.º 3, que a obriga a ser registada na fita).</li>
+  <li><b>Produzir o relatório da ocorrência</b> (art. 8.º, n.º 2, al. w) e o debriefing (al. v).</li>
+  <li><b>Responder a inquérito</b> — judicial, de acidente com operacional, ou de reclamação patrimonial.</li>
+</ol>
+
+<div class="regra">
+<b>Se ninguém preencher, todos os outros documentos ficam sem chão.</b> O POSIT diz como está agora. O SITAC diz onde está. Só a fita diz <i>como se chegou aqui</i>. É a única memória sequencial do teatro de operações.
+</div>
+
+<!-- ===================== 2 ===================== -->
+<h2><span class="n">2</span>As seis regras de ouro</h2>
+
+<table>
+<tr><th style="width:8mm" class="r">#</th><th style="width:52mm">Regra</th><th>Porquê</th></tr>
+<tr><td class="r">1</td><td><b>Nada se apaga.</b> Nunca riscar, nunca corrigir por cima, nunca usar corretor.</td><td>Um registo alterado perde valor probatório. Erro corrige-se com <span class="cod">AD1</span> a referenciar o número do registo errado.</td></tr>
+<tr><td class="r">2</td><td><b>Hora do facto ≠ hora do registo.</b> São duas colunas e preenchem-se as duas.</td><td>A diferença entre elas é informação. Mostra saturação do PCO e permite reconstituir o que se soube quando.</td></tr>
+<tr><td class="r">3</td><td><b>Numeração corrida, sem saltos.</b> Continua de folha para folha.</td><td>Um salto na numeração é indistinguível de uma folha desaparecida.</td></tr>
+<tr><td class="r">4</td><td><b>Registar o facto, não a opinião.</b></td><td>«Vento roda para W, 27 km/h» é um facto. «Vento perigoso» é uma avaliação — essa pertence ao adjunto de segurança e regista-se como tal.</td></tr>
+<tr><td class="r">5</td><td><b>Escrever no momento.</b> Se não for possível, escrever depois e marcar <span class="cod">AD8</span>.</td><td>Um vazio assumido vale mais do que uma cronologia falsamente precisa.</td></tr>
+<tr><td class="r">6</td><td><b>Na dúvida, registar.</b></td><td>Registo a mais custa dez segundos. Registo a menos custa uma explicação num inquérito.</td></tr>
+</table>
+
+<!-- ===================== 3 ===================== -->
+<h2><span class="n">3</span>Anatomia da folha</h2>
+
+<h3>Frente</h3>
+<ul>
+  <li><b>Faixa lateral esquerda</b> — codificador de consulta rápida com os códigos mais usados. A taxonomia completa está na <b>Carta de Códigos (SGO OP 04-C)</b>, plastificada, na prancheta.</li>
+  <li><b>Cabeçalho</b> — identificação da ocorrência e <b>estado atual</b>: fase SGO em curso e PEA vigente. Estes dois campos atualizam-se sempre que mudam, em folha nova.</li>
+  <li><b>Bloco MARCOS</b> — dez horas que alimentam todos os cálculos de tempo do relatório. Preenche-se em <b>duplicado</b>: o evento entra na fita <i>e</i> a hora sobe ao bloco.</li>
+  <li><b>Grelha da fita</b> — 26 linhas por folha.</li>
+</ul>
+
+<h3>Verso</h3>
+<ul>
+  <li><b>Passagem de comando</b> — os nove pontos obrigatórios do art. 9.º, n.º 2, com assinatura do COS cessante e do entrante.</li>
+  <li><b>Croqui</b> — quadrícula para esquemas rápidos. Numerar e referenciar com <span class="cod">AD2</span>.</li>
+  <li><b>Observações e anexos</b>.</li>
+</ul>
+
+<div class="nota">
+O verso só se usa quando é preciso. Uma folha pode ter frente preenchida e verso em branco — não é defeito.
+</div>
+
+<!-- ===================== 4 ===================== -->
+<h2 class="quebra"><span class="n">4</span>Como preencher, coluna a coluna</h2>
+
+<table>
+<tr><th style="width:22mm">Coluna</th><th style="width:16mm" class="r">Obrig.</th><th>Como se preenche</th></tr>
+
+<tr><td><b>N.º</b></td><td class="r">Sim</td><td>Sequencial da ocorrência, não da folha. Se a folha 1 acabou no 026, a folha 2 começa no 027.</td></tr>
+
+<tr><td><b>GDH FACTO</b></td><td class="r">Sim</td><td>Hora a que o facto <i>aconteceu</i>, formato <span class="cod">HH:MM</span>. Se quem comunica não disser a hora, <b>perguntar</b>. Se for impossível apurar, escrever <span class="cod">~HH:MM</span> com til e explicar na Síntese.</td></tr>
+
+<tr><td><b>GDH REG.</b></td><td class="r">Sim</td><td>Hora a que a linha está a ser escrita. Normalmente igual ou poucos minutos depois.</td></tr>
+
+<tr><td><b>M</b></td><td class="r">—</td><td>Marco. Assinalar com <b>★</b> nos códigos indicados na carta. Transcrever a hora para o bloco MARCOS.</td></tr>
+
+<tr><td><b>!</b></td><td class="r">—</td><td>Registo crítico. Assinalar com <b>X</b>. Obrigatório em toda a família SG e VT, e nos códigos marcados com ● na carta. Um registo com <b>!</b> comunica-se de imediato ao COS e ao adjunto de segurança.</td></tr>
+
+<tr><td><b>CÓD.</b></td><td class="r">Sim</td><td>Um código, da carta. Se um acontecimento parece ter dois códigos, são <b>dois registos</b>. Nunca dois códigos na mesma linha.</td></tr>
+
+<tr><td><b>CANAL</b></td><td class="r">Sim</td><td><span class="cod">COM</span> comando · <span class="cod">TAT</span> tático · <span class="cod">MAN n.º</span> manobra · <span class="cod">PRES</span> presencial · <span class="cod">TLM</span> telefone · <span class="cod">SADO</span> · <span class="cod">BA</span> banda alta. <b>Tudo o que se decide dentro do PCO é PRES.</b></td></tr>
+
+<tr><td><b>ORIGEM</b></td><td class="r">Sim</td><td>Indicativo ou função de quem emite. <span class="cod">VFCI-01 VLG</span>, <span class="cod">COS</span>, <span class="cod">Cmdt. Alfa</span>, <span class="cod">CDOS Porto</span>. Nunca «eles», «o pessoal», «um bombeiro».</td></tr>
+
+<tr><td><b>DESTINO</b></td><td class="r">Sim</td><td>Quem recebe. Se for difusão geral, <span class="cod">Todos</span>.</td></tr>
+
+<tr><td><b>SETOR</b></td><td class="r">—</td><td>Letra do setor (A–Z, sem repetir), número do piso em edifícios multipisos, ou nome da função em setores funcionais. A partir da Fase IV, prefixar com a frente ou área: <span class="cod">F1/A</span>, <span class="cod">VALONGO/C</span>. Traço se não aplicável.</td></tr>
+
+<tr><td><b>SÍNTESE</b></td><td class="r">Sim</td><td>O que aconteceu ou foi comunicado. Ver secção 5.</td></tr>
+
+<tr><td><b>DESPACHO</b></td><td class="r">—</td><td>A decisão ou ação que daí resultou. Se não houve nenhuma, <b>traço</b> — e o traço é informação, significa que se tomou conhecimento e não se agiu.</td></tr>
+
+<tr><td><b>REG.</b></td><td class="r">Sim</td><td>Iniciais de quem escreveu a linha. Muda quando o registador é rendido.</td></tr>
+
+<tr><td><b>ACK</b></td><td class="r">—</td><td>✓ quando o destinatário confirmou a receção. Numa ordem de segurança, um ACK em falta é motivo para repetir a chamada.</td></tr>
+
+<tr><td><b>REF.</b></td><td class="r">—</td><td>Número de outro registo relacionado. É o que fecha o ciclo: a ordem no 013 cumpriu-se no 020, e os dois apontam um para o outro.</td></tr>
+</table>
+
+<!-- ===================== 5 ===================== -->
+<h2><span class="n">5</span>Escrever a Síntese e o Despacho</h2>
+
+<p>É aqui que as fitas do tempo se estragam. A grelha é fácil; escrever bem em oito segundos não é. Sete regras:</p>
+
+<ol>
+  <li><b>Telegráfico.</b> Sem artigos nem verbos auxiliares desnecessários. <span class="bom">«Frente ativa ~200 m, mato, declive moderado»</span> e não <span class="mau">«foi verificado que existe uma frente...»</span></li>
+  <li><b>Números sempre.</b> Distâncias, quantidades, velocidades, coordenadas, número de operacionais. <span class="bom">«27 km/h, rajadas 40»</span> e não <span class="mau">«vento forte»</span>.</li>
+  <li><b>Nomes e indicativos.</b> Nunca pronomes. Quem lê daqui a um ano não sabe quem era «ele».</li>
+  <li><b>Presente ou passado, nunca futuro nem condicional.</b> A fita regista o que é, não o que talvez venha a ser. Previsões existem, mas registam-se como <span class="cod">PL8</span> e identificadas como tal.</li>
+  <li><b>Sem adjetivos de valor.</b> «Grave», «caótico», «mal coordenado» não são factos. Se alguém avaliou assim, regista-se quem avaliou e o quê.</li>
+  <li><b>Síntese e Despacho são coisas diferentes.</b> Síntese = o que entrou. Despacho = o que se decidiu. Não repetir a informação nos dois.</li>
+  <li><b>Uma linha, um acontecimento.</b> Se está a usar «e também», precisa de outra linha.</li>
+</ol>
+
+<table>
+<tr><th style="width:50%">Assim não</th><th>Assim sim</th></tr>
+<tr><td><span class="mau">Situação a piorar no setor A, pedidos mais meios</span></td><td><span class="bom">Síntese:</span> Progressão para N, ~80 m em 10 min. Hab. Casal do Rio a 400 m.<br><span class="bom">Despacho:</span> Solicitados 2 GruCIN — ver reg. 031</td></tr>
+<tr><td><span class="mau">O comandante mandou sair o pessoal</span></td><td><span class="bom">Síntese:</span> Ordem de retirada parcial, Setor A — 2 equipas para LRT Alfa<br><span class="bom">Despacho:</span> Contagem de efetivos determinada — ver reg. 019</td></tr>
+<tr><td><span class="mau">Falámos com a Câmara</span></td><td><span class="bom">Síntese:</span> Presidente CM Valongo no PCO. Solicita ponto de situação para evacuação preventiva<br><span class="bom">Despacho:</span> POSIT entregue. Avaliação de evacuação delegada no CEPLAN</td></tr>
+</table>
+
+<!-- ===================== 6 ===================== -->
+<h2 class="quebra"><span class="n">6</span>Casos especiais</h2>
+
+<h3>Um acontecimento que não passou pelo rádio</h3>
+<p>O COS olha para o SITAC e altera o dispositivo. O adjunto de ligação recebe o Presidente da Câmara. O CEPLAN entrega o PEA em mão. Nada disto tem canal — e é exatamente o que os inquéritos querem ver.</p>
+<p>Regista-se normalmente, com <b>CANAL = PRES</b>, ORIGEM = quem decidiu, DESTINO = quem recebeu. <b>Isto exige disciplina de comando, não software:</b> deve constar do briefing inicial do PCO que tudo o que ali se decide passa pelo registador.</p>
+
+<h3>Passagem de comando</h3>
+<ol>
+  <li>Registo na fita com <span class="cod">CM2</span>, marcado como marco.</li>
+  <li>Bloco do verso preenchido com os nove pontos do art. 9.º, n.º 2, rubricado pelos dois COS.</li>
+  <li>Registo da comunicação ao CSREPC e da divulgação às forças presentes.</li>
+</ol>
+<p>A passagem de comando é presencial por imposição legal. Se por circunstância excecional não o for, <b>registar essa circunstância</b>.</p>
+
+<h3>Corrigir um erro</h3>
+<p>Novo registo com <span class="cod">AD1</span>, REF. a apontar para o número errado, e na Síntese o que estava errado e o que é correto. Exemplo: <i>«Retifica reg. 014: GDH facto é 15:11, não 15:01.»</i> O registo original mantém-se intacto.</p>
+
+<h3>Registo escrito com atraso</h3>
+<p>Registo <span class="cod">AD8</span> a cobrir o intervalo, indicando o intervalo de registos afetados e a fonte usada para reconstituir (Guia de Comando, memória do COS, gravação). É a forma honesta de assumir uma lacuna — e é o que faz o documento aguentar contraditório.</p>
+
+<h3>Falha de energia ou equipamento</h3>
+<p><span class="cod">AD6</span> ao passar para papel, <span class="cod">AD7</span> ao retomar o digital. A numeração <b>não recomeça</b>.</p>
+
+<h3>Rendição do registador</h3>
+<p><span class="cod">AD5</span>, com nome de quem sai e de quem entra. A partir daí muda a coluna REG. O registador que entra lê as últimas duas folhas antes de assumir — não é opcional.</p>
+
+<!-- ===================== 7 ===================== -->
+<h2><span class="n">7</span>Rotina do registador</h2>
+
+<table>
+<tr><th style="width:34mm">Momento</th><th>O que fazer</th></tr>
+<tr><td><b>Ao abrir</b></td><td>Preencher cabeçalho. Registo <span class="cod">AD3</span>. Transcrever o Guia de Comando da 1.ª equipa (dá logo o T0, a assunção de COS e o POSIT inicial) e marcar <span class="cod">AD8</span> se for reconstituição.</td></tr>
+<tr><td><b>Em contínuo</b></td><td>Uma linha por acontecimento. Marcos para o bloco de cima. Críticos comunicados de imediato.</td></tr>
+<tr><td><b>A cada POSIT</b></td><td>Verificar se os MARCOS estão em dia e se o campo «PEA vigente» do cabeçalho está correto.</td></tr>
+<tr><td><b>Ao encerrar folha</b></td><td>Registo <span class="cod">AD4</span>, hora de encerramento, rubrica, entrega ao Oficial de Operações. Abrir folha nova com <span class="cod">AD3</span>.</td></tr>
+<tr><td><b>Ao fechar a ocorrência</b></td><td><span class="cod">OP20</span> extinta, <span class="cod">OP22</span> encerrada, <span class="cod">FC1</span> debriefing, <span class="cod">FC2</span> relatório, <span class="cod">FC3</span> documentação arquivada. Conferir que os dez marcos estão preenchidos.</td></tr>
+</table>
+
+<div class="regra">
+<b>Não esperar pelo fim para entregar folhas.</b> Cada folha encerrada vai para a Célula de Operações. Assim o Oficial de Operações tem a operação a atualizar-se quase em tempo real, e uma folha perdida custa 26 linhas em vez de tudo.
+</div>
+
+<!-- ===================== 8 ===================== -->
+<h2 class="quebra"><span class="n">8</span>Exemplo — incêndio rural, Fase II</h2>
+
+<p>Sequência real de abertura. Repare no <span class="cod">AD8</span> do registo 006, no encadeamento 005→007 e 013→020, e nos marcos a amarelo.</p>
+
+<table class="ex">
+<tr>
+  <th class="r">N.º</th><th class="r">FACTO</th><th class="r">REG.</th><th class="r">M</th><th class="r">!</th>
+  <th>CÓD</th><th>CANAL</th><th>ORIGEM</th><th>DESTINO</th><th class="r">SET</th>
+  <th style="width:29%">SÍNTESE</th><th style="width:22%">DESPACHO</th><th class="r">REG</th><th class="r">ACK</th><th class="r">REF</th>
+</tr>
+<tr><td class="r mono">001</td><td class="r mono">14:31</td><td class="r mono">14:31</td><td></td><td></td><td class="mono">AD3</td><td>PRES</td><td>Registador</td><td>—</td><td class="r">—</td><td>Abertura da folha 1. Registo iniciado à chegada da VCOC ao TO</td><td>—</td><td class="r">AM</td><td></td><td></td></tr>
+<tr class="star"><td class="r mono">002</td><td class="r mono">14:12</td><td class="r mono">14:33</td><td class="r">★</td><td></td><td class="mono">MV2</td><td>SADO</td><td>CDOS Porto</td><td>CB Valongo</td><td class="r">—</td><td>Alerta. Ocor. 2026/018342, inc. rural, Serra de Sta Justa. Acionados VFCI-01, VUCI-02, VCOT-01 (12 op.)</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr class="star"><td class="r mono">003</td><td class="r mono">14:19</td><td class="r mono">14:33</td><td class="r">★</td><td></td><td class="mono">MV5</td><td>MAN 3</td><td>VFCI-01</td><td>CDOS Porto</td><td class="r">—</td><td>1.º meio no local. Frente ativa ~200 m, mato, declive moderado, acessos por estradão</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr class="star"><td class="r mono">004</td><td class="r mono">14:21</td><td class="r mono">14:34</td><td class="r">★</td><td></td><td class="mono">CM1</td><td>COM 1</td><td>Ch. Silva</td><td>CDOS Porto</td><td class="r">—</td><td>Assumo COS. Silva, Bombeiro Chefe, CB Valongo</td><td>POSIT inicial transmitido</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr><td class="r mono">005</td><td class="r mono">14:24</td><td class="r mono">14:35</td><td></td><td></td><td class="mono">LF1</td><td>COM 1</td><td>COS</td><td>CDOS Porto</td><td class="r">—</td><td>Solicitados 2 Grupos de Combate e 1 meio aéreo</td><td>Aguarda decisão do CSREPC</td><td class="r">AM</td><td class="r">✓</td><td class="mono">007</td></tr>
+<tr><td class="r mono">006</td><td class="r mono">14:35</td><td class="r mono">14:36</td><td></td><td></td><td class="mono">AD8</td><td>PRES</td><td>Registador</td><td>—</td><td class="r">—</td><td>Reg. 002 a 005 reconstituídos do Guia de Comando de inc. florestais. Horas confirmadas com o COS</td><td>—</td><td class="r">AM</td><td></td><td class="mono">002-005</td></tr>
+<tr><td class="r mono">007</td><td class="r mono">14:29</td><td class="r mono">14:37</td><td></td><td></td><td class="mono">LF2</td><td>SADO</td><td>CDOS Porto</td><td>COS</td><td class="r">—</td><td>Concedidos GruCIN Gondomar e Paredes; Kamov 41</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td class="mono">005</td></tr>
+<tr class="star"><td class="r mono">008</td><td class="r mono">14:41</td><td class="r mono">14:42</td><td class="r">★</td><td></td><td class="mono">CM3</td><td>PRES</td><td>COS</td><td>—</td><td class="r">—</td><td>PCO instalado. VCOC-01 CB Valongo, N 41°09'22" W 8°28'47"</td><td>—</td><td class="r">AM</td><td></td><td></td></tr>
+<tr class="star"><td class="r mono">009</td><td class="r mono">14:44</td><td class="r mono">14:45</td><td class="r">★</td><td></td><td class="mono">CM13</td><td>PRES</td><td>COS</td><td>Todos</td><td class="r">—</td><td>Passagem à Fase II do SGO. 38 op. empenhados (conf. L00)</td><td>Ativada Célula de Operações e adjunto de segurança</td><td class="r">AM</td><td></td><td></td></tr>
+<tr><td class="r mono">010</td><td class="r mono">14:46</td><td class="r mono">14:47</td><td></td><td></td><td class="mono">CM8</td><td>COM 1</td><td>COS</td><td>Todos</td><td class="r">—</td><td>Setorização: Alfa — cabeça, sentido N. Bravo — flanco esquerdo</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr><td class="r mono">011</td><td class="r mono">14:47</td><td class="r mono">14:48</td><td></td><td></td><td class="mono">CM7</td><td>PRES</td><td>COS</td><td>—</td><td class="r">—</td><td>Sub. Costa cmdt. Setor Alfa; Sub. Reis cmdt. Setor Bravo</td><td>—</td><td class="r">AM</td><td></td><td></td></tr>
+<tr><td class="r mono">012</td><td class="r mono">14:52</td><td class="r mono">14:53</td><td></td><td></td><td class="mono">MA14</td><td>TAT</td><td>Kamov 41</td><td>COPAR-T</td><td class="r">A</td><td>1.ª descarga sobre a cabeça</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr><td class="r mono">013</td><td class="r mono">15:04</td><td class="r mono">15:05</td><td></td><td></td><td class="mono">OP1</td><td>COM 1</td><td>COS</td><td>Cmdt. Alfa</td><td class="r">A</td><td>Conter progressão para N até 16:00. Ponto sensível: habitações do Casal do Rio</td><td>Missão atribuída e confirmada</td><td class="r">AM</td><td class="r">✓</td><td class="mono">020</td></tr>
+<tr class="crit"><td class="r mono">014</td><td class="r mono">15:11</td><td class="r mono">15:12</td><td></td><td class="r">X</td><td class="mono">MT2</td><td>PRES</td><td>CEPLAN</td><td>COS</td><td class="r">—</td><td>Vento roda de NW para W. 18 → 27 km/h, rajadas 40</td><td>Determinada reavaliação do PEA</td><td class="r">AM</td><td></td><td></td></tr>
+<tr class="crit"><td class="r mono">015</td><td class="r mono">15:15</td><td class="r mono">15:16</td><td></td><td class="r">X</td><td class="mono">SG1</td><td>MAN 3</td><td>Cmdt. Alfa</td><td>PCO</td><td class="r">A</td><td>Projeções a mais de 100 m à frente da cabeça</td><td>Alerta difundido a todos os setores</td><td class="r">AM</td><td class="r">✓</td><td></td></tr>
+<tr class="crit"><td class="r mono">016</td><td class="r mono">15:16</td><td class="r mono">15:17</td><td></td><td class="r">X</td><td class="mono">SG3</td><td>COM 1</td><td>Adj. Segurança</td><td>Cmdt. Alfa</td><td class="r">A</td><td>Ordem de retirada parcial: 2 equipas para o LRT Alfa</td><td>Contagem de efetivos determinada</td><td class="r">AM</td><td class="r">✓</td><td class="mono">018</td></tr>
+<tr class="star"><td class="r mono">017</td><td class="r mono">15:20</td><td class="r mono">15:22</td><td class="r">★</td><td></td><td class="mono">PL2</td><td>PRES</td><td>COS</td><td>—</td><td class="r">—</td><td>PEA n.º 1 aprovado. Válido até 18:00</td><td>Difundido aos cmdt. de setor</td><td class="r">AM</td><td></td><td></td></tr>
+<tr class="crit"><td class="r mono">018</td><td class="r mono">15:23</td><td class="r mono">15:24</td><td></td><td class="r">X</td><td class="mono">SG12</td><td>MAN 3</td><td>Cmdt. Alfa</td><td>PCO</td><td class="r">A</td><td>Contagem de efetivos concluída — 24 de 24 presentes</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td class="mono">016</td></tr>
+<tr class="crit"><td class="r mono">019</td><td class="r mono">15:31</td><td class="r mono">15:33</td><td></td><td class="r">X</td><td class="mono">LF21</td><td>PRES</td><td>COS</td><td>—</td><td class="r">B</td><td>Determinado uso de água de charca particular, Quinta do Sobreiro. Proprietário Sr. J. Matos presente e notificado</td><td>A comunicar ao Núcleo de Finanças</td><td class="r">AM</td><td></td><td></td></tr>
+<tr><td class="r mono">020</td><td class="r mono">15:40</td><td class="r mono">15:41</td><td></td><td></td><td class="mono">OP2</td><td>MAN 3</td><td>Cmdt. Alfa</td><td>PCO</td><td class="r">A</td><td>Missão do reg. 013 cumprida. Progressão para N contida na linha do estradão</td><td>—</td><td class="r">AM</td><td class="r">✓</td><td class="mono">013</td></tr>
+</table>
+
+<!-- ===================== 9 ===================== -->
+<h2><span class="n">9</span>Como retirar respostas da folha</h2>
+
+<p>Uma fita bem preenchida responde a perguntas sem que ninguém tenha de ler tudo. Método: <b>filtrar por código, ordenar por hora</b>.</p>
+
+<table>
+<tr><th style="width:47%">Pergunta</th><th>Onde está a resposta</th></tr>
+<tr><td>Quanto tempo entre o alerta e o 1.º meio no local?</td><td>Bloco MARCOS — T0 e «1.º meio no local»</td></tr>
+<tr><td>Quem era COS às 15:00?</td><td>Último <span class="cod">CM1</span> ou <span class="cod">CM2</span> antes das 15:00</td></tr>
+<tr><td>Que PEA vigorava naquele momento?</td><td>Último <span class="cod">PL2</span>/<span class="cod">PL3</span> anterior, ou campo «PEA vigente» do cabeçalho</td></tr>
+<tr><td>Foi ordenada alguma retirada?</td><td>Coluna <b>!</b> + <span class="cod">SG3</span>. Confirmar sempre se existe <span class="cod">SG11</span>/<span class="cod">SG12</span> a seguir</td></tr>
+<tr><td>A ordem X chegou a ser cumprida?</td><td>Coluna REF. do registo da ordem → aponta para o <span class="cod">OP2</span> ou <span class="cod">OP3</span></td></tr>
+<tr><td>Porque se mudou de fase àquela hora?</td><td><span class="cod">CM13</span> na fita + contagem oficial no Quadro de Meios e Logística (L00)</td></tr>
+<tr><td>Quantos meios estavam empenhados?</td><td><b>Não é na fita.</b> É no L00, da Célula de Logística e Finanças</td></tr>
+<tr><td>Quem esteve no PCO e em que funções?</td><td><span class="cod">CM4</span> a <span class="cod">CM7</span> + Modelo OP 01</td></tr>
+<tr><td>Houve requisições ou uso de águas particulares?</td><td><span class="cod">LF18</span>, <span class="cod">LF19</span>, <span class="cod">LF20</span>, <span class="cod">LF21</span> — secção de encargos do relatório</td></tr>
+<tr><td>O que motivou aquela decisão?</td><td>Os registos <b>imediatamente anteriores</b>. É por isso que a informação e o despacho ficam próximos na sequência</td></tr>
+<tr><td>O rescaldo foi suficiente?</td><td>Distância entre <span class="cod">OP18</span> e um eventual <span class="cod">OP21</span></td></tr>
+<tr><td>Que evidência existe para o inquérito?</td><td>Todas as linhas com <b>!</b>, mais os <span class="cod">AD8</span> que assinalam lacunas</td></tr>
+</table>
+
+<h3>Do registo ao relatório</h3>
+<p>Cada secção do relatório da ocorrência sai de um conjunto de códigos:</p>
+<table>
+<tr><th style="width:47%">Secção do relatório</th><th>Códigos de origem</th></tr>
+<tr><td>Cronologia sumária</td><td>Bloco MARCOS + todas as linhas com ★</td></tr>
+<tr><td>Evolução da ocorrência</td><td><span class="cod">OP5</span>, <span class="cod">OP6</span> em sequência</td></tr>
+<tr><td>Estrutura de comando</td><td><span class="cod">CM1</span>–<span class="cod">CM7</span>, <span class="cod">CM13</span></td></tr>
+<tr><td>Organização do TO</td><td><span class="cod">CM8</span>–<span class="cod">CM12</span>, <span class="cod">LF3</span>–<span class="cod">LF12</span></td></tr>
+<tr><td>Estratégia adotada</td><td><span class="cod">PL1</span>–<span class="cod">PL4</span>, <span class="cod">OP9</span>–<span class="cod">OP15</span></td></tr>
+<tr><td>Segurança das forças</td><td><span class="cod">SG*</span> — secção autónoma, sempre</td></tr>
+<tr><td>Vítimas e população</td><td><span class="cod">VT*</span>, <span class="cod">PP*</span> + Modelo OP 05</td></tr>
+<tr><td>Articulação institucional</td><td><span class="cod">LE*</span></td></tr>
+<tr><td>Encargos</td><td><span class="cod">LF18</span>–<span class="cod">LF21</span>, <span class="cod">LF24</span> + horas de meios</td></tr>
+<tr><td>Constrangimentos e lições</td><td><span class="cod">OP3</span> (missões não cumpridas), <span class="cod">MV10</span>/<span class="cod">MA10</span>/<span class="cod">ME10</span>, <span class="cod">SG14</span>, <span class="cod">AD1</span>, <span class="cod">FC4</span></td></tr>
+</table>
+
+<div class="nota">
+A última linha é a mais valiosa e a que ninguém escreve com honestidade. Sai sozinha das missões não cumpridas, das avarias, dos quase-acidentes e das retificações — quatro coisas que o sistema regista sem que ninguém tenha de admitir nada.
+</div>
+
+<!-- ===================== 10 ===================== -->
+<h2><span class="n">10</span>Os dez erros mais comuns</h2>
+
+<table>
+<tr><th style="width:8mm" class="r">#</th><th style="width:56mm">Erro</th><th>Consequência</th></tr>
+<tr><td class="r">1</td><td>Só registar o que passa no rádio</td><td>As decisões do PCO desaparecem. É precisamente o que o inquérito procura</td></tr>
+<tr><td class="r">2</td><td>Preencher só uma das colunas de hora</td><td>Perde-se a distinção entre quando aconteceu e quando se soube</td></tr>
+<tr><td class="r">3</td><td>Riscar ou corrigir por cima</td><td>Documento perde valor probatório</td></tr>
+<tr><td class="r">4</td><td>Escrever tudo no fim, de memória</td><td>Cronologia falsa. Se tiver de ser, marcar <span class="cod">AD8</span></td></tr>
+<tr><td class="r">5</td><td>Esquecer o bloco MARCOS</td><td>O relatório não consegue calcular um único tempo</td></tr>
+<tr><td class="r">6</td><td>Usar pronomes e generalidades</td><td>Ilegível daqui a seis meses</td></tr>
+<tr><td class="r">7</td><td>Dois acontecimentos na mesma linha</td><td>Impossível filtrar por código</td></tr>
+<tr><td class="r">8</td><td>Não fechar o ciclo com a coluna REF.</td><td>Não se prova que uma ordem foi executada</td></tr>
+<tr><td class="r">9</td><td>Guardar as folhas até ao fim</td><td>A Célula de Operações fica cega. Uma folha perdida leva tudo</td></tr>
+<tr><td class="r">10</td><td>Escrever avaliações em vez de factos</td><td>A fita passa a ser opinião e deixa de servir para qualquer coisa</td></tr>
+</table>
+
+<footer>
+  <span>Fita do Tempo — Manual de Preenchimento · Modelo SGO OP 04 · v3</span>
+  <span>Base legal: Despacho n.º 4067/2024, de 15 de abril · Documento de trabalho</span>
+</footer>
+
+</div>
+</body>
+</html>
