@@ -236,6 +236,14 @@ No posto, a aplicação abre-se do ficheiro descarregado, em `file://`, e aí a 
 «Ler o serviço» recusa logo um endereço `http` numa página `https`, com esta explicação,
 em vez de deixar o navegador responder "Failed to fetch" sem dizer porquê.
 
+**Um serviço que não abre o CORS mostra-se em modo direto.** Há serviços que respondem à
+carta mas não a deixam ler como dados por uma página local: o navegador recusa e diz só
+"Failed to fetch". Nesse caso a aplicação pede os quadrados como imagens, que o navegador
+não bloqueia, e a carta aparece. O que o modo direto não faz, e a linha por baixo do mapa
+diz: os quadrados não ficam guardados para trabalhar sem rede, e não se confere se o
+serviço devolveu carta ou a mesma recusa repetida. Para um posto sem rede, a resposta
+continua a ser a carta pré-descarregada ou as folhas calibradas.
+
 **Mudar de carta não mostra os quadrados da anterior.** Cada mosaico guardado leva a
 impressão da carta que o deu — o endereço e, num WMTS, a camada, o conjunto de matrizes e a
 data. Antes disto a chave era só o número do quadrado: quem passasse de um serviço em Web

@@ -677,3 +677,28 @@ test('um serviço {z}/{x}/{y} sem barra depois do anfitrião é recusado ao decl
   assert.match(r.motivo, /Falta a barra entre o anfitrião e o primeiro marcador/);
   assert.equal(avaliar(janela, '!!CARTA'), false, 'e não fica em uso');
 });
+
+test('sem CORS, os quadrados pedem-se em modo direto: o img leva o endereço do serviço, e a linha diz o que isso não faz', semAplicacao, async () => {
+  comTeatro();
+  janela.enquadrarMapa(640, 620);
+  await janela.guardarCarta('https://exemplo.pt/{z}/{x}/{y}.png', 'ensaio', 'https://exemplo.pt/termos', 18);
+  const fetchAntes = janela.fetch;
+  janela.fetch = () => Promise.reject(new TypeError('Failed to fetch'));
+  try {
+    await janela.pintarMapa();
+    const imgs = [...doc().querySelectorAll('#mapa-tela img')];
+    assert.ok(imgs.length > 0);
+    assert.equal(avaliar(janela, 'MAPA.diretos'), imgs.length);
+    assert.ok(imgs.every((i) => /^https:\/\/exemplo\.pt\/\d+\/\d+\/\d+\.png$/.test(i.getAttribute('src'))), 'o img não levou o endereço do quadrado');
+    assert.ok(imgs.every((i) => !i.classList.contains('mp-falta')), 'em modo direto o quadrado não nasce marcado como falta: só se a imagem não vier');
+    assert.match(doc().getElementById('mapa-info').textContent, /pedidos em modo direto[\s\S]*não fica guardada para trabalhar sem rede/);
+    /* uma recusa com código não vai para o modo direto: pela imagem seria a mesma recusa */
+    janela.fetch = () => Promise.resolve({ ok: false, status: 403, clone() { return this; } });
+    await janela.pintarMapa();
+    assert.equal(avaliar(janela, 'MAPA.diretos'), 0);
+    assert.ok([...doc().querySelectorAll('#mapa-tela img')].every((i) => i.classList.contains('mp-falta')));
+  } finally {
+    janela.fetch = fetchAntes;
+    await janela.retirarCarta();
+  }
+});

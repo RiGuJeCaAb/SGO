@@ -22,7 +22,7 @@
 // com a chave substituída por «…».
 
 /* Do lado da página, dentro de `pagina.evaluate`: o eslint lê este ficheiro do lado do Node. */
-/* global performance, AbortController, fetch */
+/* global performance, AbortController, fetch, Image */
 
 import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -89,8 +89,14 @@ const linhas = [];
 try {
   const ctx = await nav.newContext();
   const pagina = await ctx.newPage();
+  /* O `fetch` que falha só diz «Failed to fetch»; a razão — CORS fechado, conteúdo misto,
+     ligação recusada — está na consola do navegador, e é isso que se quer no registo. */
+  let consola = [];
+  pagina.on('console', (m) => { if (m.type() === 'error') consola.push(m.text().slice(0, 240)); });
+  pagina.on('requestfailed', (r) => consola.push('pedido falhado: ' + (r.failure() && r.failure().errorText)));
   await pagina.goto(pathToFileURL(resolve(ficheiro)).href, { waitUntil: 'load' });
   for (const u of alvos) {
+    consola = [];
     const r = await pagina.evaluate(async (url) => {
       const t0 = performance.now();
       try {
@@ -105,9 +111,21 @@ try {
         return { ok: false, erro: String(e && e.message || e).slice(0, 120), ms: Math.round(performance.now() - t0) };
       }
     }, u);
-    linhas.push({ url: semChave(u), ...r });
+    /* Sem CORS há ainda um caminho, o `<img>`: prova-se também, para a sonda dizer se a carta
+       se veria em modo direto. Só para o que parece imagem, e só quando o fetch falhou. */
+    let imagem = null;
+    if (!r.ok) imagem = await pagina.evaluate((url) => new Promise((res) => {
+      const i = new Image(); const t = setTimeout(() => res('sem resposta em 15 s'), 15000);
+      i.onload = () => { clearTimeout(t); res('imagem ' + i.naturalWidth + '×' + i.naturalHeight); };
+      i.onerror = () => { clearTimeout(t); res('não é imagem, ou não veio'); };
+      i.src = url;
+    }), u);
+    const razao = consola.filter((c) => !/Failed to load resource/.test(c)).join(' | ');
+    linhas.push({ url: semChave(u), ...r, razao: razao || undefined, imagem: imagem || undefined });
     console.log((r.ok ? `HTTP ${r.estado}` : 'FALHOU').padEnd(9) + ' ' + String(r.ms).padStart(6) + ' ms  ' + semChave(u)
-      + (r.ok ? `  (${r.tipo.split(';')[0] || 'sem tipo'}, ${r.bytes} bytes)` : `  ${r.erro}`));
+      + (r.ok ? `  (${r.tipo.split(';')[0] || 'sem tipo'}, ${r.bytes} bytes)` : `  ${r.erro}`)
+      + (razao ? `\n           razão do navegador: ${razao}` : '')
+      + (imagem ? `\n           por <img>, sem CORS: ${imagem}` : ''));
   }
   await ctx.close();
 } finally {

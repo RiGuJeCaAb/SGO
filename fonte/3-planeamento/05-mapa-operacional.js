@@ -309,6 +309,9 @@ const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", pronto:false, falhas:0, 
      tinha razão desde que o enquadramento nasceu. Muda-se de carta ou de ocorrência, volta
      a enquadrar; de resto a vista é de quem a pôs. */
   enquadrado:false, ocorrencia:"",
+  /* Quadrados pedidos em modo direto nesta pintura, e quantos chegaram; `pinturas` numera
+     as pinturas para uma imagem de uma pintura anterior, que ainda chega, não contar nesta. */
+  diretos:0, diretosOk:0, pinturas:0,
   /* O primeiro quadrado que falhou nesta pintura, com o motivo e o endereço: sem isto a
      linha de estado dizia «nenhum quadrado veio» e não havia como saber se foi recusa,
      prazo, ou o navegador a barrar http numa página https. */
@@ -1013,7 +1016,7 @@ async function pintarMapa(){
     img.style.top = (y*MOSAICO_PX - oy)+"px";
     fundo.appendChild(img);
     pedidos.push(mosaicoBlob(z, xw, y).then(async b=>{
-      if(!b) return { img, ok:false };
+      if(!b) return { img, ok:false, z, x:xw, y };
       return { img, ok:true, b, z, x:xw, y, imp: await impressaoMosaico(b) };
     }));
   }
@@ -1032,7 +1035,24 @@ async function pintarMapa(){
 
   const carta = vindos.filter(t=>t.imp !== repetida);
   recusados.forEach(t=>t.img.classList.add("mp-falta"));
-  r.filter(t=>!t.ok).forEach(t=>t.img.classList.add("mp-falta"));
+  /* **Modo direto.** Um serviço que responde mas não abre o CORS — o navegador diz «Failed
+     to fetch» e nada mais — não se consegue ler como bytes de uma página `file://`, mas
+     desenha-se num `<img>`, que não pede autorização. Medido num Chromium a 6 de setembro:
+     de `file://`, `fetch` a `http` sem cabeçalho falha, com cabeçalho passa, e a imagem
+     passa sempre. Foi isto que deixou o dono sem a carta da DGT com o endereço certo. O que
+     se perde e se diz: o quadrado não fica guardado para trabalhar sem rede, e não se
+     confere se veio carta ou a mesma recusa repetida. Só quando a falha foi de rede — uma
+     recusa com código, ou o prazo, seriam a mesma coisa pela imagem. */
+  const direto = !!CARTA && !!MAPA.ultimaFalha && MAPA.ultimaFalha.motivo === "falha de rede";
+  MAPA.diretos = 0; MAPA.diretosOk = 0;
+  const pintura = ++MAPA.pinturas;
+  r.filter(t=>!t.ok).forEach(t=>{
+    if(!direto){ t.img.classList.add("mp-falta"); return; }
+    MAPA.diretos++;
+    t.img.onload = ()=>{ if(MAPA.pinturas !== pintura) return; MAPA.diretosOk++; MAPA.pronto = true; pintarEstadoMapa(carta.length, r.length); };
+    t.img.onerror = ()=>{ if(MAPA.pinturas !== pintura) return; t.img.classList.add("mp-falta"); pintarEstadoMapa(carta.length, r.length); };
+    t.img.src = mosaicoURL(t.z, t.x, t.y);
+  });
   carta.forEach(t=>{
     const u = URL.createObjectURL(t.b);
     MAPA_URLS.push(u); t.img.src = u;
@@ -1066,6 +1086,11 @@ function pintarEstadoMapa(vieram, total){
       + " pedidos. Serviços de mosaicos de uso comunitário exigem que a aplicação se identifique, e uma página"
       + " aberta em ficheiro local não o consegue fazer. Usar um serviço que o posto tenha direito a consultar,"
       + " ou carta pré-descarregada.");
+  else if(MAPA.diretos){
+    partes.push(MAPA.diretos + " quadrado(s) pedidos em modo direto, porque o serviço não abre o CORS a uma página local: "
+      + MAPA.diretosOk + " chegaram. Em modo direto a carta mostra-se mas não fica guardada para trabalhar sem rede, e não se confere se o serviço devolveu carta ou uma recusa repetida.");
+    if(MAPA.ultimaFalha) partes.push("O primeiro quadrado pedido falhou: " + MAPA.ultimaFalha.motivo + " — " + MAPA.ultimaFalha.url);
+  }
   else if(!MAPA.pronto && CARTA){
     partes.push("Sem carta: nenhum quadrado veio do serviço nem do arquivo local. Fica o croqui, que não precisa de rede.");
     if(MAPA.ultimaFalha) partes.push("O primeiro quadrado pedido falhou: " + MAPA.ultimaFalha.motivo + " — " + MAPA.ultimaFalha.url);
@@ -1438,6 +1463,7 @@ $("mapa-carregar").addEventListener("click", async ()=>{
   pintarPontos();
   await pintarArquivoMapa();
   if(MAPA.pronto) aviso("mapa-msg","ok","Carta carregada. Escolhe o que marcar e clica no mapa.");
+  else if(MAPA.diretos) aviso("mapa-msg","av","O serviço não abre o CORS a uma página local: os quadrados pedem-se em modo direto e mostram-se se o serviço os der. A linha por baixo do mapa diz quantos chegaram, e o que o modo direto não faz.");
   else aviso("mapa-msg","err","Sem carta: nem a rede nem o arquivo local deram um único quadrado."
     + (MAPA.ultimaFalha? " O primeiro quadrado pedido falhou: "+MAPA.ultimaFalha.motivo+"." : "")
     + " A linha por baixo do mapa diz mais. O croqui continua a servir.");

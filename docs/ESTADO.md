@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0112**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0113**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 150, das anteriores à convenção de nomes até à r0112 |
+| Entregas em `app/` | 151, das anteriores à convenção de nomes até à r0113 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1077, todos a passar |
+| Testes | 1078, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1438,6 +1438,32 @@ mesmo quando o quadrado que falhou era `http` numa página `https`. Não se conf
 qual das três é a do dono: a rede recusa tudo. Fica a pergunta feita.
 
 **Números.** 1077 testes, 1 novo; nove portões e o trabalho de navegador verdes.
+
+## O modo direto: a carta que responde mas não abre o CORS — r0113
+
+O dono fez tudo certo: abriu de `file://`, foi buscar o XML da DGT pela barra do navegador,
+carregou-o, escolheu a Ortos2018-RGB, e o primeiro quadrado — com o endereço KVP certo,
+`…service?SERVICE=WMTS&…&TILEMATRIXSET=PTTM_06&TILEMATRIX=07&TILEROW=28&TILECOL=42` —
+falhou com «falha de rede». **Mediu-se num Chromium daqui, com um servidor local:** de uma
+página `file://`, `fetch` a `http` com `Access-Control-Allow-Origin` passa, sem ele falha
+com «Failed to fetch», e um `<img>` passa sempre. A captura de 31 de agosto prova que o
+GetCapabilities da DGT traz o cabeçalho; nada prova que o GetTile o traga, e o ecrã do dono
+diz que não. Não é conteúdo misto — `file://` não bloqueia `http` — e não é o serviço em
+baixo, porque o XML veio.
+
+**Entra o modo direto.** Um quadrado cuja leitura como bytes falhou por rede pede-se de
+novo como imagem, num `<img>` com o endereço do serviço, que o navegador não sujeita ao
+CORS. A carta aparece. O que se perde, e a linha por baixo do mapa diz: o quadrado não fica
+guardado para trabalhar sem rede, e não se confere se veio carta ou a mesma recusa
+repetida. Uma recusa com código HTTP ou o prazo esgotado não vão para o modo direto — pela
+imagem seria o mesmo. Provado num Chromium com um servidor sem CORS: seis quadrados pedidos,
+seis chegados, nenhum em falta; e apanhou-se de caminho que uma imagem de uma pintura
+anterior, a chegar tarde, contava na seguinte — as pinturas numeram-se. A sonda passa a
+registar a razão que o navegador escreve na consola — CORS fechado, ligação recusada — e
+a experimentar o `<img>` quando o `fetch` falha, para dizer se a carta se veria em modo
+direto. Manual com o parágrafo. Um teste no arnês, e a prova no Chromium.
+
+**Números.** 1078 testes, 1 novo; nove portões e o trabalho de navegador verdes.
 
 ## Decisões tomadas
 
