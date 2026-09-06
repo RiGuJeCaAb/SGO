@@ -164,7 +164,9 @@ const ENC_LIVRES = [
   { id:"mapa-mais",      porque:"idem" },
   { id:"mapa-menos",     porque:"idem" },
   { id:"mapa-enquadrar", porque:"idem" },
-  { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" }
+  { id:"mapa-esquecer",  porque:"os mosaicos guardados são do dispositivo, não da ocorrência" },
+  { id:"b-limpar-carta", porque:"a carta é do dispositivo, não da ocorrência" },
+  { id:"b-repor",        porque:"repor o dispositivo é quando mais faz falta com tudo fechado" }
 ];
 
 /**

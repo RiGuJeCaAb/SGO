@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0110**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0111**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 148, das anteriores à convenção de nomes até à r0110 |
-| Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1072, todos a passar |
+| Entregas em `app/` | 149, das anteriores à convenção de nomes até à r0111 |
+| Módulos em `fonte/` | 77, em sete zonas, mais o molde |
+| Testes | 1076, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1389,6 +1389,39 @@ mesmo tempo — os serviços de mosaicos da Esri, o OpenTopoMap — não têm ca
 afirmam; a `sonda` da r0107 existe para isso, e o ESTADO deixa a lista de comandos que o
 dono corre num computador com rede. O que responder de `file://` com CORS aberto entra na
 revisão seguinte como captura, com os termos ao lado.
+
+## Quando algo não funciona — r0111
+
+O dono, depois de dois dias com uma carta que não vinha: «quando algo não funciona a app
+deveria poder limpar dados e recomeçar». Tinha razão: havia «Esquecer a carta guardada» no
+cartão do mapa e mais nada; o serviço declarado, a pasta local, o endereço dos focos e o
+arquivo do dispositivo só se limpavam um a um, cada qual no seu cartão, ou pelas
+ferramentas do navegador. Entra `2-comando/05-quando-algo-nao-funciona.js`, com dois graus
+ao fundo do cartão da ocorrência, e a diferença entre eles é o que se perde:
+
+- **«Limpar a carta e o mapa»** retira o serviço declarado, a pasta pré-descarregada e a
+  sua projeção, os quadrados guardados e o endereço dos focos, e volta a enquadrar quando
+  houver carta. Não toca na ocorrência nem nas folhas calibradas: são informação de quem as
+  pôs. Fica na fita, com o que saiu.
+- **«Repor a aplicação neste dispositivo»** fecha e apaga a base, tira as chaves da camada
+  de trás e recarrega a página como no primeiro dia. Pede confirmação com o número de
+  ocorrências guardadas à vista, e uma segunda quando as há; manda exportar antes, e um
+  ficheiro exportado não é tocado. Com outra aba aberta a base fica bloqueada, e a
+  aplicação di-lo em vez de apagar metade. O recarregar recebe-se por argumento, para o
+  arnês o substituir.
+
+Os dois ficam livres com a ocorrência encerrada, com a razão declarada em `ENC_LIVRES`.
+Manual com a secção e as duas linhas na tabela. Quatro testes.
+
+**E as duas perguntas do dono, respondidas no ESTADO para ficarem.** A DGT não tem serviço
+`{z}/{x}/{y}` — tem WMTS, e é o que a aplicação lê; o `portugal_wmts.xml` carregado no
+posto, «Local Proxy», não é da DGT. As cartas militares digitalizadas funcionam **melhor**
+para o posto sem rede, e a aplicação já as toma desde a r0085: são as folhas de carta
+calibradas, colocadas por ficheiro de referenciação ou por dois pontos em PT-TM06, e o
+mapa desenha por cima delas sem pedir nada a serviço nenhum.
+
+**Números.** 1076 testes, 4 novos; 77 módulos; nove portões e o trabalho de navegador
+verdes; auditoria visual limpa nos dois temas.
 
 ## Decisões tomadas
 

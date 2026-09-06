@@ -1309,6 +1309,16 @@
 
       <div class="msg" id="msg-occ"></div>
       <p class="hint" id="occ-armazem">O estado (identificação, evolução, meteograma e todos os PEA emitidos) fica guardado neste dispositivo e é reposto ao reabrir a app. A exportação para ficheiro não depende do dispositivo: serve de cópia de segurança e permite passar a ocorrência a outro posto.</p>
+
+      <div class="sub" style="margin-top:14px">
+        <span class="stit">Quando algo não funciona</span>
+        <p class="hint" style="margin:0 0 10px 0">Dois graus. «Limpar a carta e o mapa» tira o serviço de carta, a pasta pré-descarregada, os quadrados guardados e o endereço dos focos, e não toca na ocorrência. «Repor a aplicação neste dispositivo» apaga tudo o que está guardado aqui, ocorrências incluídas, e recomeça como no primeiro dia: exportar antes.</p>
+        <div class="row">
+          <button class="btn btn-o" type="button" id="b-limpar-carta">Limpar a carta e o mapa</button>
+          <button class="btn btn-r" type="button" id="b-repor">Repor a aplicação neste dispositivo</button>
+        </div>
+        <div class="msg" id="msg-manut" style="display:none"></div>
+      </div>
     </div>
     <div class="card">
       <h2>Quem regista <span class="tag">identidade declarada — não é autenticação</span></h2>

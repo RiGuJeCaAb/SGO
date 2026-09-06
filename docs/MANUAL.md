@@ -691,6 +691,23 @@ em texto» leva-o para fora.
 | Começar do zero | Comando → «Nova / limpar» |
 | Encerrar o registo | Comando → «Encerrar a ocorrência» |
 | Reabrir um registo fechado | Comando → «Reabrir o registo» |
+| Limpar a carta e recomeçar o mapa | Comando → «Limpar a carta e o mapa» |
+| Apagar tudo deste dispositivo | Comando → «Repor a aplicação neste dispositivo» |
+
+### Quando algo não funciona
+
+Comando → **Quando algo não funciona**, ao fundo do cartão da ocorrência. Dois graus, e a
+diferença entre eles é o que se perde:
+
+- «Limpar a carta e o mapa» retira o serviço de carta declarado, a pasta pré-descarregada e
+  a sua projeção, os quadrados guardados e o endereço dos focos. A ocorrência e as folhas
+  calibradas ficam. É o que se faz quando a carta não vem e já não se sabe o que está
+  declarado: limpa-se e declara-se de novo.
+- «Repor a aplicação neste dispositivo» apaga tudo o que está guardado aqui, ocorrências
+  incluídas, o diário, as cópias, a identidade e as preferências, e recarrega a página como
+  no primeiro dia. Pede confirmação com o número de ocorrências à vista, e uma segunda
+  quando as há. **Exporte antes**: um ficheiro exportado não é tocado. Se houver outra aba
+  desta aplicação aberta, a base não se deixa apagar e a aplicação di-lo; feche-a e repita.
 
 ### Levar a aplicação para outro computador
 
