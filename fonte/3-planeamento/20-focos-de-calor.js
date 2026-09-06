@@ -80,7 +80,7 @@ function lerFocosCSV(txt){
   const H = L[0].split(sep).map(h=>h.trim().toLowerCase().replace(/^"|"$/g, ""));
   /* Uma linha só. Se é o cabeçalho de focos, o serviço respondeu e **não há deteções** na
      área e no período pedidos — que não é erro, e dizia-se como se fosse: «só cabeçalho, ou
-     nem isso», ao dono, a 6 de setembro, com a chave acabada de declarar. Se não é
+     nem isso», no ecrã do posto a 6 de setembro, com a chave acabada de declarar. Se não é
      cabeçalho, é o serviço a falar em texto simples, e a frase dele vale mais do que a nossa. */
   if(L.length === 1){
     const temLat = H.some(h=>FIRMS_COLUNAS[0].nomes.includes(h) || /latitude/.test(h));

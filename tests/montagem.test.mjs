@@ -86,7 +86,7 @@ test('o home.html da raiz é a entrega mais recente, byte a byte', semRevisao, a
      nasceu a envelhecer: ficaria a servir a r0081 no dia em que a r0083 saiu, sem nada que
      o denunciasse — que é a pior espécie de defeito neste projeto, o que só se descobre no
      terreno. A montagem reescreve-a; este teste é quem confere que foi reescrita. O nome
-     é `home.html` desde 4 de setembro, quando o dono apagou o `index.html` do `main` e
+     é `home.html` desde 4 de setembro, quando o `index.html` foi apagado do `main` e
      carregou este; o teste lê o nome à montagem para não voltarem a divergir. */
   const [servido, entregue] = await Promise.all([
     readFile(SERVIDO, 'utf8'),

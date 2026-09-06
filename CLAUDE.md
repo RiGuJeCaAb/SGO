@@ -124,6 +124,13 @@ e `docs/CSREPCDouro_202608272046_PromptEstacaoPEA_CLD.md`, que é a especificaç
   para o que modifica. Nenhuma com dois caracteres ou menos — um teste recusa-as desde a
   r0108. Classe composta em tempo de execução declara-se em `SABIDOS`.
 
+## Como se fala aqui
+
+Trabalha-se de igual para igual. Nos documentos, nos comentários e nas mensagens não há
+«dono» nem tratamento por «você»: as decisões dizem-se pela data e pela conversa em que se
+tomaram, quem usa a aplicação é «quem está ao teclado» ou «o posto», e quem escreve
+trata quem lê por tu.
+
 ## Base doutrinária
 
 Despacho n.º 4067/2024 (SGO), DON n.º 2 / DECIR 2026, DON n.º 1 / DIOPS,

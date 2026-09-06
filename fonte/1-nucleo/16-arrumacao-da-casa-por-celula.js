@@ -6,7 +6,7 @@
    registo acompanhar deixaria o cartão para trás em silêncio. */
 const ARRUMACAO = [
   /* --- Comando: arts. 14.º e 15.º; aprovação do PEA, art. 8.º, n.º 2, al. e) --- */
-  /* Primeiro quem regista: era o último e o dono apontou-o — é de onde sai o nome de cada
+  /* Primeiro quem regista: era o último e apontou-se a 6 de setembro — é de onde sai o nome de cada
      ato, e um registo sem nome é rascunho. A ordem aqui é a ordem no ecrã. */
   { h:"Quem regista",                             cel:"comando",     r:"art. 2.º, al. c) — o registo é atribuído a quem o faz" },
   { h:"Identificação da ocorrência",              cel:"comando",     r:"art. 14.º" },

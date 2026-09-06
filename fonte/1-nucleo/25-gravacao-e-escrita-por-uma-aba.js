@@ -103,7 +103,7 @@ function entrarEmLeitura(motivo){
     const t = $("leitura-txt"); if(t) t.textContent = LEITURA.motivo + " Esta aba mostra e não grava: o que aqui se escrever perde-se.";
     /* `flex`, e não `block`: a faixa é uma fila com o botão na ponta direita, como a guia. O
        `block` em linha vencia o `display:flex` da folha de estilos e o botão caía colado ao
-       fim do texto, com o resto da faixa vazio — era a captura que o dono mandou na r0100. */
+       fim do texto, com o resto da faixa vazio — era a captura que chegou na r0100. */
     f.style.display = "flex";
   }
   try{ aplicarFechoDeEscrita(); }catch(e){}

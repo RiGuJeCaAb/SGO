@@ -1,5 +1,5 @@
 /* ================= COMANDO · quando algo não funciona =================
-   O dono, a 6 de setembro, depois de dois dias a lutar com uma carta que não vinha: «quando
+   A 6 de setembro, depois de dois dias a lutar com uma carta que não vinha, veio o pedido: «quando
    algo não funciona a app deveria poder limpar dados e recomeçar». Tinha razão: havia
    «Esquecer a carta guardada» no cartão do mapa, e mais nada. O serviço declarado, a pasta
    local, o endereço dos focos e o arquivo inteiro do dispositivo só se limpavam um a um,

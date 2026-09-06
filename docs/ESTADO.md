@@ -1,10 +1,10 @@
 # Estado do projeto
 
-Atualizado em 2026-09-05.
+Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0116**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0117**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,7 +15,7 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 154, das anteriores à convenção de nomes até à r0116 |
+| Entregas em `app/` | 155, das anteriores à convenção de nomes até à r0117 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
 | Testes | 1083, todos a passar |
 | Análise estática | sem problemas |
@@ -99,7 +99,7 @@ montagem de trabalho com `--saida` não lhe toca. E há um teste que confere que
 entrega mais recente, byte a byte, provado a acrescentar um comentário ao ficheiro. **Não se
 edita à mão**, tal como as entregas de `app/`.
 
-**Chama-se `home.html` desde 4 de setembro.** O dono do repositório apagou o `index.html`
+**Chama-se `home.html` desde 4 de setembro.** O `index.html` foi apagado, à mão, do `main`
 do `main` num commit explícito e carregou `home.html` no lugar dele, com a r0092. A
 montagem e o teste seguem o nome dele: o ficheiro que a montagem escreve é `SERVIDO`, em
 `ferramentas/montar.mjs`, e o teste lê o nome de lá para não voltarem a divergir. Foi a
@@ -110,7 +110,7 @@ histórias por deteção de renomeação, e o `home.html` ficou com a r0095.
 mostrava sete deploys de produção seguidos, das 12:00 às 22:52, todos «Skipped due to account
 credit usage exceeded»: a conta esgotou os créditos e o sítio ficou congelado numa revisão
 anterior, sem nada no repositório que o denunciasse. É a pior espécie de defeito deste
-projeto, outra vez — o ficheiro certo no `main` e o errado no ar. Decisão do dono: GitHub
+projeto, outra vez — o ficheiro certo no `main` e o errado no ar. Decisão tomada em conjunto: GitHub
 Pages. O trabalho `publicar`, em `.github/workflows/verificar.yml`, corre só em push ao
 `main` e só depois dos nove portões, e leva o `home.html` e mais nada, com um `index.html` de
 reencaminhamento gerado no momento, que não existe no repositório. Um teste confere que o
@@ -118,9 +118,9 @@ fluxo copia o mesmo ficheiro que a montagem escreve.
 
 **O repositório passou a público no mesmo dia, para isso.** O Pages em repositório privado
 exige plano pago, e o fluxo traz uma condição que o faz esperar enquanto o repositório for
-privado, para não deixar o `main` vermelho por uma falha que não é do código. O dono
+privado, para não deixar o `main` vermelho por uma falha que não é do código. Quem gere o repositório
 tornou-o público a 4 de setembro, e a condição fica lá escrita como proteção, não como
-bloqueio. O endereço é `https://rigujecaab.github.io/SGO/`. Fica ao dono desligar o sítio no
+bloqueio. O endereço é `https://rigujecaab.github.io/SGO/`. Fica a quem gere o repositório desligar o sítio no
 Netlify, que continua a comentar nos PR e a contar deploys que já não faz.
 
 **O Pages liga-se uma vez, à mão, e o fluxo não o pode fazer.** A primeira execução em
@@ -658,7 +658,7 @@ continua por fazer.
 sobre o commit «Delete index.html», falhou. O `tests/montagem.test.mjs` exigia que o
 `index.html` da raiz fosse a entrega mais recente, byte a byte, e o ficheiro deixou de existir
 no `main`. Resolvido ao juntar as duas histórias: a cópia servida passou a ser o `home.html`
-que o dono carregou — ver o fim desta secção.
+que chegou à entrada — ver o fim desta secção.
 
 **A análise Gemini é outra coisa.** Está bem escrita e tem partes corretas, mas descreve um
 projeto que não é este. Diz «monólito imperativo com mais de 2500 linhas» e «ficheiro
@@ -725,13 +725,13 @@ embutidos «nenhum resta». **Restavam seis.** A afirmação sobre o XSS mantinh
 nenhum deles interpolava texto de campo, levavam índices que a aplicação gera —, mas a
 afirmação sobre a forma estava errada, e estava escrita ao lado da regra que a desmentia.
 
-**Decidido pelo dono do repositório, e seguido aqui:** o `index.html` da raiz foi apagado do
+**Decidido de fora, no repositório, e seguido aqui:** o `index.html` da raiz foi apagado do
 `main` a 4 de setembro, num commit explícito, e no mesmo minuto entrou `home.html` com a
 r0092 — a mesma cópia, com outro nome. A aplicação continua a ser servida por URL; só o
 nome mudou. As três saídas que estavam em aberto — repor o ficheiro, tirar a geração e o
 teste, ou tolerar a ausência — caíram todas: a montagem passa a escrever `home.html`, o
 teste passa a conferir `home.html`, e o nome vive num sítio só, `SERVIDO` em
-`ferramentas/montar.mjs`. O `index.html` não volta: ressuscitar um ficheiro que o dono
+`ferramentas/montar.mjs`. O `index.html` não volta: ressuscitar um ficheiro que alguém
 apagou de propósito seria desfazer-lhe a decisão em silêncio.
 
 ## O estado da gravação, e uma aba a escrever de cada vez — r0096
@@ -819,7 +819,7 @@ escrito por um ouvinte único por delegação. Os três que já usavam botão fi
 **Os três remendos.** O rótulo com espaço rígido a servir de calço ao botão da passagem de
 turno sai (`.g-fundo`); a etiqueta do cabeçalho reaproveitada como campo de leitura passa a
 `.campo-leitura`; a célula do botão das coordenadas passa a linha (`.g-linha`) em vez de
-esticar o botão à largura toda. O cartão dos focos, que é a captura do dono, passa a
+esticar o botão à largura toda. O cartão dos focos, que é a captura enviada a 5 de setembro, passa a
 `.par-campo-botao`, alinhado pelo fundo.
 
 **`aviso()` deixa de apagar as classes.** Fazia `className = "msg …"`: o `#pr-saida` nasce
@@ -934,7 +934,7 @@ existe para o eslint do lado do Node —, e o `main` ficou vermelho um commit. C
 
 ## Estado e tempo — r0101, a quarta do plano
 
-**A faixa da aba em leitura, que o dono apontou.** A captura mostrava o botão «Assumir a
+**A faixa da aba em leitura, apontada na captura de 5 de setembro.** A captura mostrava o botão «Assumir a
 escrita» colado ao fim do texto, com o resto da faixa vazio, e a faixa vinte pixéis mais larga
 do que o cartão de baixo em cada lado. A causa do primeiro não era a folha de estilos, que
 declarava `display:flex`: era `entrarEmLeitura`, que mostrava a faixa com um `display:block`
@@ -1138,7 +1138,7 @@ o comandante de setor reconhece pelo art. 10.º, n.º 5, al. a) do SGO, e o pont
 3 da DON n.º 2, por leitura do #006. Os três títulos de gravidade que propõe, a fronteira
 entre acessos e percursos de fuga, «interdição» e «condicionamento» como um ou dois valores,
 qual dos dois momentos de 9.d.(6) se grava, e o instante de origem de P6 são **as cinco
-decisões do dono** que o documento lista, e não se tomaram aqui. O achado maior — a hora de
+decisões a tomar em conjunto** que o documento lista, e não se tomaram aqui. O achado maior — a hora de
 alerta não consta do registo obrigatório da DON e é o t=0 de P1 e P2 — fica com uma
 pergunta: o campo «Início da ocorrência» é a hora de alerta? Se for, muda o rótulo; se não
 for, é campo novo com degrau de estado.
@@ -1153,7 +1153,7 @@ daqui `npm run navegador` corre aqui antes de qualquer push, e não só na CI.
 **Números.** 1041 testes, 20 novos; nove portões e o trabalho de navegador verdes;
 auditoria visual limpa nos dois temas; a entrada vazia.
 
-## As decisões do dono — r0105
+## As decisões de 5 de setembro — r0105
 
 Chegaram a 5 de setembro, em resposta às cinco do #006 e às duas desta linhagem. Três vinham
 com um texto de apoio a validar; validaram-se contra o texto dos diplomas em `docs/fontes/`,
@@ -1190,7 +1190,7 @@ era qual das duas definições da hora de entrada na Entidade se grava: a do pon
 «a hora a que o mesmo chega ao seu destino final», ou a do ponto 9.d.(6), «hora em que o
 veículo chega ao seu local de estacionamento/quartel ou encerra a sua participação na
 ocorrência» — que diferem para o meio reencaminhado a meio da marcha. O texto colado fala de
-«ordem dada» contra «ação concluída», que não é nenhuma das duas. **Decidido pelo dono a 5 de
+«ordem dada» contra «ação concluída», que não é nenhuma das duas. **Decidido em conjunto a 5 de
 setembro, depois de lhe ser posta a pergunta certa:** grava-se a de 9.d.(6), porque é o
 registo que a DON manda ao CSREPC e é o CSREPC quem usa isto. A aplicação ainda não grava a chegada à entidade — as rendições registam a
 saída do TO —, pelo que a decisão é uma definição para quando o campo entrar.
@@ -1208,7 +1208,7 @@ da ocorrência», sem campo novo nem degrau: o valor é o mesmo, e é o t=0 dos 
 `contextoDON` diz-o.
 
 **7. Guardar e repor as folhas — confirmado.** Já era o que a r0103 fazia dos dois lados;
-fica como decisão do dono, com a razão dele: a aplicação não descarta informação, para que
+fica como decisão de 5 de setembro, com a razão dada nessa conversa: a aplicação não descarta informação, para que
 mais tarde se possam estudar as decisões e melhorar a própria aplicação.
 
 **Os oito `catch` do #005.** `guardarFolhas` acende o indicador da gravação; a cópia
@@ -1221,7 +1221,7 @@ capacidade, como o #005 reclassificou.
 
 **PCO é o posto de comando.** O alvo do mapa que marca a coordenada da ocorrência dizia
 «Ponto da ocorrência (PCO)», e PCO é o posto de comando operacional, não o ponto. Apontado
-pelo dono; a sigla sai do alvo na r0106, junto com a decisão do 9.d.(6).
+apontado na conversa; a sigla sai do alvo na r0106, junto com a decisão do 9.d.(6).
 
 **Números.** 1047 testes — o número que aqui estava, 1045, era o de uma corrida a meio, e
 ficou por um erro meu de guião; nove portões e o trabalho de navegador verdes; auditoria
@@ -1229,10 +1229,10 @@ visual limpa nos dois temas.
 
 ## O que ficou por fazer, feito — r0107
 
-O dono pediu a 5 de setembro, à noite, a lista inteira do que as revisões anteriores
+Pediu-se a 5 de setembro, à noite, a lista inteira do que as revisões anteriores
 deixaram registado como por fazer, mais o clique que o apanhou. Por ordem do pedido:
 
-**O clique sem alvo diz-o.** O dono carregou um perímetro do geojson.io, clicou na carta e
+**O clique sem alvo diz-o.** Carregou-se um perímetro do geojson.io, clicou na carta e
 não aconteceu nada, e perguntou o que estava a fazer mal. Nada: a lista «Clicar no mapa
 marca» estava na opção vazia, e o clique era silencioso de propósito — um toque acidental
 não deve pousar um ponto — mas calado. Passa a dizer por baixo do mapa que não marcou nada
@@ -1273,7 +1273,7 @@ do TO» tira a unidade da contagem de empenhamento e passa-a a rendida; «Regist
 à Entidade» fecha-a, e recusa uma chegada anterior à saída. Não exige pedido prévio — um
 meio rendido por iniciativa do CSREPC também sai — e retirar o pedido não apaga a saída,
 que é facto de outro momento. As duas horas vão à evolução, com a citação de 9.d.(6), e à
-fita, que sobrevivem à desmobilização da unidade: é o que o dono pediu na r0105, que a
+fita, que sobrevivem à desmobilização da unidade: é o que se pediu na r0105, que a
 aplicação não descarte informação. O quadro de rendições lista as rendidas com as duas
 horas; o briefing de passagem de turno diz que chegadas ainda estão por registar, porque
 é um registo que se fecha depois de o meio partir; o medidor da unidade diz «saiu» e a
@@ -1333,7 +1333,7 @@ fora, como a r0102 os deixou: são outra revisão.
 
 ## A vista é de quem a pôs — r0109
 
-O dono, a 6 de setembro: «depois de carregar a carta os botões deixam de funcionar, nem
+A 6 de setembro, na conversa: «depois de carregar a carta os botões deixam de funcionar, nem
 aproximar nem afastar». Reproduzido num Chromium a sério, com a carta da DGT servida de
 mentira: «Aproximar» mudava a ampliação e a pintura seguinte punha-a onde estava.
 **`pintarMapa` e o cartão do mapa chamavam `enquadrarMapa` a cada pintura**, e o
@@ -1350,20 +1350,20 @@ Quatro testes, um deles no arnês e o outro no Chromium, pelo guião de reprodu�
 engoliam o motivo e a linha de estado dizia «nenhum quadrado veio». O primeiro quadrado que
 falha fica com o motivo — recusa com o código HTTP, prazo, falha de rede — e o endereço
 pedido, e a linha e a mensagem do botão dizem-no. E o caso que muito provavelmente é o do
-dono: **a carta da DGT só existe em `http`, e uma página em `https` — o GitHub Pages — não
+posto: **a carta da DGT só existe em `http`, e uma página em `https` — o GitHub Pages — não
 a pode pedir**; `httpsSeForPreciso` promovia o endereço em silêncio, para um servidor que
 não está lá. A promoção fica registada na carta (`promovido`) e a linha diz o que significa
 e o caminho: abrir a aplicação do ficheiro descarregado, em `file://`, que é onde a DGT
-responde. O manual diz o mesmo. Não se pôde confirmar daqui que é isso que o dono viu —
+responde. O manual diz o mesmo. Não se pôde confirmar daqui que é isso que se viu no posto —
 a rede recusa tudo —, e é por isso que a linha passa a trazer o motivo e o endereço: para
 a próxima pergunta vir com eles.
 
 **Números.** 1070 testes, 4 novos; nove portões e o trabalho de navegador verdes; auditoria
 visual limpa nos dois temas.
 
-## O que o ecrã do dono mostrou, e o serviço que não há — r0110
+## O que o ecrã do posto mostrou, e o serviço que não há — r0110
 
-A linha de estado da r0109 fez o que devia: o ecrã do dono, a 6 de setembro, diz que a
+A linha de estado da r0109 fez o que devia: o ecrã do posto, a 6 de setembro, diz que a
 carta em uso é um WMTS chamado «Direção-Geral do Território (Local Proxy)» e que o primeiro
 quadrado pedido foi `https://openstreetmap.org13/3920/3070.png`. Não é a DGT — a DGT não
 tem esse título nem esse endereço — e não é um endereço: é um GetCapabilities escrito à
@@ -1376,23 +1376,23 @@ como as capturas da r0072 já tinham mostrado.
 camada, com o modelo à vista — que é quando ainda se pode corrigir —, e o mesmo para um
 serviço `{z}/{x}/{y}` declarado à mão. Dois testes.
 
-**O que não entra, e porquê.** O dono pede «um serviço que funcione em todas as vertentes»:
+**O que não entra, e porquê.** Pede-se «um serviço que funcione em todas as vertentes»:
 em `file://` e no GitHub Pages, sem chave, com CORS aberto, com Portugal a 15 m por pixel.
 Não se escreve nenhum na aplicação, pela mesma razão de sempre: os serviços de uso
 comunitário exigem que a aplicação se identifique, e um ficheiro local não o consegue; os
-comerciais têm termos que só o dono pode aceitar; e **daqui não se consegue verificar
+comerciais têm termos que só quem os vai usar pode aceitar; e **daqui não se consegue verificar
 nenhum** — a rede recusa tudo com 403. O que se sabe por prova está nas capturas de 31 de
 agosto: a DGT responde, com CORS aberto, em `http` e só em `http`, o que serve em `file://`
 e não no Pages; o GIBS responde em `https` com CORS aberto, mas é imagem de satélite de
 baixa resolução, não carta de trabalho. Os candidatos que cumpririam as quatro condições ao
 mesmo tempo — os serviços de mosaicos da Esri, o OpenTopoMap — não têm captura e não se
 afirmam; a `sonda` da r0107 existe para isso, e o ESTADO deixa a lista de comandos que o
-dono corre num computador com rede. O que responder de `file://` com CORS aberto entra na
+se corre num computador com rede. O que responder de `file://` com CORS aberto entra na
 revisão seguinte como captura, com os termos ao lado.
 
 ## Quando algo não funciona — r0111
 
-O dono, depois de dois dias com uma carta que não vinha: «quando algo não funciona a app
+Depois de dois dias com uma carta que não vinha, a 6 de setembro: «quando algo não funciona a app
 deveria poder limpar dados e recomeçar». Tinha razão: havia «Esquecer a carta guardada» no
 cartão do mapa e mais nada; o serviço declarado, a pasta local, o endereço dos focos e o
 arquivo do dispositivo só se limpavam um a um, cada qual no seu cartão, ou pelas
@@ -1413,7 +1413,7 @@ ao fundo do cartão da ocorrência, e a diferença entre eles é o que se perde:
 Os dois ficam livres com a ocorrência encerrada, com a razão declarada em `ENC_LIVRES`.
 Manual com a secção e as duas linhas na tabela. Quatro testes.
 
-**E as duas perguntas do dono, respondidas no ESTADO para ficarem.** A DGT não tem serviço
+**E as duas perguntas de 6 de setembro, respondidas no ESTADO para ficarem.** A DGT não tem serviço
 `{z}/{x}/{y}` — tem WMTS, e é o que a aplicação lê; o `portugal_wmts.xml` carregado no
 posto, «Local Proxy», não é da DGT. As cartas militares digitalizadas funcionam **melhor**
 para o posto sem rede, e a aplicação já as toma desde a r0085: são as folhas de carta
@@ -1425,7 +1425,7 @@ verdes; auditoria visual limpa nos dois temas.
 
 ## «Failed to fetch» dito por extenso — r0112
 
-O dono pôs o GetCapabilities da DGT em «Ler o serviço» e recebeu «Não foi possível ler o
+Pôs-se o GetCapabilities da DGT em «Ler o serviço» e recebeu «Não foi possível ler o
 serviço (Error: Failed to fetch)». É a frase do navegador para um pedido que não chegou a
 ter resposta, e cobre três coisas diferentes: conteúdo misto — `http` pedido de uma página
 `https`, que é o GitHub Pages —, CORS fechado a uma página local, ou o serviço em baixo. A
@@ -1435,19 +1435,19 @@ distinguir antes de pedir**: `conteudoMisto` recusa um `http` numa página `http
 explicação e o caminho — abrir do ficheiro, ou guardar o XML e carregá-lo —, e a mensagem
 de falha diz as três hipóteses e o que fazer com cada uma. A linha de estado do mapa diz o
 mesmo quando o quadrado que falhou era `http` numa página `https`. Não se confirmou daqui
-qual das três é a do dono: a rede recusa tudo. Fica a pergunta feita.
+qual das três é a do posto: a rede recusa tudo. Fica a pergunta feita.
 
 **Números.** 1077 testes, 1 novo; nove portões e o trabalho de navegador verdes.
 
 ## O modo direto: a carta que responde mas não abre o CORS — r0113
 
-O dono fez tudo certo: abriu de `file://`, foi buscar o XML da DGT pela barra do navegador,
+Fez-se tudo certo no posto: abriu-se de `file://`, foi buscar o XML da DGT pela barra do navegador,
 carregou-o, escolheu a Ortos2018-RGB, e o primeiro quadrado — com o endereço KVP certo,
 `…service?SERVICE=WMTS&…&TILEMATRIXSET=PTTM_06&TILEMATRIX=07&TILEROW=28&TILECOL=42` —
 falhou com «falha de rede». **Mediu-se num Chromium daqui, com um servidor local:** de uma
 página `file://`, `fetch` a `http` com `Access-Control-Allow-Origin` passa, sem ele falha
 com «Failed to fetch», e um `<img>` passa sempre. A captura de 31 de agosto prova que o
-GetCapabilities da DGT traz o cabeçalho; nada prova que o GetTile o traga, e o ecrã do dono
+GetCapabilities da DGT traz o cabeçalho; nada prova que o GetTile o traga, e o ecrã do posto
 diz que não. Não é conteúdo misto — `file://` não bloqueia `http` — e não é o serviço em
 baixo, porque o XML veio.
 
@@ -1467,7 +1467,7 @@ direto. Manual com o parágrafo. Um teste no arnês, e a prova no Chromium.
 
 ## O triângulo é a ocorrência, não o posto de comando — r0114
 
-O dono, pela segunda vez: «continuamos a misturar ponto de ocorrência com PCO». A r0106
+Pela segunda vez, a 6 de setembro: «continuamos a misturar ponto de ocorrência com PCO». A r0106
 tirou a sigla do alvo do mapa, mas o triângulo que marca `meta.lat`/`meta.lon` continuava
 rotulado «PCO» no croqui, no mapa e nos dois testes que o afirmavam — desde o primeiro
 croqui. PCO é o posto de comando operacional, art. 13.º do SGO, que se instala onde convém
@@ -1481,7 +1481,7 @@ passam a recusar «PCO» no triângulo; o manual diz a diferença.
 
 ## O FIRMS respondeu, e a aplicação disse-o como erro — r0115
 
-O dono obteve a chave do FIRMS a 6 de setembro e declarou-a na aplicação, de `file://`, com
+A chave do FIRMS obteve-se a 6 de setembro e declarou-se na aplicação, de `file://`, com
 o endereço da área — `…/api/area/csv/CHAVE/VIIRS_SNPP_NRT/{bbox}/1` — e «Obter do serviço»
 respondeu «O ficheiro não tem linhas de dados — só cabeçalho, ou nem isso». **A tarefa 14
 deu um passo que só o posto podia dar:** o pedido chegou, o serviço respondeu com HTTP 200 e
@@ -1495,13 +1495,13 @@ fala de MAP_KEY diz-se que a chave não foi aceite. **A chave não está em lado
 repositório**, e o endereço que a fita e o ecrã mostram leva-a substituída por «…».
 
 O que fica por confirmar da tarefa 14, e depende de haver fogo: um CSV com focos a chegar
-por esse endereço. A forma do endereço está confirmada pelo ecrã do dono.
+por esse endereço. A forma do endereço está confirmada pelo ecrã do posto.
 
 **Números.** 1081 testes, 2 novos; nove portões e o trabalho de navegador verdes.
 
 ## Quem regista, à vista — r0116
 
-O dono: a caixa de quem regista «aparece no fundo da aba» e «é de grande importância para
+Apontado a 6 de setembro: a caixa de quem regista «aparece no fundo da aba» e «é de grande importância para
 toda a informação». É de onde sai o nome de cada ato — a aprovação do PEA, o encerramento,
 a passagem de turno —, e um registo sem nome é rascunho. Duas coisas:
 
@@ -1512,7 +1512,7 @@ a passagem de turno —, e um registo sem nome é rascunho. Duas coisas:
   verde. É botão: carregar leva a Comando, abre o cartão e põe o cursor no posto. Fica
   declarado em `ENC_LIVRES` — ver quem está ao teclado é leitura.
 
-O dono enviou também uma conversa partilhada do Claude para se ver o que dela cabe na
+Chegou também uma conversa partilhada do Claude para se ver o que dela cabe na
 aplicação; o endereço não se lê daqui — a página é uma aplicação que só desenha no
 navegador — e ficou pedido que o texto entre por `entrada/`, como os documentos dos ramos.
 
@@ -1520,7 +1520,7 @@ navegador — e ficou pedido que o texto entre por `entrada/`, como os documento
 
 ## A fita do tempo OP 04 chegou à entrada — 6 de setembro
 
-Vinte ficheiros, de uma conversa do dono com outro Claude fora deste projeto: **a peça que o
+Vinte ficheiros, de uma conversa com outro Claude fora deste projeto: **a peça que o
 kit oficial de Ferramentas do SGO não traz**, a fita do tempo do art. 2.º, n.º 1, al. c),
 construída como «Modelo SGO OP 04» — folha A3, carta de duzentos códigos em quinze famílias,
 manual de preenchimento, briefing para a aplicação seguinte, texto canónico e folha de
@@ -1540,8 +1540,21 @@ opcionais, com degrau. Os duzentos códigos entram como construção declarada, 
 despacho ao lado dos 44 que a têm, e os outros 156 a dizê-lo; a passagem de comando ganha
 bloco próprio com os nove pontos do art. 9.º, n.º 2, conferidos; os dez marcos passam a
 bloco derivado; a folha A3 e o relatório saem da fita. Três revisões propostas, e cinco
-decisões ao dono, entre elas o nome, a taxonomia inteira ou só a com base, e o
+decisões a tomar em conjunto, entre elas o nome, a taxonomia inteira ou só a com base, e o
 «quase-acidente».
+
+## De igual para igual — r0117
+
+A 6 de setembro, ao começar a ler a análise da fita do tempo: «eu não sou dono de nada aqui,
+partilho contigo informação para chegarmos a algum lugar, nada de donos, nem de Você, aqui
+trabalhamos de igual para igual». Tinha razão, e a palavra estava por todo o lado: no ESTADO,
+nos comentários da fonte, nos catálogos, no plano de melhorias, no fluxo da CI. Saiu de todos.
+As decisões passam a dizer-se pela data e pela conversa em que se tomaram; quem usa a aplicação
+é «quem está ao teclado» ou «o posto»; e quem escreve trata quem lê por tu. A regra fica no
+`CLAUDE.md`, em «Como se fala aqui», para valer nas sessões seguintes. Ficou o «dono» técnico
+— o dono de um ramo do estado, que é uma célula e tem lei — e ficaram intactos os registos de
+conversa em `docs/conversas/`, que são transcritos e não se reescrevem. A r0117 é só isto:
+comentários na fonte, sem uma linha de comportamento a mudar, e os 1083 testes a passar.
 
 ## Decisões tomadas
 

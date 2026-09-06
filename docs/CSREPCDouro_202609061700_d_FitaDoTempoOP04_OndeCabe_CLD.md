@@ -1,13 +1,12 @@
 # A fita do tempo OP 04, e onde cabe nesta aplicação
 
-Análise do que chegou a `entrada/` a 6 de setembro de 2026, escrita nesta sessão para o
-dono. Os ficheiros estão em `docs/fita-do-tempo/` e a transcrição da conversa que os
+Análise do que chegou a `entrada/` a 6 de setembro de 2026, escrita nesta sessão. Os ficheiros estão em `docs/fita-do-tempo/` e a transcrição da conversa que os
 produziu em `docs/conversas/`. Nada do que aqui se propõe está feito: é o que se propõe
-fazer, por onde, e o que fica ao dono decidir.
+fazer, por onde, e o que fica por decidir em conjunto.
 
 ## 1. O que chegou
 
-Uma conversa do dono com outro Claude, fora deste projeto, construiu **a peça que o kit
+Uma conversa com outro Claude, fora deste projeto, construiu **a peça que o kit
 oficial de Ferramentas do SGO não traz**. O Despacho n.º 4067/2024 define a fita do tempo no
 art. 2.º, n.º 1, al. c) — «o registo temporal explícito e completo das decisões, ações e
 informações operacionais associadas a uma ocorrência e com relevância para a compreensão da
@@ -15,7 +14,7 @@ mesma» — e manda a Célula de Operações garantir o seu registo e permanente
 17.º, n.º 1, al. g). Os dois artigos estão conferidos no despacho em `docs/fontes/`, e são
 exatamente os que esta aplicação já cita no cartão «Fita do tempo». O kit não tem modelo para
 ela; a conversa fez um e chamou-lhe «Modelo SGO OP 04», por o número estar livre e a fita ser
-da Célula de Operações. A designação é do dono, não da ANEPC.
+da Célula de Operações. A designação foi atribuída na conversa, não pela ANEPC.
 
 Sete peças: a folha A3 frente e verso, a carta de códigos em A4 e em A5, o manual de
 preenchimento com um exemplo de Fase II, o briefing para a aplicação seguinte, o texto
@@ -34,8 +33,7 @@ registo reconstituído a posteriori, vale mais do que uma cronologia falsamente 
 O que a conversa deixou por fazer, e pesa: **o teste do papel** — dar a folha a um operador
 alheio ao projeto e ver onde pára — não foi feito, e a própria conversa diz que não vale a
 pena programar um esquema que ainda não passou nele. E a folha de verificação está por
-preencher: 17 siglas de conhecimento do modelo e 156 códigos sem base no despacho esperam o
-dono.
+preencher: 17 siglas de conhecimento do modelo e 156 códigos sem base no despacho esperam quem os verifique.
 
 ## 2. O que a Estação já tem
 
@@ -85,7 +83,7 @@ linha, cinco segundos» — o briefing tem razão em que é isto que faz ou desf
 degrau de estado, com migração a dar aos registos existentes os campos vazios. Célula:
 Operações, `4-operacoes/`, ao lado do módulo da evolução.
 
-**A retificação é um registo novo.** A regra que a conversa impõe e que o dono já pediu a
+**A retificação é um registo novo.** A regra que a conversa impõe e que já se pediu a
 esta aplicação noutras palavras — não descartar informação. Um registo com o código de
 retificação e a referência ao errado; o errado fica. O mesmo para o registo reconstituído a
 posteriori, que cobre um intervalo e diz a fonte. A aplicação não precisa de aprender nada:
@@ -163,7 +161,7 @@ usa, e pela mesma razão: prática corrente sem forma abreviada no despacho. Fic
 `FONTES.md` que são abreviaturas de conceitos que o despacho escreve por extenso, e não
 siglas dele.
 
-**O «quase-acidente» (SG14) entra por decisão do dono, ou não entra.** Sem base doutrinária,
+**O «quase-acidente» (SG14) entra por decisão nossa, ou não entra.** Sem base doutrinária,
 como a conversa confessa; é a única marca de segurança que o sistema regista sem que
 ninguém tenha de admitir nada, e é por isso que vale. Mas é decisão, não norma.
 
@@ -185,12 +183,12 @@ Três revisões, cada uma com os seus testes e a sua nota no manual, por ordem d
 3. **O papel e o relatório.** A folha A3 impressa a partir da fita; o relatório da ocorrência
    por secções a partir dos códigos, no encerramento.
 
-## 6. O que fica ao dono
+## 6. O que fica por decidir em conjunto
 
 1. **O nome.** Confirmar a troca: «Diário da aplicação» para o registo técnico, «Fita do
    tempo» para o registo de evolução.
 2. **A taxonomia.** Entram os duzentos códigos do texto canónico, ou só os 44 com base no
-   despacho e os que o dono confirmar na folha de verificação? A proposta é entrarem todos,
+   despacho e os que a folha de verificação confirmar? A proposta é entrarem todos,
    ditos como construção, e a folha de verificação decidir o que sai depois.
 3. **O quase-acidente** (SG14): entra ou não.
 4. **As siglas de nível 3.** CSREPC como abreviatura, que é o que esta aplicação já faz, ou

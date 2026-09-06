@@ -223,8 +223,8 @@ function croquiSVG(larg, alt){
   });
 
   /* O triângulo é o **ponto da ocorrência** — a coordenada de `meta.lat`/`meta.lon`, onde o
-     incêndio começou — e não o posto de comando. Dizia «PCO» desde o primeiro croqui, e o
-     dono apontou-o duas vezes: PCO é o posto de comando operacional, art. 13.º, que se
+     incêndio começou — e não o posto de comando. Dizia «PCO» desde o primeiro croqui, e
+     apontou-se duas vezes: PCO é o posto de comando operacional, art. 13.º, que se
      instala onde convém ao comando e não onde o fogo pegou. O posto marca-se como ponto
      notável, com o seu tipo. */
   if(temPonto){

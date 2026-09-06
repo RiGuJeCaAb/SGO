@@ -17,7 +17,7 @@
    para o meio reencaminhado a meio da marcha: 7.d.(14)(d), «a hora a que o mesmo chega ao
    seu destino final», e 9.d.(6), «hora em que o veículo chega ao seu local de
    estacionamento/quartel ou encerra a sua participação na ocorrência». **Grava-se a de
-   9.d.(6)**, por decisão do dono a 5 de setembro: é o registo que a DON manda ao CSREPC, e
+   9.d.(6)**, por decisão de 5 de setembro: é o registo que a DON manda ao CSREPC, e
    é o CSREPC quem usa isto. A hora de saída do TO é a que o pedido de rendição indica,
    7.e.(5)(r). As duas ficam na unidade, na evolução e na fita — e a evolução e a fita
    sobrevivem à desmobilização da unidade, para que a decisão se possa estudar depois. */

@@ -585,7 +585,7 @@ test('a carga diz o que leu quando recusa tudo', semAplicacao, async () => {
 /* ---- a vista é de quem a pôs — r0109 ---- */
 
 test('aproximar, afastar e arrastar sobrevivem à pintura seguinte, e ao repintar do cartão', semAplicacao, async () => {
-  /* O dono carregou a carta, carregou em «Aproximar» e nada: `pintarMapa` e o cartão
+  /* Carregou-se a carta, carregou-se em «Aproximar» e nada: `pintarMapa` e o cartão
      chamavam `enquadrarMapa` a cada pintura e desfaziam o zoom e o arrasto. Desde que o
      enquadramento nasceu. */
   comTeatro();

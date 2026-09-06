@@ -23,7 +23,7 @@ da DON n.º 2 («rotatividade de funções a cada 12 horas»), o 7.e.(4) («até
 o alerta»), e as duas definições da hora de entrada na Entidade, 7.d.(14)(d) e 9.d.(6), que
 não coincidem para o meio reencaminhado a meio da marcha. **Grava-se a de 9.d.(6)** — «hora em
 que o veículo chega ao seu local de estacionamento/quartel ou encerra a sua participação na
-ocorrência» —, por decisão do dono a 5 de setembro: é o registo que a DON manda ao CSREPC.
+ocorrência» —, por decisão de 5 de setembro, tomada em conjunto: é o registo que a DON manda ao CSREPC.
 Ver `ESTADO.md`, r0105.
 
 ### `SGO4067`

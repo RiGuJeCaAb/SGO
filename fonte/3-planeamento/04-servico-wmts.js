@@ -442,7 +442,7 @@ function kvpFundido(base, pars, extra){
 /**
  * Um pedido a `http://` de uma página servida por `https://` é conteúdo misto: o navegador
  * recusa-o antes de o pedir, e o que se vê é «Failed to fetch», que não diz nada. A DGT só
- * existe em `http`, e o GitHub Pages só serve em `https`; foi assim que o dono ficou dois
+ * existe em `http`, e o GitHub Pages só serve em `https`; foi assim que o posto ficou dois
  * dias sem carta. Pergunta-se antes de pedir, com o protocolo por argumento para o arnês,
  * que abre de `file://`, poder afirmar os dois casos.
  *

@@ -37,7 +37,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608312145_d_CompositoVentoDeclive_CLD.md` | A composição vetorial de vento e declive, desenvolvida por escrito. É o documento que sustenta o que `betaFogo` faz |
 | `CSREPCDouro_202609010900_d_PontoSituacao31AGO26_CLD.md` | **O ponto de situação da linhagem paralela** sobre a sessão de 31 de agosto: o que entregaram, o que absorvemos, os defeitos que deixaram abertos e a ordem que propõem. É o documento a ler antes de retomar |
 | `CSREPCDouro_202608311242_d_RelatorioFontesInternacionais_CLD.md` | **Continuação do anterior**: que fonte internacional dá o que nenhuma nacional dá. Conclui que é imagem fresca e deteção de fogo ativo, seleciona o NASA GIBS e acrescenta cinco requisitos ao interpretador. Traz a distinção que desbloqueia o impasse do sistema de coordenadas: **os focos de calor são pontos, não mosaicos**, e um ponto reprojeta-se |
-| `CSREPCDouro_202609061700_d_FitaDoTempoOP04_OndeCabe_CLD.md` | **A fita do tempo OP 04, e onde cabe nesta aplicação**: o que chegou a 6 de setembro, o que a Estação já tem, a correspondência peça a peça, o que não entra e porquê, e a ordem proposta em três revisões, com as decisões que ficam ao dono |
+| `CSREPCDouro_202609061700_d_FitaDoTempoOP04_OndeCabe_CLD.md` | **A fita do tempo OP 04, e onde cabe nesta aplicação**: o que chegou a 6 de setembro, o que a Estação já tem, a correspondência peça a peça, o que não entra e porquê, e a ordem proposta em três revisões, com as decisões que ficam por tomar em conjunto |
 | `CSREPCDouro_202609050220_d_PlanoDeMelhoriasFrontendEBackend_CLD.md` | **A revisão completa da r0097 e o plano que dela sai**: duas varreduras da fonte cruzadas com capturas e medições, dezoito achados altos conferidos um a um, catorze pacotes de trabalho com critério de aceitação, a ordem proposta e um recado pronto a colar para cada ramo. É o documento a ler antes de mexer no frontend ou no backend |
 
 ## `interop/` — a ligação à Gestão PCO
@@ -80,7 +80,7 @@ operacional tem de conseguir dizer, e a leitura do que ainda lhe falta está em
 
 ## `fita-do-tempo/` — a peça que falta no kit
 
-O que chegou a 6 de setembro de 2026 de uma conversa do dono fora deste projeto: a fita do
+O que chegou a 6 de setembro de 2026 de uma conversa com outro Claude fora deste projeto: a fita do
 tempo do Despacho n.º 4067/2024, que o kit oficial de Ferramentas não traz, construída como
 «Modelo SGO OP 04» — folha A3, carta de duzentos códigos, manual, briefing e folha de
 verificação de siglas. Não é doutrina; o `LEIAME.md` da pasta diz o que cada peça é, e a
@@ -130,6 +130,6 @@ instantâneos contra a revisão que dizem; o que deles entrou na aplicação est
 | `003_CSREPCDouro_202609050900_d0007_DistanciasEByram_r0093_CLD.md` | Qual distância para cada uso, e a citação de Byram: a constante escondida no `/2`, a altura contra o comprimento da chama, o que está por confirmar na fonte. Integrado na r0103 |
 | `004_CSREPCDouro_202609041930_d_ChaveMosaicos_CLD.md` | A chave dos mosaicos sem a carta, demonstrada com bytes, e as três consequências da correção. Integrado na r0099 e na r0103 |
 | `005_CSREPCDouro_202609051034_d_MedicoesCatchCI_CLD.md` | As cinco medições de memória das folhas, os 103 `catch` vazios classificados por consequência, e o trabalho de CI com navegador. Integrado na r0103 |
-| `006_CSREPCDouro_202609051107_d02_GravidadesDoSinalEInstantesDePrazo_CLD.md` | As palavras da norma para as gravidades do sinal, e os seis instantes de prazo com o seu t=0. Cinco decisões para o dono no fim |
-| `CSREPCDouro_202609051745_RelacaoDeMeiosPrePreenchida_CLD.png` | Uma captura do dono com uma ideia por pensar: uma relação de meios pré-preenchida. Não é pedido ainda; fica para se voltar a olhar |
+| `006_CSREPCDouro_202609051107_d02_GravidadesDoSinalEInstantesDePrazo_CLD.md` | As palavras da norma para as gravidades do sinal, e os seis instantes de prazo com o seu t=0. Cinco decisões a tomar em conjunto no fim |
+| `CSREPCDouro_202609051745_RelacaoDeMeiosPrePreenchida_CLD.png` | Uma captura de ecrã com uma ideia por pensar: uma relação de meios pré-preenchida. Não é pedido ainda; fica para se voltar a olhar |
 | `CSREPCDouro_202609051745_PrevisualizacaoDoRepositorio_CLD.png` | O modelo da imagem de pré-visualização do repositório no GitHub, tal como chegou à entrada |

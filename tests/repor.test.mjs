@@ -1,5 +1,5 @@
 // Quando algo não funciona: limpar a carta e o mapa, ou repor o dispositivo inteiro.
-// Pedido pelo dono a 6 de setembro, ao fim de dois dias com uma carta que não vinha.
+// Pedido a 6 de setembro, ao fim de dois dias com uma carta que não vinha.
 
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';

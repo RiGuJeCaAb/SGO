@@ -16,7 +16,7 @@
    reação imediata» do PEA; o art. 23.º, n.º 1, al. a), «as ações de interdição ou de
    condicionamento à circulação de vias de tráfego», que são dois graus e não um. As três
    gravidades abaixo são a arrumação desse léxico pela consequência para quem lá vai, e são
-   construção do ramo #006 (d02) adotada por decisão do dono a 5 de setembro. As citações
+   construção do ramo #006 (d02) adotada por decisão de 5 de setembro. As citações
    foram conferidas no texto do despacho e da DON n.º 2 (Anexo 3, situações 3 e 17). */
 
 /**
@@ -26,7 +26,7 @@
  * gravidade 1 alerta sempre: uma zona de segurança no caminho da frente deixa de ser zona
  * de segurança, e é a anotação mais decisiva que há numa carta de incêndio — o E e o S do
  * LACES, e a situação n.º 17 do Anexo 3 da DON n.º 2. Os acessos ficam na 2: a fronteira
- * entre acesso e percurso de fuga é doutrina, e o dono confirmou-a.
+ * entre acesso e percurso de fuga é doutrina, confirmada a 5 de setembro.
  */
 const TIPOS_NOTA = [
   { k:"ameaca", n:"Ameaça, ponto crítico ou segurança",

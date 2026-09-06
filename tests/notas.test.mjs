@@ -31,7 +31,7 @@ test('as espécies de nota não se apresentam como doutrina', semAplicacao, () =
      que alguém escreve na margem de uma carta, e a aplicação não finge que sim: nenhuma
      destas espécies cita artigo nenhum. */
   const T = avaliar(janela, 'TIPOS_NOTA');
-  /* Três desde a r0105: ameaça, acesso, reconhecimento — os títulos do #006, por decisão do dono. */
+  /* Três desde a r0105: ameaça, acesso, reconhecimento — os títulos do #006, por decisão de 5 de setembro. */
   assert.equal(T.length, 3);
   T.forEach((t) => {
     assert.ok(t.n && t.d, t.k);
@@ -41,7 +41,7 @@ test('as espécies de nota não se apresentam como doutrina', semAplicacao, () =
   /* Só o aviso tem consequência para quem lá vai, e é por isso que se distingue. */
   assert.equal(T.find((t) => t.k === 'ameaca').alerta, true, 'o E e o S do LACES no caminho da frente não passam em silêncio');
   assert.equal(T.find((t) => t.k === 'reconhecimento').alerta, false);
-  assert.equal(T.find((t) => t.k === 'acesso').alerta, false, 'os acessos ficam na gravidade 2: é doutrina, e o dono confirmou-a');
+  assert.equal(T.find((t) => t.k === 'acesso').alerta, false, 'os acessos ficam na gravidade 2: é doutrina, confirmada a 5 de setembro');
 });
 
 test('uma espécie desconhecida cai em observação', semAplicacao, () => {
@@ -190,7 +190,7 @@ test('as notas viajam na exportação', semAplicacao, () => {
 /* ---- o clique sem alvo — r0107 ---- */
 
 test('com a lista em «não marca nada», o clique diz-o em vez de se calar', semAplicacao, () => {
-  /* O dono carregou um perímetro do geojson.io, clicou na carta e não aconteceu nada, e
+  /* Carregou-se um perímetro do geojson.io, clicou-se na carta e não aconteceu nada, e
      perguntou o que estava a fazer mal. Nada: a lista estava na opção vazia, e a aplicação
      não o dizia. */
   comTeatro();

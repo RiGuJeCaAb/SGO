@@ -305,7 +305,7 @@ function gDeGrelha(G, E, N){
 const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", pronto:false, falhas:0, recusados:0,
   /* Enquadrou-se, e para que ocorrência. **Enquadra-se uma vez**, e não a cada pintura: até à
      r0108 `pintarMapa` e o cartão chamavam `enquadrarMapa` sempre, e o zoom e o arrasto eram
-     desfeitos na pintura seguinte — «os botões deixaram de funcionar», disse o dono, e
+     desfeitos na pintura seguinte — «os botões deixaram de funcionar», disse-se a 6 de setembro, e
      tinha razão desde que o enquadramento nasceu. Muda-se de carta ou de ocorrência, volta
      a enquadrar; de resto a vista é de quem a pôs. */
   enquadrado:false, ocorrencia:"",
@@ -1043,7 +1043,7 @@ async function pintarMapa(){
      to fetch» e nada mais — não se consegue ler como bytes de uma página `file://`, mas
      desenha-se num `<img>`, que não pede autorização. Medido num Chromium a 6 de setembro:
      de `file://`, `fetch` a `http` sem cabeçalho falha, com cabeçalho passa, e a imagem
-     passa sempre. Foi isto que deixou o dono sem a carta da DGT com o endereço certo. O que
+     passa sempre. Foi isto que deixou o posto sem a carta da DGT com o endereço certo. O que
      se perde e se diz: o quadrado não fica guardado para trabalhar sem rede, e não se
      confere se veio carta ou a mesma recusa repetida. Só quando a falha foi de rede — uma
      recusa com código, ou o prazo, seriam a mesma coisa pela imagem. */
@@ -1143,7 +1143,7 @@ function pintarAlvos(){
   const antes = sel.value;
   sel.innerHTML = '<option value="">— clicar no mapa não marca nada —</option>'
     /* Sem «(PCO)»: PCO é o posto de comando operacional, e este alvo é o ponto da
-       ocorrência — a coordenada de `meta.lat`/`meta.lon`. Apontado pelo dono na r0105. */
+       ocorrência — a coordenada de `meta.lat`/`meta.lon`. Apontado na r0105. */
     + '<option value="occ">Ponto da ocorrência</option>'
     + (e.setores||[]).map((s,i)=>'<option value="s:'+i+'">Setor '+esc(NOMES_SETOR[i])+(s.lat? " (já marcado)":"")+'</option>').join("")
     + (e.setores||[]).map((s,i)=>'<option value="L:'+i+'">Limite do setor '+esc(NOMES_SETOR[i])
@@ -1319,7 +1319,7 @@ function pintarPontos(){
 function cliqueNoMapa(px, py){
   const alvo = ($("mapa-alvo")||{}).value || "";
   /* Sem alvo o clique não marca nada, de propósito: um toque acidental não pousa um ponto.
-     Mas calar-se era deixar quem clica a pensar que a carta não responde — foi o que o dono
+     Mas calar-se era deixar quem clica a pensar que a carta não responde — foi o que se
      viu na r0106, com um perímetro carregado e a lista ainda na opção vazia. Diz-se. */
   if(!alvo){ aviso("mapa-msg","av","O clique não marcou nada: escolher primeiro, em «Clicar no mapa marca», o que o clique faz. Arrastar desloca a carta."); return; }
   const z = MAPA.z, ox = MAPA.cx - MAPA.larg/2, oy = MAPA.cy - MAPA.alt/2;

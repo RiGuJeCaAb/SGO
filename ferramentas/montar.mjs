@@ -18,7 +18,7 @@ const MOLDE = 'fonte/molde.html';
 const MARCA = '@MODULOS@';
 /* A cópia da raiz que o GitHub serve. Exportado para o teste ler o mesmo nome que a
    montagem escreve: foi a divergência entre os dois — a montagem a escrever `index.html`
-   e o dono a apagá-lo do `main` — que deixou a CI vermelha a 4 de setembro. */
+   e o ficheiro a ser apagado do `main` — que deixou a CI vermelha a 4 de setembro. */
 export const SERVIDO = 'home.html';
 
 /**
@@ -119,7 +119,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
      a r0083 saiu, e ninguém dava por isso porque nada a confere. Passa a ser reescrita por
      cada montagem — nunca se edita, e nunca fica atrás da entrega mais recente. Só quando
      a entrega vai para `app/`: uma montagem de trabalho com `--saida` não mexe no que
-     está publicado. Chama-se `home.html` porque o dono do repositório apagou o
+     está publicado. Chama-se `home.html` porque se apagou do repositório o
      `index.html` do `main` a 4 de setembro e carregou este no lugar dele: a decisão de
      nome é dele, e a montagem segue-a em vez de ressuscitar o ficheiro apagado. */
   if (saida === join('app', ficheiro)) await writeFile(SERVIDO, html, 'utf8');

@@ -86,7 +86,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # O `index.html` de reencaminhamento existe só aqui, no que se publica, e não no
-      # repositório: o dono apagou o `index.html` da raiz a 4 de setembro e a montagem
+      # repositório: o `index.html` da raiz foi apagado a 4 de setembro e a montagem
       # escreve `home.html`. Sem ele, o endereço da raiz dava 404 em vez de abrir a Estação.
       - name: Reunir o que se publica
         run: |

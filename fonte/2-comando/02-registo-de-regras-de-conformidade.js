@@ -537,7 +537,7 @@ const REGRAS_DON = [
 /* Contexto comum às regras: calculado uma vez, passado a todas. */
 function contextoDON(ts){
   const instante = (ts==null? agora() : ts);
-  /* `meta.inicio` é a hora de alerta — decisão do dono a 5 de setembro, depois de o #006
+  /* `meta.inicio` é a hora de alerta — decisão de 5 de setembro, depois de o #006
      mostrar que o registo obrigatório da DON (9.d) começa no despacho e as regras dos 90 e
      dos 2 minutos começam no alerta: «até aos 90 minutos após o alerta», DON n.º 2, 7.e.(4).
      É esse o t=0 de tudo o que aqui conta a partir do início. */

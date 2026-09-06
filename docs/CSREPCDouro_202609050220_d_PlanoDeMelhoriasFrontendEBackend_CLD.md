@@ -9,7 +9,7 @@ Duas varreduras independentes da fonte — uma ao frontend (molde, CSS, controlo
 acessibilidade, repintura, responsividade, tipografia), outra ao que não é ecrã (estado,
 erros, tempo, rede, persistência, importação, cálculo, duplicação, acoplamento, ferramentas
 e CI) — cruzadas com capturas dos cinco separadores nos dois temas a 1440 e 768 px, com
-medições de contraste no ecrã real, e com a captura que o dono enviou do cartão dos focos de
+medições de contraste no ecrã real, e com a captura enviada a 5 de setembro do cartão dos focos de
 calor.
 
 **Cada achado de severidade alta foi conferido na fonte antes de entrar aqui**, pela regra da
@@ -17,7 +17,7 @@ casa: a verificação passa pela fonte e não pela palavra de quem a leu. Dezoit
 conferidos, dezoito confirmados. Os médios e baixos vêm dos relatórios tal como estão, e
 quem os for fazer confere-os primeiro.
 
-O que a captura do dono mostra tem causa na fonte: a `.row` centra verticalmente
+O que a captura de 5 de setembro mostra tem causa na fonte: a `.row` centra verticalmente
 (`align-items:center`, `molde.html:434`) mas o `.xtr` empilha o rótulo «Do ficheiro» sobre o
 campo, e o botão «Retirar os focos do mapa» centra-se na pilha em vez de alinhar com o
 campo; e o `<input type="file">` não tem uma única regra `::file-selector-button` em todo o
@@ -174,7 +174,7 @@ larguras inline a `flex:1 1 base`.
 
 **Quem.** Sessão principal. **#005** mede a 380/480/768 nos dois temas.
 
-### F7 — Tipos de letra: uma decisão do dono
+### F7 — Tipos de letra: uma decisão a tomar em conjunto
 
 **O que está.** `--disp` é `'Barlow Semi Condensed','Inter',sans-serif` e `--body` é
 `'Inter',system-ui,sans-serif`, **e nenhuma das três existe no ficheiro**: zero
@@ -186,7 +186,7 @@ impresso já resolveu o seu caso com o Carlito; o ecrã não.
 entrega de 1,1 MB — ou redesenhar as larguras assumindo o recurso genérico. As duas são
 legítimas; a primeira mantém o desenho, a segunda mantém o tamanho.
 
-**Quem.** O dono decide. **#005** mede as larguras do cabeçalho e dos separadores com e sem
+**Quem.** Decide-se em conversa. **#005** mede as larguras do cabeçalho e dos separadores com e sem
 as famílias, em Chromium com perfil vazio, para a decisão ter números.
 
 ---
@@ -340,7 +340,7 @@ trabalho de CI, que é infraestrutura de medição.
 
 ## Ordem proposta
 
-A ordem pesa três coisas: o que o dono pediu primeiro — reparações visuais —, o que perde
+A ordem pesa três coisas: o que se pediu primeiro, a 5 de setembro — reparações visuais —, o que perde
 dados ou mente, e o que desbloqueia o resto.
 
 1. **r0098 — o que se vê.** F2 (campos de ficheiro, alinhamento, alturas), o `#pr-saida`
@@ -350,7 +350,7 @@ dados ou mente, e o que desbloqueia o resto.
 3. **r0100 — acessibilidade e pintura.** O resto de F3, F4, F6.
 4. **r0101 — estado e tempo.** B2, B5.
 5. **r0102 — arrumação.** F5, o resto de B4, B7.
-6. **Quando o dono decidir:** F7.
+6. **Quando se decidir:** F7.
 
 Cada revisão leva os testes dos ramos que a cobrem, as capturas em `docs/qa/` nos dois
 temas, e a linha no `MANUAL.md` do que mudou para quem usa.
@@ -390,7 +390,7 @@ da colocação em Mercator.
 temas: contraste de todo o texto sobre o fundo efetivo, com o alfa das tintas resolvido —
 a minha medição dava 1,00 nos distintivos e é a medição que está errada; alturas de todos
 os controlos e alvos de toque abaixo de 24 px; axe nível A e AA; largura do cabeçalho e dos
-separadores com e sem Barlow e Inter instaladas, para o dono decidir se se embutem; e o
+separadores com e sem Barlow e Inter instaladas, para se decidir se se embutem; e o
 `innerHTML` por tecla em `o-inicio`. Mais dois: a classificação dos 104 `catch` vazios, com
 a razão de cada um que deve ficar; e o trabalho de CI com Chromium para as três provas.
 

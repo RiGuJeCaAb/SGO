@@ -289,7 +289,7 @@ function pintarSessao(){
   }
   const bL = $("id-largar"); if(bL) bL.style.display = haSessao()? "" : "none";
   const bA = $("id-assumir"); if(bA) bA.textContent = haSessao()? "Atualizar" : "Assumir o teclado";
-  /* O cabeçalho diz quem está ao teclado, em qualquer separador. O dono, a 6 de setembro:
+  /* O cabeçalho diz quem está ao teclado, em qualquer separador. Apontado a 6 de setembro:
      a caixa «de quem regista» estava no fundo do separador, e é de onde sai o nome de cada
      ato. Passou para o topo de Comando, e para aqui, que se vê sempre. */
   const q = $("quem-tag");

@@ -100,7 +100,7 @@ interface Setor {
  * A rendição de uma unidade: o pedido ao CSREPC e, desde a r0107, o fim do empenhamento.
  * `saida` é a hora de saída do TO (DON n.º 2, 7.e.(5)(r)); `chegada` é a hora de entrada
  * na Entidade pela definição de 9.d.(6) — o local de estacionamento ou quartel, ou o fim
- * da participação na ocorrência —, por decisão do dono a 5 de setembro de 2026. GDH, ou
+ * da participação na ocorrência —, por decisão de 5 de setembro de 2026. GDH, ou
  * vazio enquanto não se souber.
  */
 interface RendicaoUnidade {

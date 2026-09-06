@@ -281,7 +281,7 @@ abas `file://`, que o trinco atravessa, e que quem o perde fica a saber.
 `CSREPCDouro_qa0034_202609051140_CabecalhoETokensTemaClaro_CLD.png`
 `CSREPCDouro_qa0034_202609051140_CabecalhoETokensTemaEscuro_CLD.png`
 
-O «antes» é a captura que o dono enviou a 5 de setembro: o botão «Retirar os focos do mapa»
+O «antes» é a captura que chegou a 5 de setembro: o botão «Retirar os focos do mapa»
 centrado na pilha rótulo-mais-campo em vez de alinhado ao campo, e o campo de ficheiro com o
 botão do sistema operativo dentro da caixa do tema.
 
@@ -307,7 +307,7 @@ quando o cabeçalho some e que o leitor de ecrã lê sempre.
 `CSREPCDouro_qa0036_202609051745_FaixaDeLeituraAlinhadaTemaClaro_CLD.png`
 `CSREPCDouro_qa0036_202609051745_FaixaDeLeituraAlinhadaTemaEscuro_CLD.png`
 
-A 1440 px, com a aba em leitura. A captura que o dono mandou na r0100 tinha o botão «Assumir
+A 1440 px, com a aba em leitura. A captura que chegou na r0100 tinha o botão «Assumir
 a escrita» colado ao fim do texto, com o resto da faixa vazio, e a faixa mais larga do que o
 cartão de baixo em vinte pixéis de cada lado. A causa do botão era `entrarEmLeitura` a mostrar
 a faixa com `display:block` em linha, por cima do `display:flex` da folha de estilos. Agora a
@@ -334,7 +334,7 @@ cinco notas escritas por `escreverNota`: três da gravidade 1 a vermelho, uma co
 «Interdição» e outra com «Condicionamento» à cabeça do texto e uma zona de segurança sem
 grau; uma de «Acesso e circulação» a azul; uma de «Reconhecimento» a cinzento. A lista
 «Clicar no mapa marca» está em «Nota — Ameaça, ponto crítico ou segurança · Interdição à
-circulação», que é um dos dois alvos próprios dos graus, decisão do dono na r0105. Ficou por
+circulação», que é um dos dois alvos próprios dos graus, decisão de 5 de setembro, na r0105. Ficou por
 capturar na r0105 e na r0106; entra na r0107.
 
 ## qa0039 — «Quem regista» no topo de Comando, e quem está ao teclado no cabeçalho, nos dois temas
@@ -346,5 +346,5 @@ capturar na r0105 e na r0106; entra na r0107.
 
 A 1440 px. Antes de alguém se declarar, o cabeçalho diz «Ninguém ao teclado» em cor de
 aviso e o primeiro cartão de Comando é «Quem regista»; depois de «Assumir o teclado», a
-etiqueta passa a verde com o nome e o perfil. O dono apontou na r0115 que a caixa estava no
+etiqueta passa a verde com o nome e o perfil. Apontou-se na r0115 que a caixa estava no
 fundo do separador.
