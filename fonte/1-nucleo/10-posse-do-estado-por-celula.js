@@ -51,8 +51,8 @@ const POSSE = [
       { p:"dados.frentes",     r:"art. 17.º, n.º 1, als. a) e b)", d:"Frentes de fogo traçadas, com a direção em que progridem" },
       { p:"dados.linhas",      r:"art. 17.º, n.º 1, als. a) e b)", d:"Linhas de contenção e de apoio traçadas, com a largura útil" },
       { p:"dados.notas",       r:"art. 17.º, n.º 1, als. a) e g)", d:"Notas de manobra escritas no mapa, na coordenada a que dizem respeito" },
-      { p:"evolucao",          r:"art. 17.º, n.º 1, al. a); DON 2, 7.e.(4)(o)", d:"Evolução da situação e pontos de situação" },
-      { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Fita do tempo" }
+      { p:"evolucao",          r:"art. 2.º, n.º 1, al. c); art. 17.º, n.º 1, al. g); DON 2, 7.e.(4)(o)", d:"Fita do tempo: decisões, ações e informações operacionais, com os pontos de situação" },
+      { p:"fita",              r:"art. 17.º, n.º 1, al. g)", d:"Diário da aplicação: o registo técnico do que a aplicação fez, que sustenta a fita" }
     ] },
   { k:"logistica", n:"Logística e Finanças", r:"Despacho n.º 4067/2024, arts. 31.º a 35.º",
     nota:"Garante a sustentação logística do teatro de operações.",

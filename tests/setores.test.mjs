@@ -65,7 +65,7 @@ test('o traçado a meio não é facto: não entra no estado nem na evolução', 
   assert.equal(avaliar(janela, 'TRACO').setor, -1);
 });
 
-test('fechar grava o limite, a área e a linha de evolução', semAplicacao, () => {
+test('fechar grava o limite, a área e a fita do tempo', semAplicacao, () => {
   const O = comSetores(2);
   janela.iniciarTraco(0, 'limite');
   ALFA.slice(0, 4).forEach(([lo, la]) => janela.pontoDoTraco(la, lo));

@@ -3,7 +3,7 @@
 // O que a revisão mediu: os 31 <h2> com role="button" — um só cabeçalho para um leitor de
 // ecrã; 16 controlos sem nome e até 42 campos gerados por setor sem rótulo; 144 notas de
 // ajuda sem aria-describedby; nenhuma mensagem anunciada; a gravidade dos avisos só na
-// cor; uma repintura completa por tecla; a fita do tempo regenerada inteira a cada
+// cor; uma repintura completa por tecla; o diário da aplicação regenerado inteiro a cada
 // passagem; o cartão do PEA em vigor a destruir o foco de 30 em 30 segundos.
 //
 // E uma coisa que o relatório dizia e não era: os 160 botões de frases na ordem de
@@ -121,7 +121,7 @@ test('escrever seguido no GDH de início só repinta uma vez', semAplicacao, asy
   }
 });
 
-test('a fita do tempo acrescenta a linha nova sem reconstruir as antigas', semAplicacao, () => {
+test('o diário da aplicação acrescenta a linha nova sem reconstruir as antigas', semAplicacao, () => {
   av('O.fita = [{g:"010000SET26", e:"um"}, {g:"010100SET26", e:"dois"}]; pintarTudo();');
   const antes = av('$("fita").rows.length');
   av('window.__linha = $("fita").rows[2];');           // a mais antiga, «um»

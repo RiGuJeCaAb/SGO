@@ -767,7 +767,7 @@
   .pea-li .info b{font-size:15px}.pea-li .info p{font-size:13px;color:var(--tx2)}
   .pea-li .modo{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--tx3)}
 
-  /* fita do tempo */
+  /* diário da aplicação */
   .fita td{padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
   .fita td:first-child{font-family:var(--mono);font-size:11.5px;color:var(--tx3);white-space:nowrap}
   table{width:100%;border-collapse:collapse}
@@ -1190,7 +1190,7 @@
       </ul>
       <p><b>Como ler os avisos de conformidade:</b></p>
       <ul>
-        <li><b>Origem</b> — cada caixa nasce de uma regra determinística aplicada ao que está registado na app: o relógio da ocorrência, o dispositivo e os registos de evolução, ambos em Operações. Nada aqui é opinião do modelo.</li>
+        <li><b>Origem</b> — cada caixa nasce de uma regra determinística aplicada ao que está registado na app: o relógio da ocorrência, o dispositivo e os registos da fita do tempo, ambos em Operações. Nada aqui é opinião do modelo.</li>
         <li><b>Estrutura</b> — cada caixa diz o que a app mediu (situação), o que a norma exige (fundamento) e o que compete ao COS fazer (determinação), terminando na referência exata do ponto da DON ou do Despacho.</li>
         <li><b>Níveis</b> — vermelho é obrigação legal em incumprimento; amarelo é antecipação, algo que está prestes a tornar-se exigível; verde é conformidade confirmada, que fica registada para efeitos de prova.</li>
         <li><b>Emissão</b> — as obrigações em incumprimento no momento da emissão ficam impressas no PEA, em quadro próprio antes das missões.</li>
@@ -1223,13 +1223,13 @@
         <li><b>Verificação de conformidade</b> — EM FALTA (vermelho) impede a emissão; RECOMENDADO (ocre) não impede mas melhora; o botão Preencher leva ao campo certo.</li>
         <li><b>Emissão</b> — junta identificação, dispositivo, evolução desde o PEA anterior e a análise meteorológica; sem ligação ao modelo, sai a versão determinística com os mesmos números.</li>
         <li><b>PEA em vigor</b> — o plano determinado não é um documento fechado: tem relógio de validade, mede a divergência entre o que foi planeado e o que o terreno mostra, e pede revisão quando essa divergência o justifica.</li>
-        <li><b>Controlo das missões</b> — cada missão e cada proposta do PEA em vigor tem estado. O que se marca aqui entra na fita do tempo e alimenta a situação da proposta seguinte.</li>
+        <li><b>Controlo das missões</b> — cada missão e cada proposta do PEA em vigor tem estado. O que se marca aqui entra no diário da aplicação e alimenta a situação da proposta seguinte.</li>
         <li><b>Histórico</b> — cada proposta fica numerada, com o PEA que substitui, pronta a imprimir para assinatura do COS.</li>
         <li><b>Ao imprimir</b> — desativar os cabeçalhos e rodapés do browser e ativar os gráficos de fundo.</li>
       </ul></div>
   </section>
   <section class="pane" id="p-operacoes">
-    <div class="help" data-ajuda="operacoes"><span class="help-ht">Operações — dispositivo, evolução e fita do tempo</span>
+    <div class="help" data-ajuda="operacoes"><span class="help-ht">Operações — dispositivo e fita do tempo</span>
       <p class="help-hd">O que está no teatro de operações e o que lá vai acontecendo — arts. 16.º a 25.º. É daqui que saem os números do PEA e o relógio das rendições.</p>
       <ul>
         <li><b>Setores</b> — escolhe quantos são e a estrutura nasce com os nomes doutrinários (Alfa, Bravo...); em cada setor: estado no menu, comandante, e meios por tipologia (tipologia + quantidade + Atribuir). Totais e horas de empenhamento calculam-se sozinhos.</li>
@@ -1239,7 +1239,7 @@
         <li><b>Importar da Gestão PCO</b> — traz o dispositivo exportado pela outra aplicação, com os instantes de empenhamento. Havendo dispositivo registado, o que muda é apresentado setor a setor antes de se aplicar.</li>
         <li><b>Alternativa</b> — marcar "Colar texto livre" e colar o quadro da app Gestão PCO.</li>
       </ul>
-      <p><b>Evolução da situação</b> — o diário da ocorrência entre PEA; cada registo entra no próximo PEA como evolução incorporada e na fita do tempo (arts. 2.º al. c) e 27.º).</p>
+      <p><b>Fita do tempo</b> — o registo temporal explícito e completo das decisões, ações e informações operacionais da ocorrência (art. 2.º, n.º 1, al. c)), que a Célula de Operações garante e mantém atualizado (art. 17.º, n.º 1, al. g)); cada registo entra no próximo PEA como evolução incorporada (art. 27.º). O que a aplicação faz por si — gravar, importar, emitir — fica no diário da aplicação, que é registo técnico e não a fita da norma.</p>
       <ul>
         <li><b>Atalhos</b> — clica num setor para iniciar o texto por ele e nas frases-tipo para as inserir; a frase escolhida classifica o tipo do registo automaticamente.</li>
         <li><b>Registo automático</b> — mudar o estado de um setor no dispositivo, acima, cria o registo sozinho, marcado como automático.</li>
@@ -1873,7 +1873,7 @@
       <div class="src"><div class="src-st src-st--ok"></div><div style="flex:1">
         <b>Perímetro · área · setores · pontos sensíveis</b><span class="chip chip--op">OPERACIONAL</span>
         <div class="src-kv"><b>Fonte hoje:</b> ficheiro GeoJSON exportado do FEB Monitorização / fogos.pt; setores e meios colados da app Gestão PCO; pontos sensíveis escritos.</div>
-        <div class="src-kv"><b>Cálculo:</b> área em hectares estimada do polígono (fórmula de Gauss com correção de latitude); nome do ficheiro registado como anexo e na fita do tempo.</div>
+        <div class="src-kv"><b>Cálculo:</b> área em hectares estimada do polígono (fórmula de Gauss com correção de latitude); nome do ficheiro registado como anexo e no diário da aplicação.</div>
         <div class="src-kv"><b>Entra no PEA em:</b> cabeçalho (área), Situação, Análise das ZI, Organização do TO (setores tal como colados), proposta de defesa perimétrica (sensíveis) e lista de Anexos.</div>
         <div class="src-kv"><b>Próximo passo:</b> aceitar também KML e desenhar o perímetro sobre mapa na própria estação.</div>
       </div></div>
@@ -1984,7 +1984,7 @@
 
   <section class="pane" id="p-evo">
     <div class="card">
-      <h2>Registo de evolução da situação operacional <span class="tag">alimenta a célula de planeamento e a fita do tempo — arts. 2.º al. c) e 27.º</span></h2>
+      <h2>Registar na fita do tempo <span class="tag">a decisão, a ação ou a informação operacional, com o GDH — art. 2.º, n.º 1, al. c); alimenta a célula de planeamento — art. 27.º</span></h2>
       <div class="sub"><span class="stit">1 · A que respeita</span>
         <div id="evo-ctx" class="tip-chips" style="margin:0"></div>
       </div>
@@ -2189,11 +2189,11 @@
       </div>
       <div class="msg" id="evo-efeito" style="display:none;margin-top:10px"></div>
       <div style="margin-top:12px"><label for="e-txt">Descrição</label><textarea id="e-txt" rows="3" placeholder="descrever o facto operacional, o local e a hora"></textarea></div>
-      <div class="row" style="margin-top:12px"><button class="btn btn-b" id="b-evo">Registar na evolução</button></div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-b" id="b-evo">Registar na fita do tempo</button></div>
       </div>
     </div>
     <div class="card">
-      <h2>Linha de evolução <span class="cd-cnt" id="evo-count">sem registos</span></h2>
+      <h2>Fita do tempo <span class="tag">registo temporal explícito e completo das decisões, ações e informações operacionais — art. 2.º, n.º 1, al. c); atualização permanente — art. 17.º, n.º 1, al. g)</span> <span class="cd-cnt" id="evo-count">sem registos</span></h2>
       <div class="evo" id="evo-list"><p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p></div>
     </div>
   </section>
@@ -2330,7 +2330,7 @@
 
   <section class="pane" id="p-fita">
     <div class="card">
-      <h2>Fita do tempo <span class="tag">registo temporal explícito e completo — art. 2.º, al. c); atualização permanente — art. 17.º, n.º 1, al. g)</span></h2>
+      <h2>Diário da aplicação <span class="tag">o que a aplicação fez, quando e por quem — registo técnico encadeado; não é a fita do tempo do art. 2.º</span></h2>
       <table class="fita" id="fita"></table>
     </div>
   </section>

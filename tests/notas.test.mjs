@@ -73,7 +73,7 @@ test('escrever uma nota grava o texto, o sítio, o GDH e quem', semAplicacao, ()
 });
 
 test('o texto normaliza-se e trunca-se, porque tem de caber sobre a carta', semAplicacao, () => {
-  /* Uma nota que precise de três linhas é um registo de evolução e não uma anotação. */
+  /* Uma nota que precise de três linhas é um registo da fita do tempo e não uma anotação. */
   comTeatro();
   const r = janela.escreverNota('reconhecimento', 41.09, -7.81, '  não   ardido\n  a norte  ');
   assert.equal(r.nota.txt, 'não ardido a norte');

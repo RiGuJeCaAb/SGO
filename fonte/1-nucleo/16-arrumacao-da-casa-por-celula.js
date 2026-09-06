@@ -29,9 +29,9 @@ const ARRUMACAO = [
   { h:"Histórico de propostas de PEA",            cel:"planeamento", r:"art. 27.º, n.º 1, al. a)" },
   /* --- Operações: arts. 16.º a 25.º --- */
   { h:"Dispositivo e setorização",                cel:"operacoes",   r:"art. 17.º, n.º 1, als. a) e d)" },
-  { h:"Registo de evolução da situação operacional", cel:"operacoes", r:"art. 17.º, n.º 1, al. a)" },
-  { h:"Linha de evolução",                        cel:"operacoes",   r:"art. 17.º, n.º 1, al. a)" },
-  { h:"Fita do tempo",                            cel:"operacoes",   r:"art. 17.º, n.º 1, al. g)" },
+  { h:"Registar na fita do tempo",                cel:"operacoes",   r:"art. 2.º, n.º 1, al. c); art. 17.º, n.º 1, al. g)" },
+  { h:"Fita do tempo",                            cel:"operacoes",   r:"art. 2.º, n.º 1, al. c); art. 17.º, n.º 1, al. g)" },
+  { h:"Diário da aplicação",                      cel:"operacoes",   r:"art. 17.º, n.º 1, al. g)" },
   /* --- Logística e Finanças: arts. 31.º a 35.º --- */
   { h:"Plano de comunicações",                    cel:"logistica",   r:"art. 32.º, n.º 1, al. d); art. 34.º" },
   { h:"Pacote de canais",                         cel:"logistica",   r:"art. 34.º" },
@@ -61,11 +61,11 @@ const ATALHOS_PANE = {
   "p-occ":    { pane:"p-comando",     h:"Identificação da ocorrência" },
   "p-fontes": { pane:"p-planeamento", h:"Dados operacionais da ocorrência" },
   "p-pco":    { pane:"p-comando",     h:"Estrutura do posto de comando" },
-  "p-evo":    { pane:"p-operacoes",   h:"Registo de evolução da situação operacional" },
+  "p-evo":    { pane:"p-operacoes",   h:"Registar na fita do tempo" },
   "p-meteo":  { pane:"p-planeamento", h:"Previsão meteorológica" },
   "p-pea":    { pane:"p-planeamento", h:"Elaborar proposta de PEA" },
   "p-avisos": { pane:"p-comando",     h:"Avisos ativos" },
-  "p-fita":   { pane:"p-operacoes",   h:"Fita do tempo" }
+  "p-fita":   { pane:"p-operacoes",   h:"Diário da aplicação" }
 };
 
 /**
@@ -140,17 +140,17 @@ function arrumarCasa(){
    Os cartões que crescem sem limite abrem a pedido. O cabeçalho fica sempre à vista,
    com a contagem: fechar não é esconder que existe, é não deixar que ocupe o painel.
 
-   Ao fim de umas horas de ocorrência a fita do tempo tem dezenas de registos e a linha
-   de evolução outras tantas, e o painel de Operações passa a ser uma coluna de milhares
+   Ao fim de umas horas de ocorrência o diário da aplicação tem dezenas de registos e a
+   fita do tempo outras tantas, e o painel de Operações passa a ser uma coluna de milhares
    de pixéis onde nada mais se encontra.
 
    `contar` devolve o rótulo que aparece no cabeçalho fechado. Devolver vazio significa
    que não há nada lá dentro, e o cabeçalho di-lo em vez de mentir com um zero. */
 const CARTOES_DOBRAVEIS = [
-  { h:"Fita do tempo", celula:"operacoes", r:"art. 2.º, al. c); art. 17.º, n.º 1, al. g)",
-    porque:"cresce a cada registo e ao fim de horas ocupa o painel inteiro",
+  { h:"Diário da aplicação", celula:"operacoes", r:"art. 17.º, n.º 1, al. g)",
+    porque:"cresce a cada ato da aplicação e ao fim de horas ocupa o painel inteiro",
     contar:()=>{ const n=(O.fita||[]).length; return n? n+(n===1? " registo":" registos") : "sem registos"; } },
-  { h:"Linha de evolução", celula:"operacoes", r:"art. 17.º, n.º 1, al. a)",
+  { h:"Fita do tempo", celula:"operacoes", r:"art. 2.º, n.º 1, al. c); art. 17.º, n.º 1, al. g)",
     porque:"cresce a cada ponto de situação e a cada alteração de estado de setor",
     /* Este cartão já trazia a contagem na etiqueta do cabeçalho. Reaproveita-se a que
        existe em vez de acrescentar uma segunda que diria o mesmo ao lado. */
@@ -249,7 +249,7 @@ async function guardarDobra(h, on){
  */
 function dobrarCartoes(){
   /* Todos os cartões dos painéis vivos, e já não só os declarados: o problema que isto
-     veio resolver é que **todos** cresceram, e não só a fita do tempo. Os declarados
+     veio resolver é que **todos** cresceram, e não só o diário da aplicação. Os declarados
      continuam a valer — é deles que vem a contagem que o cabeçalho mostra. */
   const VIVOS = "#p-comando,#p-planeamento,#p-operacoes,#p-logistica,#p-turno";
   [...document.querySelectorAll(".card")]

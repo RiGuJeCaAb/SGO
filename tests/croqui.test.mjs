@@ -157,7 +157,7 @@ const cartao = (h) => janela.cartaoPorTitulo(h);
 
 test('os dois cartões que crescem sem limite estão declarados, com norma e razão', semAplicacao, () => {
   const D = avaliar(janela, 'CARTOES_DOBRAVEIS');
-  assert.deepEqual(daqui(D.map((x) => x.h)), ['Fita do tempo', 'Linha de evolução']);
+  assert.deepEqual(daqui(D.map((x) => x.h)), ['Diário da aplicação', 'Fita do tempo']);
   D.forEach((x) => {
     assert.equal(x.celula, 'operacoes', x.h);
     assert.match(x.r, /art\./, x.h + ' sem citação');
@@ -173,7 +173,7 @@ test('a auditoria dos dobráveis não acusa nada', semAplicacao, () => {
 });
 
 test('os dois nascem fechados, com o corpo lá dentro', semAplicacao, () => {
-  ['Fita do tempo', 'Linha de evolução'].forEach((h) => {
+  ['Diário da aplicação', 'Fita do tempo'].forEach((h) => {
     const c = cartao(h);
     assert.ok(c.classList.contains('dobravel'), h + ' não dobrou');
     assert.ok(!c.classList.contains('aberto'), h + ' nasceu aberto');
@@ -189,16 +189,16 @@ test('fechado, o cabeçalho diz quantos registos há — e no singular quando é
   O.fita = [{ g: '301200AGO26', e: 'a' }, { g: '301201AGO26', e: 'b' }];
   O.evolucao = [{ g: '301200AGO26', tipo: 'posit', txt: 'x' }];
   janela.pintarTudo();
-  assert.equal(cartao('Fita do tempo').querySelector('.cd-cnt').textContent, '2 registos');
-  assert.equal(cartao('Linha de evolução').querySelector('.cd-cnt').textContent, '1 registo');
+  assert.equal(cartao('Diário da aplicação').querySelector('.cd-cnt').textContent, '2 registos');
+  assert.equal(cartao('Fita do tempo').querySelector('.cd-cnt').textContent, '1 registo');
 });
 
 test('sem registos di-lo, em vez de mentir com um zero — nos dois', semAplicacao, () => {
   const O = avaliar(janela, 'O');
   O.fita = []; O.evolucao = [];
   janela.pintarTudo();
+  assert.equal(cartao('Diário da aplicação').querySelector('.cd-cnt').textContent, 'sem registos');
   assert.equal(cartao('Fita do tempo').querySelector('.cd-cnt').textContent, 'sem registos');
-  assert.equal(cartao('Linha de evolução').querySelector('.cd-cnt').textContent, 'sem registos');
 });
 
 test('em ecrã estreito a contagem não é escondida com a etiqueta legal', semAplicacao, () => {
@@ -214,7 +214,7 @@ test('cada cabeçalho tem uma contagem só, e um estado só', semAplicacao, () =
      lado**. Desde que o cabeçalho fechado passou a ser linha de estado, há dois papéis
      distintos — a contagem do que lá está dentro e o estado do que falta — e podem
      coexistir. O que não pode é haver dois do mesmo papel. */
-  ['Fita do tempo', 'Linha de evolução'].forEach((h) => {
+  ['Diário da aplicação', 'Fita do tempo'].forEach((h) => {
     const c = cartao(h);
     const todos = [...c.querySelectorAll(':scope > h2 > .cd-cnt')];
     const estado = todos.filter((e) => e.classList.contains('cd-est'));
@@ -229,7 +229,7 @@ test('cada cabeçalho tem uma contagem só, e um estado só', semAplicacao, () =
 });
 
 test('o cabeçalho abre e fecha, ao rato e ao teclado', semAplicacao, () => {
-  const c = cartao('Fita do tempo'), h2 = c.querySelector('h2');
+  const c = cartao('Diário da aplicação'), h2 = c.querySelector('h2');
   assert.equal(h2.getAttribute('role'), null, 'o h2 fica cabeçalho; o botão está lá dentro');
   assert.equal(h2.querySelector('.cd-btn').tagName, 'BUTTON');
   // O teclado é o do <button> nativo: Enter e Espaço disparam um clique sem ouvinte
@@ -245,22 +245,22 @@ test('o cabeçalho abre e fecha, ao rato e ao teclado', semAplicacao, () => {
 });
 
 test('abrir um não fecha o outro', semAplicacao, () => {
-  const f = cartao('Fita do tempo'), e = cartao('Linha de evolução');
+  const f = cartao('Diário da aplicação'), e = cartao('Fita do tempo');
   janela.abrirCartao(f, true); janela.abrirCartao(e, true);
   assert.ok(f.classList.contains('aberto') && e.classList.contains('aberto'),
-    'acordeão exclusivo obrigaria a fechar a fita para ver a evolução');
+    'acordeão exclusivo obrigaria a fechar o diário para ver a fita');
   janela.abrirCartao(f, false); janela.abrirCartao(e, false);
 });
 
 test('dobrar duas vezes não duplica o corpo nem a contagem', semAplicacao, () => {
   janela.dobrarCartoes(); janela.dobrarCartoes();
-  const c = cartao('Fita do tempo');
+  const c = cartao('Diário da aplicação');
   assert.equal(c.querySelectorAll(':scope > .cd-corpo').length, 1);
   assert.equal(c.querySelectorAll(':scope > h2 > .cd-cnt').length, 1);
 });
 
 test('os dobráveis continuam em Operações e a arrumação sem órfãos', semAplicacao, () => {
-  ['Fita do tempo', 'Linha de evolução'].forEach((h) =>
+  ['Diário da aplicação', 'Fita do tempo'].forEach((h) =>
     assert.ok(cartao(h).closest('#p-operacoes'), h + ' saiu de Operações'));
   const a = janela.auditarArrumacao();
   assert.deepEqual(daqui(a.semCelula), []);

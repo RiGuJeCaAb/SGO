@@ -108,7 +108,7 @@ test('a aprovação sem ordens de missão fica registada no plano, e não escond
   assert.match(
     av('O.evolucao[O.evolucao.length-1].txt'),
     /sem ordens de missão/,
-    'e tem de entrar no registo de evolução, que é o que acompanha a ocorrência',
+    'e tem de entrar na fita do tempo, que é o que acompanha a ocorrência',
   );
   av('delete window.__peaT; O.peas = []; O.evolucao = [];');
 });

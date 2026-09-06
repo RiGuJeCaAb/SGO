@@ -108,7 +108,7 @@ function pintarAnalise(){
 /**
  * Analisa o que está no campo do CSV e guarda a série na ocorrência.
  *
- * @param {boolean} [log] deixar rasto na fita do tempo; falso ao repor uma ocorrência,
+ * @param {boolean} [log] deixar rasto no diário da aplicação; falso ao repor uma ocorrência,
  *   que não é facto operacional novo
  */
 function analisarCSV(log=true){

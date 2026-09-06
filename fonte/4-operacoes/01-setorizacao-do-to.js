@@ -4,7 +4,7 @@
  * mudança entrou — o menu da linha do setor, ou uma frase-tipo da evolução.
  *
  * A mudança de estado é facto operacional, e por isso deixa registo sozinha: entra na
- * evolução como automática e na fita do tempo. Um segundo caminho que não fizesse isto
+ * fita do tempo como automática e no diário da aplicação. Um segundo caminho que não fizesse isto
  * daria um dispositivo a mudar sem que a evolução o contasse — e a análise da repartição
  * lê o dispositivo, portanto passaria a analisar o que ninguém registou.
  *

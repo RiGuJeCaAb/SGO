@@ -506,7 +506,7 @@ function fundirFuncaoPCO(atual, nova){
 }
 
 /**
- * Escreve no estado. Regra 5: a fita do tempo regista a origem, o operador, o
+ * Escreve no estado. Regra 5: o diário da aplicação regista a origem, o operador, o
  * instante de emissão e o de importação, e quantas unidades vieram sem relógio.
  */
 function aplicarGestaoPCO(c){

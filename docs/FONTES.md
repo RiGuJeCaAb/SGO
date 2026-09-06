@@ -31,7 +31,13 @@ Ver `ESTADO.md`, r0105.
 Operações.
 Designação usada nas citações: `Despacho n.º 4067/2024`.
 
-Pontos invocados: art. 4.º e art. 4.º, n.º 4 (hierarquização das comunicações);
+Pontos invocados: art. 2.º, n.º 1, al. c) (fita do tempo: «o registo temporal explícito e
+completo das decisões, ações e informações operacionais associadas a uma ocorrência e com
+relevância para a compreensão da mesma» — é este o nome legal do registo operacional da
+aplicação desde a r0118; «registo de evolução da situação operacional» não é expressão do
+despacho, e o registo técnico do que a aplicação fez chama-se «diário da aplicação», sem
+artigo que o defina); art. 17.º, n.º 1, al. g) (a Célula de Operações garante o registo e a
+permanente atualização da fita do tempo); art. 4.º e art. 4.º, n.º 4 (hierarquização das comunicações);
 art. 8.º, n.º 2, al. e); artigos 13.º, n.º 2, e 14.º, n.º 1 (estrutura do PCO);
 art. 17.º, al. c); art. 20.º, n.os 6 e 7; art. 22.º; art. 32.º, al. d) (competências das
 células); art. 34.º; art. 46.º; Anexo I.

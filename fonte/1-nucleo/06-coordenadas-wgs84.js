@@ -35,7 +35,7 @@ function fmtGMS(v,isLat){
 /**
  * Regista de onde vieram as coordenadas em vigor.
  *
- * A fita do tempo já dizia isto, mas a fita não acompanha o campo: quando o pacote muda
+ * O diário da aplicação já dizia isto, mas o diário não acompanha o campo: quando o pacote muda
  * de posto de comando, quem o abre vê um par de números sem saber se foram lidos numa
  * carta, achados por um serviço de geocodificação ou herdados de uma importação. A
  * origem passa a viver ao lado da coordenada.

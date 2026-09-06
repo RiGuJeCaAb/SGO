@@ -89,7 +89,7 @@ test('encerrar duas vezes não faz nada à segunda', semAplicacao, async () => {
 
 test('as reservas não impedem, e ficam mesmo no processo', semAplicacao, async () => {
   // Uma obrigação em incumprimento não trava o encerramento — trava-o uma frente ativa.
-  // O que fica por cumprir fica escrito no registo de evolução, que é o que sobrevive à
+  // O que fica por cumprir fica escrito na fita do tempo, que é o que sobrevive à
   // sessão e vai no PEA. Dizer «ficam no processo» sem lá ficarem seria só uma frase.
   const v = daqui(janela.verificarEncerramento());
   assert.equal(v.pode, true);

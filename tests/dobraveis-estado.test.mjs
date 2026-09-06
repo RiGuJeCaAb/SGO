@@ -127,9 +127,9 @@ test('o recomendado assinala-se mas não obriga a abrir', semAplicacao, () => {
 });
 
 test('a contagem que o cartão já trazia não é escrita por cima', semAplicacao, () => {
-  // A linha de evolução tem etiqueta própria no cabeçalho. O estado vai ao lado, não em
+  // A fita do tempo tem etiqueta própria no cabeçalho. O estado vai ao lado, não em
   // vez dela — senão perde-se a contagem que alguém escreveu de propósito.
-  const c = porTitulo('Linha de evolução');
+  const c = porTitulo('Fita do tempo');
   if (!c) return;
   assert.ok(c.querySelector(':scope > h2 > .cd-cnt-ex'), 'a etiqueta própria tem de sobreviver');
   assert.ok(c.querySelector(':scope > h2 > .cd-est'), 'e o estado vem num elemento ao lado');

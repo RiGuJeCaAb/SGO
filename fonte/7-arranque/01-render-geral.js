@@ -53,8 +53,8 @@ const LISTAS_PINTADAS = new WeakMap();
 /**
  * Pinta uma lista do mais recente para o mais antigo, acrescentando só o que é novo.
  *
- * `pintarTudo` corre a cada tecla e regenerava a fita do tempo inteira de cada vez — e a
- * fita cresce a cada registo, a cada mudança de estado de setor, a cada linha de diário.
+ * `pintarTudo` corre a cada tecla e regenerava o diário da aplicação inteiro de cada vez — e
+ * o diário cresce a cada registo, a cada mudança de estado de setor, a cada linha de diário.
  * Se a lista só cresceu desde a última pintura — o último item de então é o mesmo objeto
  * e está no mesmo sítio —, os itens novos entram por cima e os antigos ficam como estão.
  * Qualquer outra mudança repinta tudo: repor uma ocorrência, apagar, reordenar. A
@@ -116,7 +116,7 @@ function pintarTudo(){
   pintura("intensidade da frente", pintarIntensidade, qb);
   pintura("focos de calor", pintarFocos, qb);
   $("occ-tag").innerHTML = O.meta.num? `Ocorrência <b>${esc(O.meta.num)}</b> · ${O.peas.length} PEA · ${O.evolucao.length} registos` : "sem ocorrência carregada";
-  /* A mesma linguagem da fita do tempo: sem registos di-lo, em vez de mentir com um
+  /* A mesma linguagem do diário da aplicação: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
   $("evo-count").textContent = O.evolucao.length? (O.evolucao.length===1? "1 registo" : O.evolucao.length+" registos") : "sem registos";
   listaPorAcrescento($("evo-list"), O.evolucao, e=>

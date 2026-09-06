@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0117**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0118**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 155, das anteriores à convenção de nomes até à r0117 |
+| Entregas em `app/` | 156, das anteriores à convenção de nomes até à r0118 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1083, todos a passar |
+| Testes | 1084, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1556,7 +1556,38 @@ As decisões passam a dizer-se pela data e pela conversa em que se tomaram; quem
 conversa em `docs/conversas/`, que são transcritos e não se reescrevem. A r0117 é só isto:
 comentários na fonte, sem uma linha de comportamento a mudar, e os 1083 testes a passar.
 
-## Decisões tomadas
+## A fita do tempo é a da norma — r0118
+
+Das cinco decisões que a análise da OP 04 deixou em aberto, a primeira ficou decidida a 6 de
+setembro: «a que for legalmente aprovada». O despacho define-a — art. 2.º, n.º 1, al. c):
+«fita do tempo, o registo temporal explícito e completo das decisões, ações e informações
+operacionais associadas a uma ocorrência» — e manda a Célula de Operações garantir o seu
+registo e atualização permanente, art. 17.º, n.º 1, al. g). Isso, na Estação, era o cartão
+«Registo de evolução da situação operacional», expressão que o despacho não tem, e a lista
+«Linha de evolução». O nome «Fita do tempo» estava no registo técnico do que a aplicação fez,
+que não é o que o artigo define.
+
+Trocou-se. O formulário chama-se «Registar na fita do tempo», e o botão também; a lista é a
+**Fita do tempo**, com os dois artigos na etiqueta; o registo técnico é o **Diário da
+aplicação**, encadeado como antes, sem artigo que o defina. A posse do estado acompanha:
+`evolucao` cita o art. 2.º, n.º 1, al. c) e o art. 17.º, n.º 1, al. g); `fita` fica com o
+17.º, n.º 1, al. g) como sustento do registo. É mudança de rótulo, de manual e de posse, sem
+degrau de estado: os campos `O.evolucao` e `O.fita` não mudaram de nome, para não obrigar a
+uma migração por causa de um rótulo. A passagem de turno passa a declarar as duas contagens.
+Os comentários da fonte que diziam «fita do tempo» a falar do registo técnico passaram a
+dizer «diário da aplicação». `FONTES.md` regista a definição legal e a razão. Um teste fixa a
+troca: não há cartão com «evolução» no nome em Operações, a fita é a lista de `O.evolucao`,
+o diário é a tabela de `O.fita`, e só a fita cita o art. 2.º.
+
+As outras quatro, no mesmo dia: a taxonomia dos códigos espera a validação da folha de
+verificação, que ainda não foi feita; o SG14 pediu explicação, e foi dada — é o único código
+sem base em nenhum dos dois documentos, acrescentado na conversa por convicção; «CDOS» não
+entra em lado nenhum, porque já não está em uso, e só se usa o que está legalmente
+instituído — o DL n.º 45/2019, art. 23.º, cria os comandos sub-regionais de emergência e
+proteção civil, e o DL n.º 90-A/2022, Anexo I, nomeia o do Douro; a designação em rádio não
+está em fonte nenhuma e não se inventa; e o teste com um operador alheio ao projeto está a
+ser tratado com um camarada. 1084 testes.
+
 
 Por ordem em que foram tomadas.
 

@@ -149,7 +149,7 @@ async function importarOcorrencia(texto){
  *
  * É esta a comparação que faz sentido, e enganei-me nela à primeira: comparar contra o
  * estado em memória não prova nada e acusa sempre. O estado em memória muda no instante
- * em que se importa — a própria importação escreve na fita do tempo —, e o carimbo
+ * em que se importa — a própria importação escreve no diário da aplicação —, e o carimbo
  * passava a não bater em todas as importações legítimas. O que se confere é se o ficheiro
  * está consistente consigo mesmo: se o estado que lá está é o que foi carimbado quando
  * saiu. É isso que apanha o ficheiro truncado, o editado à mão e a cópia mal copiada.
@@ -158,7 +158,7 @@ async function importarOcorrencia(texto){
  * cobre o estado **como foi escrito**, e a migração só acontece depois de se conferir.
  *
  * **Avisa, não recusa.** Recusar podia ser a diferença entre ter a ocorrência e não ter
- * nada. Diz-se o que se sabe, fica na fita do tempo, e quem decide é quem está no PCO.
+ * nada. Diz-se o que se sabe, fica no diário da aplicação, e quem decide é quem está no PCO.
  *
  * @param {any} p o pacote já analisado — ver `lerPacoteDeObjeto` para a razão de ser o objeto
  * @returns {{bate:(boolean|null), nota:string}}

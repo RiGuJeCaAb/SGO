@@ -61,7 +61,8 @@ function pendenciasCelula(k){
       }
       const mp = minutosDesde(ultimoPOSIT());
       push("Último POSIT", mp===null? "nenhum registado" : ("há "+mp+" min"));
-      push("Fita do tempo", (O.fita||[]).length+" registos");
+      push("Fita do tempo", O.evolucao.length+" registos");
+      push("Diário da aplicação", (O.fita||[]).length+" registos");
       const AL = aerLista();
       if(AL.length) push("Meios aéreos no TO", AL.map(a=>a.ind||a.t).join(", "));
     }

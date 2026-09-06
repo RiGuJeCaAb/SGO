@@ -195,3 +195,24 @@ Três revisões, cada uma com os seus testes e a sua nota no manual, por ordem d
    por extenso. E a designação exata em rádio do comando sub-regional do Douro, para o
    exemplo do manual que ainda diz «CDOS Porto».
 5. **O teste do papel**, ou o teste com a aplicação, com um operador alheio ao projeto.
+
+### As respostas, a 6 de setembro
+
+1. **O nome: «a que for legalmente aprovada».** É «fita do tempo», art. 2.º, n.º 1, al. c).
+   Feito na r0118: o registo operacional chama-se Fita do tempo, o técnico Diário da
+   aplicação.
+2. **A taxonomia: «calma, tenho de validar e ainda não fiz».** Nada entra até a folha de
+   verificação estar validada. A revisão 1 fica só com os nomes; os campos e os códigos
+   esperam.
+3. **O SG14: pediu-se o contexto.** Está na secção 4: é o único código que não tem base em
+   nenhum dos dois documentos, acrescentado na conversa de origem por convicção de que o
+   quase-acidente é a única fonte de aprendizagem que não custa um ferido. Entra ou não por
+   decisão, e a decisão ainda não está tomada.
+4. **As siglas: «nada de CDOS, só o que legalmente foi instituído».** Os comandos
+   sub-regionais de emergência e proteção civil existem pelo DL n.º 45/2019, art. 23.º, e o
+   DL n.º 90-A/2022, Anexo I, nomeia o do Douro no Comando Regional do Norte. O exemplo do
+   manual de preenchimento, quando entrar na aplicação, diz «CSREPC Douro», que é a
+   abreviatura que a aplicação já usa para a designação por extenso. A designação em rádio
+   não está em fonte nenhuma, e não se escreve até estar.
+5. **O teste: «estou a tratar disso com um camarada de trabalho».** Fica a aguardar o
+   resultado, e é ele que decide se os campos entram como a análise os propõe.

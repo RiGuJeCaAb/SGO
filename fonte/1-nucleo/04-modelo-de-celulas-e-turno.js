@@ -176,8 +176,8 @@ function migrarGravado(guardado){
 
 /* 10 -> 11. Dois campos que faltavam para se saber de onde vêm as coisas.
    `meta.coordFonte` guarda **como** a coordenada foi parar ali — escrita à mão, achada
-   pela geocodificação, ou trazida da Gestão PCO. Estava na fita do tempo e mais lado
-   nenhum, e a fita não acompanha o campo quando o pacote muda de posto.
+   pela geocodificação, ou trazida da Gestão PCO. Estava no diário da aplicação e mais
+   lado nenhum, e o diário não acompanha o campo quando o pacote muda de posto.
    `encerramento.sha` é o carimbo de integridade do registo no momento em que fechou.
    Nenhum dos dois se pode inventar para trás: ficam vazios no que já existe, que é a
    resposta honesta — não se sabe. */

@@ -68,7 +68,7 @@ const AV_DESTINO = {
   pt:{p:"p-logistica", l:"Definir em Logística e Finanças"},
   vigor:{p:"p-pea", l:"Ver o PEA em vigor em Planeamento"},
   fase:{p:"p-occ", l:"Rever a fase em Comando"},
-  notif:{p:"p-fita", l:"Registar confirmação na fita do tempo"},
+  notif:{p:"p-evo", l:"Registar confirmação na fita do tempo"},
   pmepc:{p:"p-evo", l:"Registar o pedido em Operações"},
   pco:{p:"p-pco", l:"Nomear em Comando"},
   placom:{p:"p-logistica", l:"Atribuir canais em Logística e Finanças"},

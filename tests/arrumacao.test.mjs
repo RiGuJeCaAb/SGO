@@ -96,6 +96,28 @@ test('o plano de comunicações está em Logística, e a fita do tempo em Opera�
     assert.doesNotMatch(cartoesDe('p-planeamento').join(' | '), /fita do tempo/i);
   });
 
+test('o registo operacional tem o nome da norma, e o diário técnico não o usurpa', semAplicacao, () => {
+  // Despacho n.º 4067/2024, art. 2.º, n.º 1, al. c): «fita do tempo» é o registo temporal
+  // das decisões, ações e informações operacionais — o que a aplicação guarda em
+  // `O.evolucao`. Até à r0117 esse nome estava no registo técnico, e o operacional
+  // chamava-se «registo de evolução», expressão que o despacho não tem. Decidido a 6 de
+  // setembro: fica o nome legalmente aprovado.
+  const ops = cartoesDe('p-operacoes');
+  assert.ok(!ops.some((h) => /registo de evolução|linha de evolução/i.test(h)), ops.join(' | '));
+  const fita = janela.cartaoPorTitulo('Fita do tempo');
+  const diario = janela.cartaoPorTitulo('Diário da aplicação');
+  assert.ok(fita && diario, 'faltam os dois cartões');
+  assert.ok(fita.querySelector('#evo-list'), 'a fita do tempo é a lista de O.evolucao');
+  assert.ok(diario.querySelector('#fita'), 'o diário é a tabela de O.fita');
+  assert.match(fita.querySelector('h2 .tag').textContent, /art\. 2\.º, n\.º 1, al\. c\)/);
+  assert.doesNotMatch(diario.querySelector('h2 .tag').textContent, /art\. 2\.º, n\.º 1/,
+    'o diário não é o que o art. 2.º define, e não o cita como se fosse');
+  assert.equal(doc().querySelector('#b-evo').textContent, 'Registar na fita do tempo');
+  const posse = janela.donoDoRamo('evolucao');
+  assert.equal(posse.celula, 'operacoes');
+  assert.match(posse.ramo.r, /2\.º, n\.º 1, al\. c\)/);
+});
+
 /* ---- os identificadores antigos continuam a funcionar ---- */
 
 test('irPara com identificador antigo abre a célula certa', semAplicacao, () => {
@@ -295,7 +317,7 @@ test('o catálogo de elementos corrige em vez de obrigar a apagar', semAplicacao
   janela.eval('ELEMENTOS = []');
 });
 
-/* ---- léxico do registo de evolução ---- */
+/* ---- léxico da fita do tempo ---- */
 
 test('o léxico cobre os oito grupos, e cada frase declara o tipo', semAplicacao, () => {
   const grupos = [...doc().querySelectorAll('#evo-frases .fr-g')]

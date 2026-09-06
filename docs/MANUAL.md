@@ -20,7 +20,7 @@ Cinco separadores no topo, e são as células do posto de comando:
 |---|---|
 | **Comando** | Quem é a ocorrência, quem está no PCO, o arquivo e o encerramento |
 | **Planeamento** | O terreno, o mapa, a meteorologia e o PEA |
-| **Operações** | O dispositivo, os setores e o registo da evolução |
+| **Operações** | O dispositivo, os setores e a fita do tempo |
 | **Logística e Finanças** | Comunicações, ponto de trânsito e controlo de tempos |
 | **Passagem de turno** | O briefing e a entrega |
 
@@ -40,7 +40,7 @@ estado.
 | "2 obrigatórios em falta", a vermelho | Faltam campos sem os quais não se emite a proposta de PEA. **O cartão abre-se sozinho e não fica fechado** |
 | "1 recomendado por preencher" | Falta coisa útil, mas nada que bloqueie. O cartão fica como o deixou |
 | "nada a assinalar" | Está tudo preenchido neste cartão |
-| "14 registos", "sem registos" | Cartões que crescem — a fita do tempo, a linha de evolução — dizem quanto têm lá dentro |
+| "14 registos", "sem registos" | Cartões que crescem — a fita do tempo, o diário da aplicação — dizem quanto têm lá dentro |
 
 Três coisas que convém saber:
 
@@ -434,7 +434,7 @@ acontece a leitura abre com a marca, antes do número:
 | **ALÉM DE QUALQUER FOGO MEDIDO** | acima de 1 200 m/h (20 m/min) | Passou o fogo mais rápido dos 29 que originaram os quadros. Acima de 2 280 m/h passou também a célula mais rápida da tabela, e só as correções de altura e declive lá chegam |
 
 **A marca não impede o cálculo.** Recusar deixaria quem está no PCO sem estimativa nenhuma,
-que é pior. A marca acompanha o número: aparece no painel, vai com ele para a fita do tempo, e
+que é pior. A marca acompanha o número: aparece no painel, vai com ele para o diário da aplicação, e
 entra na proposta de PEA.
 
 Repare ainda numa nota que aparece sempre que o declive passa dos 5 %: o quadro base foi
@@ -553,26 +553,34 @@ Operações → **Meios aéreos no TO**: indicativo e hora de entrada, com «Reg
 
 O medidor de tempo de cada unidade é um botão. Abre o painel da rendição, com o texto do
 pedido ao CSREPC já composto: «Registar a solicitação ao CSREPC» deixa o pedido na unidade,
-na evolução e na fita, e «Copiar o texto» leva-o para o rádio ou para o correio.
+na fita do tempo e no diário da aplicação, e «Copiar o texto» leva-o para o rádio ou para o correio.
 
 Quando a unidade parte, no mesmo painel, «Registar a saída do TO»: a unidade sai da contagem
 de empenhamento e passa a constar como rendida. Quando a Entidade confirmar a chegada,
 «Registar a chegada à Entidade». A hora que se grava é a do ponto 9.d.(6) da DON n.º 2: a
 hora em que o veículo chega ao seu local de estacionamento ou quartel, ou encerra a sua
 participação na ocorrência. Não é a chegada ao destino final de um meio reencaminhado a meio
-da marcha. As duas horas ficam na evolução e na fita, e o briefing de passagem de turno diz
+da marcha. As duas horas ficam na fita do tempo e no diário da aplicação, e o briefing de passagem de turno diz
 que chegadas ainda estão por registar.
 
 ---
 
-## Registar a evolução da situação
+## Registar na fita do tempo
 
-Operações → **Registo de evolução da situação operacional**, em três passos: a que respeita,
-o que aconteceu, e «Registar na evolução».
+Operações → **Registar na fita do tempo**, em três passos: a que respeita, o que aconteceu,
+e «Registar na fita do tempo».
 
-Muito do que faz noutros sítios entra aqui sozinho — traçar um limite, marcar um ponto,
-declarar uma fase. A **Linha de evolução** mostra tudo por ordem, e a **Fita do tempo** é o
-registo técnico.
+A fita do tempo é o registo temporal explícito e completo das decisões, ações e informações
+operacionais da ocorrência — Despacho n.º 4067/2024, art. 2.º, n.º 1, al. c) — e é a Célula
+de Operações que garante o seu registo e a sua atualização permanente, art. 17.º, n.º 1,
+al. g). Muito do que faz noutros sítios entra aqui sozinho — traçar um limite, marcar um
+ponto, declarar uma fase. O cartão **Fita do tempo** mostra tudo por ordem, do mais recente
+para o mais antigo.
+
+O **Diário da aplicação** é outra coisa: o registo técnico do que a aplicação fez, quando e
+por quem — gravou, importou, emitiu — encadeado por resumo criptográfico. Não é a fita do
+tempo da norma. Até à r0117 os dois cartões tinham os nomes trocados, e o diário chamava-se
+«fita do tempo».
 
 ---
 
@@ -692,7 +700,7 @@ de missão e passa-as a controlo de execução.
 motivo e a hora, e fica lá um botão «Produzir ordens de missão» para voltar a tentar. A
 aprovação não se desfaz por causa disto: o COS aprovou, e isso ficou registado. O que falta é
 outro ato, de outra célula — e enquanto faltar, **não há controlo de execução nesta aplicação
-e a transmissão das missões faz-se fora dela**. A falta entra também no registo de evolução,
+e a transmissão das missões faz-se fora dela**. A falta entra também na fita do tempo,
 que acompanha a ocorrência quando ela muda de posto.
 
 Antes disto o ecrã dizia sempre que as ordens tinham sido produzidas, houvesse ordens ou não.
@@ -830,8 +838,8 @@ Media-se assim: às 17h50, com a janela a fechar às 18h00, o plano declarava-se
 18h50 — cinquenta minutos para lá do gatilho que a própria aplicação tinha identificado. Um
 limite de segurança não se prolonga para o documento ficar mais confortável de ler.
 
-No lugar do mínimo ficou o aviso. Abaixo de uma hora de vigência, a fita do tempo e o registo
-de evolução dizem quantos minutos faltam até ao primeiro gatilho, e que a revisão tem de ser
+No lugar do mínimo ficou o aviso. Abaixo de uma hora de vigência, o diário da aplicação e a fita
+do tempo dizem quantos minutos faltam até ao primeiro gatilho, e que a revisão tem de ser
 prevista já. Se o gatilho já passou, dizem que a validade está esgotada à nascença. Saber que
 o plano vale dez minutos é a informação útil; a hora inventada escondia-a.
 
@@ -854,7 +862,7 @@ noutra janela do mesmo computador, a segunda abre em leitura: os campos ficam in
 registo encerrado, o indicador diz "Só leitura", e uma faixa no topo explica porquê. A aba em
 leitura acompanha a outra — cada gravação da que escreve repõe a que lê — e pode a qualquer
 momento tomar o lugar dela com «Assumir a escrita». A que perde a escrita fica a saber pela
-mesma faixa, e a mudança fica na fita do tempo das duas.
+mesma faixa, e a mudança fica no diário da aplicação das duas.
 
 Antes disto, duas abas na mesma ocorrência escreviam a mesma chave e a última a fechar ganhava,
 em silêncio. O trinco é por aplicação e não por ocorrência: o índice do arquivo e a marca da
@@ -873,7 +881,7 @@ r0101 abrem como sempre e passam para o novo esquema na primeira gravação.
 
 **O veredicto do plano em vigor fica gravado quando muda.** A aplicação reavalia de 30 em 30
 segundos se o plano aprovado continua em vigor, pede atenção, pede revisão ou caducou. Quando
-o veredicto muda, a linha entra na fita do tempo e a ocorrência é gravada nesse momento —
+o veredicto muda, a linha entra no diário da aplicação e a ocorrência é gravada nesse momento —
 antes, ficava só em memória até alguém carregar num botão. Uma aba em leitura mostra o
 veredicto atual mas não o regista: quem regista é a aba que escreve.
 
@@ -914,7 +922,7 @@ no campo, só o nome diz agora o que ele é.
 
 **A aplicação diz o que não conseguiu guardar.** Uma colocação de folha que não fica na base
 acende o indicador da gravação; uma cópia de segurança automática ou uma poda que falhem
-ficam na fita do tempo; um pacote de canais guardado que não se consiga repor também; e a
+ficam no diário da aplicação; um pacote de canais guardado que não se consiga repor também; e a
 linha de estado do mapa conta os quadrados de carta que não ficaram no arquivo nesta sessão.
 
 **A distância de segurança é valor teórico.** Onde a aplicação a escreve, escreve também que
@@ -959,7 +967,7 @@ atualizada, com o nome de cada vista que não pintou e o motivo.
 Quando ela está lá, **o que estiver abaixo pode ser a pintura anterior** — dados velhos com
 ar de dados novos. As vistas nomeadas confirmam-se noutra fonte antes de se decidir sobre
 elas; as restantes estão atualizadas, porque cada uma pinta por si e uma que rebente já não
-leva as outras com ela. A entrada e a saída da falha ficam na fita do tempo.
+leva as outras com ela. A entrada e a saída da falha ficam no diário da aplicação.
 
 Antes disto as pinturas corriam agrupadas e em silêncio: uma que rebentasse apagava oito
 vistas de uma vez — a estrutura do PCO, o plano de comunicações, o catálogo, a conformidade,
