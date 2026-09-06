@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0118**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0119**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 156, das anteriores à convenção de nomes até à r0118 |
-| Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1084, todos a passar |
+| Entregas em `app/` | 157, das anteriores à convenção de nomes até à r0119 |
+| Módulos em `fonte/` | 78, em sete zonas, mais o molde |
+| Testes | 1091, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1591,6 +1591,32 @@ proteção civil, e o DL n.º 90-A/2022, Anexo I, nomeia o do Douro; a designaç
 está em fonte nenhuma e não se inventa; e o teste com um operador alheio ao projeto está a
 ser tratado com um camarada. 1084 testes.
 
+## O indicativo do meio aéreo escolhe-se da lista da diretiva — r0119
+
+Pedido de 6 de setembro: na atribuição de meios, e para já só nos aéreos, o indicativo devia
+poder escolher-se de uma lista, «isto se tiveres acesso à nomenclatura e localização de
+todos os meios aéreos em Portugal». Há acesso, e está em casa: o Anexo 6 da DON n.º 2 /
+DECIR 2026 dá, para cada um dos seis períodos do ano, cada centro de meios aéreos com os
+indicativos dos meios lá sediados — H1 a H43 para os HEBL, K1 a K5 e Pantera 1 e 2 para os
+HEBP, A1 a A20 para os AVBM, B1 e B2 para os AVBP, FIRE1 a FIRE5 para os HERAC, O1 e O2 para
+os AVRAC —, e o Anexo 18 dá a rede dos 49 CMA com coordenadas. Os dois anexos estão
+transcritos em `fonte/4-operacoes/12-rede-de-meios-aereos.js`, e a transcrição prova-se
+contra a própria diretiva: os subtotais de cada período, 11, 37, 78, 67, 22 e 9 meios, batem
+certo, e o teste repete a conta. Ovar (BA8), que recebe os dois Pantera no verão, não consta
+do Anexo 18 e fica sem coordenadas; a linha de Évora do Anexo 18 diz «Alto Central», gralha
+corrigida para Alentejo Central, como no Anexo 6 e no DL n.º 90-A/2022.
+
+No formulário, o campo do indicativo ganhou uma lista de escolha, e não um menu: o que não
+está na diretiva — AFOCELCA, Força Aérea fora do quadro, meios estrangeiros — continua a
+escrever-se à mão no mesmo campo. A lista é a do período em que a ocorrência começou, cada
+meio com o tipo, o CMA e a sub-região, e, havendo coordenadas da ocorrência, a distância
+plana em quilómetros, do CMA mais perto para o mais longe. Escolher da lista acerta o tipo
+sozinho — K2 é HEBP e o menu dizia HEBL. Uma linha por baixo diz de que nível e período é a
+lista, e fora de 2026, sem diretiva em fonte, diz que não há tabela em vez de mostrar a de
+2026 como se fosse eterna. O CMA de origem vai para o diário ao registar o meio. Sete testes
+novos; o manual e o `FONTES.md` acompanham. 1091 testes.
+
+## Decisões tomadas
 
 Por ordem em que foram tomadas.
 
