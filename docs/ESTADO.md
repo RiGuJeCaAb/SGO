@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0120**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0121**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 158, das anteriores à convenção de nomes até à r0120 |
+| Entregas em `app/` | 159, das anteriores à convenção de nomes até à r0121 |
 | Módulos em `fonte/` | 79, em sete zonas, mais o molde |
-| Testes | 1094, todos a passar |
+| Testes | 1102, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1646,6 +1646,28 @@ finge ter o que a diretiva não tem. Também de 6 de setembro, para mais tarde: 
 — bases de apoio logístico do Anexo 19, reabastecimento de aeronaves do Anexo 20, transportes
 para rendição — pode ajudar a desenvolver a célula de Logística e Finanças. Nove testes
 novos. 1094 testes, 16 regras.
+
+## A especificação v1.3 para a Gestão PCO — r0121
+
+Pergunta de 6 de setembro: «queres acrescentar alguma coisa no json pedido à app Gestão de
+PCO?». Cinco coisas, todas nascidas do que a Estação aprendeu desde 28 de agosto, e nenhuma
+parte a v1.2 — a regra 12 já dizia que campos desconhecidos se ignoram, e a v1.3 só
+acrescenta. A origem de cada meio terrestre (regra 14), que é o campo que se escreve à mão
+em cada unidade e que a Gestão PCO recebe do SADO. O indicativo dos meios aéreos na forma
+do Anexo 6, com o CMA (regra 15): a Estação cruza-o com a rede transcrita na r0119, dá a
+tipologia em falta, o CMA e a distância, e aplica os 40 km. A sub-região e o concelho do TO
+(regra 16), que deixam de ser uma constante do posto. A saída do TO e a chegada à Entidade
+(regra 17), que entram na rendição da unidade e a tiram da contagem — hoje uma força que sai
+desaparece da exportação seguinte e a Estação só vê uma perda. E o bloco de eventos do SADO
+(regra 18): alerta, despacho, chegada do primeiro meio, reforços, para a fita do tempo do
+art. 2.º, com a marca de importação no texto e nunca em duplicado.
+
+O documento está em `docs/interop/`, com o exemplo ao lado, que entra sem um ponto a
+confirmar; o leitor da Estação aceita os cinco, `validar-gp` di-los, e um pacote v1.2 entra
+exatamente como entrava. Onze testes novos. Ficou registado para depois, da conversa do
+mesmo dia: os anexos da DON n.º 2 sobre bases de apoio logístico, reabastecimento de
+aeronaves e transportes para rendição são matéria da Célula de Logística e Finanças, e
+podem ajudar a desenvolvê-la. 1102 testes.
 
 ## Decisões tomadas
 

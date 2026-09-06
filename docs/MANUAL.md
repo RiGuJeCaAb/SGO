@@ -552,7 +552,19 @@ escreveu nesta ocorrência, para o mesmo corpo de bombeiros ficar sempre com o m
 depois o que a DON n.º 2 nomeia por localização, em todo o país — as equipas de ataque inicial
 da GNR em cada CMA, as bases da FEPC, as máquinas de rasto do ICNF e dos corpos de bombeiros,
 os transportes para rendição —, com a sub-região do TO primeiro. A diretiva não traz a lista
-dos corpos de bombeiros, por isso a maior parte escreve-se à mão da primeira vez.
+dos corpos de bombeiros, por isso a maior parte escreve-se à mão da primeira vez — ou vem da
+Gestão PCO, que desde a especificação v1.3 exporta a origem de cada meio.
+
+### O que vem da Gestão PCO
+
+A exportação da Gestão PCO, na especificação v1.3 de 6 de setembro, traz o dispositivo e
+mais cinco coisas que a Estação aproveita sem ninguém as teclar: a origem de cada meio; o
+indicativo dos meios aéreos na forma do Anexo 6, que a Estação cruza com a rede para dar o
+tipo, o CMA e a distância; a sub-região e o concelho do TO; a saída do TO e a chegada à
+Entidade de cada meio, que entram na rendição e tiram a unidade da contagem; e os eventos do
+SADO, que entram na fita do tempo com a marca de importação e nunca em duplicado. Um pacote
+na v1.2 continua a entrar como sempre. O que a Estação vai fazer com um ficheiro vê-se antes
+de aplicar, e a ferramenta `npm run validar-gp` di-lo sem abrir a aplicação.
 
 Operações → **Meios aéreos no TO**: indicativo e hora de entrada, com «Registar».
 

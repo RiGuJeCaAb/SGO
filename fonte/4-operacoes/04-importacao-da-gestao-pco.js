@@ -1,10 +1,11 @@
 /* ================= importação da Gestão PCO =================
    Vários documentos descrevem esta ligação, e é preciso saber qual manda.
 
-   **Governa a especificação v1.2**, de 28 de agosto, em
-   docs/interop/CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md. Substitui
-   a v1.1 na íntegra — quem estiver a implementar do lado da Gestão PCO implementa essa e
-   só essa. A v1.1 e a v1.0 continuam a ser lidas, por retrocompatibilidade.
+   **Governa a especificação v1.3**, de 6 de setembro, em
+   docs/interop/CSREPCDouro_202609061800_EspecificacaoExportacaoJSON_v13_CLD.md. Substitui
+   a v1.2 na íntegra — quem estiver a implementar do lado da Gestão PCO implementa essa e
+   só essa. A v1.2, a v1.1 e a v1.0 continuam a ser lidas, por retrocompatibilidade: a v1.3
+   só acrescenta campos, e um pacote v1.2 é um pacote v1.3 sem eles.
 
    O contrato `pco:dispositivo`, em
    docs/interop/CSREPCDouro_d0002_202608281630_ContratoGestaoPCO_CLD.md, foi escrito a
@@ -31,7 +32,7 @@ const GP_TIPO = "pco:dispositivo";
 const GP_VERSAO_MAX = 1;
 /* Maior versão da especificação que esta revisão lê. Comparada por partes numéricas,
    nunca por cadeia: "1.10" é posterior a "1.9" — regra 1 da v1.2. */
-const GP_V11_MAIOR = 1, GP_V11_MENOR = 2;
+const GP_V11_MAIOR = 1, GP_V11_MENOR = 3;
 
 /* Siglas descontinuadas com conversão determinada — v1.2, regra 7. `eSF` → `ESF` não
    precisa de entrada: a sigla é normalizada para maiúsculas antes de se procurar aqui. */
@@ -472,6 +473,11 @@ function diferencialGestaoPCO(c){
     add(rot+" · com relógio", ra, rd, rd < ra);
   }
 
+  if(c.eventos && c.eventos.length){
+    const novos = c.eventos.filter(ev=>!O.evolucao.some(x=>x.g === ev.g && x.txt === ev.txt)).length;
+    add("Registos na fita do tempo", O.evolucao.length, O.evolucao.length + novos);
+  }
+
   const registado = e.setores.length || (e.aerL||[]).length || pcoObj().funcoes.length;
   return registado ? linhas : [];
 }
@@ -536,6 +542,15 @@ function aplicarGestaoPCO(c){
   if(c.pt.des || c.pt.resp || c.pt.ct) Object.assign(ptObj(), c.pt);
   if(c.sensiveis) O.dados.sensiveis = c.sensiveis;
 
+  /* Os eventos entram na fita do tempo uma vez só: a mesma exportação importada duas vezes,
+     ou a seguinte a repetir os eventos antigos, não duplica registos. A chave é o instante
+     e o texto, que é o que o pacote tem. */
+  let novosEventos = 0;
+  (c.eventos||[]).forEach(ev=>{
+    if(O.evolucao.some(x=>x.g === ev.g && x.txt === ev.txt)) return;
+    O.evolucao.push({ g:ev.g, tipo:ev.tipo, txt:ev.txt }); novosEventos++;
+  });
+
   const r = c.resumo;
   fita("Dispositivo importado da Gestão PCO ("+r.esquema+" v"+r.versao+")"
     + (r.app? " · origem "+r.app+(r.rev? " "+r.rev:"") : "")
@@ -544,7 +559,8 @@ function aplicarGestaoPCO(c){
     + (r.emitido? " · emitido "+r.emitido : "")
     + " · importado "+gdhAgora()
     + " · "+r.setores+" setores, "+r.forcas+" unidades, "+r.aereos+" meios aéreos, "+r.funcoes+" funções"
-    + (r.semRelogio? " · "+r.semRelogio+" unidade(s) sem instante de empenhamento" : ""));
+    + (r.semRelogio? " · "+r.semRelogio+" unidade(s) sem instante de empenhamento" : "")
+    + (r.eventos? " · "+novosEventos+" de "+r.eventos+" evento(s) novos na fita do tempo" : ""));
   return r;
 }
 
@@ -712,6 +728,11 @@ function converterV11GestaoPCO(p, avisos){
   if(oc.latitude != null) meta.lat = String(oc.latitude);
   if(oc.longitude != null) meta.lon = String(oc.longitude);
   if(oc.latitude != null || oc.longitude != null) meta.coordFonte = "importação da Gestão PCO";
+  /* Regra 16 da v1.3: a sub-região do TO escolhe o pacote de canais e ordena as listas de
+     origens, e deixa de ser uma constante do posto — o PCO instala-se em qualquer ponto. */
+  if(oc.sub_regiao != null) meta.subregiao = String(oc.sub_regiao);
+  if(oc.concelho != null) meta.concelho = String(oc.concelho);
+  if(oc.distrito != null) meta.distrito = String(oc.distrito);
   if(oc.inicio || oc.inicio_iso){
     const i = instanteCampo(oc, "inicio", "Início da ocorrência", avisos);
     if(i.ts !== null) meta.inicio = i.g;
@@ -748,8 +769,15 @@ function converterV11GestaoPCO(p, avisos){
       if(i.ts !== null && m.empenhado_estimado){
         avisos.push(onde+", "+t+": instante de empenhamento é estimativa assinalada pela origem.");
       }
-      return { t, q:+m.quantidade||0, mu, ou, mr:(d && d.mr)||0, ar:(d && d.ar)||0,
-        ts: i.ts, ent:String(m.entidade||""), estimado: !!m.empenhado_estimado, livre:false };
+      /* Regra 14: `origem` é o nome novo; `entidade` continua a ler-se. Regra 17: a saída do
+         TO e a chegada à Entidade entram na rendição da unidade, como se tivessem sido
+         registadas à mão — é o que tira a unidade da contagem de empenhamento. */
+      const ent = String(m.origem != null? m.origem : (m.entidade||""));
+      const rend = rendicaoGP(m, onde+", "+t, avisos);
+      const u = { t, q:+m.quantidade||0, mu, ou, mr:(d && d.mr)||0, ar:(d && d.ar)||0,
+        ts: i.ts, ent, estimado: !!m.empenhado_estimado, livre:false };
+      if(rend) u.rend = rend;
+      return u;
     }));
     setores.push({ estado: estadoSetorGP(s.estado, onde, avisos),
       cmd:String(s.comandante||""), adj:String(s.adjunto||""), ct:String(s.contacto||""),
@@ -765,7 +793,20 @@ function converterV11GestaoPCO(p, avisos){
       if(i.ts === null){
         avisos.push("Meio aéreo "+(a.indicativo||t||"?")+": sem hora de entrada no TO; não conta tempo no teatro.");
       }
-      aerL.push({ t, ind:String(a.indicativo||""), g: i.g, ts: i.ts, cma:"" });
+      /* Regra 15: o indicativo do Anexo 6 cruza com a rede da diretiva na data de início da
+         ocorrência. Dá a tipologia quando o pacote não a traz, e o CMA quando o não diz;
+         se a tipologia vier diferente da do anexo, fica a exportada e diz-se. */
+      const rede = meioAereoDECIR(a.indicativo, parseGDH(meta.inicio) || new Date(agora()));
+      let tipo = t;
+      if(rede && !tipo) tipo = rede.t;
+      else if(rede && tipo !== rede.t){
+        avisos.push("Meio aéreo "+a.indicativo+": o Anexo 6 da DON n.º 2 diz "+rede.t+" e a tipologia veio "+tipo+"; fica a exportada.");
+      }
+      const cma = String(a.cma || (rede && rede.cma? rede.cma.n : ""));
+      const rend = rendicaoGP(a, "Meio aéreo "+(a.indicativo||tipo), avisos);
+      const av = { t:tipo, ind:String(a.indicativo||""), g: i.g, ts: i.ts, cma };
+      if(rend) av.rend = rend;
+      aerL.push(av);
     });
   } else if(Number.isFinite(+p.meios_aereos) && +p.meios_aereos > 0){
     const n = Math.round(+p.meios_aereos);
@@ -783,17 +824,85 @@ function converterV11GestaoPCO(p, avisos){
   const funcoes = blocoPcoGP(p.pco, avisos);
   const pt = pontoTransitoGP(p.ponto_transito, avisos);
   const emitido = instanteFlexivel(p.gerado);
+  const eventos = eventosGP(p.eventos, avisos);
 
   return {
-    meta, area:"", funcoes, sensiveis, pt,
+    meta, area:"", funcoes, sensiveis, pt, eventos,
     est: { n:setores.length, setores, aer: aerL.length? String(aerL.length):"", aerL,
       res:{ m:conta(p.reserva,"veiculos"), o:conta(p.reserva,"operacionais") },
       za:{ m:conta(p.za,"veiculos"), o:conta(p.za,"operacionais") }, livre:false },
     avisos,
     resumo: { esquema:"especificação", versao:String(p.versao), setores:setores.length,
       forcas:setores.reduce((a,s)=>a+s.tip.length,0), aereos:aerL.length,
-      funcoes:funcoes.length,
+      funcoes:funcoes.length, eventos:eventos.length,
       semRelogio:setores.reduce((a,s)=>a+s.tip.filter(f=>!f.ts).length,0),
       emitido: emitido.g || String(p.gerado||""), app:"", rev:"", operador:"", posto:"" }
   };
+}
+
+/* Os tipos de evento que a fita do tempo tem, e os nomes com que o SADO os conhece. O que
+   não estiver aqui entra como ponto de situação, e diz-se: um evento perdido é pior do que
+   um evento mal classificado. */
+const GP_TIPOS_EVENTO = {
+  posit:"posit", agravamento:"agravamento", melhoria:"melhoria", meios:"meios", decisao:"decisao",
+  alerta:"posit", despacho:"meios", chegada:"meios", reforco:"meios", pedido:"meios", desmobilizacao:"meios"
+};
+
+/**
+ * Regra 18 da v1.3: os eventos do SADO, para a fita do tempo. Cada um traz o instante, o
+ * tipo e o texto; o que sair daqui já é um registo da fita como a Estação o guarda, com a
+ * origem no próprio texto, como as mudanças automáticas de estado de setor.
+ *
+ * @param {any} lista o bloco `eventos` do pacote
+ * @param {string[]} avisos
+ * @returns {{g:string, tipo:string, txt:string}[]}
+ */
+function eventosGP(lista, avisos){
+  if(!Array.isArray(lista)) return [];
+  const fora = [];
+  lista.forEach((ev, k)=>{
+    const onde = "Evento "+(k+1);
+    const texto = String((ev && (ev.texto != null? ev.texto : ev.txt))||"").trim();
+    if(!texto){ avisos.push(onde+": sem texto; ignorado."); return; }
+    const campo = (ev.instante != null)? "instante" : "gdh";
+    /* Um evento sem instante é um aviso só, e diz que foi ignorado: o de `instanteCampo`
+       sozinho deixaria pensar que entrou com o instante em branco. */
+    const proprios = [];
+    const i = instanteCampo(ev, campo, onde, proprios);
+    if(i.ts === null){
+      avisos.push(onde+" ("+texto.slice(0,40)+"): "+(String(ev[campo]||"").trim()? "instante ilegível (\""+ev[campo]+"\")" : "sem instante")+"; ignorado.");
+      return;
+    }
+    proprios.forEach(a=>avisos.push(a));
+    const tipoBruto = String(ev.tipo||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    let tipo = GP_TIPOS_EVENTO[tipoBruto];
+    if(!tipo){
+      tipo = "posit";
+      if(tipoBruto) avisos.push(onde+": tipo \""+ev.tipo+"\" não é dos previstos; entra como ponto de situação.");
+    }
+    fora.push({ g:i.g, tipo, txt: texto+" (importado da Gestão PCO)" });
+  });
+  return fora;
+}
+
+/**
+ * Regra 17 da v1.3: `saida_to` e `chegada_entidade` de um meio ou de uma aeronave, na
+ * forma do ramo `rend` da unidade. Null quando o pacote não os traz. A chegada sem saída
+ * não se aceita, pela mesma razão do painel: regista-se depois da saída.
+ *
+ * @returns {RendicaoUnidade|null}
+ */
+function rendicaoGP(m, onde, avisos){
+  if(!m || (m.saida_to == null && m.chegada_entidade == null)) return null;
+  const s = instanteCampo(m, "saida_to", onde+", saída do TO", avisos);
+  const c = instanteCampo(m, "chegada_entidade", onde+", chegada à Entidade", avisos);
+  if(s.ts === null){
+    if(c.ts !== null) avisos.push(onde+": chegada à Entidade sem saída do TO; a chegada regista-se depois da saída, e fica por registar.");
+    return null;
+  }
+  if(c.ts !== null && c.ts < s.ts){
+    avisos.push(onde+": a chegada à Entidade ("+c.g+") é anterior à saída do TO ("+s.g+"); fica só a saída.");
+    return { g:"", por:"Gestão PCO", nota:"", saida:s.g, chegada:"" };
+  }
+  return { g:"", por:"Gestão PCO", nota:"", saida:s.g, chegada:c.ts !== null? c.g : "" };
 }

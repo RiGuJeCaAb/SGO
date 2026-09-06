@@ -516,10 +516,118 @@ test('a v1.1 continua a ser lida, e sem o bloco pco não inventa funções', sem
   assert.equal(c.avisos.length, 0, c.avisos.join(' | '));
 });
 
-test('uma versão acima da v1.2 é recusada sem tocar em nada', semAplicacao, () => {
+test('uma versão acima da v1.3 é recusada sem tocar em nada', semAplicacao, () => {
   const p = JSON.parse(V12);
-  p.versao = '1.3';
-  assert.throws(() => janela.lerPacoteGestaoPCO(JSON.stringify(p)), /versão 1\.3; esta revisão lê até à 1\.2/);
+  p.versao = '1.4';
+  assert.throws(() => janela.lerPacoteGestaoPCO(JSON.stringify(p)), /versão 1\.4; esta revisão lê até à 1\.3/);
+});
+
+/* ---- a v1.3, de 6 de setembro: cinco campos, todos opcionais ---- */
+
+const V13 = await ler('EspecificacaoJSON_v1.3_exemplo.json');
+/* Os objetos vêm do outro reino (a janela): comparam-se por valor, depois de uma volta pelo JSON. */
+const daqui = (x) => JSON.parse(JSON.stringify(x));
+
+test('a v1.3 é reconhecida e entra sem um único ponto a confirmar', semAplicacao, () => {
+  const c = converter(V13);
+  assert.equal(c.resumo.esquema, 'especificação');
+  assert.equal(c.resumo.versao, '1.3');
+  assert.deepEqual(daqui(c.avisos), []);
+  assert.equal(c.resumo.forcas, 5); assert.equal(c.resumo.aereos, 3); assert.equal(c.resumo.eventos, 4);
+});
+
+test('regra 14 — a origem de cada meio chega à unidade, e entidade continua a valer', semAplicacao, () => {
+  const c = converter(V13);
+  assert.equal(c.est.setores[0].tip[0].ent, 'CB Moimenta da Beira');
+  assert.deepEqual(daqui(c.est.setores[0].tip.slice(1).map((u) => u.ent)), ['CB Lamego', 'CB Lamego']);
+  const p = JSON.parse(V13); p.setores[0].meios[0].entidade = 'CB Antigo'; delete p.setores[0].meios[0].origem;
+  assert.equal(converter(JSON.stringify(p)).est.setores[0].tip[0].ent, 'CB Antigo');
+});
+
+test('regra 15 — o indicativo do Anexo 6 dá o CMA, a tipologia em falta, e assinala a que discorda', semAplicacao, () => {
+  const c = converter(V13);
+  const h15 = c.est.aerL.find((a) => a.ind === 'H15'), k2 = c.est.aerL.find((a) => a.ind === 'K2');
+  assert.equal(h15.cma, 'Vila Real'); assert.equal(k2.cma, 'Macedo de Cavaleiros');
+  assert.equal(k2.t, 'HEBP');
+  const p = JSON.parse(V13);
+  p.meios_aereos[1].tipologia = ''; p.meios_aereos[0].tipologia = 'HEBP';
+  const d = converter(JSON.stringify(p));
+  assert.equal(d.est.aerL.find((a) => a.ind === 'K2').t, 'HEBP', 'sem tipologia, vem do Anexo 6');
+  assert.equal(d.est.aerL.find((a) => a.ind === 'H15').t, 'HEBP', 'com tipologia diferente, fica a exportada');
+  assert.ok(d.avisos.some((a) => /H15: o Anexo 6 da DON n\.º 2 diz HEBL e a tipologia veio HEBP/.test(a)), d.avisos.join(' | '));
+  /* A família do Anexo 1 continua a ser aceite e confrontada como antes. */
+  assert.equal(c.est.aerL.find((a) => a.ind === 'FIRE 01').cma, '');
+});
+
+test('regra 16 — a sub-região e o concelho do TO chegam à identificação', semAplicacao, () => {
+  const c = converter(V13);
+  assert.equal(c.meta.subregiao, 'Douro'); assert.equal(c.meta.concelho, 'Moimenta da Beira');
+  janela.aplicarGestaoPCO(c);
+  assert.equal(janela.subregiaoTO(), 'Douro');
+  const L = daqui(janela.opcoesOrigem().map((o) => o.n));
+  assert.deepEqual(L.slice(0, 4), ['CB Moimenta da Beira', 'CB Lamego', 'CB Sernancelhe', 'CB Tarouca'], 'as origens importadas ficam na lista');
+});
+
+test('regra 17 — a saída do TO entra na rendição e tira a unidade da contagem', semAplicacao, () => {
+  const c = converter(V13);
+  const vlci = c.est.setores[1].tip.find((u) => u.t === 'VLCI');
+  assert.deepEqual(daqui(vlci.rend), { g: '', por: 'Gestão PCO', nota: '', saida: '261010AGO26', chegada: '261055AGO26' });
+  const k2 = c.est.aerL.find((a) => a.ind === 'K2');
+  assert.equal(k2.rend.saida, '251945AGO26'); assert.equal(k2.rend.chegada, '');
+  janela.aplicarGestaoPCO(c);
+  const e = janela.estObj();
+  assert.ok(janela.rendSaiu(e.setores[1].tip.find((u) => u.t === 'VLCI')));
+  assert.ok(!janela.rendSaiu(e.setores[1].tip.find((u) => u.t === 'VFCI')));
+  /* Chegada sem saída não se aceita; chegada antes da saída fica só com a saída. */
+  const p = JSON.parse(V13);
+  delete p.setores[1].meios[1].saida_to;
+  let d = converter(JSON.stringify(p));
+  assert.equal(d.est.setores[1].tip.find((u) => u.t === 'VLCI').rend, undefined);
+  assert.ok(d.avisos.some((a) => /chegada à Entidade sem saída do TO/.test(a)));
+  p.setores[1].meios[1].saida_to = '261100AGO26';
+  d = converter(JSON.stringify(p));
+  assert.equal(d.est.setores[1].tip.find((u) => u.t === 'VLCI').rend.chegada, '');
+  assert.ok(d.avisos.some((a) => /anterior à saída do TO/.test(a)));
+});
+
+test('regra 18 — os eventos entram na fita do tempo com a marca, uma vez só', semAplicacao, () => {
+  const c = converter(V13);
+  assert.equal(c.eventos.length, 4);
+  assert.deepEqual(daqui(c.eventos.map((e) => e.tipo)), ['posit', 'meios', 'meios', 'meios']);
+  /* O GDH é hora local de quem lê: compara-se com a conversão da própria janela, e não com um literal. */
+  assert.equal(c.eventos[2].g, janela.gdhDe(Date.parse('2026-08-25T14:21:00+01:00')), 'o ISO com fuso vira GDH');
+  assert.match(c.eventos[0].txt, /Alerta\..*\(importado da Gestão PCO\)$/);
+  janela.aplicarGestaoPCO(c);
+  let O = estado();
+  assert.equal(O.evolucao.filter((x) => /importado da Gestão PCO/.test(x.txt)).length, 4);
+  assert.match(O.fita.at(-1).e, /4 de 4 evento\(s\) novos na fita do tempo/);
+  janela.aplicarGestaoPCO(converter(V13));
+  O = estado();
+  assert.equal(O.evolucao.filter((x) => /importado da Gestão PCO/.test(x.txt)).length, 4, 'importar outra vez não duplica');
+  assert.match(O.fita.at(-1).e, /0 de 4 evento\(s\) novos/);
+  /* Tipo desconhecido entra como ponto de situação, assinalado; sem texto ou instante, ignorado. */
+  const p = JSON.parse(V13);
+  p.eventos = [{ instante: '251500AGO26', tipo: 'coisa', texto: 'x' }, { instante: '251500AGO26', tipo: 'posit', texto: '' }, { instante: 'ontem', texto: 'y' }];
+  const d = converter(JSON.stringify(p));
+  assert.equal(d.eventos.length, 1); assert.equal(d.eventos[0].tipo, 'posit');
+  assert.equal(d.avisos.filter((a) => /^Evento/.test(a)).length, 3, d.avisos.join(' | '));
+});
+
+test('regra 18 — o diferencial diz quantos registos a fita ganha', semAplicacao, () => {
+  const c = converter(V13);
+  janela.aplicarGestaoPCO(c);
+  const O = estado(); O.evolucao.pop();
+  const linhas = janela.diferencialGestaoPCO(converter(V13));
+  const l = linhas.find((x) => x.rot === 'Registos na fita do tempo');
+  assert.ok(l, linhas.map((x) => x.rot).join(' | '));
+  assert.equal(l.depois - l.antes, 1);
+});
+
+test('um pacote v1.2 continua a entrar exatamente como entrava', semAplicacao, () => {
+  const c = converter(V12);
+  assert.equal(c.resumo.versao, '1.2'); assert.equal(c.eventos.length, 0);
+  assert.ok(c.est.setores.every((s) => s.tip.every((u) => u.rend === undefined)));
+  assert.equal(c.meta.subregiao, undefined);
 });
 
 /* ---- os dois instantes da nomeação externa chegam ao estado ---- */

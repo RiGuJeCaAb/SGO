@@ -48,7 +48,8 @@ validar uma exportação.
 
 | Ficheiro | Estado |
 |---|---|
-| `CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md` | **Em vigor.** É o que a Gestão PCO deve implementar. Substitui a v1.1 na íntegra |
+| `CSREPCDouro_202609061800_EspecificacaoExportacaoJSON_v13_CLD.md` | **Em vigor.** É o que a Gestão PCO deve implementar. Substitui a v1.2 na íntegra; só acrescenta campos, todos opcionais |
+| `CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md` | Substituída pela v1.3 a 6 de setembro. Continua a ser lida |
 | `CSREPCDouro_202608301515_ContratoServicoVCOC_v01_CLD.md` | **Proposta.** O contrato do serviço de acompanhamento da VCOC: contas, perfis, sincronização e recibo assinado. É o que o servidor deve implementar |
 | `CSREPCDouro_202608271715_EspecificacaoExportacaoJSON_CLD.md` | v1.1, substituída. Continua a ser lida pela Estação, por retrocompatibilidade |
 | `CSREPCDouro_202608281700_EspecificacaoExportacaoJSON_v12_PROPOSTA_CLD.md` | A proposta que deu origem à v1.2. Arquivada: o que propunha está no documento em vigor |

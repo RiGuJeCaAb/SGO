@@ -3,23 +3,25 @@
 Ficheiros de referência para quem desenvolve a **Gestão PCO**, e para verificar uma
 exportação real antes de a levar ao terreno.
 
-**Governa a especificação v1.2**,
-`docs/interop/CSREPCDouro_202608281845_EspecificacaoExportacaoJSON_v12_CLD.md`. Substitui a
-v1.1 na íntegra: quem estiver a começar implementa essa e só essa.
+**Governa a especificação v1.3**,
+`docs/interop/CSREPCDouro_202609061800_EspecificacaoExportacaoJSON_v13_CLD.md`. Substitui a
+v1.2 na íntegra: quem estiver a começar implementa essa e só essa. Só acrescenta campos, todos
+opcionais: um pacote v1.2 continua a entrar como sempre.
 
 | Ficheiro | Esquema | Para que serve |
 |---|---|---|
-| `EspecificacaoJSON_v1.2_exemplo.json` | v1.2, **em vigor** | O exemplo da especificação. Traz o bloco `pco`, o ponto de trânsito e os dois formatos de tempo no mesmo campo |
+| `EspecificacaoJSON_v1.3_exemplo.json` | v1.3, **em vigor** | O exemplo da especificação. Traz a origem de cada meio, o indicativo do Anexo 6 com o CMA, a sub-região, uma unidade e uma aeronave já saídas do TO, e os eventos do SADO para a fita do tempo |
+| `EspecificacaoJSON_v1.2_exemplo.json` | v1.2, lida por retrocompatibilidade | O que a v1.3 substituiu. Traz o bloco `pco`, o ponto de trânsito e os dois formatos de tempo no mesmo campo |
 | `EspecificacaoJSON_v1.1_exemplo.json` | v1.1, lida por retrocompatibilidade | O que a v1.2 substituiu. A Estação lê-o sem um único ponto a confirmar |
 | `pco-dispositivo_v1_exemplo.json` | contrato `pco:dispositivo` | Envelope do documento `d0002`, arquivado. Foi de lá que vieram os acréscimos que hoje estão na v1.2 |
 | `pco-dispositivo_v0_esboco.json` | esboço anterior | Setores em texto livre e meios aéreos em contagem. Serve para não perder dados antigos; não serve para operar |
 
-O importador lê os quatro e normaliza-os numa forma só.
+O importador lê os cinco e normaliza-os numa forma só.
 
 O exemplo da v1.2 traz de propósito um núcleo externo solicitado e ainda por nomear, com
 `"nomeado": null`. A Estação assinala-o, e é a única coisa que assinala no ficheiro: não é
 defeito do exemplo, é a informação operacional que a distância entre os dois instantes
-transporta. O da v1.1 entra sem assinalar nada.
+transporta. Os da v1.3 e da v1.1 entram sem assinalar nada.
 
 ## Verificar uma exportação
 

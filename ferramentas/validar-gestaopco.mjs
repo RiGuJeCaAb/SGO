@@ -34,7 +34,9 @@ try {
   console.log(`  ${r.esquema} v${r.versao}${r.emitido ? `, emitido ${r.emitido}` : ''}`);
   if (r.app) console.log(`  origem ${r.app}${r.rev ? ` ${r.rev}` : ''}${r.operador ? ` · ${r.operador}` : ''}${r.posto ? ` · ${r.posto}` : ''}`);
   console.log(`  ocorrência ${c.meta.num ?? '—'} · ${c.meta.local ?? '—'}`);
-  console.log(`  ${r.setores} setores · ${r.forcas} forças · ${r.aereos} meios aéreos · ${r.funcoes} funções do PCO`);
+  console.log(`  ${r.setores} setores · ${r.forcas} forças · ${r.aereos} meios aéreos · ${r.funcoes} funções do PCO` +
+    (r.eventos ? ` · ${r.eventos} eventos para a fita do tempo` : ''));
+  if (c.meta.subregiao) console.log(`  sub-região do TO: ${c.meta.subregiao}${c.meta.concelho ? ` · ${c.meta.concelho}` : ''}`);
   console.log(`  reserva ${c.est.res.m || 0}/${c.est.res.o || 0} · zona de apoio ${c.est.za.m || 0}/${c.est.za.o || 0}`);
   console.log(`  ${r.forcas - r.semRelogio} de ${r.forcas} forças com instante de empenhamento` +
     (r.semRelogio ? ' — sem ele não há controlo de tempos nem rendição' : ''));
