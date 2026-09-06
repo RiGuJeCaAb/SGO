@@ -439,6 +439,9 @@ function kvpFundido(base, pars, extra){
   return raiz + "?" + q.toString();
 }
 
+/** Um modelo `https://anfitriao{marcador}…`, sem barra antes do primeiro marcador? */
+function marcadorColadoAoAnfitriao(modelo){ return /^https?:\/\/[^/?#]*\{/i.test(String(modelo||"")); }
+
 /**
  * Promove um endereço a HTTPS, mas só onde isso é ganho e não perda.
  *
@@ -566,6 +569,13 @@ function wmtsCarta(cap, camadaId, conjuntoId){
 
   if(!rec && !cap.kvp)
     return { ok:false, motivo:"O serviço não declara nem modelo de endereço nem ponto de acesso KVP para os mosaicos." };
+  /* Um modelo com o marcador colado ao anfitrião — `https://openstreetmap.org{TileMatrix}/…`
+     — dá pedidos a um anfitrião que não existe (`openstreetmap.org13`). Veio assim num
+     GetCapabilities escrito à mão e carregado no posto a 6 de setembro; a aplicação
+     substituía à letra e a linha de estado só dizia «falha de rede». Recusa-se ao adotar,
+     com o modelo à vista, que é quando ainda se pode corrigir. */
+  if(rec && marcadorColadoAoAnfitriao(rec.modelo))
+    return { ok:false, motivo:"o modelo de endereço dos mosaicos não tem barra entre o anfitrião e o primeiro marcador — "+rec.modelo+" — e o pedido iria para um anfitrião que não existe" };
 
   /* O valor da dimensão: o que o serviço declara por omissão, que no GIBS acompanha a
      última data disponível. Guarda-se também a lista de intervalos, porque é a única

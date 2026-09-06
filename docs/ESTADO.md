@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0109**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0110**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 147, das anteriores à convenção de nomes até à r0109 |
+| Entregas em `app/` | 148, das anteriores à convenção de nomes até à r0110 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1070, todos a passar |
+| Testes | 1072, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1360,6 +1360,35 @@ a próxima pergunta vir com eles.
 
 **Números.** 1070 testes, 4 novos; nove portões e o trabalho de navegador verdes; auditoria
 visual limpa nos dois temas.
+
+## O que o ecrã do dono mostrou, e o serviço que não há — r0110
+
+A linha de estado da r0109 fez o que devia: o ecrã do dono, a 6 de setembro, diz que a
+carta em uso é um WMTS chamado «Direção-Geral do Território (Local Proxy)» e que o primeiro
+quadrado pedido foi `https://openstreetmap.org13/3920/3070.png`. Não é a DGT — a DGT não
+tem esse título nem esse endereço — e não é um endereço: é um GetCapabilities escrito à
+mão, com o modelo `https://openstreetmap.org{TileMatrix}/…` sem barra antes do marcador,
+que a aplicação substituía à letra. Ainda que tivesse barra, `openstreetmap.org` não serve
+mosaicos, e o servidor que os serve recusa pedidos de uma página que não se identifica,
+como as capturas da r0072 já tinham mostrado.
+
+**O que entra:** um modelo com o marcador colado ao anfitrião é recusado ao adotar a
+camada, com o modelo à vista — que é quando ainda se pode corrigir —, e o mesmo para um
+serviço `{z}/{x}/{y}` declarado à mão. Dois testes.
+
+**O que não entra, e porquê.** O dono pede «um serviço que funcione em todas as vertentes»:
+em `file://` e no GitHub Pages, sem chave, com CORS aberto, com Portugal a 15 m por pixel.
+Não se escreve nenhum na aplicação, pela mesma razão de sempre: os serviços de uso
+comunitário exigem que a aplicação se identifique, e um ficheiro local não o consegue; os
+comerciais têm termos que só o dono pode aceitar; e **daqui não se consegue verificar
+nenhum** — a rede recusa tudo com 403. O que se sabe por prova está nas capturas de 31 de
+agosto: a DGT responde, com CORS aberto, em `http` e só em `http`, o que serve em `file://`
+e não no Pages; o GIBS responde em `https` com CORS aberto, mas é imagem de satélite de
+baixa resolução, não carta de trabalho. Os candidatos que cumpririam as quatro condições ao
+mesmo tempo — os serviços de mosaicos da Esri, o OpenTopoMap — não têm captura e não se
+afirmam; a `sonda` da r0107 existe para isso, e o ESTADO deixa a lista de comandos que o
+dono corre num computador com rede. O que responder de `file://` com CORS aberto entra na
+revisão seguinte como captura, com os termos ao lado.
 
 ## Decisões tomadas
 

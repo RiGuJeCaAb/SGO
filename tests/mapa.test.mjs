@@ -670,3 +670,10 @@ test('lerCapacidadesWMTS diz se promoveu o endereço, e não promove numa págin
   assert.equal(cap.promovido, false);
   assert.match(cap.kvp, /^http:\/\//, 'de file:// a DGT fica em http, que é o que ela tem');
 });
+
+test('um serviço {z}/{x}/{y} sem barra depois do anfitrião é recusado ao declarar', semAplicacao, async () => {
+  const r = await janela.guardarCarta('https://openstreetmap.org{z}/{x}/{y}.png', 'ensaio', 'https://exemplo.pt/termos', 18);
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /Falta a barra entre o anfitrião e o primeiro marcador/);
+  assert.equal(avaliar(janela, '!!CARTA'), false, 'e não fica em uso');
+});

@@ -357,3 +357,21 @@ test('em file:// o http do serviço fica como está', semAplicacao, () => {
     'http://cartografia.dgterritorio.gov.pt/x');
   assert.equal(janela.httpsSeForPreciso('https://x/y'), 'https://x/y');
 });
+
+test('um modelo com o marcador colado ao anfitrião é recusado ao adotar, com o modelo à vista', semAplicacao, () => {
+  /* `https://openstreetmap.org{TileMatrix}/{TileCol}/{TileRow}.png`, num GetCapabilities
+     escrito à mão e carregado no posto a 6 de setembro: pedidos a `openstreetmap.org13`,
+     e a linha de estado só dizia «falha de rede». */
+  const c = cap();
+  const cam = c.camadas[0];
+  const conjunto = cam.conjuntos[0];
+  const antes = janela.wmtsCarta(c, cam.id, conjunto);
+  assert.equal(antes.ok, true, antes.motivo);
+  cam.recursos = [{ modelo: 'https://openstreetmap.org{TileMatrix}/{TileCol}/{TileRow}.png', formato: cam.formatos[0], promovido: false }];
+  const r = janela.wmtsCarta(c, cam.id, conjunto);
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /não tem barra entre o anfitrião e o primeiro marcador/);
+  assert.match(r.motivo, /openstreetmap\.org\{TileMatrix\}/, 'o modelo tem de estar à vista para se corrigir');
+  assert.equal(janela.marcadorColadoAoAnfitriao('https://tile.exemplo.pt/{TileMatrix}/{TileCol}/{TileRow}.png'), false);
+  assert.equal(janela.marcadorColadoAoAnfitriao('https://exemplo.pt:8080{TileMatrix}'), true);
+});

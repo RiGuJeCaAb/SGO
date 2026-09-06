@@ -113,6 +113,8 @@ async function guardarCarta(u, atrib, termos, zMax){
   if(!/^https:\/\//.test(url)) return { ok:false, motivo:"O endereço tem de começar por https://." };
   if(!(url.includes("{z}") && url.includes("{x}") && url.includes("{y}")))
     return { ok:false, motivo:"O endereço tem de trazer {z}, {x} e {y} — é o esquema de mosaicos." };
+  if(marcadorColadoAoAnfitriao(url))
+    return { ok:false, motivo:"Falta a barra entre o anfitrião e o primeiro marcador: o pedido iria para um anfitrião que não existe." };
   const a = String(atrib||"").trim();
   if(a.length < 4) return { ok:false, motivo:"Indicar a atribuição que a licença do serviço obriga a mostrar." };
   const t = String(termos||"").trim();
