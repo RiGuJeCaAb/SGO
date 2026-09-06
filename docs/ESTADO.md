@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0113**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0114**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 151, das anteriores à convenção de nomes até à r0113 |
+| Entregas em `app/` | 152, das anteriores à convenção de nomes até à r0114 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1078, todos a passar |
+| Testes | 1079, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1464,6 +1464,20 @@ a experimentar o `<img>` quando o `fetch` falha, para dizer se a carta se veria 
 direto. Manual com o parágrafo. Um teste no arnês, e a prova no Chromium.
 
 **Números.** 1078 testes, 1 novo; nove portões e o trabalho de navegador verdes.
+
+## O triângulo é a ocorrência, não o posto de comando — r0114
+
+O dono, pela segunda vez: «continuamos a misturar ponto de ocorrência com PCO». A r0106
+tirou a sigla do alvo do mapa, mas o triângulo que marca `meta.lat`/`meta.lon` continuava
+rotulado «PCO» no croqui, no mapa e nos dois testes que o afirmavam — desde o primeiro
+croqui. PCO é o posto de comando operacional, art. 13.º do SGO, que se instala onde convém
+ao comando, obrigatoriamente a partir da fase II (n.º 2, conferido no despacho); o
+triângulo é onde o fogo começou. Passa a dizer «Ocorrência», e a variável de cor
+`--cq-pco` passa a `--cq-ocorrencia`. **O posto marca-se como ponto notável**, com o tipo
+novo «Posto de comando operacional», a cor do comando e a fonte ao lado. Os dois testes
+passam a recusar «PCO» no triângulo; o manual diz a diferença.
+
+**Números.** 1079 testes, 1 novo; nove portões e o trabalho de navegador verdes.
 
 ## Decisões tomadas
 

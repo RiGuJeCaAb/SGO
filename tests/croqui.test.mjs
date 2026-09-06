@@ -97,7 +97,8 @@ test('com perímetro sai SVG, com escala, norte e o ponto do PCO', semAplicacao,
   assert.match(svg, /^<svg /);
   assert.match(svg, /viewBox="0 0 640 \d+"/);
   assert.match(svg, /<path d="M[\d.,\sLZ-]+"/, 'sem traçado do perímetro');
-  assert.ok(svg.includes('>PCO<'), 'sem marca do posto de comando');
+  assert.ok(svg.includes('>Ocorrência<'), 'sem marca do ponto da ocorrência');
+  assert.ok(!svg.includes('>PCO<'), 'o triângulo é a ocorrência, não o posto de comando');
   assert.ok(svg.includes('>N<'), 'sem rosa dos ventos');
   assert.match(svg, />(\d+ m|[\d.]+ km)</, 'sem barra de escala rotulada');
 });

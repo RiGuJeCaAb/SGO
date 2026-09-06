@@ -222,10 +222,15 @@ function croquiSVG(larg, alt){
     g += '<text x="'+n(x+7)+'" y="'+n(y+3.5)+'" font-size="9" fill="var(--cq-tx,#5A5A5A)">'+e(m.nome)+'</text>';
   });
 
+  /* O triângulo é o **ponto da ocorrência** — a coordenada de `meta.lat`/`meta.lon`, onde o
+     incêndio começou — e não o posto de comando. Dizia «PCO» desde o primeiro croqui, e o
+     dono apontou-o duas vezes: PCO é o posto de comando operacional, art. 13.º, que se
+     instala onde convém ao comando e não onde o fogo pegou. O posto marca-se como ponto
+     notável, com o seu tipo. */
   if(temPonto){
     const x = X(lon0), y = Y(lat0);
-    g += '<path d="M'+n(x)+','+n(y-9)+' L'+n(x+7.8)+','+n(y+4.5)+' L'+n(x-7.8)+','+n(y+4.5)+' Z" fill="var(--cq-pco,#005CA9)" stroke="#fff" stroke-width="1.2"/>';
-    g += '<text x="'+n(x+11)+'" y="'+n(y+4)+'" font-size="9.5" font-weight="700" fill="var(--cq-pco,#005CA9)">PCO</text>';
+    g += '<path d="M'+n(x)+','+n(y-9)+' L'+n(x+7.8)+','+n(y+4.5)+' L'+n(x-7.8)+','+n(y+4.5)+' Z" fill="var(--cq-ocorrencia,#005CA9)" stroke="#fff" stroke-width="1.2"/>';
+    g += '<text x="'+n(x+11)+'" y="'+n(y+4)+'" font-size="9.5" font-weight="700" fill="var(--cq-ocorrencia,#005CA9)">Ocorrência</text>';
   }
 
   const E = escalaRedonda(Q.mpp, larg);

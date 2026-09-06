@@ -379,7 +379,8 @@ test('a sobreposição traz o perímetro, o PCO, os pontos e os setores', semApl
   janela.enquadrarMapa(640, 620);
   const svg = janela.camadaMapa();
   assert.match(svg, /^<svg /);
-  assert.ok(svg.includes('>PCO<'), 'sem PCO');
+  assert.ok(svg.includes('>Ocorrência<'), 'sem o ponto da ocorrência');
+  assert.ok(!svg.includes('>PCO<'), 'o triângulo é a ocorrência, não o posto de comando');
   assert.ok(svg.includes('>charca<'), 'sem o ponto de água');
   assert.ok(svg.includes('>Setor Alfa<'), 'sem o setor');
   assert.match(svg, /<path d="M[\d.,\sLZ-]+" fill="#B84B3F"/, 'sem o perímetro');
@@ -701,4 +702,17 @@ test('sem CORS, os quadrados pedem-se em modo direto: o img leva o endereço do 
     janela.fetch = fetchAntes;
     await janela.retirarCarta();
   }
+});
+
+test('o posto de comando é um ponto notável com tipo próprio, e não o triângulo', semAplicacao, () => {
+  const d = janela.defPonto('pco');
+  assert.equal(d.k, 'pco');
+  assert.equal(d.n, 'Posto de comando operacional');
+  assert.match(d.r, /art\. 13\.º, n\.º 2/);
+  comTeatro();
+  const r = janela.marcarPonto('pco', 41.1, -7.81, 'PCO na rotunda de Cambres');
+  assert.equal(r.ok, true, r.motivo);
+  janela.enquadrarMapa(640, 620);
+  const svg = janela.camadaMapa();
+  assert.ok(svg.includes('>PCO na rotunda de Cambres<'));
 });

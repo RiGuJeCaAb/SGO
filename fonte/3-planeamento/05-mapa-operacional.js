@@ -689,6 +689,9 @@ const TIPOS_PONTO = [
   { k:"zcr",    n:"Zona de concentração e reserva", r:"art. 32.º, n.º 1, al. b)", cor:"#4E8B6E" },
   { k:"za",     n:"Zona de apoio",                  r:"art. 32.º, n.º 1, al. b)", cor:"#4E8B6E" },
   { k:"pt",     n:"Ponto de trânsito",              r:"art. 32.º, n.º 1, al. b); DON 2, 7.d.(5), (7) e (8)", cor:"#B08A2E" },
+  /* O posto de comando é um ponto do teatro como os outros, e não o triângulo da
+     ocorrência: instala-se onde convém ao comando, obrigatoriamente a partir da fase II. */
+  { k:"pco",    n:"Posto de comando operacional",   r:"art. 13.º, n.º 2", cor:"#005CA9" },
   { k:"agua",   n:"Ponto de água",                  r:"fonte por confirmar", cor:"#3E7CB1" },
   { k:"sens",   n:"Ponto sensível",                 r:"art. 28.º; art. 27.º, n.º 1, al. b)", cor:"#B84B3F" },
   { k:"outro",  n:"Outro ponto notável",            r:"sem designação legal fixada", cor:"#8A9099" }
@@ -951,7 +954,8 @@ function camadaMapa(){
   if(temPonto){
     const q = pxy(lat0, lon0), x0 = n(q.x), y0 = n(q.y);
     g += '<path d="M'+x0+','+n(y0-11)+' L'+n(x0+9.5)+','+n(y0+5.5)+' L'+n(x0-9.5)+','+n(y0+5.5)+' Z" fill="#005CA9" stroke="#fff" stroke-width="1.6"/>';
-    g += rotulo(x0+13, y0+5, "PCO", 11, true);
+    /* O ponto da ocorrência, não o posto de comando: ver o croqui, que diz a razão. */
+    g += rotulo(x0+13, y0+5, "Ocorrência", 11, true);
   }
 
   /* Escala e norte, calculados na latitude do centro — em Mercator a escala muda com a

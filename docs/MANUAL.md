@@ -156,6 +156,13 @@ por uma razão prática — uma nota que restringe ou avisa tem consequência pa
 quem lá vai. Por isso **só os avisos entram na leitura da evolução** quando caem no caminho
 da frente: *não ardido* à frente do fogo não é notícia; *incêndio subterrâneo* é.
 
+### O triângulo, e onde fica o posto de comando
+
+O triângulo azul do mapa e do croqui é o **ponto da ocorrência**, a coordenada registada em
+Comando, onde o incêndio começou. Não é o posto de comando operacional: o PCO instala-se
+onde convém ao comando, e marca-se como ponto notável, com o tipo «Posto de comando
+operacional», que é obrigatório a partir da fase II (art. 13.º, n.º 2).
+
 ### Pôr um meio no mapa
 
 1. Atribua primeiro o meio a um setor, em Operações → **Setorização do TO e quadro de meios**.

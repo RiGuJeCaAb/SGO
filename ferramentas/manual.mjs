@@ -66,6 +66,8 @@ const RENDIDOS = [
   { rotulo: 'Copiar o texto',                   ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
   { rotulo: 'Registar a saída do TO',           ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
   { rotulo: 'Registar a chegada à Entidade',    ficheiro: 'fonte/5-logistica/05-solicitacao-de-rendicao.js' },
+  /* Os tipos de ponto notável são opções compostas ao pintar os alvos. */
+  { rotulo: 'Posto de comando operacional', ficheiro: 'fonte/3-planeamento/05-mapa-operacional.js' },
   /* A linha de estado do mapa, composta a cada pintura. */
   { rotulo: 'Sem serviço de mosaicos configurado', ficheiro: 'fonte/3-planeamento/05-mapa-operacional.js' },
   { rotulo: 'Consultar agora',   ficheiro: 'fonte/3-planeamento/13-avisos-ipma.js' },
