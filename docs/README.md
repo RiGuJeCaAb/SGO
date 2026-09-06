@@ -37,6 +37,7 @@ versão nova é um ficheiro novo.
 | `CSREPCDouro_202608312145_d_CompositoVentoDeclive_CLD.md` | A composição vetorial de vento e declive, desenvolvida por escrito. É o documento que sustenta o que `betaFogo` faz |
 | `CSREPCDouro_202609010900_d_PontoSituacao31AGO26_CLD.md` | **O ponto de situação da linhagem paralela** sobre a sessão de 31 de agosto: o que entregaram, o que absorvemos, os defeitos que deixaram abertos e a ordem que propõem. É o documento a ler antes de retomar |
 | `CSREPCDouro_202608311242_d_RelatorioFontesInternacionais_CLD.md` | **Continuação do anterior**: que fonte internacional dá o que nenhuma nacional dá. Conclui que é imagem fresca e deteção de fogo ativo, seleciona o NASA GIBS e acrescenta cinco requisitos ao interpretador. Traz a distinção que desbloqueia o impasse do sistema de coordenadas: **os focos de calor são pontos, não mosaicos**, e um ponto reprojeta-se |
+| `CSREPCDouro_202609061700_d_FitaDoTempoOP04_OndeCabe_CLD.md` | **A fita do tempo OP 04, e onde cabe nesta aplicação**: o que chegou a 6 de setembro, o que a Estação já tem, a correspondência peça a peça, o que não entra e porquê, e a ordem proposta em três revisões, com as decisões que ficam ao dono |
 | `CSREPCDouro_202609050220_d_PlanoDeMelhoriasFrontendEBackend_CLD.md` | **A revisão completa da r0097 e o plano que dela sai**: duas varreduras da fonte cruzadas com capturas e medições, dezoito achados altos conferidos um a um, catorze pacotes de trabalho com critério de aceitação, a ordem proposta e um recado pronto a colar para cada ramo. É o documento a ler antes de mexer no frontend ou no backend |
 
 ## `interop/` — a ligação à Gestão PCO
@@ -77,6 +78,14 @@ satélite do mesmo teatro. Não são doutrina nem prova de verificação — sã
 operacional tem de conseguir dizer, e a leitura do que ainda lhe falta está em
 `cartografia/LEIAME.md`.
 
+## `fita-do-tempo/` — a peça que falta no kit
+
+O que chegou a 6 de setembro de 2026 de uma conversa do dono fora deste projeto: a fita do
+tempo do Despacho n.º 4067/2024, que o kit oficial de Ferramentas não traz, construída como
+«Modelo SGO OP 04» — folha A3, carta de duzentos códigos, manual, briefing e folha de
+verificação de siglas. Não é doutrina; o `LEIAME.md` da pasta diz o que cada peça é, e a
+análise do que cabe na aplicação está na raiz de `docs/`.
+
 ## `qa/` — provas de verificação
 
 Capturas de ecrã que acompanham uma revisão e mostram o que ela mudou. Ver `qa/LEIAME.md`.
@@ -101,10 +110,11 @@ procurar depois a fonte que o justifique é como nascem os números sem origem.
 - Uma proposta técnica ou um desenho → raiz de `docs/`, com nome pela convenção.
 - Uma captura que prove o que uma revisão mudou → `qa/`, e uma linha em `qa/LEIAME.md`.
 - Uma carta anotada de uma ocorrência real → `cartografia/`, e uma linha em `cartografia/LEIAME.md`.
+- Uma peça da fita do tempo OP 04 → `fita-do-tempo/`, e uma linha em `fita-do-tempo/LEIAME.md`.
 - O que mudou nesta sessão → `ESTADO.md`, sempre.
 
 **Uma linha no catálogo não é boa vontade: é condição.** O `npm run arrumado` percorre `qa/`,
-`cartografia/`, `fontes/` e `ferramentas/historico/` e recusa um ficheiro que não tenha nome
+`cartografia/`, `fontes/`, `conversas/`, `fita-do-tempo/` e `ferramentas/historico/` e recusa um ficheiro que não tenha nome
 de convenção ou que não esteja nomeado no documento que cataloga a pasta. O que a ferramenta
 não sabe é se a linha diz a verdade — só garante que existe uma, que é o mínimo para que
 alguém possa dar pela mentira.

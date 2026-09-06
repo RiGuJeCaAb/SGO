@@ -62,6 +62,16 @@ const PASTAS = [
     excecoes: [],
   },
   {
+    /* A fita do tempo OP 04, que chegou de fora a 6 de setembro: documentos, folhas e cartas,
+       em md, html, pdf e xlsx. O nome diz o assunto e a peça; a data é a da chegada. */
+    pasta: 'docs/fita-do-tempo',
+    catalogo: 'docs/fita-do-tempo/LEIAME.md',
+    forma: /^CSREPCDouro_\d{12}_FitaDoTempo_[A-Za-z0-9]+_CLD\.(md|html|pdf|xlsx)$/,
+    diz: 'CSREPCDouro_AAAAMMDDHHMM_FitaDoTempo_Peca_CLD.md, .html, .pdf ou .xlsx',
+    ignora: ['LEIAME.md'],
+    excecoes: [],
+  },
+  {
     /* As transcrições de conversa. Ficam com a convenção do projeto porque são documentos
        deste projeto, ainda que o texto seja de outra sessão. */
     pasta: 'docs/conversas',

@@ -1518,6 +1518,31 @@ navegador — e ficou pedido que o texto entre por `entrada/`, como os documento
 
 **Números.** 1083 testes, 2 novos; nove portões e o trabalho de navegador verdes.
 
+## A fita do tempo OP 04 chegou à entrada — 6 de setembro
+
+Vinte ficheiros, de uma conversa do dono com outro Claude fora deste projeto: **a peça que o
+kit oficial de Ferramentas do SGO não traz**, a fita do tempo do art. 2.º, n.º 1, al. c),
+construída como «Modelo SGO OP 04» — folha A3, carta de duzentos códigos em quinze famílias,
+manual de preenchimento, briefing para a aplicação seguinte, texto canónico e folha de
+verificação de siglas e códigos, mais a transcrição integral. Arrumados em
+`docs/fita-do-tempo/`, com catálogo e regra de nome na ferramenta de arrumação, e a
+transcrição em `docs/conversas/`. Sete duplicados saíram, e um `index.html` que era a r0092
+desta aplicação byte a byte. A entrada está vazia.
+
+**A análise está em `docs/CSREPCDouro_202609061700_d_FitaDoTempoOP04_OndeCabe_CLD.md`**, e
+o essencial cabe em três frases. A Estação já é a aplicação que o briefing pede — `file://`,
+IndexedDB, identidade, diário encadeado — e a fita OP 04 é um módulo da Célula de Operações
+dela, não uma segunda aplicação. **Os nomes estão trocados:** o que a aplicação chama «Fita
+do tempo» é o registo técnico, e o que a norma chama fita do tempo é o «Registo de
+evolução»; troca-se, e é no registo de evolução que entram os campos da OP 04 — GDH do
+registo, código, canal, origem, destino, setor, despacho, referência, crítico, marco —,
+opcionais, com degrau. Os duzentos códigos entram como construção declarada, com a base no
+despacho ao lado dos 44 que a têm, e os outros 156 a dizê-lo; a passagem de comando ganha
+bloco próprio com os nove pontos do art. 9.º, n.º 2, conferidos; os dez marcos passam a
+bloco derivado; a folha A3 e o relatório saem da fita. Três revisões propostas, e cinco
+decisões ao dono, entre elas o nome, a taxonomia inteira ou só a com base, e o
+«quase-acidente».
+
 ## Decisões tomadas
 
 Por ordem em que foram tomadas.

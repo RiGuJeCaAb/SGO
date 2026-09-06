@@ -18,6 +18,7 @@ se fez; estes dizem o que se pesou antes.
 | `001_CSREPCDouro_202609021351_RegistoIntercambioCODE_CLD.md` | Ramo #001 sobre a divisão de trabalho | A regra da **fonte na linha da asserção**, e o argumento de que o `p0018` não é exceção nenhuma |
 | `002_CSREPCDouro_202609021350_RegistoDivisaoTrabalho_CLD.md` | Ramo #002 | A regra do **teste vermelho**: todo o defeito reportado vem com um teste que falha |
 | `003_CSREPCDouro_202609021346_d0003_MCF_RegistoDaConversa_CLD.md` | Ramo #003, comportamento do fogo | A causa-raiz: **remendava-se o artefacto, não a fonte**. E a especificação antes da construção |
+| `CSREPCDouro_202609061517_RegistoConversa_FitaDoTempoOP04_CLD.md` | A fita do tempo, Modelo SGO OP 04, numa conversa do dono fora deste projeto | O kit oficial não tem modelo para a fita; constrói-se um. Papel primeiro, para fechar o esquema; o digital passa a primário depois. Append-only, retificação por registo novo, hora do facto e hora do registo, marcos, contagem ao L00 e não à fita. **CDOS é vocabulário revogado** e as siglas de nível 3 são conhecimento do modelo, por confirmar. Os documentos estão em `docs/fita-do-tempo/` |
 | `004_CSREPCDouro_202609021030_d_DivisaoDeTrabalho_CLD.md` | Ramo #004 | O artefacto de reunião é o HTML compilado, e isso é o contrato |
 | `005_CSREPCDouro_202609021346_RegistoConversa_Ramo005_CLD.md` | Ramo #005 | **O script de montagem é o componente de maior risco e não tem revisor** |
 
