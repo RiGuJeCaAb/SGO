@@ -233,6 +233,8 @@ e o endereço que se pediu, para se poder conferir ou reportar. Há um caso a sa
 **a carta da DGT só existe em http, e uma página aberta em https, como a do GitHub Pages,
 não a pode pedir** — o navegador recusa conteúdo em claro. A linha diz-o quando acontece.
 No posto, a aplicação abre-se do ficheiro descarregado, em `file://`, e aí a DGT responde.
+«Ler o serviço» recusa logo um endereço `http` numa página `https`, com esta explicação,
+em vez de deixar o navegador responder "Failed to fetch" sem dizer porquê.
 
 **Mudar de carta não mostra os quadrados da anterior.** Cada mosaico guardado leva a
 impressão da carta que o deu — o endereço e, num WMTS, a camada, o conjunto de matrizes e a

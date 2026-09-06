@@ -1074,6 +1074,7 @@ function pintarEstadoMapa(vieram, total){
        tentativa possível, mas o servidor não está lá. Diz-se, em vez de deixar quem lê a
        adivinhar; e diz-se o caminho, que é abrir o ficheiro. */
     if(CARTA.promovido) partes.push("O serviço declara-se em http e esta página está em https: o navegador recusa conteúdo em claro, e o endereço foi promovido a https sem garantia de que o serviço lá responda. Abrir a aplicação do ficheiro descarregado (file://) resolve.");
+    else if(MAPA.ultimaFalha && conteudoMisto(MAPA.ultimaFalha.url)) partes.push(AVISO_CONTEUDO_MISTO);
   }
   else if(MAPA.falhas)
     partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
@@ -1645,6 +1646,7 @@ function usarCapacidadesWMTS(xml){
 $("wm-ler").addEventListener("click", async ()=>{
   const u = String($("wm-url").value||"").trim();
   if(!/^https?:\/\//.test(u)){ aviso("wm-msg","err","Indica o endereço do GetCapabilities do serviço."); return; }
+  if(conteudoMisto(u)){ aviso("wm-msg","err", AVISO_CONTEUDO_MISTO); return; }
   aviso("wm-msg","ok","A ler o serviço...");
   try{
     const r = await fetchT(u, {}, 20000);
@@ -1654,7 +1656,9 @@ $("wm-ler").addEventListener("click", async ()=>{
     /* Em `file://` há serviços que recusam o pedido de outra origem, e não há como
        contornar isso do lado da aplicação. O ficheiro guardado é o caminho que resta, e é
        o que serve num posto sem rede. */
-    aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). Guarda o XML e carrega-o do ficheiro.");
+    /* «Failed to fetch» é o navegador a não chegar lá: rede, CORS fechado, ou servidor em
+       baixo. Diz-se o que se sabe, e o que fazer com cada hipótese. */
+    aviso("wm-msg","err","Não foi possível ler o serviço ("+String(e).slice(0,90)+"). O pedido não chegou a ter resposta: ou não há rede, ou o serviço está em baixo, ou não abre o CORS a uma página local. Guarda o XML e carrega-o do ficheiro — as camadas ficam a ler-se na mesma, e os quadrados pedem-se depois.");
   }
 });
 

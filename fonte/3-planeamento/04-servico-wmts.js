@@ -439,6 +439,23 @@ function kvpFundido(base, pars, extra){
   return raiz + "?" + q.toString();
 }
 
+/**
+ * Um pedido a `http://` de uma página servida por `https://` é conteúdo misto: o navegador
+ * recusa-o antes de o pedir, e o que se vê é «Failed to fetch», que não diz nada. A DGT só
+ * existe em `http`, e o GitHub Pages só serve em `https`; foi assim que o dono ficou dois
+ * dias sem carta. Pergunta-se antes de pedir, com o protocolo por argumento para o arnês,
+ * que abre de `file://`, poder afirmar os dois casos.
+ *
+ * @param {string} url o endereço a pedir
+ * @param {string} [protocolo] o da página; omitido, o de `location`
+ */
+function conteudoMisto(url, protocolo){
+  const p = protocolo || (typeof location !== "undefined"? location.protocol : "");
+  return p === "https:" && /^http:\/\//i.test(String(url||""));
+}
+/** A frase que se mostra nesse caso, com o caminho: abrir a aplicação do ficheiro. */
+const AVISO_CONTEUDO_MISTO = "Esta página está em https e o serviço em http: o navegador recusa conteúdo em claro antes de o pedir. Não é falha do serviço. Abrir a aplicação do ficheiro descarregado (file://), onde o http é permitido, ou guardar o XML e carregá-lo do ficheiro.";
+
 /** Um modelo `https://anfitriao{marcador}…`, sem barra antes do primeiro marcador? */
 function marcadorColadoAoAnfitriao(modelo){ return /^https?:\/\/[^/?#]*\{/i.test(String(modelo||"")); }
 

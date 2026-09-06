@@ -375,3 +375,12 @@ test('um modelo com o marcador colado ao anfitrião é recusado ao adotar, com o
   assert.equal(janela.marcadorColadoAoAnfitriao('https://tile.exemplo.pt/{TileMatrix}/{TileCol}/{TileRow}.png'), false);
   assert.equal(janela.marcadorColadoAoAnfitriao('https://exemplo.pt:8080{TileMatrix}'), true);
 });
+
+test('conteúdo misto diz-se antes de pedir: http numa página https, e só nesse caso', semAplicacao, () => {
+  assert.equal(janela.conteudoMisto('http://cartografia.dgterritorio.gov.pt/ortos2018/service?', 'https:'), true);
+  assert.equal(janela.conteudoMisto('https://exemplo.pt/x', 'https:'), false);
+  assert.equal(janela.conteudoMisto('http://cartografia.dgterritorio.gov.pt/ortos2018/service?', 'file:'), false, 'de file:// o http é permitido');
+  assert.equal(janela.conteudoMisto('http://x', 'http:'), false);
+  assert.equal(janela.conteudoMisto('http://x'), false, 'o arnês abre de file://');
+  assert.match(avaliar(janela, 'AVISO_CONTEUDO_MISTO'), /file:\/\//);
+});

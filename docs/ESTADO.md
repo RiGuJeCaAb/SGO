@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0111**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0112**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 149, das anteriores à convenção de nomes até à r0111 |
+| Entregas em `app/` | 150, das anteriores à convenção de nomes até à r0112 |
 | Módulos em `fonte/` | 77, em sete zonas, mais o molde |
-| Testes | 1076, todos a passar |
+| Testes | 1077, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1422,6 +1422,22 @@ mapa desenha por cima delas sem pedir nada a serviço nenhum.
 
 **Números.** 1076 testes, 4 novos; 77 módulos; nove portões e o trabalho de navegador
 verdes; auditoria visual limpa nos dois temas.
+
+## «Failed to fetch» dito por extenso — r0112
+
+O dono pôs o GetCapabilities da DGT em «Ler o serviço» e recebeu «Não foi possível ler o
+serviço (Error: Failed to fetch)». É a frase do navegador para um pedido que não chegou a
+ter resposta, e cobre três coisas diferentes: conteúdo misto — `http` pedido de uma página
+`https`, que é o GitHub Pages —, CORS fechado a uma página local, ou o serviço em baixo. A
+captura de 31 de agosto mostra a DGT a responder com `Access-Control-Allow-Origin: *`, o
+que exclui a segunda de `file://`; a primeira é a que pesa. **A aplicação passa a
+distinguir antes de pedir**: `conteudoMisto` recusa um `http` numa página `https` com a
+explicação e o caminho — abrir do ficheiro, ou guardar o XML e carregá-lo —, e a mensagem
+de falha diz as três hipóteses e o que fazer com cada uma. A linha de estado do mapa diz o
+mesmo quando o quadrado que falhou era `http` numa página `https`. Não se confirmou daqui
+qual das três é a do dono: a rede recusa tudo. Fica a pergunta feita.
+
+**Números.** 1077 testes, 1 novo; nove portões e o trabalho de navegador verdes.
 
 ## Decisões tomadas
 
