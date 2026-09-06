@@ -133,7 +133,7 @@ function wmtsCRS(txt){
  * Lê um documento GetCapabilities de WMTS 1.0.0.
  *
  * @param {string} xml o documento, tal como o serviço o devolve
- * @returns {{titulo:string, atribuicao:string, termos:string, kvp:string,
+ * @returns {{titulo:string, atribuicao:string, termos:string, kvp:string, promovido:boolean,
  *   conjuntos:Object, camadas:any[]}}
  * @throws quando o documento não é um GetCapabilities de WMTS
  */
@@ -235,13 +235,13 @@ function lerCapacidadesWMTS(xml){
   const termos = (sitio && (sitio.getAttribute("xlink:href") || sitio.getAttribute("href"))) || "";
 
   /* O endereço do pedido KVP, quando o serviço o oferece. */
-  let kvp = "";
+  let kvp = "", promovido = false;
   wmtsTodos(raiz, "Operation").forEach(op=>{
     if(op.getAttribute("name") !== "GetTile") return;
     wmtsTodos(op, "Get").forEach(g=>{
       const href = g.getAttribute("xlink:href") || g.getAttribute("href") || "";
       const cod = wmtsTodos(g, "Value").map(v=>v.textContent.trim().toUpperCase());
-      if(href && (!cod.length || cod.includes("KVP"))) kvp = kvp || httpsSeForPreciso(href);
+      if(href && (!cod.length || cod.includes("KVP")) && !kvp){ kvp = httpsSeForPreciso(href); promovido = kvp !== href; }
     });
   });
 
@@ -307,14 +307,17 @@ function lerCapacidadesWMTS(xml){
       })).filter(d=>d.id),
       recursos: wmtsTodos(lx, "ResourceURL")
         .filter(r=>r.getAttribute("resourceType") === "tile")
-        .map(r=>({ modelo: httpsSeForPreciso(r.getAttribute("template") || ""), formato: r.getAttribute("format") || "" }))
+        .map(r=>({ modelo: httpsSeForPreciso(r.getAttribute("template") || ""), formato: r.getAttribute("format") || "",
+          /* Promovido a https por a página o ser: fica dito, para a linha de estado explicar
+             a carta que não vem. */
+          promovido: httpsSeForPreciso(r.getAttribute("template") || "") !== (r.getAttribute("template") || "") }))
         .filter(r=>r.modelo),
       bbox: bbox? { inf: canto(wmtsTexto(bbox, "LowerCorner")), sup: canto(wmtsTexto(bbox, "UpperCorner")) } : null
     };
   }).filter(c=>c.id);
 
   if(!camadas.length) throw new Error("O serviço não declara nenhuma camada.");
-  return { titulo, atribuicao, termos, kvp, conjuntos, camadas };
+  return { titulo, atribuicao, termos, kvp, promovido, conjuntos, camadas };
 }
 
 /**
@@ -575,6 +578,7 @@ function wmtsCarta(cap, camadaId, conjuntoId){
       omissao:dim.omissao, valores:dim.valores } : null,
     conjunto:escolhido.id, estilo, formato:fmt, grelha:comp.grelha,
     modelo: rec? rec.modelo : "", kvp: cap.kvp,
+    promovido: !!(rec? rec.promovido : cap.promovido),
     niveis: comp.niveis, zMin: comp.zMin, zMax: comp.zMax,
     atrib: cap.atribuicao || cap.titulo, termos: cap.termos,
     servico: cap.titulo,

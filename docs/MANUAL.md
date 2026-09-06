@@ -222,6 +222,18 @@ Há três caminhos:
   mesmo modo e só a aritmética difere: declarada errada, a carta aparece e fica fora do
   sítio sem dizer nada, que é pior do que não aparecer.
 
+**Aproximar, afastar e arrastar ficam.** Depois de «Carregar a carta», a vista é sua: os
+botões «Aproximar» e «Afastar» e o arrasto com o rato mantêm-se de uma pintura para a
+seguinte, e «Enquadrar no perímetro» é o que volta a enquadrar o teatro. Até à r0108 cada
+pintura voltava a enquadrar, e parecia que os botões não faziam nada.
+
+**Quando nenhum quadrado vem, a linha por baixo do mapa diz porquê**: o motivo do primeiro
+quadrado que falhou — recusa do serviço com o código HTTP, prazo esgotado, falha de rede —
+e o endereço que se pediu, para se poder conferir ou reportar. Há um caso a saber de cor:
+**a carta da DGT só existe em http, e uma página aberta em https, como a do GitHub Pages,
+não a pode pedir** — o navegador recusa conteúdo em claro. A linha diz-o quando acontece.
+No posto, a aplicação abre-se do ficheiro descarregado, em `file://`, e aí a DGT responde.
+
 **Mudar de carta não mostra os quadrados da anterior.** Cada mosaico guardado leva a
 impressão da carta que o deu — o endereço e, num WMTS, a camada, o conjunto de matrizes e a
 data. Antes disto a chave era só o número do quadrado: quem passasse de um serviço em Web

@@ -76,6 +76,7 @@ async function carregarCartaLocal(){
 async function declararCartaLocal(grelha, atrib){
   if(!GRELHAS[grelha]) return null;
   CARTA_LOCAL = { grelha, atrib:String(atrib||"").trim(), por:quemRegista(), g:gdhAgora() };
+  MAPA.enquadrado = false;
   try{ await ARMAZEM.set(CARTA_LOCAL_CHAVE, JSON.stringify(CARTA_LOCAL)); }catch(e){}
   return CARTA_LOCAL;
 }
@@ -118,6 +119,7 @@ async function guardarCarta(u, atrib, termos, zMax){
   if(!/^https:\/\//.test(t)) return { ok:false, motivo:"Indicar o endereço dos termos de uso do serviço." };
   const z = Math.max(3, Math.min(22, parseInt(String(zMax||"19"), 10) || 19));
   CARTA = { tipo:"xyz", u:url, atrib:a, termos:t, zMin:3, zMax:z, por:quemRegista(), g:gdhAgora() };
+  MAPA.enquadrado = false;
   /* Respondia `ok` mesmo quando a declaração não ficava gravada: ao recarregar não havia
      carta e o ecrã tinha dito que sim. A carta fica em uso nesta sessão, mas diz-se. */
   try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }
@@ -137,7 +139,7 @@ async function guardarCarta(u, atrib, termos, zMax){
 async function adotarCartaWMTS(carta){
   if(!carta || carta.tipo !== "wmts") return { ok:false, motivo:"Carta inválida." };
   if(!carta.atrib) return { ok:false, motivo:"O serviço não declara atribuição, e carta de terceiros não se mostra sem dizer de quem é." };
-  CARTA = carta;
+  CARTA = carta; MAPA.enquadrado = false;
   try{ await ARMAZEM.set(CARTA_CHAVE, JSON.stringify(CARTA)); }
   catch(e){ fita("Carta WMTS adotada só nesta sessão: não ficou gravada ("+String((e&&e.message)||e).slice(0,60)+")");
     return { ok:false, carta:CARTA, motivo:"A carta fica em uso nesta sessão, mas não ficou gravada no dispositivo: "+String((e&&e.message)||e).slice(0,80)+"." }; }
@@ -148,7 +150,7 @@ async function adotarCartaWMTS(carta){
 /** Retira o serviço configurado, e com ele os mosaicos que dele vieram — só esses. */
 async function retirarCarta(){
   const prefixo = CARTA? prefixoMosaicos(false) : null;
-  CARTA = null;
+  CARTA = null; MAPA.enquadrado = false;
   try{ await ARMAZEM.del(CARTA_CHAVE); }catch(e){}
   if(prefixo) await esquecerMosaicos(prefixo);
   return { ok:true };
@@ -298,20 +300,33 @@ function gDeGrelha(G, E, N){
 /* ---- o estado da vista ----
    Não é estado da ocorrência: é para onde a pessoa está a olhar. Não se grava e não vai
    no PEA. O que vai no PEA é o croqui, que é o desenho e não a vista. */
-const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", pronto:false, falhas:0, recusados:0 };
+const MAPA = { z:0, cx:0, cy:0, larg:0, alt:0, alvo:"", pronto:false, falhas:0, recusados:0,
+  /* Enquadrou-se, e para que ocorrência. **Enquadra-se uma vez**, e não a cada pintura: até à
+     r0108 `pintarMapa` e o cartão chamavam `enquadrarMapa` sempre, e o zoom e o arrasto eram
+     desfeitos na pintura seguinte — «os botões deixaram de funcionar», disse o dono, e
+     tinha razão desde que o enquadramento nasceu. Muda-se de carta ou de ocorrência, volta
+     a enquadrar; de resto a vista é de quem a pôs. */
+  enquadrado:false, ocorrencia:"",
+  /* O primeiro quadrado que falhou nesta pintura, com o motivo e o endereço: sem isto a
+     linha de estado dizia «nenhum quadrado veio» e não havia como saber se foi recusa,
+     prazo, ou o navegador a barrar http numa página https. */
+  ultimaFalha:null };
+/** O mapa está enquadrado para a ocorrência aberta? Outra ocorrência é outro teatro. */
+function enquadradoParaEsta(){ return MAPA.enquadrado && MAPA.ocorrencia === String(O.meta.id||""); }
 /** Os endereços temporários dos mosaicos desenhados, para os libertar no render seguinte. */
 let MAPA_URLS = [];
 
 /**
- * Enquadra o mapa na caixa envolvente do croqui.
+ * A caixa envolvente de tudo o que o mapa mostra, ou nula quando não há nada.
  *
  * Reaproveita `enquadrarCroqui` **pela caixa**, e não pela projeção: é lá que está a
  * regra da extensão mínima, que impede um ponto sozinho de dar uma escala absurda. Duas
- * caixas calculadas em dois sítios seriam duas caixas a divergir.
+ * caixas calculadas em dois sítios seriam duas caixas a divergir. Separada de
+ * `enquadrarMapa` para se poder perguntar «há o que mostrar?» sem mexer na vista.
  *
- * @returns {boolean} se houve por onde enquadrar
+ * @returns {{minLat:number,maxLat:number,minLon:number,maxLon:number}|null}
  */
-function enquadrarMapa(larg, altMax){
+function caixaDoMapa(larg, altMax){
   /* A caixa do croqui é o ponto de partida — é lá que está a regra da extensão mínima —,
      mas **não chega**: o croqui não desenha frentes nem limites de setor, e o mapa desenha.
      Uma frente traçada fora daquela caixa ficava fora do ecrã, e o cartão do mapa nem
@@ -350,7 +365,7 @@ function enquadrarMapa(larg, altMax){
   const laO = parseFloat(String(O.meta.lat).replace(",", ".")),
         loO = parseFloat(String(O.meta.lon).replace(",", "."));
   juntar(laO, loO);
-  if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return false;
+  if(!Number.isFinite(Q.minLat) || !Number.isFinite(Q.minLon)) return null;
   /* Sem a caixa do croqui, a regra da extensão mínima não passou por aqui: um par de
      frentes muito juntas dava uma escala absurda, como daria um ponto sozinho. */
   if(!Q0){
@@ -364,6 +379,19 @@ function enquadrarMapa(larg, altMax){
     [Q.minLat, Q.maxLat] = abrir(Q.minLat, Q.maxLat, mLat);
     [Q.minLon, Q.maxLon] = abrir(Q.minLon, Q.maxLon, mLon);
   }
+  return Q;
+}
+
+/**
+ * Enquadra o mapa na caixa do teatro: a tela toma a proporção dele, e a ampliação é a maior
+ * em que ele cabe. Escreve a vista — e é por isso que só se chama uma vez por ocorrência e
+ * por carta, ou quando se carrega em «Enquadrar no perímetro».
+ *
+ * @returns {boolean} se houve por onde enquadrar
+ */
+function enquadrarMapa(larg, altMax){
+  const Q = caixaDoMapa(larg, altMax);
+  if(!Q){ MAPA.enquadrado = false; return false; }
   MAPA.larg = larg || MAPA.larg || 640;
   /* A altura segue a proporção do teatro, e não uma proporção fixa. Um incêndio quase
      quadrado numa tela deitada obrigava a afastar até caber na altura, e metade do mapa
@@ -394,6 +422,7 @@ function enquadrarMapa(larg, altMax){
   MAPA.z = z;
   const C = gPara((Q.minLat+Q.maxLat)/2, (Q.minLon+Q.maxLon)/2, z);
   MAPA.cx = C.x; MAPA.cy = C.y;
+  MAPA.enquadrado = true; MAPA.ocorrencia = String(O.meta.id||"");
   return true;
 }
 
@@ -525,16 +554,21 @@ async function mosaicoBlob(z, x, y){
     }catch(e){ ARQUIVO_MAPA.leituras++; }
   }
   if(!CARTA) return null;
+  const u = mosaicoURL(z, x, y);
   try{
     /* `semCache`: o arquivo do mosaico é a base, não a cache da rede — que o retinha em
        memória até a aba fechar. */
-    const r = await fetchT(mosaicoURL(z, x, y), { semCache:true }, 12000);
-    if(!r.ok) return null;
+    const r = await fetchT(u, { semCache:true }, 12000);
+    if(!r.ok){ if(!MAPA.ultimaFalha) MAPA.ultimaFalha = { url:u, motivo:"o serviço respondeu HTTP "+r.status }; return null; }
     const b = await r.blob();
     /* Não se guarda já: só depois de se saber que é carta e não uma recusa repetida.
        Guardar a recusa seria ficar com ela no arquivo a servir sem rede. */
     return b;
-  }catch(e){ return null; }
+  }catch(e){
+    /* O primeiro que falha fica com o motivo; os outros dezasseis diriam o mesmo. */
+    if(!MAPA.ultimaFalha) MAPA.ultimaFalha = { url:u, motivo:motivoRede(e) };
+    return null;
+  }
 }
 
 /** Guarda um mosaico vindo do serviço, depois de reconhecido como carta. */
@@ -950,7 +984,10 @@ function rotulo(x, y, txt, tam, forte){
  */
 async function pintarMapa(){
   const cx = $("mapa-tela"); if(!cx) return;
-  if(!enquadrarMapa(MAPA.larg, MAPA.alt)){ cx.innerHTML = ""; return; }
+  if(!caixaDoMapa(MAPA.larg, MAPA.alt)){ cx.innerHTML = ""; MAPA.enquadrado = false; return; }
+  /* Só a primeira vez, ou depois de mudar de ocorrência ou de carta. A vista é de quem a pôs. */
+  if(!enquadradoParaEsta()) enquadrarMapa(MAPA.larg, MAPA.alt);
+  MAPA.ultimaFalha = null;
 
   MAPA_URLS.forEach(u=>{ try{ URL.revokeObjectURL(u); }catch(e){} });
   MAPA_URLS = [];
@@ -1027,8 +1064,15 @@ function pintarEstadoMapa(vieram, total){
       + " pedidos. Serviços de mosaicos de uso comunitário exigem que a aplicação se identifique, e uma página"
       + " aberta em ficheiro local não o consegue fazer. Usar um serviço que o posto tenha direito a consultar,"
       + " ou carta pré-descarregada.");
-  else if(!MAPA.pronto && CARTA)
+  else if(!MAPA.pronto && CARTA){
     partes.push("Sem carta: nenhum quadrado veio do serviço nem do arquivo local. Fica o croqui, que não precisa de rede.");
+    if(MAPA.ultimaFalha) partes.push("O primeiro quadrado pedido falhou: " + MAPA.ultimaFalha.motivo + " — " + MAPA.ultimaFalha.url);
+    /* Um serviço que só existe em http, aberto numa página https — o GitHub Pages —, é o
+       caso da DGT: o navegador recusa conteúdo em claro e a promoção a https é a única
+       tentativa possível, mas o servidor não está lá. Diz-se, em vez de deixar quem lê a
+       adivinhar; e diz-se o caminho, que é abrir o ficheiro. */
+    if(CARTA.promovido) partes.push("O serviço declara-se em http e esta página está em https: o navegador recusa conteúdo em claro, e o endereço foi promovido a https sem garantia de que o serviço lá responda. Abrir a aplicação do ficheiro descarregado (file://) resolve.");
+  }
   else if(MAPA.falhas)
     partes.push(MAPA.falhas+" de "+total+" quadrados não vieram — o mapa está incompleto.");
 
@@ -1052,9 +1096,10 @@ function pintarMapaCartao(){
   const box = $("mapa-box"); if(!box) return;
   /* Pergunta-se ao enquadramento do mapa, e não ao do croqui: o mapa mostra coisas que o
      croqui não mostra, e o cartão tem de abrir para elas. */
-  const ha = !!enquadrarMapa(MAPA.larg||640, MAPA.alt||420);
+  const ha = !!caixaDoMapa(MAPA.larg||640, MAPA.alt||420);
   box.style.display = ha? "block" : "none";
-  if(!ha){ MAPA.pronto = false; return; }
+  if(!ha){ MAPA.pronto = false; MAPA.enquadrado = false; return; }
+  if(!enquadradoParaEsta()) enquadrarMapa(MAPA.larg||640, MAPA.alt||420);
   pintarAlvos();
   if(MAPA.pronto || MAPA.z) { try{ pintarMapa(); }catch(e){} }
 }
@@ -1383,13 +1428,16 @@ $("mapa-carregar").addEventListener("click", async ()=>{
     aviso("mapa-msg","err","Sem serviço de mosaicos declarado e sem carta pré-descarregada. Ver «De onde vem a carta», aqui abaixo.");
     return;
   }
-  if(!enquadrarMapa(MAPA.larg, MAPA.alt)){ aviso("mapa-msg","err","Sem perímetro e sem ponto da ocorrência não há o que enquadrar."); return; }
+  if(!caixaDoMapa(MAPA.larg, MAPA.alt)){ aviso("mapa-msg","err","Sem perímetro e sem ponto da ocorrência não há o que enquadrar."); return; }
+  if(!enquadradoParaEsta()) enquadrarMapa(MAPA.larg, MAPA.alt);
   aviso("mapa-msg","ok","A pedir a carta...");
   await pintarMapa();
   pintarPontos();
   await pintarArquivoMapa();
   if(MAPA.pronto) aviso("mapa-msg","ok","Carta carregada. Escolhe o que marcar e clica no mapa.");
-  else aviso("mapa-msg","err","Sem carta: nem a rede nem o arquivo local deram um único quadrado. O croqui continua a servir.");
+  else aviso("mapa-msg","err","Sem carta: nem a rede nem o arquivo local deram um único quadrado."
+    + (MAPA.ultimaFalha? " O primeiro quadrado pedido falhou: "+MAPA.ultimaFalha.motivo+"." : "")
+    + " A linha por baixo do mapa diz mais. O croqui continua a servir.");
 });
 $("mapa-mais").addEventListener("click", ()=>ampliarMapa(+1));
 $("mapa-menos").addEventListener("click", ()=>ampliarMapa(-1));

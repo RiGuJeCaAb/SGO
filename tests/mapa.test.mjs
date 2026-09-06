@@ -3,6 +3,7 @@
 
 import test, { after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { abrirAplicacao, avaliar } from './app.mjs';
 
 const janela = await abrirAplicacao();
@@ -578,4 +579,94 @@ test('a carga diz o que leu quando recusa tudo', semAplicacao, async () => {
   assert.equal(r.ignorados, 1);
   assert.equal(r.exemplo, 'captura-de-ecra.png', 'não guardou exemplo do que recusou');
   assert.ok(r.exemplo.indexOf('/') < 0, 'é o caso do ficheiro solto, que é o que mais acontece');
+});
+
+/* ---- a vista é de quem a pôs — r0109 ---- */
+
+test('aproximar, afastar e arrastar sobrevivem à pintura seguinte, e ao repintar do cartão', semAplicacao, async () => {
+  /* O dono carregou a carta, carregou em «Aproximar» e nada: `pintarMapa` e o cartão
+     chamavam `enquadrarMapa` a cada pintura e desfaziam o zoom e o arrasto. Desde que o
+     enquadramento nasceu. */
+  comTeatro();
+  janela.medirMapa();
+  assert.equal(janela.enquadrarMapa(640, 620), true);
+  const z0 = avaliar(janela, 'MAPA.z');
+  const centro0 = janela.gDe(avaliar(janela, 'MAPA.cx'), avaliar(janela, 'MAPA.cy'), z0);
+  janela.ampliarMapa(+1);
+  assert.equal(avaliar(janela, 'MAPA.z'), z0 + 1);
+  await janela.pintarMapa();
+  assert.equal(avaliar(janela, 'MAPA.z'), z0 + 1, 'a pintura desfez o zoom');
+  janela.pintarMapaCartao();
+  assert.equal(avaliar(janela, 'MAPA.z'), z0 + 1, 'o repintar do cartão desfez o zoom');
+  const cx1 = avaliar(janela, 'MAPA.cx');
+  janela.eval('MAPA.cx += 120');
+  await janela.pintarMapa();
+  assert.equal(avaliar(janela, 'MAPA.cx'), cx1 + 120, 'a pintura desfez o arrasto');
+  /* «Enquadrar no perímetro» é o que volta a enquadrar, de propósito. */
+  doc().getElementById('mapa-enquadrar').click();
+  assert.equal(avaliar(janela, 'MAPA.z'), z0);
+  const centro1 = janela.gDe(avaliar(janela, 'MAPA.cx'), avaliar(janela, 'MAPA.cy'), z0);
+  assert.ok(Math.abs(centro1.lat - centro0.lat) < 1e-6 && Math.abs(centro1.lon - centro0.lon) < 1e-6, 'não voltou ao centro do teatro');
+});
+
+test('outra ocorrência, ou outra carta, voltam a enquadrar', semAplicacao, async () => {
+  comTeatro();
+  janela.enquadrarMapa(640, 620);
+  janela.ampliarMapa(+1);
+  const z1 = avaliar(janela, 'MAPA.z');
+  /* Uma ocorrência nova noutro sítio: a vista antiga era de outro teatro. */
+  janela.eval('O = novoEstado()');
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4712'; O.meta.lat = '41,3000'; O.meta.lon = '-7,5000';
+  janela.escreverForm();
+  janela.pintarMapaCartao();
+  assert.equal(avaliar(janela, 'MAPA.ocorrencia'), O.meta.id);
+  assert.ok(Math.abs(janela.gDe(avaliar(janela, 'MAPA.cx'), avaliar(janela, 'MAPA.cy'), avaliar(janela, 'MAPA.z')).lat - 41.3) < 0.01,
+    'o centro ficou no teatro anterior');
+  /* Uma carta nova pode ser noutra grelha: o centro em pixéis já não vale. */
+  janela.ampliarMapa(+1);
+  const z2 = avaliar(janela, 'MAPA.z');
+  await janela.guardarCarta('https://exemplo.pt/{z}/{x}/{y}.png', 'ensaio', 'https://exemplo.pt/termos', 18);
+  assert.equal(avaliar(janela, 'MAPA.enquadrado'), false);
+  await janela.retirarCarta();
+  assert.equal(avaliar(janela, 'MAPA.enquadrado'), false);
+  void z1; void z2;
+});
+
+test('o primeiro quadrado que falha fica com o motivo e o endereço na linha de estado', semAplicacao, async () => {
+  comTeatro();
+  janela.enquadrarMapa(640, 620);
+  await janela.guardarCarta('https://exemplo.pt/{z}/{x}/{y}.png', 'ensaio', 'https://exemplo.pt/termos', 18);
+  const fetchAntes = janela.fetch;
+  janela.fetch = () => Promise.reject(new TypeError('Failed to fetch'));
+  try {
+    await janela.pintarMapa();
+    const f = daqui(avaliar(janela, 'MAPA.ultimaFalha'));
+    assert.equal(f.motivo, 'falha de rede');
+    assert.match(f.url, /^https:\/\/exemplo\.pt\/\d+\/\d+\/\d+\.png$/);
+    assert.match(doc().getElementById('mapa-info').textContent, /O primeiro quadrado pedido falhou: falha de rede — https:\/\/exemplo\.pt\//);
+    assert.doesNotMatch(doc().getElementById('mapa-info').textContent, /esta página está em https/);
+    /* A recusa do serviço diz o código. */
+    janela.fetch = () => Promise.resolve({ ok: false, status: 403, clone() { return this; } });
+    await janela.pintarMapa();
+    assert.match(daqui(avaliar(janela, 'MAPA.ultimaFalha')).motivo, /HTTP 403/);
+    /* Um serviço promovido a https por a página o ser: a linha diz o que isso significa. */
+    janela.eval('CARTA.promovido = true');
+    await janela.pintarMapa();
+    assert.match(doc().getElementById('mapa-info').textContent, /declara-se em http e esta página está em https[\s\S]*file:\/\//);
+  } finally {
+    janela.fetch = fetchAntes;
+    await janela.retirarCarta();
+  }
+});
+
+test('lerCapacidadesWMTS diz se promoveu o endereço, e não promove numa página que não é https', () => {
+  /* O arnês abre a aplicação de `file://`: aqui nada se promove, e `promovido` é falso. A
+     promoção em si está coberta por `httpsSeForPreciso`; o que se afirma é que a bandeira
+     existe e chega à carta adotada. */
+  if (!janela) return;
+  const xml = readFileSync('tests/fixtures/capacidades/wmts/wmts_dgt_ortos2018.xml', 'utf8');
+  const cap = janela.lerCapacidadesWMTS(xml);
+  assert.equal(cap.promovido, false);
+  assert.match(cap.kvp, /^http:\/\//, 'de file:// a DGT fica em http, que é o que ela tem');
 });

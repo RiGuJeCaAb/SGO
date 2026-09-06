@@ -4,7 +4,7 @@ Atualizado em 2026-09-05.
 
 ## Situação atual
 
-A revisão em vigor é a **r0108**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0109**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 146, das anteriores à convenção de nomes até à r0108 |
+| Entregas em `app/` | 147, das anteriores à convenção de nomes até à r0109 |
 | Módulos em `fonte/` | 76, em sete zonas, mais o molde |
-| Testes | 1066, todos a passar |
+| Testes | 1070, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1330,6 +1330,36 @@ o `\w` do JavaScript não tem — sem ele, `.tático` e `.aéreo` liam-se como `
 **Números.** 1066 testes, 1 novo; nove portões e o trabalho de navegador verdes; auditoria
 visual limpa nos dois temas, nas quatro larguras. Os 308 `style=` em linha continuam de
 fora, como a r0102 os deixou: são outra revisão.
+
+## A vista é de quem a pôs — r0109
+
+O dono, a 6 de setembro: «depois de carregar a carta os botões deixam de funcionar, nem
+aproximar nem afastar». Reproduzido num Chromium a sério, com a carta da DGT servida de
+mentira: «Aproximar» mudava a ampliação e a pintura seguinte punha-a onde estava.
+**`pintarMapa` e o cartão do mapa chamavam `enquadrarMapa` a cada pintura**, e o
+enquadramento escreve a ampliação e o centro; o zoom, o arrasto e qualquer repintura do
+estado — que o `render` geral faz a cada alteração — desfaziam-se uns aos outros. Desde que
+o enquadramento nasceu; nunca ninguém tinha carregado em «Aproximar» depois de a carta
+vir. `caixaDoMapa` separa-se de `enquadrarMapa`: a primeira diz se há o que mostrar, sem
+mexer na vista; a segunda escreve-a, **uma vez por ocorrência e por carta**, e quando se
+carrega em «Enquadrar no perímetro». Mudar de carta — WMTS, `{z}/{x}/{y}`, pasta local — ou
+retirá-la volta a enquadrar, porque o centro em pixéis de uma grelha não vale na outra.
+Quatro testes, um deles no arnês e o outro no Chromium, pelo guião de reprodução.
+
+**E a carta que não vem passa a dizer porquê.** Os dezasseis `catch` de `mosaicoBlob`
+engoliam o motivo e a linha de estado dizia «nenhum quadrado veio». O primeiro quadrado que
+falha fica com o motivo — recusa com o código HTTP, prazo, falha de rede — e o endereço
+pedido, e a linha e a mensagem do botão dizem-no. E o caso que muito provavelmente é o do
+dono: **a carta da DGT só existe em `http`, e uma página em `https` — o GitHub Pages — não
+a pode pedir**; `httpsSeForPreciso` promovia o endereço em silêncio, para um servidor que
+não está lá. A promoção fica registada na carta (`promovido`) e a linha diz o que significa
+e o caminho: abrir a aplicação do ficheiro descarregado, em `file://`, que é onde a DGT
+responde. O manual diz o mesmo. Não se pôde confirmar daqui que é isso que o dono viu —
+a rede recusa tudo —, e é por isso que a linha passa a trazer o motivo e o endereço: para
+a próxima pergunta vir com eles.
+
+**Números.** 1070 testes, 4 novos; nove portões e o trabalho de navegador verdes; auditoria
+visual limpa nos dois temas.
 
 ## Decisões tomadas
 

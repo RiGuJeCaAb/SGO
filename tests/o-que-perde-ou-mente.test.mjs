@@ -80,7 +80,7 @@ test('a cache da rede tem teto e larga as entradas mais antigas', semAplicacao, 
 test('os mosaicos são pedidos à rede sem entrar na cache', semAplicacao, async () => {
   const { readFile } = await import('node:fs/promises');
   const f = await readFile('fonte/3-planeamento/05-mapa-operacional.js', 'utf8');
-  assert.match(f, /fetchT\(mosaicoURL\(z, x, y\), \{ semCache:true \}, 12000\)/);
+  assert.match(f, /const u = mosaicoURL\(z, x, y\);[\s\S]{0,400}fetchT\(u, \{ semCache:true \}, 12000\)/);
 });
 
 test('uma carta declarada que não ficou gravada não responde ok', semAplicacao, async () => {
