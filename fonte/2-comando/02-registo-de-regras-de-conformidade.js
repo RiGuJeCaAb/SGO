@@ -58,8 +58,48 @@ async function retirarCumprimento(id, por){
   return { ok:true };
 }
 
+/* Ao fim de quantos dias é que um início de ocorrência se pergunta em vez de se aceitar.
+
+   **Não é da doutrina, e diz-se.** A DON n.º 2 fixa prazos a contar do alerta — 90
+   minutos, 2 horas, 24 horas — e não fixa duração máxima a uma ocorrência. Sete dias são
+   catorze rotatividades de turno das 12 horas do ponto 7.d.(30): passado isso, é mais
+   provável que o GDH tenha o mês trocado, ou que tenha ficado aberto o registo de outra
+   ocorrência, do que estar um incêndio rural a arder há mais de uma semana. Por isso a
+   aplicação pergunta, e não impede nada. */
+const LIMIAR_INICIO_ANTIGO_D = 7;
+
 /** @type {RegraDON[]} */
 const REGRAS_DON = [
+  /* O GDH de início, que é o t=0 de tudo o que se conta — DON n.º 2 / DECIR 2026, 7.e.(4) */
+  { id:"inicio", ids:["inicio"], t:"GDH de início da ocorrência", fontes:["DON2"],
+    avaliar(x){ const v = []; const { ini, decorrido, futuro, c } = x;
+      /* Aplicação acabada de abrir não resmunga: sem ocorrência declarada não há o que
+         conferir, e um aviso permanente no ecrã vazio ensina a ignorar avisos. */
+      const ha = !!(O.meta.num || O.meta.local || O.evolucao.length || c.m || c.ar || c.setores);
+      if(!ini){
+        if(!ha) return v;
+        v.push({n:"av", id:"inicio", t:"GDH de início por preencher",
+          s:"Há ocorrência registada e não há GDH de início. Todos os prazos se contam a partir dele, e enquanto faltar ficam calados: o limiar dos 90 minutos, o das 2 horas, o das 24, e a cadência do POSIT.",
+          f:"Os prazos do ataque inicial e do ataque ampliado contam-se a partir do alerta.",
+          a:"Preencher o GDH de início na identificação da ocorrência, em Comando. É a hora do alerta, não a da chegada ao teatro de operações.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.e.(4)"});
+        return v;
+      }
+      if(futuro){
+        v.push({n:"av", id:"inicio", t:"GDH de início ainda por chegar",
+          s:"O início declarado é "+O.meta.inicio+", que é "+duracao(futuro)+" mais tarde do que a hora a que esta verificação corre. Uma ocorrência não começa no futuro, e enquanto assim for os prazos não se contam.",
+          f:"Os prazos contam-se a partir do alerta, e sem um instante de partida que já tenha passado não há tempo decorrido que se conte.",
+          a:"Conferir o dia, o mês e o ano do GDH. Um mês ou um ano trocado dá uma data que existe, e por isso passa na validação sem ninguém dar por ela.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.e.(4)"});
+      } else if(decorrido !== null && decorrido > LIMIAR_INICIO_ANTIGO_D*1440){
+        v.push({n:"av", id:"inicio", t:"Ocorrência a decorrer há "+duracao(decorrido),
+          s:"O início declarado é "+O.meta.inicio+". As contas estão certas para esse GDH, e é o GDH que convém confirmar: um mês trocado dá uma data válida, e um registo de trabalho que ficou aberto conta o tempo na mesma.",
+          f:"Sete dias são catorze rotatividades de turno das 12 horas. O limiar não é da doutrina — é construção deste projeto, e serve para perguntar, não para impedir.",
+          a:"Confirmar o GDH de início; se a ocorrência está terminada, encerrar o registo em Comando; se o que está aberto é trabalho de outra ocorrência, «Repor a aplicação neste dispositivo» limpa o que ficou.",
+          r:"DON n.º 2 / DECIR 2026, ponto 7.d.(30), como termo de comparação; o limiar é construção do projeto"});
+      }
+      return v; } },
+
   /* Rotatividade de funções da EPCO — DON n.º 2 / DECIR 2026, pontos 7.d.(29) e 7.d.(30) */
   { id:"turno", ids:["turno"], t:"Rotatividade de funções da EPCO", fontes:["DON2"],
     avaliar(x){ const v = []; const { decorrido, dur, instante } = x;
@@ -569,9 +609,18 @@ function contextoDON(ts){
      dos 2 minutos começam no alerta: «até aos 90 minutos após o alerta», DON n.º 2, 7.e.(4).
      É esse o t=0 de tudo o que aqui conta a partir do início. */
   const ini = parseGDH(O.meta.inicio);
+  /* Um GDH de início posterior ao instante não é um início: é um dedo no mês, no dia ou
+     no ano, e `parseGDH` não o pode apanhar porque a data existe. Contava-se na mesma, e
+     o que saía era «decorre há -2 h -59 min» com um «Faltam 209 minutos» ao lado, a dar
+     por dentro do prazo uma ocorrência que ainda não tinha começado. **Sem t=0 credível
+     não há prazo nenhum:** `decorrido` fica nulo, todas as regras de prazo se calam — já
+     estavam todas guardadas contra o nulo — e a regra `inicio` diz porquê. */
+  const desde = minutosDesde(ini, instante);
+  const futuro = (desde !== null && desde < 0)? -desde : 0;
   return { instante, ini, c: contarDispositivo(),
-    decorrido: minutosDesde(ini, instante),
-    dur: m => { const h=Math.floor(m/60), mm=m%60; return h? h+" h "+String(mm).padStart(2,"0")+" min" : mm+" min"; },
+    decorrido: futuro? null : desde,
+    futuro,
+    dur: duracao,
     nCopesp: nomeado("COPESP"),
     /* Leitura defensiva: verificar conformidade não pode escrever no estado. O
        `nivObj()` normaliza, e uma verificação que altera o que verifica já não é de

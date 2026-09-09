@@ -519,3 +519,68 @@ test('o medidor usa o limiar aéreo para meios aéreos', semAplicacao, () => {
   assert.match(janela.medidorTempo({ t: 'HEBL', ar: 1, ts: agora - 7 * 3600000 }), /class="med nivel-r"/);
   assert.match(janela.medidorTempo({ t: 'VFCI', ts: agora - 7 * 3600000 }), /class="med nivel-v"/);
 });
+
+/* ---- o GDH de início, que é o t=0 de tudo o que se conta ---- */
+
+/** O item da regra do início, ou undefined quando ela se cala. */
+function itemInicio(ts) {
+  return acharPorId(JSON.parse(JSON.stringify(janela.verificacoesDON(ts))), 'inicio');
+}
+
+test('uma ocorrência a decorrer há mais de uma semana pergunta-se, e as contas dizem os dias',
+  semAplicacao, () => {
+    /* O ecrã de 8 de setembro: início a 071415AGO26 e «768 h 01 min» dito com toda a
+       seriedade. A conta está certa e o GDH é que não: um mês trocado dá uma data válida. */
+    const O = avaliar(janela, 'O');
+    O.meta.num = '2026/4711';
+    O.meta.inicio = '071415AGO26';
+    const ts = janela.parseGDH('071415AGO26').getTime() + 46081 * MINUTO;
+    const inicio = itemInicio(ts);
+    assert.ok(inicio, 'a regra do início devia perguntar');
+    assert.equal(inicio.n, 'av', 'pergunta-se, não se impede');
+    assert.match(inicio.t, /32 d 00 h 01 min/);
+    assert.match(inicio.f, /não é da doutrina/);
+    /* E a regra dos 90 minutos, que continua a contar, também deixa de dizer 768 horas. */
+    assert.match(acharPorId(janela.verificacoesDON(ts), 'ata').s, /decorre há 32 d 00 h 01 min/);
+  });
+
+test('dentro da semana a regra do início cala-se, e o painel não ganha ruído', semAplicacao, () => {
+  const O = avaliar(janela, 'O');
+  O.meta.num = '2026/4711';
+  assert.equal(itemInicio(ocorrenciaAs(30)), undefined);
+  assert.equal(itemInicio(ocorrenciaAs(7 * 24 * 60)), undefined, 'exatamente sete dias ainda não é pergunta');
+  assert.ok(itemInicio(ocorrenciaAs(7 * 24 * 60 + 1)), 'um minuto depois, é');
+});
+
+test('um início posterior à hora atual suspende os prazos, em vez de os contar ao contrário',
+  semAplicacao, () => {
+    /* Contava-se na mesma: «decorre há -2 h -59 min» e, ao lado, «Faltam 209 minutos para o
+       limiar dos 90 minutos» — uma ocorrência por começar dada como dentro do prazo. */
+    const O = avaliar(janela, 'O');
+    O.meta.num = '2026/4711';
+    O.meta.inicio = '091415SET26';
+    const ts = janela.parseGDH('091415SET26').getTime() - 119 * MINUTO;
+    const inicio = itemInicio(ts);
+    assert.ok(inicio, 'o início no futuro tem de ser dito');
+    assert.equal(inicio.n, 'av');
+    assert.match(inicio.s, /1 h 59 min mais tarde/);
+    const itens = janela.verificacoesDON(ts);
+    ['ata', 'notif', 'posit'].forEach((id) =>
+      assert.equal(acharPorId(itens, id), undefined, id + ' devia calar-se sem t=0 credível'));
+  });
+
+test('com ocorrência registada e sem GDH de início, diz-se porque estão os prazos calados',
+  semAplicacao, () => {
+    const O = avaliar(janela, 'O');
+    O.meta.num = '2026/4711';
+    O.meta.inicio = '';
+    const inicio = itemInicio(Date.now());
+    assert.ok(inicio);
+    assert.match(inicio.t, /por preencher/);
+    assert.match(inicio.a, /hora do alerta/);
+  });
+
+test('a aplicação acabada de abrir não resmunga com o início', semAplicacao, () => {
+  janela.eval('O = novoEstado()');
+  assert.equal(itemInicio(Date.now()), undefined, 'sem ocorrência declarada não há o que conferir');
+});

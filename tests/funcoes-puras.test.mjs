@@ -115,3 +115,36 @@ test('parPar: com três números, valem os dois primeiros', semAplicacao, () => 
   /* Quem cola «41.16, -7.79, 512» de um GPS com altitude não deve perder a coordenada. */
   assert.deepEqual(daqui(janela.parPar('41.16, -7.79, 512')), { lat: 41.16, lon: -7.79 });
 });
+
+/* ---- duracao: como se conta o tempo que passou ---- */
+
+test('duracao: até ao dia conta em horas e minutos, e daí para cima conta em dias', semAplicacao, () => {
+  /* «768 h 01 min» era o que o ecrã dizia a 8 de setembro para uma ocorrência aberta a 7
+     de agosto. A conta estava certa; a leitura é que obrigava a dividir por 24. */
+  assert.equal(janela.duracao(0), '0 min');
+  assert.equal(janela.duracao(45), '45 min');
+  assert.equal(janela.duracao(60), '1 h 00 min');
+  assert.equal(janela.duracao(90), '1 h 30 min');
+  assert.equal(janela.duracao(1439), '23 h 59 min');
+  assert.equal(janela.duracao(1440), '1 d 00 h 00 min');
+  assert.equal(janela.duracao(46081), '32 d 00 h 01 min');
+  assert.equal(janela.duracao(30.4), '30 min', 'arredonda ao minuto');
+});
+
+test('duracao: o que ainda não passou não é duração, e não se escreve com sinal', semAplicacao, () => {
+  /* `-119` dava «-2 h -59 min», que não é hora nenhuma. Sai um travessão, para a falta se
+     ver: quem chama tem de tratar o futuro antes de pedir uma duração. */
+  assert.equal(janela.duracao(-1), '\u2014');
+  assert.equal(janela.duracao(-119), '\u2014');
+  assert.equal(janela.duracao(NaN), '\u2014');
+  assert.equal(janela.duracao(Infinity), '\u2014');
+});
+
+test('duracao: o empenhamento e a conformidade usam a mesma conta', semAplicacao, () => {
+  /* Uma conta só, no núcleo: se divergirem, o mesmo tempo aparece escrito de duas maneiras
+     no mesmo ecrã. `fmtH` recebe horas decimais e `dur` minutos, e desembocam aqui. */
+  assert.equal(janela.fmtH(768 + 1 / 60), '32 d 00 h 01 min');
+  assert.equal(janela.fmtH(0.5), '30 min');
+  assert.equal(janela.fmtH(4.5), '4 h 30 min');
+  assert.equal(janela.fmtH(-3), '\u2014');
+});

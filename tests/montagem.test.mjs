@@ -64,8 +64,13 @@ test('montar a fonte reproduz a revisão mais recente, byte a byte', semRevisao,
  * uns quilobytes por revisão, e ninguém media. Um único ficheiro que se abre de `file://`
  * num portátil de PCO não pode crescer sem se dar por isso. Subir o teto é uma linha aqui,
  * com a razão ao lado; o que não pode é subir sozinho.
+ *
+ * Subido para 1 300 000 na r0122: a r0119 e a r0120 trouxeram as duas transcrições da DON
+ * n.º 2 — a rede de meios aéreos dos Anexos 6 e 18, com 224 linhas, e as 90 origens dos
+ * Anexos 9 a 23. São tabelas, não código, e são a razão pela qual a entrega passou de
+ * 1 208 kB para 1 251 kB de uma vez. A folga que fica é a de sempre, uns 40 kB.
  */
-const TETO_ENTREGA_BYTES = 1_250_000;
+const TETO_ENTREGA_BYTES = 1_300_000;
 
 test('a entrega cabe no teto de tamanho declarado', semRevisao, async () => {
   const { size } = await stat(recente);

@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0121**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0122**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,14 +15,14 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 159, das anteriores à convenção de nomes até à r0121 |
+| Entregas em `app/` | 160, das anteriores à convenção de nomes até à r0122 |
 | Módulos em `fonte/` | 79, em sete zonas, mais o molde |
-| Testes | 1102, todos a passar |
+| Testes | 1110, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
 | Versão do estado gravado | 29 |
-| Regras de conformidade | 16, com as fontes declaradas |
+| Regras de conformidade | 17, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
 também.** A documentação está arrumada por natureza — ver `docs/README.md`.
@@ -1668,6 +1668,40 @@ exatamente como entrava. Onze testes novos. Ficou registado para depois, da conv
 mesmo dia: os anexos da DON n.º 2 sobre bases de apoio logístico, reabastecimento de
 aeronaves e transportes para rendição são matéria da Célula de Logística e Finanças, e
 podem ajudar a desenvolvê-la. 1102 testes.
+
+## A contagem dos tempos — r0122
+
+A 8 de setembro, um ecrã: «A ocorrência decorre há 768 h 01 min, contados a partir do GDH de
+início 071415AGO26», dito com toda a seriedade dentro de uma obrigação legal. A aritmética
+estava certa — de 7 de agosto às 14h15 até àquele instante são mesmo 46 081 minutos — e é
+esse o problema: **uma conta certa que ninguém consegue ler deixa de ser uma conta.** Quem
+está ao teclado tem de dividir por 24 de cabeça para descobrir que são 32 dias, e é nesse
+instante que deixa de confiar no número. Três defeitos, todos na mesma família.
+
+**Nada acima de um dia se lia.** Havia duas contas a formatar durações — `dur`, nas regras de
+conformidade, e `fmtH`, no empenhamento, no turno, na validade do PEA e na idade da previsão —
+e nenhuma sabia o que é um dia. Passa a haver uma só, `duracao`, no núcleo: até às 24 horas
+conta em horas e minutos, que é a unidade da doutrina, e daí para cima diz os dias.
+
+**Um início no futuro contava-se ao contrário.** `071415SET26` escrito a 7 de setembro às
+12h16 dava «decorre há -2 h -59 min» e, ao lado, «Faltam 209 minutos para o limiar dos 90
+minutos»: uma ocorrência que ainda não tinha começado dada como dentro do prazo. Sem t=0
+credível não há prazo: `decorrido` fica nulo, as regras de prazo calam-se — já estavam todas
+guardadas contra o nulo — e uma regra nova diz porquê. Uma duração negativa deixou de se
+escrever com sinal por dentro; sai um travessão, para a falta se ver.
+
+**E ninguém perguntava.** Nasce a regra `inicio`, décima sétima do registo, sobre o GDH que é
+o t=0 de tudo: sem ele, com ocorrência registada, diz que os prazos estão calados e porquê;
+posterior à hora atual, diz quanto e que se confira o dia, o mês e o ano; a mais de sete dias,
+pergunta — um mês trocado dá uma data válida, e um registo de trabalho que ficou aberto conta
+o tempo na mesma. Os sete dias não são prazo da doutrina, e a própria verificação o declara:
+são catorze rotatividades de turno das 12 horas do ponto 7.d.(30), e servem para perguntar,
+não para impedir. Com a aplicação acabada de abrir a regra cala-se, que um aviso permanente
+no ecrã vazio ensina a ignorar avisos.
+
+O teto de tamanho da entrega subiu para 1 300 000 bytes, com a razão escrita no teste: as
+transcrições da DON n.º 2 da r0119 e da r0120 são tabelas, não código, e levaram a entrega de
+1 208 kB a 1 251 kB de uma vez. 1110 testes, 8 novos.
 
 ## Decisões tomadas
 

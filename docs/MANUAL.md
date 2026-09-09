@@ -82,6 +82,26 @@ registo guarda a diferença.
 **A fase.** Escolher a fase não é declará-la. Depois de a escolher, carregue em «Declarar
 fase»: é aí que fica com GDH e com o nome de quem a declarou.
 
+**O GDH de início é a hora do alerta,** e é dele que sai tudo o que a aplicação conta: o
+limiar dos 90 minutos para o PEA formal, o das 2 horas e o das 24 para o domínio, a cadência
+do POSIT, e o tempo que cada verificação diz no ecrã. Três coisas a saber sobre ele.
+
+- **Um mês trocado dá uma data que existe**, e por isso passa sem ninguém dar por ela.
+  Quando o início declarado fica a mais de sete dias, a aplicação pergunta em vez de aceitar:
+  diz há quanto tempo a ocorrência está aberta e pede que se confirme o GDH, se encerre o
+  registo, ou se reponha a aplicação se o que ficou aberto for trabalho de outra ocorrência.
+  Sete dias não é prazo da doutrina, é limiar deste projeto, e a verificação di-lo.
+- **Um início posterior à hora a que se está suspende os prazos**, em vez de os contar ao
+  contrário. Nada começa no futuro; enquanto o GDH não for corrigido, as verificações de
+  prazo calam-se e uma delas explica porquê.
+- **Sem GDH de início não há prazo nenhum.** Havendo ocorrência registada, a aplicação
+  di-lo, para não ficar calada a parecer conforme.
+
+**Os tempos contam-se em horas e minutos até ao dia, e em dias daí para cima** — "1 h 30 min",
+"23 h 59 min", "1 d 00 h 00 min", "32 d 00 h 01 min". É a mesma conta em todo o lado: no
+empenhamento de cada meio, na duração do turno, na validade do PEA, na idade da previsão e
+nas verificações de conformidade.
+
 ---
 
 ## O perímetro e a área ardida

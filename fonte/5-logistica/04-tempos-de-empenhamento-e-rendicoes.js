@@ -54,8 +54,12 @@ function descreverAer(L){
   const grupos = Object.keys(anon).map(t=> anon[t]+"× "+t);
   return nomeadas.concat(grupos).join(", ");
 }
+/* Horas decimais na mesma forma do resto da aplicação: uma conta só, no núcleo, para o
+   empenhamento, o turno, a validade do PEA e a idade da previsão contarem igual. Uma
+   unidade empenhada há mais de um dia passa a dizer os dias, em vez de somar horas até
+   ao absurdo. */
 /** Horas decimais em «4 h 30 min», que é como se diz o empenhamento. */
-function fmtH(h){ const t=Math.round(h*60); return Math.floor(t/60)+" h "+String(t%60).padStart(2,"0")+" min"; }
+function fmtH(h){ return duracao(h*60); }
 
 /* Os destinos continuam a ser os identificadores antigos: a tabela de atalhos
    traduz-os para o painel da célula. Só os rótulos precisavam de deixar de mentir. */
