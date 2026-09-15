@@ -84,6 +84,35 @@ etiqueta leva ao cartão.
 
 ---
 
+## Que lugar do posto de comando é este computador
+
+Comando → **Posto de trabalho**, o cartão logo a seguir. Escolha um: Comando, Operações,
+Planeamento, Logística e Finanças. O do comando é o do COS.
+
+**Um posto de trabalho é um lugar na estrutura, e não uma pessoa nem uma máquina.** Num
+posto de comando com um portátil por célula há um lugar por célula, mais o do comando. Fica
+declarado neste computador, como o tema, e não viaja com a ocorrência: é o portátil que está
+na célula de Operações, não a ocorrência.
+
+**Quem assume o teclado passa a ocupar o lugar.** A ocupação entra no registo com o instante
+em que abriu, e fecha quando a pessoa deixa o teclado, quando outra assume, ou quando o
+registo da ocorrência é encerrado. Nada se apaga: fechar é pôr a hora do fim. O que fica é a
+cadeia de custódia do lugar, e é dela que se sabe quem respondia por Operações às 14h30.
+
+Duas consequências que se veem no ecrã. O cabeçalho ganha a etiqueta do lugar, à cabeça, e
+só aparece quando há lugar declarado. E cada registo da fita do tempo passa a dizer, por
+baixo, que lugar respondia à hora dele — em branco antes de haver lugar declarado, que é a
+resposta certa e não uma falta.
+
+**Sem lugar declarado a aplicação fica como sempre esteve:** não se registam ocupações, e
+cada ato leva o nome de quem está ao teclado e mais nada.
+
+**Isto ainda não é assinatura.** Uma ocupação é declarada, como a identidade, e a diferença
+está escrita no cartão. A assinatura é a etapa seguinte do contrato do serviço da VCOC, e
+obriga a servir a aplicação de uma origem, que um ficheiro aberto do disco não tem.
+
+---
+
 ## Registar a ocorrência
 
 Comando → **Identificação da ocorrência**. O número da ocorrência e o local são o mínimo.

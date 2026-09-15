@@ -367,3 +367,27 @@ ocorrência passava a sair cortado a meio. E o cartão da ocorrência, alinhado 
 `inline-flex`, perdia o espaço antes do número e as reticências, porque com flex o texto e o
 `<b>` passam a itens e `text-overflow` deixa de se aplicar.
 
+## qa0041 — o posto de trabalho, a cadeia de custódia, e quem respondia por cada registo
+
+`CSREPCDouro_qa0041_202609151240_PostoDeTrabalhoECadeiaDeCustodiaTemaEscuro_CLD.png`
+`CSREPCDouro_qa0041_202609151240_PostoDeTrabalhoECadeiaDeCustodiaTemaClaro_CLD.png`
+`CSREPCDouro_qa0041_202609151240_LugarEQuemRespondeNoCabecalho_CLD.png`
+`CSREPCDouro_qa0041_202609151240_QuemRespondiaPorCadaRegisto_CLD.png`
+
+Etapa 2 do contrato do serviço da VCOC. O cartão com o lugar declarado, a ocupação em curso
+e a cadeia de custódia, nos dois temas: duas ocupações do mesmo lugar, a fechada a dizer
+«rendido por Cmdt Abreu» e a aberta sem hora de fim. O cabeçalho a 1440 px com o lugar e
+quem responde por ele na mesma etiqueta. E uma linha da fita do tempo com a ocupação que a
+cobre, por baixo do texto.
+
+Três coisas que estas capturas decidiram, e que nenhum teste via. Uma quarta caixa no grupo
+do estado espremia a da ocorrência até «Ocorrên…» e a de quem está ao teclado até ao rótulo
+sem nome, e foi por isso que o lugar entrou na etiqueta que já existia em vez de ter uma sua.
+A etiqueta de quem está ao teclado passou a não encolher, porque encolhia até «Operações ·
+Cmd» e o nome é a metade que menos se pode perder. E a legenda doutrinária do título sai
+agora a 1500 px e não a 1240, porque o que sobrava cortava o número da ocorrência.
+
+A quarta capturou o que a rendição e o primeiro registo de quem entra fazem no mesmo minuto:
+com o intervalo da ocupação fechado nas duas pontas, a linha saía com dois responsáveis. O
+intervalo passou a ser aberto à direita, e no minuto da rendição conta quem entrou.
+

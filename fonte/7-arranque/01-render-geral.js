@@ -99,6 +99,7 @@ function pintarTudo(){
   pintarArquivo();
   pintura("lista de verificação", renderCheck, qb);
   pintura("nível DECIR", autoNivelDECIR, qb);
+  pintura("postos de trabalho", pintarPostos, qb);
   pintura("estrutura do PCO", renderPCO, qb);
   pintura("plano de comunicações", renderComs, qb);
   pintura("catálogo de elementos", renderCatalogo, qb);
@@ -119,8 +120,17 @@ function pintarTudo(){
   /* A mesma linguagem do diário da aplicação: sem registos di-lo, em vez de mentir com um
      zero, e um registo é um registo. Esta etiqueta é a contagem do cartão dobrável. */
   $("evo-count").textContent = O.evolucao.length? (O.evolucao.length===1? "1 registo" : O.evolucao.length+" registos") : "sem registos";
-  listaPorAcrescento($("evo-list"), O.evolucao, e=>
-    `<div class="evo-i tipo-${esc(e.tipo)}"><div class="evo-g">${esc(e.g)}</div><div class="evo-tp">${esc(e.tipo)}</div><div class="evo-t">${esc(e.txt)}</div></div>`,
+  /* Quem respondia pelo lugar à hora do registo, derivado da ocupação que o cobre — é o
+     que a etapa 2 do contrato do serviço promete, «a fita passa a dizer que posto fez o
+     quê», sem cada linha ter de o levar escrito. Vazio quando não havia ocupação nenhuma,
+     que é a resposta certa e não uma falta: até a haver, o registo tinha só o nome de quem
+     estava ao teclado. A lista pinta por acrescento, e uma linha nasce sempre depois da
+     ocupação que a cobre, pelo que a derivação no momento da pintura é a definitiva. */
+  listaPorAcrescento($("evo-list"), O.evolucao, e=>{
+    const ocup = quemEstavaEm(e.g);
+    return `<div class="evo-i tipo-${esc(e.tipo)}"><div class="evo-g">${esc(e.g)}</div><div class="evo-tp">${esc(e.tipo)}</div><div class="evo-t">${esc(e.txt)}</div>`
+      + (ocup? `<div class="evo-q">${esc(ocup)}</div>` : "") + `</div>`;
+  },
     '<p class="hint">Sem registos. Cada novo PEA incorpora automaticamente os registos posteriores ao PEA anterior.</p>');
   $("prox-n").textContent = "n.º "+(O.peas.length+1);
   const apr = O.peas.filter(p=>estadoPEA(p)==="aprovado").length;

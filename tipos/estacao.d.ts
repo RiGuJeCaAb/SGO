@@ -370,6 +370,8 @@ interface Estado {
   dados: DadosOcorrencia;
   /** Comando: as nomeações do art. 14.º, e mais nada, desde a versão 6. */
   pco: { funcoes: FuncaoPCO[] };
+  /** Quem respondeu por cada posto de trabalho, entre que instantes — art. 15.º, n.º 3, al. c). */
+  ocupacoes: Ocupacao[];
   evolucao: any[];
   csv: string;
   peas: any[];
@@ -408,6 +410,17 @@ interface Estado {
   cumprimentos: { [id: string]: { g: string; por: string; nota: string } };
   versao: number;
   [outro: string]: any;
+}
+
+/**
+ * Uma ocupação: uma pessoa num posto de trabalho, entre dois instantes.
+ *
+ * `ate` vazio é a ocupação aberta, e há uma no máximo por posto. `fim` diz porque fechou —
+ * rendição, deixou o teclado, encerramento do registo — e fica vazio enquanto estiver aberta.
+ */
+interface Ocupacao {
+  id: string; p: string; nome: string; g: string; perfil: string;
+  de: string; ate: string; fim: string;
 }
 
 /** Um item devolvido pelo motor de conformidade. */

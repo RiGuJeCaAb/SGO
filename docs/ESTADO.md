@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0123**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0124**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,13 +15,13 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 161, das anteriores à convenção de nomes até à r0123 |
-| Módulos em `fonte/` | 79, em sete zonas, mais o molde |
-| Testes | 1114, todos a passar |
+| Entregas em `app/` | 162, das anteriores à convenção de nomes até à r0124 |
+| Módulos em `fonte/` | 80, em sete zonas, mais o molde |
+| Testes | 1128, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
-| Versão do estado gravado | 29 |
+| Versão do estado gravado | 30 |
 | Regras de conformidade | 17, com as fontes declaradas |
 
 **As seis correções estruturais da proposta de evolução estão feitas, e as camadas 1 e 2
@@ -1767,6 +1767,54 @@ e os artigos da lei nacional ficam por confirmar em vez de se escreverem de cor.
 A ordem de construção passa a ter sete etapas, e a segunda é a que se pode fazer já sem
 servidor nenhum: postos e ocupações sem assinatura, só o modelo, para ele se provar no terreno
 antes de se lhe pendurar criptografia.
+
+## Postos de trabalho e ocupações — r0124
+
+Etapa 2 da ordem de construção do contrato do serviço da VCOC, v0.2, secção 4, feita a 15 de
+setembro. É a única que não depende de servidor nenhum: o modelo e o seu registo, para se
+provar no terreno antes de se lhe pendurar criptografia.
+
+**Três objetos.** O posto de trabalho é um lugar na estrutura do posto de comando, e não uma
+pessoa nem uma máquina: deriva de `CELULAS_PCO()`, um por célula mais o do comando, que é o
+do COS. A ocupação é quem lá está entre dois instantes. O ato pertence à ocupação que estava
+aberta no seu GDH. Chama-se «posto de trabalho» e não «posto» porque no ecrã «posto» já é a
+patente de quem regista, e duas coisas com o mesmo nome no mesmo cartão é como se perde uma
+delas; o contrato ganhou a nota.
+
+**A identidade do lugar é deste dispositivo**, guardada como o tema, e não viaja com a
+ocorrência: é o portátil que está na célula de Operações, não a ocorrência. As ocupações são
+facto operacional, vivem em `O.ocupacoes` e vão no registo — ramo novo, versão 30 do estado,
+com dono declarado em Comando pelo art. 15.º, n.º 3, al. c).
+
+**Assumir o teclado é assumir o lugar.** A ocupação abre em `assumirTeclado` e não num
+segundo sítio que alguém tivesse de se lembrar de visitar. Fecha ao deixar o teclado, quando
+outra pessoa assume — e aí o fecho de uma é a abertura da outra, sem buraco, que é a rendição
+vista do lado do lugar — ao mudar o dispositivo de lugar, e ao encerrar o registo, que vaga
+os lugares antes do carimbo. Nada se apaga: fechar é pôr a hora do fim.
+
+**A fita passa a dizer que posto fez o quê**, que é o que a etapa 2 prometia, sem cada linha
+o levar escrito: a ocupação cobre um intervalo e o ato cai dentro dele. É a mesma lógica com
+que o contrato faz uma assinatura cobrir um intervalo. O intervalo é fechado à esquerda e
+aberto à direita, por uma razão que só a prova de imagem mostrou: a rendição e o primeiro
+registo de quem entra caem quase sempre no mesmo minuto, e com as duas pontas fechadas cada
+uma dessas linhas saía com dois responsáveis. No minuto da rendição conta quem entrou, que é
+também quem está a escrever.
+
+**E o cabeçalho deu três lições, todas medidas.** Uma quarta caixa no grupo do estado
+espremia a da ocorrência até «Ocorrên…», e por isso o lugar entrou na etiqueta de quem está
+ao teclado em vez de ter uma sua — são a mesma pergunta em duas metades. Essa etiqueta passou
+a não encolher, porque encolhia até «Operações · Cmd». E a legenda doutrinária do título sai
+agora a 1500 px e não a 1240: entre a legenda e o número da ocorrência, num posto de comando,
+não há dúvida.
+
+**O que isto ainda não é.** Uma ocupação é declarada e não provada, com as mesmas palavras da
+identidade. A assinatura é a etapa 4 do contrato e obriga a servir a aplicação de uma origem,
+que um ficheiro aberto do disco não tem.
+
+**E o arnês de testes passou a esperar pelo arranque.** A cadeia de `await` do arranque
+corria contra os testes: o que o teste mudasse podia ser reescrito pela pintura que ainda
+vinha a caminho, e o fecho da janela apanhava-a a meio. Um `await` a mais tornou os dois
+visíveis, e a corrida já lá estava desde sempre. 1128 testes, 14 novos. Provas qa0041.
 
 ## Decisões tomadas
 

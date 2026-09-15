@@ -9,6 +9,7 @@ const ARRUMACAO = [
   /* Primeiro quem regista: era o último e apontou-se a 6 de setembro — é de onde sai o nome de cada
      ato, e um registo sem nome é rascunho. A ordem aqui é a ordem no ecrã. */
   { h:"Quem regista",                             cel:"comando",     r:"art. 2.º, al. c) — o registo é atribuído a quem o faz" },
+  { h:"Posto de trabalho",                        cel:"comando",     r:"art. 15.º, n.º 3, al. c)" },
   { h:"Identificação da ocorrência",              cel:"comando",     r:"art. 14.º" },
   { h:"Estrutura do posto de comando",            cel:"comando",     r:"art. 14.º, n.os 1 a 5" },
   { h:"Avisos ativos",                            cel:"comando",     r:"art. 8.º, n.º 2 — determinações do COS" },

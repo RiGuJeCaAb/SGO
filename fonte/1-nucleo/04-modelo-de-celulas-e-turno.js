@@ -452,6 +452,13 @@ MIGRACOES.push(e => {
   }
   return e;
 });
+/* 29 → 30: as ocupações dos postos de trabalho — etapa 2 do contrato do serviço da VCOC,
+   v0.2, secção 4. Ramo novo e vazio: uma ocorrência anterior não tinha postos declarados, e
+   inventar-lhe ocupações a partir da sessão seria escrever história que ninguém viveu. */
+MIGRACOES.push(e => {
+  if(!Array.isArray(e.ocupacoes)) e.ocupacoes = [];
+  return e;
+});
 
 /* `let O` só depois do último degrau. Estava a meio da escada, com sete degraus antes e
    dezasseis depois: latente, porque `novoEstado` não corre a escada, mas é a classe de
@@ -522,6 +529,9 @@ function novoEstado(){
     /* Obrigações dadas por cumpridas: id da regra -> {g, por, nota}. Só as que são ato
        externo, que a aplicação não consegue observar. Ver CUMPRIVEIS. */
     cumprimentos:{},
+    /* Quem respondeu por cada posto de trabalho, entre que instantes. Cresce e não se
+       reescreve: é a cadeia de custódia dos lugares do PCO. Ver `06-postos-e-ocupacoes`. */
+    ocupacoes:[],
     evolucao:[], csv:"", peas:[], fita:[], turno:novoTurno(), versao:VERSAO_ESTADO };
 }
 /* O acessor devolve qualquer elemento; a verificação de tipos incide sobre o estado,

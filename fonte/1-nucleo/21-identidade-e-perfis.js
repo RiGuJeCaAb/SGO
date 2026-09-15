@@ -104,11 +104,17 @@ async function assumirTeclado(nome, posto, perfil){
     desde: gdhAgora(), id: SESSAO.id || ("s"+agora().toString(36)) };
   await gravarSessao();
   fita("Ao teclado: "+quemRegista()+" ("+perfilDe(SESSAO.perfil).n+")");
+  /* Havendo posto de trabalho declarado neste dispositivo, assumir o teclado é assumir o
+     lugar: a ocupação abre aqui, para o registo não depender de alguém se lembrar de a
+     abrir num segundo sítio. Sem posto declarado não acontece nada. */
+  abrirOcupacao();
   return { ok:true };
 }
 
 /** Larga o teclado. O registo volta a ser anónimo, e a aplicação di-lo. */
 async function largarTeclado(){
+  const p = postoLocal();
+  if(p) fecharOcupacao(p.k, "deixou o teclado");
   if(haSessao()) fita("Deixou o teclado: "+quemRegista());
   SESSAO = novaSessao();
   await gravarSessao();

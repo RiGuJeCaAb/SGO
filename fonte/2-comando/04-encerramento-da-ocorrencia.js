@@ -68,6 +68,12 @@ async function encerrarOcorrencia(por, nota, ts){
   const quem = String(por||"").trim();
   if(!quem) return { ok:false, motivo:"Indicar quem determina o encerramento." };
 
+  /* Os lugares vagam antes do carimbo: um registo que fecha com uma ocupação aberta
+     deixaria a cadeia de custódia de um posto sem fim, e um intervalo sem fim não diz até
+     quando é que alguém respondeu por ele. Fecha-se antes de `E.g` para a ocupação ainda
+     apanhar o registo aberto. */
+  POSTOS_PCO().forEach(p => fecharOcupacao(p.k, "encerramento do registo da ocorrência"));
+
   const E = encObj();
   E.g = gdhDe(ts==null? agora() : ts);
   E.por = quem;

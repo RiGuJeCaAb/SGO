@@ -37,6 +37,16 @@ export async function abrirAplicacao() {
     url: 'file:///estacao.html',
     virtualConsole: consola,
   });
+
+  /* O arranque da aplicação é uma cadeia de `await` — armazém, trinco de escrita entre
+     abas, diário, índice do arquivo, posto de trabalho, sessão — que termina a desenhar.
+     Sem esperar por ela, o teste corria contra o arranque: o que o teste mudasse podia
+     ser reescrito pela pintura que ainda vinha a caminho, e o `close()` do fim apanhava a
+     cadeia a meio, com o `document` já desfeito. Aconteceram os dois, e foi um `await` a
+     mais no arranque que os tornou visíveis; a corrida já lá estava.
+     Esgotam-se as voltas do ciclo de eventos, que é o que deixa a cadeia assentar — nada
+     aqui espera por relógio nem por rede. */
+  for (let i = 0; i < 25; i++) await new Promise((r) => setTimeout(r, 0));
   return dom.window;
 }
 

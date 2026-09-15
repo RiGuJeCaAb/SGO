@@ -76,6 +76,9 @@ $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="
   try{ initCatalogo(); }catch(e){}
   try{ montarFrases(); }catch(e){}
   try{ ligarCamposGDH(); }catch(e){}
+  /* O posto de trabalho antes da sessão: é ele que decide se assumir o teclado abre uma
+     ocupação, e carregá-lo depois deixaria a primeira pintura a dizer que não há posto. */
+  try{ await carregarPostoLocal(); }catch(e){}
   try{ await carregarSessao(); pintarSessao(); }catch(e){}
   /* O serviço de mosaicos é definição do posto, guardada no dispositivo como o tema:
      lê-se ao arranque, para o mapa saber a quem pode pedir carta. */
@@ -298,6 +301,8 @@ function pintarSessao(){
       : "Ninguém declarado ao teclado — os atos ficam sem nome atribuído, e a aplicação pede-o no momento.";
     e.style.color = haSessao()? "" : "var(--terra)";
   }
+  /* A ocupação do lugar segue quem está ao teclado, e por isso repinta-se com ele. */
+  try{ pintarPostos(); }catch(e){}
   const bL = $("id-largar"); if(bL) bL.style.display = haSessao()? "" : "none";
   const bA = $("id-assumir"); if(bA) bA.textContent = haSessao()? "Atualizar" : "Assumir o teclado";
   /* O cabeçalho diz quem está ao teclado, em qualquer separador. Apontado a 6 de setembro:
@@ -305,9 +310,16 @@ function pintarSessao(){
      ato. Passou para o topo de Comando, e para aqui, que se vê sempre. */
   const q = $("quem-tag");
   if(q){
-    q.innerHTML = haSessao()
-      ? "Ao teclado: <b>" + esc(quemRegista()) + "</b> · " + esc(perfilDe(SESSAO.perfil).n)
-      : "Ninguém ao teclado";
+    /* Com lugar declarado, a etiqueta responde às duas metades da mesma pergunta: que
+       lugar é este dispositivo, e quem responde por ele agora. Sem lugar, diz o que sempre
+       disse — o perfil, que aí é o que resta para qualificar quem está ao teclado. */
+    const lug = postoLocal();
+    q.innerHTML = lug
+      ? '<span class="quem-tag-lugar">' + esc(lug.n) + "</span> · "
+        + (haSessao() ? "<b>" + esc(quemRegista()) + "</b>" : "ninguém ao teclado")
+      : (haSessao()
+          ? "Ao teclado: <b>" + esc(quemRegista()) + "</b> · " + esc(perfilDe(SESSAO.perfil).n)
+          : "Ninguém ao teclado");
     q.classList.toggle("quem-tag--ninguem", !haSessao());
     q.classList.toggle("quem-tag--declarado", haSessao());
     q.title = haSessao()
@@ -325,6 +337,19 @@ function irAQuemRegista(){
   campo.focus();
 }
 (()=>{ const q = $("quem-tag"); if(q) q.addEventListener("click", irAQuemRegista); })();
+
+/* A etiqueta do cabeçalho leva a «Quem regista», e o cartão do posto de trabalho é o
+   seguinte: um lugar sem ninguém declarado é o caso a resolver primeiro, e os dois cartões
+   ficam à vista com um só desdobrar. */
+(()=>{ const s = $("ptb-qual"); if(!s) return;
+  s.addEventListener("change", async ()=>{
+    const r = await declararPostoLocal(s.value);
+    if(!r.ok){ aviso("ptb-msg","err",r.motivo); pintarPostos(); return; }
+    aviso("ptb-msg","ok", r.posto? "Este dispositivo é o posto de "+r.posto.n+"."
+                                 : "Posto de trabalho por declarar neste dispositivo.");
+    pintarPostos(); persistir(false);
+  });
+})();
 (()=>{
   const bA = $("id-assumir");
   if(bA) bA.addEventListener("click", async ()=>{

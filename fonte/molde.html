@@ -105,8 +105,13 @@
   .flame{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--fogo) 0%,var(--laranja) 100%);color:#FFF7EF;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:1.5px;box-shadow:0 3px 10px rgba(200,80,60,.35), inset 0 1px 0 rgba(255,255,255,.28);border:1px solid rgba(0,0,0,.12);flex:none}
   .htit{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.2px;flex:none;white-space:nowrap;margin:0}
   .htit small{display:block;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx2);margin-top:3px;white-space:nowrap}
-  @media(max-width:1500px){.htit small{letter-spacing:.8px;font-size:10.5px}}
-  @media(max-width:1240px){.htit{font-size:20px}.htit small{display:none}}
+  /* A legenda doutrinária do título sai a 1500 px e não a 1240, e a razão é de orçamento:
+     o grupo do estado ganhou o lugar deste dispositivo dentro da etiqueta de quem está ao
+     teclado, e a 1440 px o que sobrava cortava o número da ocorrência em «Ocorrência 2026…».
+     Entre a legenda e o número da ocorrência, num posto de comando, não há dúvida: a legenda
+     diz-se uma vez na vida, o número lê-se a cada minuto. Volta acima dos 1500. */
+  @media(max-width:1500px){.htit small{display:none}}
+  @media(max-width:1240px){.htit{font-size:20px}}
   /* Alinha-se pela altura de linha e não por `inline-flex`: com flex, o texto e o `<b>` do
      número passam a itens, o espaço entre eles desaparece — «Ocorrência2026/4711» — e as
      reticências deixam de funcionar, porque `text-overflow` não se aplica a um contentor
@@ -545,6 +550,9 @@
   .evo-i .evo-g{font-family:var(--mono);font-size:11px;color:var(--tx3)}
   .evo-i .evo-t{font-size:14.5px;margin-top:2px}
   .evo-i .evo-tp{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;font-weight:600;color:var(--tx2)}
+  /* Quem respondia pelo posto de trabalho à hora daquele registo. Discreto de propósito: é
+     proveniência, não é o facto. */
+  .evo-i .evo-q{font-family:var(--mono);font-size:10.5px;color:var(--tx3);margin-top:3px}
 
   /* fita horária */
   .strip{display:flex;gap:2px;margin:16px 0 4px;overflow-x:auto;padding:2px 0 16px}
@@ -934,8 +942,19 @@
      sem nome é rascunho. Nasce em terra, que é a cor do que falta; passa a madeira quando
      alguém se declara. É botão porque leva ao cartão. */
   .quem-tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.3px;padding:0 11px;min-height:var(--ctl-h-p);display:inline-flex;align-items:center;gap:6px;border-radius:8px;
-    border:1px solid var(--line);background:var(--surf2);color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;cursor:pointer;flex:0 1 auto}
+    border:1px solid var(--line);background:var(--surf2);color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;cursor:pointer;flex:none}
   .quem-tag b{font-weight:700}
+  /* O lugar deste dispositivo entra **na etiqueta que já existe**, e não numa quinta ao
+     lado: uma quarta caixa no grupo do estado espremia a da ocorrência até «Ocorrên…» e a
+     de quem está ao teclado até ao rótulo sem nome. Comprovado em prova de imagem a 1440 px.
+     São a mesma pergunta em duas metades — que lugar é este, e quem responde por ele —, e
+     lêem-se melhor juntas do que separadas por uma borda. */
+  .quem-tag .quem-tag-lugar{color:var(--azul);font-weight:700}
+  /* Não encolhe, e a da ocorrência encolhe por ela: com o lugar lá dentro, esta etiqueta
+     ficava cortada em «Operações · Cmd» a 1440 px, e quem estava ao teclado é a metade que
+     menos se pode perder. A da ocorrência tem reticências e o número vem à cabeça, pelo que
+     o que se perde ali são as contagens. O `max-width` é o que impede que isto transborde
+     com um nome comprido. */
   .quem-tag--ninguem{color:var(--terra);border-color:rgba(224,184,79,.6);background:rgba(224,184,79,.12)}
   .quem-tag--declarado{color:var(--madeira);border-color:rgba(111,181,106,.55)}
   .quem-tag:hover{filter:brightness(1.05)}
@@ -1318,6 +1337,18 @@
       </div>
       <div class="mono-sm" id="id-estado" style="margin-top:10px"></div>
       <div class="msg" id="id-msg" style="display:none"></div>
+    </div>
+
+    <div class="card">
+      <h2>Posto de trabalho <span class="tag">que lugar do PCO é este dispositivo — art. 15.º</span></h2>
+      <p class="hint" style="margin:0 0 12px 0">Um lugar na estrutura do posto de comando, e não uma pessoa nem uma máquina: um por célula, mais o do comando, que é o do COS. Fica declarado <b>neste dispositivo</b>, como o tema, e não viaja com a ocorrência. Quem assume o teclado passa a ocupar este lugar, e a ocupação entra no registo com o instante em que abriu e em que fechou — é a cadeia de custódia do lugar, e é dela que sai quem respondia por ele a cada hora.</p>
+      <div class="grid grid--2">
+        <div><label for="ptb-qual">Este dispositivo é o posto de</label><select id="ptb-qual"></select></div>
+        <div><label for="ptb-quem">Ocupação em curso</label><input id="ptb-quem" readonly></div>
+      </div>
+      <div class="mono-sm" id="ptb-estado" style="margin-top:10px"></div>
+      <div id="ptb-lista" style="margin-top:12px"></div>
+      <div class="msg" id="ptb-msg" style="display:none"></div>
     </div>
     <div class="card">
       <h2>Identificação da ocorrência <span class="tag">n.º SADO · registo automático neste dispositivo</span></h2>

@@ -137,6 +137,10 @@ sentaram ali.
 **Ato.** O que se regista. Cada entrada da fita do tempo leva o posto e a ocupação em que foi
 feita, além do GDH e do nome que já leva hoje.
 
+**Nota de nome.** Na aplicação isto chama-se «posto de trabalho», por extenso, e não «posto»:
+no ecrã «posto» já é a patente de quem regista — Cmdt, Adj. —, e duas coisas com o mesmo nome
+no mesmo cartão é como se perde uma delas. É o mesmo objeto.
+
 ### 4.3 O que se assina, e o que não se assina
 
 **Não se assina cada linha da fita.** Uma assinatura por entrada seria um código por linha, e

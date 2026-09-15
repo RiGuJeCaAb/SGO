@@ -16,7 +16,8 @@ const POSSE = [
       { p:"turno",       r:"art. 15.º, n.º 3, al. c); DON 2, 7.d.(30)", d:"Continuidade em espelho e rotatividade de funções" },
       { p:"encerramento", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Encerramento do registo da ocorrência" },
       { p:"cumprimentos", r:"art. 8.º, n.º 2; art. 2.º, al. c)", d:"Obrigações dadas por cumpridas, com GDH e quem" },
-      { p:"integridade", r:"art. 2.º, al. c) — registo temporal explícito e completo", d:"Proveniência do registo importado e estado do seu carimbo de integridade" }
+      { p:"integridade", r:"art. 2.º, al. c) — registo temporal explícito e completo", d:"Proveniência do registo importado e estado do seu carimbo de integridade" },
+      { p:"ocupacoes",   r:"art. 15.º, n.º 3, al. c)", d:"Quem respondeu por cada posto de trabalho, entre que instantes" }
     ] },
   { k:"planeamento", n:"Planeamento", r:"Despacho n.º 4067/2024, arts. 26.º a 30.º",
     nota:"Elabora o plano estratégico de ação e assegura a sua permanente atualização.",
