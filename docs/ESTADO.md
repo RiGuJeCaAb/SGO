@@ -1732,6 +1732,42 @@ uma terceira: um grupo com `flex:none` não quebra, e transbordava 93 píxeis a 
 
 Provas em `docs/qa/`, qa0040, nos dois temas e em largura reduzida. 1114 testes, 4 novos.
 
+## Assinar a atribuição, e não só o registo — contrato da VCOC v0.2, 15 de setembro
+
+Pergunta de 15 de setembro, a seguir ao cabeçalho: um modo de assinatura digital na atribuição
+de postos, células e responsabilidades, para validar o que passa para a fita do tempo, por
+defesa das decisões. Encaixa num buraco que o contrato do serviço já tinha.
+
+O contrato da v0.1 dá não-repúdio ao **registo**: o serviço contra-assina cada estado que
+recebe, e a cadeia de resumos prova que nada foi alterado depois. Isso responde a «este registo
+foi mexido?» e não responde a «quem estava ali quando isto foi decidido?». Em inquérito são
+duas perguntas diferentes, e a segunda é a que defende a decisão e quem a tomou.
+
+A v0.2 acrescenta a secção 4. Três objetos, posto, ocupação e ato, com o posto a ser um lugar
+na estrutura e não uma pessoa nem uma máquina, e a ocupação a ser quem lá está entre dois
+instantes — que é o que a rendição muda. **Não se assina cada linha da fita:** assina-se a
+abertura e o fecho de cada ocupação, e as entradas do intervalo ficam cobertas pela cadeia de
+resumos que já existe. Uma assinatura cobre um intervalo, e é isso que a torna praticável num
+teatro. À parte, assinam-se um a um os atos que valem por si, e a tabela diz quem assina cada
+um e onde está a norma.
+
+Quatro caminhos técnicos, com o que cada um prova e não prova. A proposta é token FIDO2 para a
+ocupação corrente, chave qualificada em cartão para os atos pesados, e par de chaves no
+dispositivo como rede de segurança; e recusa-se o caminho em que o serviço assina por quem se
+autenticou, porque aí a assinatura passa a ser do serviço.
+
+E o preço, dito ao lado da ideia: **assinar dentro do navegador obriga a servir a aplicação de
+uma origem**, porque nem um token nem um cartão falam com uma página aberta de `file://`. A
+Estação continua a abrir de `file://` e a registar sem nada disto; a assinatura é capacidade a
+mais onde houver VCOC. Fica também escrito que uma assinatura não diz quando, só diz que aquela
+chave assinou aquele resumo, e que sem carimbo do tempo uma chave comprometida envenena tudo o
+que vem depois do último estado bom. O patamar legal exigível é pergunta jurídica, não técnica,
+e os artigos da lei nacional ficam por confirmar em vez de se escreverem de cor.
+
+A ordem de construção passa a ter sete etapas, e a segunda é a que se pode fazer já sem
+servidor nenhum: postos e ocupações sem assinatura, só o modelo, para ele se provar no terreno
+antes de se lhe pendurar criptografia.
+
 ## Decisões tomadas
 
 Por ordem em que foram tomadas.
