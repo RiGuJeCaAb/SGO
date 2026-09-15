@@ -164,3 +164,61 @@ test('a folha de estilos não tem classes de dois caracteres ou menos: cada uma 
   const curtas = [...new Set([...folha.matchAll(/\.([A-Za-z_][\p{L}\w-]*)/gu)].map((m) => m[1]).filter((c) => c.length <= 2))];
   assert.deepEqual(curtas, []);
 });
+
+/* ---- o cabeçalho arrumado, e o interruptor do tema ---- */
+
+test('o cabeçalho tem dois grupos declarados, e cada controlo está no seu', semAplicacao, () => {
+  /* Estavam os sete intercalados: etiqueta da ocorrência, quem está ao teclado, gravação,
+     sinal, e três botões, pela ordem em que foram nascendo. Passa a ler-se de relance —
+     à esquerda o que está, à direita o que se carrega. */
+  const doc = janela.document;
+  const estado = doc.querySelector('.hacts-estado'), acoes = doc.querySelector('.hacts-acoes');
+  assert.ok(estado && acoes, 'faltam os grupos do cabeçalho');
+  ['occ-tag', 'quem-tag', 'grav'].forEach((id) =>
+    assert.ok(estado.contains(doc.getElementById(id)), id + ' não está no grupo do estado'));
+  ['b-sinal', 'b-save', 'b-ajuda', 'b-tema'].forEach((id) =>
+    assert.ok(acoes.contains(doc.getElementById(id)), id + ' não está no grupo das ações'));
+  assert.ok(doc.querySelector('.hacts-risco'), 'o risco que separa os dois grupos');
+});
+
+test('cada grupo do cabeçalho tem uma altura só', semAplicacao, () => {
+  /* Três alturas no mesmo cabeçalho, 45, 38 e 36 px, é o que se vê antes de se perceber
+     porquê. Mede-se na folha de estilo, que é onde a altura é decidida. */
+  const css = janela.document.querySelector('style').textContent;
+  /* A regra é a que abre a linha: `.hacts .sinal{flex:none}` também contém «.sinal{». */
+  const regra = (sel) => (css.match(new RegExp('\\n\\s*\\' + sel + '\\{[^}]*\\}')) || [''])[0];
+  ['.occ-tag', '.quem-tag', '.grav'].forEach((sel) =>
+    assert.match(regra(sel), /min-height:var\(--ctl-h-p\)/, sel + ' fora da altura do estado'));
+  ['.sinal', '.btn'].forEach((sel) =>
+    assert.match(regra(sel), /min-height:var\(--ctl-h\)/, sel + ' fora da altura das ações'));
+});
+
+test('o interruptor do tema diz o estado, e o rótulo não muda', semAplicacao, async () => {
+  /* O botão dizia o destino: «Escuro» com o tema claro em uso. Quem lia não sabia se
+     aquilo era onde estava ou para onde ia. */
+  const b = janela.document.getElementById('b-tema');
+  assert.equal(b.getAttribute('role'), 'switch');
+  const rotulo = b.textContent.trim();
+  assert.equal(rotulo, 'Escuro', 'o rótulo nomeia o que o interruptor liga');
+  assert.equal(b.getAttribute('aria-label'), 'Tema escuro', 'o nome acessível é por extenso');
+
+  await janela.aplicarTema('claro');
+  assert.equal(janela.document.documentElement.dataset.tema, 'claro');
+  assert.equal(b.getAttribute('aria-checked'), 'false', 'tema claro é o interruptor desligado');
+  assert.match(b.title, /Passar ao tema escuro/, 'o título é o único que fala do destino');
+  assert.equal(b.textContent.trim(), rotulo, 'o rótulo não muda com o tema');
+
+  await janela.aplicarTema('escuro');
+  assert.equal(b.getAttribute('aria-checked'), 'true');
+  assert.match(b.title, /Passar ao tema claro/);
+  assert.equal(b.textContent.trim(), rotulo);
+  assert.ok(b.querySelector('.troca-calha .troca-bola'), 'a bola vive dentro da calha');
+});
+
+test('o interruptor é forma e não pictograma', semAplicacao, () => {
+  /* A restrição 3 do projeto não tem exceções: a bola e a calha são dois elementos com
+     fundo e raio, sem uma única imagem, letra de ícone ou emoji. */
+  const b = janela.document.getElementById('b-tema');
+  assert.equal(b.querySelectorAll('svg, img, i').length, 0);
+  assert.equal(b.querySelector('.troca-calha').textContent, '', 'a calha não tem texto lá dentro');
+});

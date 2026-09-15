@@ -26,6 +26,21 @@ Cinco separadores no topo, e são as células do posto de comando:
 
 ---
 
+## O cabeçalho
+
+O cabeçalho tem dois grupos, separados por um risco. **À esquerda o que está:** a ocorrência
+carregada, quem está ao teclado, e se já gravou. **À direita o que se faz:** os avisos, com a
+contagem e a cor da gravidade, «Guardar», «Ajuda» e o interruptor do tema. Dentro de cada
+grupo tudo tem a mesma altura, e em ecrã estreito cada grupo ocupa a sua linha.
+
+**O interruptor do tema diz o estado, não o destino.** O rótulo é sempre "Escuro" e é a bola
+que muda de lado: à direita quer dizer que o tema escuro está ligado, à esquerda que está
+desligado e o ecrã é claro. Carregar troca, e o que aparece ao passar o rato diz para onde
+vai. Antes disto o botão dizia o destino, e quem lia não sabia se aquilo era onde estava ou
+para onde ia. O tema fica guardado neste dispositivo.
+
+---
+
 ## Os cartões dobram, e o cabeçalho fechado diz o que falta
 
 Cada cartão da aplicação abre e fecha ao clique no seu título — ou com Enter, se lá chegar

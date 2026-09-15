@@ -41,14 +41,25 @@ $("b-gerar").onclick=emitirPEA;
 try{ pintarModoLLM(); }catch(e){}
 
 /* tema claro/escuro com memória */
+/**
+ * Aplica o tema e põe o interruptor de acordo.
+ *
+ * **O rótulo não muda, e é isso que resolve a ambiguidade.** O botão dizia o destino —
+ * «Escuro» com o tema claro em uso — e quem lia não sabia se aquilo era onde estava ou para
+ * onde ia. Agora o rótulo nomeia o que o interruptor liga, `aria-checked` diz se está
+ * ligado, e a bola mostra-o. O `title` é o único que fala do destino, porque é o que
+ * responde a «o que acontece se eu carregar».
+ */
 async function aplicarTema(t){
   document.documentElement.dataset.tema = t;
-  $("b-tema").textContent = t==="claro" ? "Escuro" : "Claro";
-  $("b-tema").title = t==="claro" ? "Mudar para o tema escuro" : "Mudar para o tema claro";
+  const b = $("b-tema");
+  b.setAttribute("aria-checked", t==="claro"? "false" : "true");
+  b.title = t==="claro" ? "Passar ao tema escuro" : "Passar ao tema claro";
   try{ await ARMAZEM.set("peaapp:tema", t); }catch(e){}
 }
 $("b-tema").onclick = ()=> aplicarTema(document.documentElement.dataset.tema==="claro" ? "escuro" : "claro");
-(async()=>{ try{ const r=await ARMAZEM.get("peaapp:tema"); if(r&&r.value) aplicarTema(r.value); else $("b-tema").textContent="Claro"; }catch(e){ $("b-tema").textContent="Claro"; } })();
+/* Sem nada guardado fica o escuro, que é o que o molde já traz ligado no interruptor. */
+(async()=>{ try{ const r=await ARMAZEM.get("peaapp:tema"); if(r&&r.value) aplicarTema(r.value); }catch(e){} })();
 
 /* arranque: app abre vazia; índice de arquivo é carregado para consulta */
 (async()=>{

@@ -4,7 +4,7 @@ Atualizado em 2026-09-06.
 
 ## Situação atual
 
-A revisão em vigor é a **r0122**, montada a partir de `fonte/`. **As duas linhagens
+A revisão em vigor é a **r0123**, montada a partir de `fonte/`. **As duas linhagens
 convergiram:** a r0035 foi construída sobre a r0034 desta linhagem, e daí em diante há uma
 história só. Desde 2 de setembro a divisão de trabalho é por tipo e não por turnos: **as
 alterações à aplicação fazem-se aqui**, e os ramos entregam revisão adversária, testes e
@@ -15,9 +15,9 @@ quem a lei atribui a matéria, e o mapa de posse não declara um único moviment
 
 | | |
 |---|---|
-| Entregas em `app/` | 160, das anteriores à convenção de nomes até à r0122 |
+| Entregas em `app/` | 161, das anteriores à convenção de nomes até à r0123 |
 | Módulos em `fonte/` | 79, em sete zonas, mais o molde |
-| Testes | 1110, todos a passar |
+| Testes | 1114, todos a passar |
 | Análise estática | sem problemas |
 | Tipos | 25 diagnósticos, nenhum novo face à linha de base |
 | Auditoria visual | sem transbordo nem exceções, 380/480/768/1440 px, nos dois temas |
@@ -1702,6 +1702,35 @@ no ecrã vazio ensina a ignorar avisos.
 O teto de tamanho da entrega subiu para 1 300 000 bytes, com a razão escrita no teste: as
 transcrições da DON n.º 2 da r0119 e da r0120 são tabelas, não código, e levaram a entrega de
 1 208 kB a 1 251 kB de uma vez. 1110 testes, 8 novos.
+
+## O cabeçalho arrumado, e o interruptor do tema — r0123
+
+Uma captura de um sítio de comércio, a 15 de setembro, como ideia de organização: um grupo
+compacto de botões discretos à direita, todos com a palavra por baixo, e um interruptor
+corrido para o tema. A primeira leitura deste lado foi que aquilo eram ícones e que colidia
+com a restrição 3; não eram, e a ideia não colide com nada. O que vale ali é a arrumação.
+
+**O cabeçalho tinha sete controlos intercalados e três alturas.** A etiqueta da ocorrência a
+38 píxeis, quem está ao teclado e a gravação a 36, o sinal dos avisos e os três botões a 45,
+pela ordem em que foram nascendo. Passa a ter dois grupos com um risco pelo meio: à esquerda
+o que está, à direita o que se faz, uma altura por grupo. Em largura reduzida cada grupo
+ocupa a sua linha e quebra lá dentro.
+
+**O botão do tema dizia o destino.** Com o tema claro em uso lia-se «Escuro», e quem lia não
+sabia se aquilo era onde estava ou para onde ia. Passa a interruptor de dois estados: o
+rótulo nomeia o que se liga e não muda, a bola diz se está ligado, `aria-checked` diz o mesmo
+a quem usa leitor de ecrã, e o texto que aparece ao passar o rato é o único que fala do
+destino. Forma e não pictograma: não entra um único ícone no ecrã.
+
+**Duas coisas só a prova de imagem apanhou**, e ficam registadas porque nenhum teste as via.
+O rótulo «Tema escuro» por extenso roubava sessenta píxeis ao grupo do estado e o número da
+ocorrência saía cortado a meio; ficou «Escuro», com o nome por extenso no `aria-label`. E a
+etiqueta da ocorrência, alinhada com `inline-flex` para igualar a altura, perdia o espaço
+antes do número e as reticências, porque com flex o texto e o `<b>` passam a itens e
+`text-overflow` deixa de se aplicar; alinha-se pela altura de linha. O portão visual apanhou
+uma terceira: um grupo com `flex:none` não quebra, e transbordava 93 píxeis a 380.
+
+Provas em `docs/qa/`, qa0040, nos dois temas e em largura reduzida. 1114 testes, 4 novos.
 
 ## Decisões tomadas
 

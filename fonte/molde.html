@@ -90,7 +90,16 @@
   .sub[data-cel="operacoes"]{--c:var(--cel-operacoes)}
   .sub[data-cel="logistica"]{--c:var(--cel-logistica)}
   .hbar{max-width:1460px;margin:0 auto;padding:14px 20px 10px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
-  .hacts{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
+  /* O cabeçalho arruma-se em dois grupos, com um risco pelo meio: **o que está** e **o que
+     se faz**. Estavam intercalados e a três alturas diferentes — a etiqueta da ocorrência a
+     38 px, quem está ao teclado e a gravação a 36, o sinal e os botões a 45 — porque cresceu
+     por acrescento, um controlo de cada vez, sem ninguém olhar para o conjunto. Cada grupo
+     passa a ter uma altura só, e a leitura faz-se de relance: à esquerda o estado, à direita
+     o que se pode carregar. */
+  .hacts{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0}
+  .hacts-estado{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
+  .hacts-acoes{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;flex:none}
+  .hacts-risco{width:1px;align-self:stretch;margin:7px 0;background:var(--line);flex:none}
   .hacts .btn{white-space:nowrap;flex:none}
   .hacts .sinal{flex:none}
   .flame{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--fogo) 0%,var(--laranja) 100%);color:#FFF7EF;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:1.5px;box-shadow:0 3px 10px rgba(200,80,60,.35), inset 0 1px 0 rgba(255,255,255,.28);border:1px solid rgba(0,0,0,.12);flex:none}
@@ -98,7 +107,11 @@
   .htit small{display:block;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx2);margin-top:3px;white-space:nowrap}
   @media(max-width:1500px){.htit small{letter-spacing:.8px;font-size:10.5px}}
   @media(max-width:1240px){.htit{font-size:20px}.htit small{display:none}}
-  .occ-tag{font-family:var(--mono);font-size:12.5px;color:var(--tx);border:1px solid var(--line);border-left:3px solid var(--madeira);background:var(--surf2);padding:9px 14px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+  /* Alinha-se pela altura de linha e não por `inline-flex`: com flex, o texto e o `<b>` do
+     número passam a itens, o espaço entre eles desaparece — «Ocorrência2026/4711» — e as
+     reticências deixam de funcionar, porque `text-overflow` não se aplica a um contentor
+     flex. Foi o que a prova de imagem mostrou. */
+  .occ-tag{font-family:var(--mono);font-size:12.5px;color:var(--tx);border:1px solid var(--line);border-left:3px solid var(--madeira);background:var(--surf2);padding:0 13px;min-height:var(--ctl-h-p);line-height:calc(var(--ctl-h-p) - 2px);border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
   @media(max-width:1100px){.occ-tag{display:none}}
   .occ-tag b{color:var(--laranja)}
 
@@ -471,6 +484,21 @@
   .btn-o{background:var(--laranja);color:#14100A}.btn-b{background:var(--azul);color:#14100A}
   html[data-tema="claro"] .btn-o, html[data-tema="claro"] .btn-b{color:#fff}
   .btn-g{background:transparent;color:var(--tx);border:1px solid var(--line)}
+  /* O interruptor do tema. O botão dizia o destino — «Escuro» com o tema claro em uso — e
+     quem lia não sabia se aquilo era onde estava ou para onde ia. Passa a interruptor de dois
+     estados: o rótulo nomeia o que se liga e não muda, a bola diz se está ligado, e
+     `aria-checked` diz o mesmo a quem usa leitor de ecrã. Forma, não pictograma: continua a
+     não haver um único ícone no ecrã.
+
+     O rótulo é «Escuro» e não «Tema escuro» por medição, não por gosto: o cabeçalho é uma
+     linha só, e os sessenta píxeis da palavra a mais saíam do grupo do estado, que passava a
+     cortar o número da ocorrência a meio — «Ocorrência2026/4» em vez de «Ocorrência
+     2026/4711». O nome acessível continua a ser «Tema escuro», pelo `aria-label`. */
+  .troca{gap:10px}
+  .troca-calha{width:34px;height:18px;border-radius:9px;background:var(--surf2);border:1px solid var(--line);position:relative;flex:none;transition:background .14s,border-color .14s}
+  .troca-bola{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--tx3);transition:transform .14s,background .14s}
+  .troca[aria-checked="true"] .troca-calha{background:rgba(93,156,236,.18);border-color:rgba(93,156,236,.55)}
+  .troca[aria-checked="true"] .troca-bola{transform:translateX(16px);background:var(--azul)}
   .btn-r{background:transparent;color:var(--vermelho);border:1px solid var(--vermelho)}
   .btn[disabled]{opacity:.45;cursor:not-allowed}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -755,6 +783,13 @@
   @media(max-width:640px){
     .hbar{padding:10px 14px;flex-wrap:wrap}.htit{font-size:16px}
     .hacts{margin-left:0;width:100%;flex-wrap:wrap;justify-content:flex-start}
+    /* Em largura reduzida os dois grupos deixam de ser blocos indivisíveis: se não
+       quebrassem por dentro, a barra das ações saía do ecrã: o portão visual mediu 93 px
+       de transbordo a 380 px, porque um grupo com `flex:none` toma a largura do seu
+       conteúdo e nunca quebra. Cada grupo passa a ocupar a linha toda e a quebrar lá
+       dentro. O risco que os separa sai, que já não separa nada quando tudo está empilhado. */
+    .hacts-estado,.hacts-acoes{flex:1 1 100%;flex-wrap:wrap;min-width:0}
+    .hacts-risco{display:none}
     .wrap{padding:0 12px 60px}.guia{padding:0 12px}
     .guia-in{flex-wrap:wrap;gap:8px}.guia-in .btn{margin-left:0}
     .fr-l{min-width:100%;margin-bottom:2px}
@@ -921,6 +956,8 @@
   @media(max-width:900px){
     .hbar{flex-wrap:wrap}
     .hacts{margin-left:0;width:100%;flex-wrap:wrap;justify-content:flex-start}
+    .hacts-estado,.hacts-acoes{flex:1 1 100%;flex-wrap:wrap;min-width:0}
+    .hacts-risco{display:none}
   }
   /* Foco visível em todo o lado, e não só onde alguém se lembrou: .ms-b, .avd-go, .pf-x,
      .cat-r .cat-x, .chk .chk-ir, .btn-lk, .av-atual e .tchip button chegavam pelo teclado sem anel. Em
@@ -1153,13 +1190,18 @@
     <div class="flame">PEA</div>
     <h1 class="htit">Estação PEA<small>CSREPC Douro · SGO 4067/2024 · DON 2/2026</small></h1>
     <div class="hacts">
-      <div class="occ-tag" id="occ-tag">sem ocorrência carregada</div>
-      <button class="quem-tag quem-tag--ninguem" id="quem-tag" type="button" title="Quem está ao teclado — carregar para declarar em Comando">Ninguém ao teclado</button>
-      <span class="grav" id="grav" role="status" aria-live="polite">Sem gravação ainda</span>
-      <button class="sinal nivel-v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span><span id="sinal-rot">Avisos</span><span class="sinal-qt" id="sinal-qt">0</span></button>
-      <button class="btn btn-b" id="b-save" title="Guardar todo o trabalho (Ctrl+S)">Guardar</button>
-      <button class="btn btn-g" id="b-ajuda" aria-pressed="false" title="Mostrar a ajuda no ecrã">Ajuda</button>
-      <button class="btn btn-g" id="b-tema" title="Alternar entre tema claro e escuro" aria-label="Alternar tema claro ou escuro">Escuro</button>
+      <div class="hacts-estado">
+        <div class="occ-tag" id="occ-tag">sem ocorrência carregada</div>
+        <button class="quem-tag quem-tag--ninguem" id="quem-tag" type="button" title="Quem está ao teclado — carregar para declarar em Comando">Ninguém ao teclado</button>
+        <span class="grav" id="grav" role="status" aria-live="polite">Sem gravação ainda</span>
+      </div>
+      <span class="hacts-risco"></span>
+      <div class="hacts-acoes">
+        <button class="sinal nivel-v" id="b-sinal" type="button" title="Abrir a secção de avisos"><span class="lamp"></span><span id="sinal-rot">Avisos</span><span class="sinal-qt" id="sinal-qt">0</span></button>
+        <button class="btn btn-b" id="b-save" title="Guardar todo o trabalho (Ctrl+S)">Guardar</button>
+        <button class="btn btn-g" id="b-ajuda" aria-pressed="false" title="Mostrar a ajuda no ecrã">Ajuda</button>
+        <button class="btn btn-g troca" id="b-tema" type="button" role="switch" aria-checked="true" aria-label="Tema escuro" title="Passar ao tema claro"><span class="troca-calha"><span class="troca-bola"></span></span>Escuro</button>
+      </div>
     </div>
   </div>
   <nav>

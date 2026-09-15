@@ -348,3 +348,22 @@ A 1440 px. Antes de alguém se declarar, o cabeçalho diz «Ninguém ao teclado�
 aviso e o primeiro cartão de Comando é «Quem regista»; depois de «Assumir o teclado», a
 etiqueta passa a verde com o nome e o perfil. Apontou-se na r0115 que a caixa estava no
 fundo do separador.
+
+## qa0040 — o cabeçalho arrumado em dois grupos, e o interruptor do tema
+
+`CSREPCDouro_qa0040_202609151200_CabecalhoArrumadoEInterruptorDoTemaTemaEscuro_CLD.png`
+`CSREPCDouro_qa0040_202609151200_CabecalhoArrumadoEInterruptorDoTemaTemaClaro_CLD.png`
+`CSREPCDouro_qa0040_202609151200_CabecalhoArrumadoEmLarguraReduzida_CLD.png`
+
+As duas primeiras a 1440 px, com ocorrência carregada e alguém ao teclado. À esquerda o que
+está, os três à mesma altura; à direita o que se faz, os quatro à mesma altura; um risco
+entre os dois. O interruptor do tema mostra o estado pela bola: à direita e a azul no tema
+escuro, à esquerda e apagada no claro, com o rótulo «Escuro» que não muda. A terceira a
+380 px, onde os dois grupos ocupam uma linha cada e quebram por dentro.
+
+Duas coisas que estas capturas apanharam e que os testes não viam. O interruptor com o
+rótulo «Tema escuro» por extenso roubava sessenta píxeis ao grupo do estado, e o número da
+ocorrência passava a sair cortado a meio. E o cartão da ocorrência, alinhado com
+`inline-flex`, perdia o espaço antes do número e as reticências, porque com flex o texto e o
+`<b>` passam a itens e `text-overflow` deixa de se aplicar.
+
